@@ -17,22 +17,26 @@ function getGrokApiKey(): string | undefined {
 
 async function improveWithGrok(apiKey: string, description: string): Promise<string | undefined> {
   for (const model of GROK_MODELS) {
+    const payload: Record<string, unknown> = {
+      model,
+      messages: [
+        { role: "system", content: IMPROVE_PROMPT },
+        { role: "user", content: description },
+      ],
+      temperature: 0.3,
+      max_tokens: 1024,
+    };
+    if (model === "grok-4.3") {
+      payload.reasoning_effort = "none";
+    }
+
     const res = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: IMPROVE_PROMPT },
-          { role: "user", content: description },
-        ],
-        reasoning_effort: "none",
-        temperature: 0.3,
-        max_tokens: 1024,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) continue;

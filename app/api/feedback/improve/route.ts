@@ -4,7 +4,13 @@ const IMPROVE_PROMPT =
   "Improve this user feedback for a bug report or product suggestion. Keep the same meaning, fix grammar, and make it clearer and more actionable. Return only the improved text, no preamble.";
 
 function getGrokApiKey(): string | undefined {
-  return process.env.GROK_API_KEY?.trim() || process.env.grok_api_key?.trim();
+  const candidates = [
+    process.env.GROK_API_KEY,
+    process.env.grok_api_key,
+    process.env.XAI_API_KEY,
+    process.env.xai_api_key,
+  ];
+  return candidates.map((v) => v?.trim()).find(Boolean);
 }
 
 export async function GET() {

@@ -1,5 +1,11 @@
 import { XMLParser } from "fast-xml-parser";
-import { NEWS_SOURCES, type XSource } from "@/lib/x-sources";
+import {
+  getNewsFeedSources,
+  getNewsKeywordPattern,
+  getSourceByHandle,
+  matchOutletToHandle,
+  type ResolvedSportSource,
+} from "@/lib/sport-sources";
 import type { NewsItem } from "@/lib/types";
 
 interface RssItem {
@@ -7,12 +13,11 @@ interface RssItem {
   link?: string;
   pubDate?: string;
   description?: string;
+  source?: string | { "#text"?: string };
   "media:content"?: { "@_url"?: string };
   "media:thumbnail"?: { "@_url"?: string };
   enclosure?: { "@_url"?: string };
 }
-
-const WORLD_CUP_KEYWORDS = /world cup|fifa|2026|football|soccer|international/i;
 
 function stripHtml(html: string): string {
   return html
@@ -24,7 +29,18 @@ function stripHtml(html: string): string {
     .trim();
 }
 
-function parseItems(feedXml: unknown, source: XSource): NewsItem[] {
+function parseOutletName(source: RssItem["source"]): string | undefined {
+  if (!source) return undefined;
+  if (typeof source === "string") return source;
+  return source["#text"];
+}
+
+function parseRssItems(
+  feedXml: unknown,
+  source: ResolvedSportSource & { googleNews?: boolean },
+  sportSlug: string,
+  keywordPattern: RegExp
+): NewsItem[] {
   const channel = (feedXml as { rss?: { channel?: { item?: RssItem | RssItem[] } } })?.rss?.channel;
   if (!channel?.item) return [];
 
@@ -33,7 +49,7 @@ function parseItems(feedXml: unknown, source: XSource): NewsItem[] {
   return items
     .filter((item) => {
       const text = `${item.title ?? ""} ${item.description ?? ""}`;
-      return WORLD_CUP_KEYWORDS.test(text);
+      return keywordPattern.test(text);
     })
     .map((item, i) => {
       const summary = stripHtml(item.description ?? "").slice(0, 280);
@@ -43,24 +59,51 @@ function parseItems(feedXml: unknown, source: XSource): NewsItem[] {
         item.enclosure?.["@_url"] ??
         undefined;
 
+      let handle = source.handle;
+      let name = source.name;
+      let avatar = source.avatarUrl;
+      let profileUrl = source.profileUrl;
+      let verified = source.verified;
+
+      if (source.googleNews) {
+        const outlet = parseOutletName(item.source);
+        if (outlet) {
+          const matched = matchOutletToHandle(sportSlug, outlet);
+          if (matched) {
+            const resolved = getSourceByHandle(sportSlug, matched);
+            if (resolved) {
+              handle = resolved.handle;
+              name = resolved.name;
+              avatar = resolved.avatarUrl;
+              profileUrl = resolved.profileUrl;
+              verified = resolved.verified;
+            }
+          }
+        }
+      }
+
       return {
-        id: `${source.handle}-${i}-${item.link ?? item.title}`,
+        id: `${sportSlug}-${handle}-${i}-${item.link ?? item.title}`,
         title: stripHtml(item.title ?? "Untitled"),
         summary: summary || stripHtml(item.title ?? ""),
-        source: source.name,
+        source: name,
         publishedAt: item.pubDate ? new Date(item.pubDate).toISOString() : new Date().toISOString(),
-        url: item.link ?? source.profileUrl,
+        url: item.link ?? profileUrl,
         imageUrl,
-        xHandle: source.handle,
-        xName: source.name,
-        xAvatar: source.avatarUrl,
-        xProfileUrl: source.profileUrl,
-        verified: source.verified,
+        xHandle: handle,
+        xName: name,
+        xAvatar: avatar,
+        xProfileUrl: profileUrl,
+        verified,
       };
     });
 }
 
-async function fetchSourceFeed(source: XSource): Promise<NewsItem[]> {
+async function fetchSourceFeed(
+  source: ResolvedSportSource & { googleNews?: boolean },
+  sportSlug: string,
+  keywordPattern: RegExp
+): Promise<NewsItem[]> {
   if (!source.rssUrl) return [];
 
   try {
@@ -71,14 +114,18 @@ async function fetchSourceFeed(source: XSource): Promise<NewsItem[]> {
     if (!res.ok) return [];
     const xml = await res.text();
     const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
-    return parseItems(parser.parse(xml), source);
+    return parseRssItems(parser.parse(xml), source, sportSlug, keywordPattern);
   } catch {
     return [];
   }
 }
 
-export async function fetchNewsItems(): Promise<NewsItem[]> {
-  const results = await Promise.all(NEWS_SOURCES.map(fetchSourceFeed));
+export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
+  const sources = getNewsFeedSources(sportSlug);
+  const keywordPattern = getNewsKeywordPattern(sportSlug);
+  const results = await Promise.all(
+    sources.map((source) => fetchSourceFeed(source, sportSlug, keywordPattern))
+  );
   const all = results.flat();
 
   return all

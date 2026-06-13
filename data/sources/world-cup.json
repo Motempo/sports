@@ -1,0 +1,288 @@
+{
+  "sportSlug": "world-cup",
+  "newsKeywordPattern": "world cup|fifa|2026|football|soccer|international|worldcup",
+  "newsHandles": [
+    "FIFAWorldCup",
+    "FIFAcom",
+    "BBCSport",
+    "ESPNFC",
+    "goal",
+    "SkySports",
+    "TheAthleticFC",
+    "FabrizioRomano",
+    "GuillemBalague",
+    "GaryLineker",
+    "Marcotti",
+    "sidlowe",
+    "henrywinter",
+    "PhilMcNulty",
+    "Fernando_Duarte",
+    "F365",
+    "FOXSoccer",
+    "CBF_Futebol",
+    "ussoccer",
+    "SeFutbol"
+  ],
+  "factHandles": [
+    "TifoFootball_",
+    "FIFAWorldCup",
+    "FIFAcom",
+    "MenInBlazers",
+    "Marcotti",
+    "GaryLineker",
+    "GuillemBalague",
+    "sidlowe",
+    "henrywinter",
+    "PhilMcNulty",
+    "Fernando_Duarte"
+  ],
+  "sources": [
+    {
+      "rank": 1,
+      "handle": "FIFAWorldCup",
+      "name": "FIFA World Cup",
+      "type": "official",
+      "description": "Official FIFA World Cup account for announcements, highlights, stats, and live updates.",
+      "reliability": "highest",
+      "category": "Official",
+      "rssUrl": "https://www.fifa.com/rss-feeds/news"
+    },
+    {
+      "rank": 2,
+      "handle": "FIFAcom",
+      "name": "FIFA",
+      "type": "official",
+      "description": "Main FIFA account covering global football news and events.",
+      "reliability": "highest",
+      "category": "Official",
+      "rssUrl": "https://www.fifa.com/rss-feeds/news"
+    },
+    {
+      "rank": 3,
+      "handle": "FIFAWWC",
+      "name": "FIFA Women's World Cup",
+      "type": "official",
+      "description": "Official account for women's football and broader FIFA context.",
+      "reliability": "high",
+      "category": "Official"
+    },
+    {
+      "rank": 4,
+      "handle": "BBCSport",
+      "name": "BBC Sport",
+      "type": "media",
+      "description": "Comprehensive, balanced reporting and live coverage.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"
+    },
+    {
+      "rank": 5,
+      "handle": "ESPNFC",
+      "name": "ESPN FC",
+      "type": "media",
+      "description": "In-depth analysis, highlights, and US-focused coverage.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://www.espn.com/espn/rss/soccer/news"
+    },
+    {
+      "rank": 6,
+      "handle": "goal",
+      "name": "GOAL",
+      "type": "media",
+      "description": "Fast news, transfers, match coverage, and highlights.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://www.goal.com/feeds/news"
+    },
+    {
+      "rank": 7,
+      "handle": "SkySports",
+      "name": "Sky Sports",
+      "type": "media",
+      "description": "Breaking news and expert commentary.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://www.skysports.com/rss/12040"
+    },
+    {
+      "rank": 8,
+      "handle": "TheAthleticFC",
+      "name": "The Athletic Football",
+      "type": "media",
+      "description": "High-quality long-form analysis and reporting.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 9,
+      "handle": "FabrizioRomano",
+      "name": "Fabrizio Romano",
+      "type": "journalist",
+      "description": "Top transfer and breaking news insider.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 10,
+      "handle": "GuillemBalague",
+      "name": "Guillem Balague",
+      "type": "journalist",
+      "description": "Deep insights especially on La Liga and international football.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 11,
+      "handle": "GaryLineker",
+      "name": "Gary Lineker",
+      "type": "journalist",
+      "description": "Former player with sharp opinions and hosting insights.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 12,
+      "handle": "Marcotti",
+      "name": "Gabriele Marcotti",
+      "type": "journalist",
+      "description": "Global, multilingual football perspective.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 13,
+      "handle": "sidlowe",
+      "name": "Sid Lowe",
+      "type": "journalist",
+      "description": "Spanish football expert.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 14,
+      "handle": "henrywinter",
+      "name": "Henry Winter",
+      "type": "journalist",
+      "description": "Respected UK football correspondent.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 15,
+      "handle": "PhilMcNulty",
+      "name": "Phil McNulty",
+      "type": "journalist",
+      "description": "BBC chief football writer.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 16,
+      "handle": "Fernando_Duarte",
+      "name": "Fernando Duarte",
+      "type": "journalist",
+      "description": "Brazilian/Guardian/ESPN insights.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 17,
+      "handle": "TifoFootball_",
+      "name": "Tifo Football",
+      "type": "analysis",
+      "description": "Illustrated tactical breakdowns and previews.",
+      "reliability": "high",
+      "category": "Tactical & Analytical"
+    },
+    {
+      "rank": 18,
+      "handle": "MenInBlazers",
+      "name": "Men in Blazers",
+      "type": "entertainment",
+      "description": "Fun, insightful US/UK football chatter.",
+      "reliability": "medium",
+      "category": "Engaging"
+    },
+    {
+      "rank": 19,
+      "handle": "BBCSporf",
+      "name": "BBC Sporf",
+      "type": "entertainment",
+      "description": "Witty, sarcastic football parody and news.",
+      "reliability": "medium",
+      "category": "Engaging"
+    },
+    {
+      "rank": 20,
+      "handle": "F365",
+      "name": "Football365",
+      "type": "media",
+      "description": "Opinionated analysis and Mediawatch.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://www.football365.com/feed"
+    },
+    {
+      "rank": 21,
+      "handle": "brfootball",
+      "name": "B/R Football",
+      "type": "media",
+      "description": "Bleacher Report football highlights and content.",
+      "reliability": "medium",
+      "category": "Major Media"
+    },
+    {
+      "rank": 22,
+      "handle": "FOXSoccer",
+      "name": "FOX Soccer",
+      "type": "media",
+      "description": "US coverage, especially MLS and World Cup.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 23,
+      "handle": "CBF_Futebol",
+      "name": "CBF Futebol",
+      "type": "national",
+      "description": "Official Brazilian national team account.",
+      "reliability": "high",
+      "category": "National Teams"
+    },
+    {
+      "rank": 24,
+      "handle": "ussoccer",
+      "name": "U.S. Soccer",
+      "type": "national",
+      "description": "Official USMNT and federation updates.",
+      "reliability": "high",
+      "category": "National Teams"
+    },
+    {
+      "rank": 25,
+      "handle": "SeFutbol",
+      "name": "Selección Española",
+      "type": "national",
+      "description": "Official Spain national team.",
+      "reliability": "high",
+      "category": "National Teams"
+    }
+  ],
+  "supplementalFeeds": [
+    {
+      "id": "guardian-wc",
+      "name": "The Guardian",
+      "handle": "guardian_sport",
+      "rssUrl": "https://www.theguardian.com/football/world-cup-2026/rss"
+    },
+    {
+      "id": "google-news-wc",
+      "name": "Google News",
+      "handle": "FIFAWorldCup",
+      "rssUrl": "https://news.google.com/rss/search?q=World+Cup+2026+OR+FIFA+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    }
+  ]
+}

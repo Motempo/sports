@@ -1,14 +1,10 @@
-import funFactsData from "@/data/fun-facts.json";
-import { FACT_SOURCES, getSourceByHandle } from "@/lib/x-sources";
+import worldCupFacts from "@/data/fun-facts/world-cup.json";
+import {
+  getFactSourceHandles,
+  getSourceByHandle,
+  getXAvatar,
+} from "@/lib/sport-sources";
 import type { FunFact } from "@/lib/types";
-
-const SOURCE_HANDLES = [
-  "OptaJoe",
-  "FIFAcom",
-  "BBCSport",
-  "guardian_sport",
-  "SkySports",
-];
 
 interface FunFactSeed {
   id: string;
@@ -22,23 +18,47 @@ interface FunFactSeed {
   sourceHandle?: string;
 }
 
-const facts = (funFactsData as FunFactSeed[]).map((fact, i) => {
-  const handle = fact.sourceHandle ?? SOURCE_HANDLES[i % SOURCE_HANDLES.length];
-  const source = getSourceByHandle(handle);
-  return {
-    ...fact,
-    sourceHandle: handle,
-    sourceName: source?.name ?? handle,
-    xProfileUrl: source?.profileUrl ?? `https://x.com/${handle}`,
-    verified: source?.verified ?? true,
-  } satisfies FunFact;
-});
+const FACTS_BY_SPORT: Record<string, FunFactSeed[]> = {
+  "world-cup": worldCupFacts as FunFactSeed[],
+  "formula-1": [],
+};
 
-export function getAllFacts(): FunFact[] {
-  return facts;
+function buildFactsForSport(sportSlug: string): FunFact[] {
+  const seeds = FACTS_BY_SPORT[sportSlug] ?? [];
+  const handles = getFactSourceHandles(sportSlug);
+
+  return seeds.map((fact, i) => {
+    const handle = fact.sourceHandle ?? handles[i % Math.max(handles.length, 1)] ?? "FIFAWorldCup";
+    const source = getSourceByHandle(sportSlug, handle);
+    return {
+      ...fact,
+      sourceHandle: handle,
+      sourceName: source?.name ?? handle,
+      xProfileUrl: source?.profileUrl ?? `https://x.com/${handle}`,
+      verified: source?.verified ?? true,
+    } satisfies FunFact;
+  });
 }
 
-export function getFactsPage(offset: number, limit = 3): FunFact[] {
+const factsCache = new Map<string, FunFact[]>();
+
+function getSportFacts(sportSlug: string): FunFact[] {
+  if (!factsCache.has(sportSlug)) {
+    try {
+      factsCache.set(sportSlug, buildFactsForSport(sportSlug));
+    } catch {
+      factsCache.set(sportSlug, []);
+    }
+  }
+  return factsCache.get(sportSlug) ?? [];
+}
+
+export function getAllFacts(sportSlug: string): FunFact[] {
+  return getSportFacts(sportSlug);
+}
+
+export function getFactsPage(sportSlug: string, offset: number, limit = 3): FunFact[] {
+  const facts = getSportFacts(sportSlug);
   if (facts.length === 0) return [];
   const start = offset % facts.length;
   const result: FunFact[] = [];
@@ -48,12 +68,12 @@ export function getFactsPage(offset: number, limit = 3): FunFact[] {
   return result;
 }
 
-export function getFactById(id: string): FunFact | undefined {
-  return facts.find((f) => f.id === id);
+export function getFactById(sportSlug: string, id: string): FunFact | undefined {
+  return getSportFacts(sportSlug).find((f) => f.id === id);
 }
 
-export function getFactSourceAvatar(handle: string): string {
-  return getSourceByHandle(handle)?.avatarUrl ?? `https://unavatar.io/x/${handle}`;
+export function getFactSourceAvatar(sportSlug: string, handle: string): string {
+  return getSourceByHandle(sportSlug, handle)?.avatarUrl ?? getXAvatar(handle);
 }
 
 export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
@@ -80,5 +100,3 @@ export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
     return fact;
   }
 }
-
-export { FACT_SOURCES };

@@ -10,7 +10,11 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { getFactSourceAvatar } from "@/lib/facts";
 import type { FunFact } from "@/lib/types";
 
-export function FunFactsWidget() {
+interface FunFactsWidgetProps {
+  sportSlug: string;
+}
+
+export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
   const [items, setItems] = useState<FunFact[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,10 +24,10 @@ export function FunFactsWidget() {
   const [detail, setDetail] = useState<FunFact | null>(null);
 
   const loadItems = useCallback(async (newOffset: number) => {
-    const res = await fetch(`/api/facts?offset=${newOffset}&limit=3`);
+    const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`);
     const data = (await res.json()) as { items: FunFact[] };
     setItems(data.items);
-  }, []);
+  }, [sportSlug]);
 
   useEffect(() => {
     loadItems(0).finally(() => setLoading(false));
@@ -42,7 +46,7 @@ export function FunFactsWidget() {
     setDetail(fact);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/facts?id=${encodeURIComponent(fact.id)}`);
+      const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(fact.id)}`);
       if (res.ok) {
         const data = (await res.json()) as FunFact;
         setDetail(data);
@@ -74,7 +78,7 @@ export function FunFactsWidget() {
               key={fact.id}
               avatar={
                 <FeedAvatar
-                  src={getFactSourceAvatar(fact.sourceHandle)}
+                  src={getFactSourceAvatar(sportSlug, fact.sourceHandle)}
                   alt={fact.sourceName ?? fact.sourceHandle}
                   fallback={fact.emoji}
                 />
@@ -108,7 +112,7 @@ export function FunFactsWidget() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <FeedAvatar
-                src={getFactSourceAvatar(detail.sourceHandle)}
+                src={getFactSourceAvatar(sportSlug, detail.sourceHandle)}
                 alt={detail.sourceName ?? detail.sourceHandle}
                 fallback={detail.emoji}
               />

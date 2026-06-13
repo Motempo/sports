@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { enrichFactWithWikipedia, getFactById, getFactsPage } from "@/lib/facts";
+import { CURRENT_SPORT_SLUG } from "@/lib/sports";
 
 export const revalidate = 86400;
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
+  const sport = searchParams.get("sport") ?? CURRENT_SPORT_SLUG;
   const id = searchParams.get("id");
 
   if (id) {
-    const fact = getFactById(id);
+    const fact = getFactById(sport, id);
     if (!fact) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -18,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   const offset = parseInt(searchParams.get("offset") ?? "0", 10);
   const limit = parseInt(searchParams.get("limit") ?? "3", 10);
-  const items = getFactsPage(offset, limit);
+  const items = getFactsPage(sport, offset, limit);
 
-  return NextResponse.json({ items });
+  return NextResponse.json({ items, sport });
 }

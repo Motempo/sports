@@ -9,7 +9,11 @@ import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { NewsItem } from "@/lib/types";
 
-export function NewsWidget() {
+interface NewsWidgetProps {
+  sportSlug: string;
+}
+
+export function NewsWidget({ sportSlug }: NewsWidgetProps) {
   const [items, setItems] = useState<NewsItem[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -19,10 +23,10 @@ export function NewsWidget() {
   const [detail, setDetail] = useState<NewsItem | null>(null);
 
   const loadItems = useCallback(async (newOffset: number) => {
-    const res = await fetch(`/api/news?offset=${newOffset}&limit=3`);
+    const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`);
     const data = (await res.json()) as { items: NewsItem[] };
     setItems(data.items);
-  }, []);
+  }, [sportSlug]);
 
   useEffect(() => {
     loadItems(0).finally(() => setLoading(false));
@@ -41,7 +45,7 @@ export function NewsWidget() {
     setDetail(item);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/news?id=${encodeURIComponent(item.id)}`);
+      const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(item.id)}`);
       if (res.ok) {
         const data = (await res.json()) as NewsItem;
         setDetail(data);

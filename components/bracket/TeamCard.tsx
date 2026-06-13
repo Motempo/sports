@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 import { cn, getFlagUrl } from "@/lib/utils";
 import type { TeamInfo } from "@/lib/types";
 
@@ -19,6 +20,7 @@ export function TeamCard({
   compact,
   align = "left",
 }: TeamCardProps) {
+  const [flagError, setFlagError] = useState(false);
   const isTbd = team.code === "TBD" || team.name === "TBD";
   const flagSize = compact ? 32 : 44;
   const displayName = compact && !isTbd ? team.code : team.name;
@@ -40,6 +42,15 @@ export function TeamCard({
             compact ? "h-8 w-8 sm:h-9 sm:w-9" : "h-11 w-11"
           )}
         />
+      ) : flagError ? (
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center rounded-full border-2 border-border bg-surface text-[10px] font-bold text-muted",
+            compact ? "h-8 w-8 sm:h-9 sm:w-9" : "h-11 w-11"
+          )}
+        >
+          {team.code.slice(0, 3)}
+        </div>
       ) : (
         <div
           className={cn(
@@ -54,6 +65,7 @@ export function TeamCard({
             height={Math.round(flagSize * 0.75)}
             className="h-full w-full object-cover"
             unoptimized
+            onError={() => setFlagError(true)}
           />
         </div>
       )}

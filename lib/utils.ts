@@ -20,6 +20,5 @@ export function formatRelativeTime(date: string | Date): string {
 
 export function getFlagUrl(iso2: string, size = 40): string {
   const w = size <= 40 ? 40 : 80;
-  const h = size <= 40 ? 30 : 60;
-  return `https://flagcdn.com/w${w}x${h}/${iso2.toLowerCase()}.png`;
+  return `https://flagcdn.com/w${w}/${iso2.toLowerCase()}.png`;
 }

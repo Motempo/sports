@@ -17,12 +17,14 @@ export function FeedWidget({ title, children, footer, className }: FeedWidgetPro
         className
       )}
     >
-      <header className="border-b border-border px-4 py-3">
-        <h2 className="text-[20px] font-extrabold">{title}</h2>
+      <header className="border-b border-border px-3 py-3 sm:px-4">
+        <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
       </header>
       <div className="divide-y divide-border">{children}</div>
       {footer && (
-        <footer className="border-t border-border px-4 py-3">{footer}</footer>
+        <footer className="border-t border-border px-3 py-3 sm:px-4">
+          {footer}
+        </footer>
       )}
     </section>
   );
@@ -40,7 +42,7 @@ export function ShowMoreButton({
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="text-[15px] font-medium text-accent hover:underline disabled:opacity-50"
+      className="min-h-[44px] text-[15px] font-medium text-accent active:opacity-70 disabled:opacity-50 sm:hover:underline"
     >
       {loading ? "Loading…" : "Show more"}
     </button>

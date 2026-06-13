@@ -36,14 +36,16 @@ export function MatchCard({ match, compact }: MatchCardProps) {
     minute: "2-digit",
   });
 
+  const venueLine = [match.venue, match.city].filter(Boolean).join(" · ");
+
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border bg-background transition-colors hover:bg-surface",
-        compact ? "px-3 py-2.5" : "px-4 py-3.5"
+        "rounded-2xl border border-border bg-background transition-colors active:bg-surface sm:hover:bg-surface",
+        compact ? "px-2.5 py-2 sm:px-3 sm:py-2.5" : "px-3 py-3 sm:px-4 sm:py-3.5"
       )}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-1.5 sm:gap-3">
         <TeamCard
           team={match.homeTeam}
           isWinner={!!homeWinner}
@@ -51,14 +53,14 @@ export function MatchCard({ match, compact }: MatchCardProps) {
           compact
           align="left"
         />
-        <div className="flex shrink-0 flex-col items-center px-1">
+        <div className="flex shrink-0 flex-col items-center px-0.5 sm:px-1">
           {isLive && (
-            <span className="mb-0.5 flex items-center gap-1 text-[11px] font-medium text-accent">
+            <span className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-accent sm:text-[11px]">
               <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" />
               Live
             </span>
           )}
-          <span className="min-w-[3rem] text-center text-[17px] font-extrabold tabular-nums">
+          <span className="min-w-[2.5rem] text-center text-[16px] font-extrabold tabular-nums sm:min-w-[3rem] sm:text-[17px]">
             {display}
           </span>
         </div>
@@ -70,10 +72,10 @@ export function MatchCard({ match, compact }: MatchCardProps) {
           align="right"
         />
       </div>
-      <p className="mt-2 text-center text-[12px] text-muted">
-        {match.venue}
-        {match.city ? ` · ${match.city}` : ""} · {dateStr}
-      </p>
+      <div className="mt-2 space-y-0.5 text-center text-[11px] leading-snug text-muted sm:text-[12px]">
+        <p className="break-words">{venueLine}</p>
+        <p>{dateStr}</p>
+      </div>
     </div>
   );
 }

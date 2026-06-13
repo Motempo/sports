@@ -36,7 +36,10 @@ export function ExpandableModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 p-4 pt-16"
+      className={cn(
+        "fixed inset-0 z-50 flex bg-black/70",
+        "items-end p-0 sm:items-start sm:justify-center sm:p-4 sm:pt-16"
+      )}
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -44,23 +47,25 @@ export function ExpandableModal({
     >
       <div
         className={cn(
-          "relative w-full max-w-xl rounded-2xl border border-border bg-background",
+          "relative flex w-full max-h-[90dvh] flex-col border border-border bg-background",
+          "rounded-t-2xl sm:max-w-xl sm:rounded-2xl",
+          "safe-bottom",
           className
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <h2 className="text-[15px] font-bold">{title}</h2>
+        <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="min-w-0 flex-1 truncate pr-2 text-[15px] font-bold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1.5 hover:bg-surface"
+            className="touch-target flex shrink-0 items-center justify-center rounded-full active:bg-surface sm:hover:bg-surface"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto p-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">{children}</div>
       </div>
     </div>
   );

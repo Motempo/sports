@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { BracketRound, MatchInfo } from "@/lib/types";
-import { getRoundLabel, ROUND_ORDER } from "@/lib/bracket-constants";
+import { getRoundLabel, getRoundShortLabel, ROUND_ORDER } from "@/lib/bracket-constants";
 import { MatchCard } from "./MatchCard";
 
 interface BracketTreeProps {
@@ -72,32 +72,48 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
 }
 
 function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
-  const [activeRound, setActiveRound] = useState<BracketRound>("R32");
   const availableRounds = ROUND_ORDER.filter((r) => grouped[r].length > 0);
+  const [activeRound, setActiveRound] = useState<BracketRound>(
+    () => availableRounds[0] ?? "R32"
+  );
+
+  useEffect(() => {
+    if (availableRounds.length > 0 && !availableRounds.includes(activeRound)) {
+      setActiveRound(availableRounds[0]);
+    }
+  }, [grouped, activeRound, availableRounds]);
 
   return (
     <div className="lg:hidden">
-      <div className="flex gap-1 overflow-x-auto border-b border-border px-4 pb-0">
+      <div className="scrollbar-hide -mx-3 flex snap-x snap-mandatory gap-1 overflow-x-auto border-b border-border px-3 sm:-mx-0 sm:px-4">
         {availableRounds.map((round) => (
           <button
             key={round}
             type="button"
             onClick={() => setActiveRound(round)}
             className={cn(
-              "shrink-0 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors",
+              "shrink-0 snap-start border-b-2 px-4 py-3 text-[13px] font-medium transition-colors",
+              "min-h-[44px] whitespace-nowrap",
               activeRound === round
                 ? "border-accent text-foreground"
-                : "border-transparent text-muted hover:text-foreground"
+                : "border-transparent text-muted active:text-foreground"
             )}
           >
-            {getRoundLabel(round)}
+            <span className="sm:hidden">{getRoundShortLabel(round)}</span>
+            <span className="hidden sm:inline">{getRoundLabel(round)}</span>
           </button>
         ))}
       </div>
-      <div className="flex flex-col gap-3 p-4">
-        {grouped[activeRound].map((match) => (
-          <MatchCard key={match.id} match={match} />
-        ))}
+      <div className="flex flex-col gap-3 px-1 py-4 sm:px-0">
+        {grouped[activeRound].length === 0 ? (
+          <p className="px-3 py-6 text-center text-[14px] text-muted">
+            No matches scheduled for this round yet.
+          </p>
+        ) : (
+          grouped[activeRound].map((match) => (
+            <MatchCard key={match.id} match={match} />
+          ))
+        )}
       </div>
     </div>
   );
@@ -108,7 +124,7 @@ export function BracketTree({ grouped }: BracketTreeProps) {
 
   if (totalMatches === 0) {
     return (
-      <p className="px-4 py-8 text-center text-muted">
+      <p className="px-4 py-8 text-center text-[14px] text-muted">
         Bracket data will appear as the tournament approaches.
       </p>
     );

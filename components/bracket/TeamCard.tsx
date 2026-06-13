@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { BadgeCheck } from "lucide-react";
 import { cn, getFlagUrl } from "@/lib/utils";
 import type { TeamInfo } from "@/lib/types";
 
@@ -21,12 +20,13 @@ export function TeamCard({
   align = "left",
 }: TeamCardProps) {
   const isTbd = team.code === "TBD" || team.name === "TBD";
-  const flagSize = compact ? 36 : 44;
+  const flagSize = compact ? 32 : 44;
+  const displayName = compact && !isTbd ? team.code : team.name;
 
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5",
+        "flex items-center gap-2",
         align === "right" && "flex-row-reverse text-right",
         isWinner && "font-bold",
         isLoser && "opacity-60",
@@ -37,14 +37,14 @@ export function TeamCard({
         <div
           className={cn(
             "shrink-0 rounded-full bg-border",
-            compact ? "h-9 w-9" : "h-11 w-11"
+            compact ? "h-8 w-8 sm:h-9 sm:w-9" : "h-11 w-11"
           )}
         />
       ) : (
         <div
           className={cn(
             "relative shrink-0 overflow-hidden rounded-full border-2 border-border bg-surface shadow-sm",
-            compact ? "h-9 w-9" : "h-11 w-11"
+            compact ? "h-8 w-8 sm:h-9 sm:w-9" : "h-11 w-11"
           )}
         >
           <Image
@@ -58,8 +58,15 @@ export function TeamCard({
         </div>
       )}
       <div className={cn("min-w-0", align === "right" && "items-end")}>
-        <p className={cn("truncate text-[13px] font-semibold", compact && "text-[12px]")}>
-          {team.name}
+        <p
+          className={cn(
+            "truncate font-semibold",
+            compact ? "text-[11px] sm:text-[12px]" : "text-[13px]"
+          )}
+          title={team.name}
+        >
+          <span className="sm:hidden">{displayName}</span>
+          <span className="hidden truncate sm:inline">{team.name}</span>
         </p>
         {!compact && !isTbd && (
           <p className="text-[11px] text-muted">

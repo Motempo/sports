@@ -32,14 +32,14 @@ export function FeedRow({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "flex w-full gap-3 px-4 py-3 text-left transition-colors",
-        onClick && "cursor-pointer hover:bg-surface",
+        "flex w-full gap-3 px-3 py-3.5 text-left transition-colors sm:px-4",
+        onClick && "cursor-pointer active:bg-surface sm:hover:bg-surface",
         className
       )}
     >
       <div className="shrink-0">{avatar}</div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1 text-[15px] leading-snug">
+        <div className="flex min-w-0 items-center gap-1 text-[14px] leading-snug sm:text-[15px]">
           <span className="truncate font-bold">{displayName}</span>
           {verified && (
             <BadgeCheck className="h-4 w-4 shrink-0 fill-accent text-background" />
@@ -48,8 +48,12 @@ export function FeedRow({
             <span className="truncate text-muted">@{handle}</span>
           )}
         </div>
-        <p className="mt-0.5 text-[15px] leading-snug text-foreground">{content}</p>
-        {meta && <p className="mt-1 text-[13px] text-muted">{meta}</p>}
+        <p className="mt-0.5 break-words text-[14px] leading-snug text-foreground sm:text-[15px]">
+          {content}
+        </p>
+        {meta && (
+          <p className="mt-1 break-words text-[12px] text-muted sm:text-[13px]">{meta}</p>
+        )}
       </div>
     </Wrapper>
   );

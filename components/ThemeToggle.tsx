@@ -24,7 +24,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      className="rounded-full p-2 hover:bg-surface"
+      className="touch-target flex shrink-0 items-center justify-center rounded-full hover:bg-surface active:bg-surface"
       aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
     >
       {light ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}

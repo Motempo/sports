@@ -126,7 +126,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
           <button
             type="submit"
             disabled={submitting || !text.trim()}
-            className="w-full rounded-full bg-accent px-4 py-2.5 text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="min-h-[44px] w-full rounded-full bg-accent px-4 py-3 text-[15px] font-bold text-white transition-opacity active:opacity-90 disabled:opacity-50 sm:py-2.5 sm:hover:opacity-90"
           >
             {submitting ? "Submitting…" : "Submit feedback"}
           </button>

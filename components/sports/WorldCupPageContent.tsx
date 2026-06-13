@@ -137,9 +137,13 @@ export async function WorldCupPageContent() {
         )}
 
         <section className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
-          <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-            <NewsWidget sportSlug="world-cup" />
-            <FunFactsWidget sportSlug="world-cup" />
+          <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 lg:grid-cols-2">
+            <div className="h-full">
+              <NewsWidget sportSlug="world-cup" />
+            </div>
+            <div className="h-full">
+              <FunFactsWidget sportSlug="world-cup" />
+            </div>
           </div>
         </section>
       </main>

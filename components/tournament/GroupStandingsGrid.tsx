@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { cn, getFlagUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { GroupStandings, QualificationZone } from "@/lib/group-standings";
+import { TeamEmblem } from "@/components/ui/TeamEmblem";
 
 interface GroupStandingsGridProps {
   standings: GroupStandings[];
@@ -33,16 +33,7 @@ function GroupCard({ group }: { group: GroupStandings }) {
             )}
           >
             <span className="w-4 shrink-0 text-[11px] font-bold text-muted">{row.position}</span>
-            <div className="relative h-5 w-5 shrink-0 overflow-hidden rounded-full border border-border">
-              <Image
-                src={getFlagUrl(row.team.iso2, 20)}
-                alt=""
-                width={20}
-                height={15}
-                className="h-full w-full object-cover"
-                unoptimized
-              />
-            </div>
+            <TeamEmblem team={row.team} size={20} className="!h-5 !w-5 border" />
             <span className="min-w-0 flex-1 truncate text-[12px] font-semibold">{row.team.code}</span>
             <span className="shrink-0 text-[11px] tabular-nums text-muted">
               {row.points}pts · {row.goalDifference >= 0 ? "+" : ""}

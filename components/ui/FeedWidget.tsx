@@ -13,16 +13,16 @@ export function FeedWidget({ title, children, footer, className }: FeedWidgetPro
   return (
     <section
       className={cn(
-        "overflow-hidden rounded-2xl border border-border bg-background",
+        "flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background",
         className
       )}
     >
-      <header className="border-b border-border px-3 py-3 sm:px-4">
+      <header className="shrink-0 border-b border-border px-3 py-3 sm:px-4">
         <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
       </header>
-      <div className="divide-y divide-border">{children}</div>
+      <div className="flex min-h-[16.5rem] flex-1 flex-col divide-y divide-border">{children}</div>
       {footer && (
-        <footer className="border-t border-border px-3 py-3 sm:px-4">
+        <footer className="mt-auto shrink-0 border-t border-border px-3 py-3 sm:px-4">
           {footer}
         </footer>
       )}

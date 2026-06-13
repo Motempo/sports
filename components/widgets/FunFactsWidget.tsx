@@ -59,6 +59,7 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
   return (
     <>
       <FeedWidget
+        className="h-full"
         title="Fun Facts"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >

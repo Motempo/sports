@@ -58,6 +58,7 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
   return (
     <>
       <FeedWidget
+        className="h-full"
         title="News"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >

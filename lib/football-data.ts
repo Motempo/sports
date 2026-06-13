@@ -190,14 +190,32 @@ function generateSeedGroupMatches(): MatchInfo[] {
     const groupTeams = teams.slice(gi * 4, gi * 4 + 4);
     if (groupTeams.length < 4) return;
 
-    roundRobin.forEach((pair, pi) => {
-      const d = new Date(now);
-      d.setDate(d.getDate() - 2 + Math.floor(pi / 2));
-      d.setHours(12 + (pi % 2) * 5 + gi, 0, 0, 0);
+    const daySlot = now.getDate() % 4;
 
-      const finished = pi < 2;
+    roundRobin.forEach((pair, pi) => {
+      let d = new Date(now);
+      let finished = false;
+
+      if (pi < 4) {
+        d.setDate(d.getDate() - (5 - pi));
+        d.setHours(14 + (gi % 4) * 2, 0, 0, 0);
+        finished = true;
+      } else if (pi === 4) {
+        const playsToday = gi % 4 === daySlot;
+        if (playsToday) {
+          d.setHours(12 + (gi % 4) * 2, 0, 0, 0);
+        } else {
+          d.setDate(d.getDate() + 1 + Math.floor(gi / 4));
+          d.setHours(14 + (gi % 4) * 2, 0, 0, 0);
+        }
+      } else {
+        d = endOfLocalDay(now);
+        d.setDate(d.getDate() + 1 + Math.floor(gi / 4));
+        d.setHours(16 + (gi % 4) * 2, 0, 0, 0);
+      }
+
       const scores = finished
-        ? pi === 0
+        ? pi % 2 === 0
           ? [2, 1]
           : [1, 1]
         : [null, null];

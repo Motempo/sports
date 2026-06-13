@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { BadgeCheck } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
@@ -34,6 +35,7 @@ export function FeedRow({
       className={cn(
         "flex w-full gap-3 px-3 py-3.5 text-left transition-colors sm:px-4",
         onClick && "cursor-pointer active:bg-surface sm:hover:bg-surface",
+        "min-h-[5.5rem]",
         className
       )}
     >
@@ -68,7 +70,13 @@ export function FeedAvatar({
   alt: string;
   fallback: React.ReactNode;
 }) {
-  if (src) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
+
+  if (src && !failed) {
     return (
       <Image
         src={src}
@@ -77,6 +85,7 @@ export function FeedAvatar({
         height={40}
         className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
         unoptimized
+        onError={() => setFailed(true)}
       />
     );
   }

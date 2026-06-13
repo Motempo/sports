@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export async function GET() {
+  return NextResponse.json({ available: Boolean(process.env.GEMINI_API_KEY?.trim()) });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as { description?: string };

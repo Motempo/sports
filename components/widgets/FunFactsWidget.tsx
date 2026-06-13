@@ -55,7 +55,7 @@ export function FunFactsWidget() {
   return (
     <>
       <FeedWidget
-        title="Fun Facts on X"
+        title="Fun Facts"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >
         {loading ? (

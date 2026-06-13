@@ -44,7 +44,7 @@ export function ShowMoreButton({
       disabled={loading}
       className="min-h-[44px] text-[15px] font-medium text-link active:opacity-70 disabled:opacity-50 sm:hover:underline"
     >
-      {loading ? "Loading…" : "Show more"}
+      {loading ? "Loading…" : "More"}
     </button>
   );
 }

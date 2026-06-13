@@ -82,6 +82,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
+  const [improveAvailable, setImproveAvailable] = useState(false);
 
   const resetForm = useCallback(() => {
     setDescription("");
@@ -95,7 +96,22 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
   useEffect(() => {
     if (!open) {
       resetForm();
+      return;
     }
+
+    let cancelled = false;
+    fetch("/api/feedback/improve")
+      .then((res) => (res.ok ? res.json() : { available: false }))
+      .then((data: { available?: boolean }) => {
+        if (!cancelled) setImproveAvailable(Boolean(data.available));
+      })
+      .catch(() => {
+        if (!cancelled) setImproveAvailable(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [open, resetForm]);
 
   const contextPayload = () => ({
@@ -250,8 +266,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
       }
 
       toast({
-        title: "Thank you for your feedback!",
-        description: "We've received your message and will follow up as soon as we can.",
+        title: "Thank you for your feedback",
       });
       onOpenChange(false);
     } catch (err) {
@@ -293,21 +308,18 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label>Screenshot (optional)</Label>
+            <Label htmlFor="feedback-screenshot">Screenshot (optional)</Label>
             <input
+              id="feedback-screenshot"
               ref={fileInputRef}
               type="file"
               accept={ACCEPTED_INPUT}
-              className="hidden"
+              className="sr-only"
               onChange={handleFileChange}
               disabled={busy}
             />
             {imagePreview ? (
-              <div
-                className="relative overflow-hidden rounded-lg border border-border bg-secondary/30"
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-              >
+              <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/30">
                 <img
                   src={imagePreview}
                   alt="Screenshot preview"
@@ -324,20 +336,24 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
                 >
                   <X className="h-4 w-4" />
                 </Button>
-                <p className="border-t border-border/50 px-2 py-1 text-[10px] text-muted-foreground">
-                  Drop a new image here to replace
-                </p>
+                <label
+                  htmlFor="feedback-screenshot"
+                  className={cn(
+                    "block cursor-pointer border-t border-border/50 px-2 py-2 text-center text-[10px] text-muted-foreground",
+                    busy && "pointer-events-none opacity-50"
+                  )}
+                >
+                  Tap to replace screenshot
+                </label>
               </div>
             ) : (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => fileInputRef.current?.click()}
+              <label
+                htmlFor="feedback-screenshot"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                  "flex w-full flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 transition-colors",
+                  "flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 transition-colors",
                   "text-muted-foreground hover:border-primary/50 hover:bg-secondary/40 hover:text-foreground",
                   isDragging && "border-primary bg-primary/10 text-foreground",
                   busy && "pointer-events-none opacity-50"
@@ -349,10 +365,11 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
                   <ImagePlus className="h-8 w-8" />
                 )}
                 <span className="text-sm font-medium">
-                  {isDragging ? "Drop screenshot here" : "Drag and drop a screenshot"}
+                  {isDragging ? "Drop screenshot here" : "Tap to add screenshot"}
                 </span>
-                <span className="text-xs">or click to browse (PNG, JPEG, WebP)</span>
-              </button>
+                <span className="hidden text-xs sm:inline">or drag and drop (PNG, JPEG, WebP)</span>
+                <span className="text-xs sm:hidden">PNG, JPEG, or WebP</span>
+              </label>
             )}
           </div>
         </div>
@@ -361,19 +378,21 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={busy}>
             Cancel
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleImprove}
-            disabled={busy || !description.trim()}
-          >
-            {isImproving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Sparkles className="mr-2 h-4 w-4" />
-            )}
-            Improve text
-          </Button>
+          {improveAvailable && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleImprove}
+              disabled={busy || !description.trim()}
+            >
+              {isImproving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              Improve text
+            </Button>
+          )}
           <Button type="button" onClick={handleSubmit} disabled={busy || !description.trim()}>
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Submit feedback

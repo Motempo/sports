@@ -18,20 +18,20 @@ export function NewsWidget() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<NewsItem | null>(null);
 
-  const loadItems = useCallback(async (newOffset: number, append: boolean) => {
+  const loadItems = useCallback(async (newOffset: number) => {
     const res = await fetch(`/api/news?offset=${newOffset}&limit=3`);
     const data = (await res.json()) as { items: NewsItem[] };
-    setItems((prev) => (append ? [...prev, ...data.items] : data.items));
+    setItems(data.items);
   }, []);
 
   useEffect(() => {
-    loadItems(0, false).finally(() => setLoading(false));
+    loadItems(0).finally(() => setLoading(false));
   }, [loadItems]);
 
   const handleShowMore = async () => {
     setLoadingMore(true);
     const next = offset + 3;
-    await loadItems(next, true);
+    await loadItems(next);
     setOffset(next);
     setLoadingMore(false);
   };
@@ -54,7 +54,7 @@ export function NewsWidget() {
   return (
     <>
       <FeedWidget
-        title="News on X"
+        title="News"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >
         {loading ? (
@@ -69,7 +69,7 @@ export function NewsWidget() {
           ))
         ) : items.length === 0 ? (
           <p className="px-4 py-6 text-[15px] text-muted">
-            No news from trusted X sources right now.
+            No World Cup news right now. Check back soon.
           </p>
         ) : (
           items.map((item) => (

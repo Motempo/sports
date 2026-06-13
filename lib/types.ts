@@ -35,6 +35,11 @@ export interface NewsItem {
   publishedAt: string;
   url: string;
   imageUrl?: string;
+  xHandle: string;
+  xName: string;
+  xAvatar: string;
+  xProfileUrl: string;
+  verified: boolean;
 }
 
 export interface FunFact {
@@ -46,6 +51,10 @@ export interface FunFact {
   wikipediaTitle?: string;
   detail: string;
   imageUrl?: string;
+  sourceHandle: string;
+  sourceName?: string;
+  xProfileUrl?: string;
+  verified?: boolean;
 }
 
 export interface BracketData {

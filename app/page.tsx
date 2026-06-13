@@ -41,7 +41,7 @@ export default async function HomePage() {
       <footer className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-8 sm:flex-row sm:justify-between">
           <p className="text-[13px] text-muted">
-            © {new Date().getFullYear()} Motempo Sports · Experiment
+            © {new Date().getFullYear()} Sports by Motempo · Experiment
           </p>
           <FeedbackButton />
         </div>

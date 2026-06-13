@@ -39,34 +39,38 @@ export function MatchCard({ match, compact }: MatchCardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-background transition-colors hover:bg-surface",
-        compact ? "px-3 py-2" : "px-4 py-3"
+        "rounded-2xl border border-border bg-background transition-colors hover:bg-surface",
+        compact ? "px-3 py-2.5" : "px-4 py-3.5"
       )}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-3">
         <TeamCard
           team={match.homeTeam}
           isWinner={!!homeWinner}
           isLoser={!!homeLoser}
           compact
+          align="left"
         />
-        <div className="flex shrink-0 flex-col items-center px-2">
+        <div className="flex shrink-0 flex-col items-center px-1">
           {isLive && (
             <span className="mb-0.5 flex items-center gap-1 text-[11px] font-medium text-accent">
               <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" />
               Live
             </span>
           )}
-          <span className="text-[15px] font-bold tabular-nums">{display}</span>
+          <span className="min-w-[3rem] text-center text-[17px] font-extrabold tabular-nums">
+            {display}
+          </span>
         </div>
         <TeamCard
           team={match.awayTeam}
           isWinner={!!awayWinner}
           isLoser={!!awayLoser}
           compact
+          align="right"
         />
       </div>
-      <p className="mt-1.5 text-center text-[12px] text-muted">
+      <p className="mt-2 text-center text-[12px] text-muted">
         {match.venue}
         {match.city ? ` · ${match.city}` : ""} · {dateStr}
       </p>

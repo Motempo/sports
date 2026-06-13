@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { BadgeCheck } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 interface FeedRowProps {
   avatar: React.ReactNode;
-  title: string;
-  subtitle?: string;
+  displayName: string;
+  handle?: string;
+  verified?: boolean;
+  content: string;
   meta?: string;
   onClick?: () => void;
   className?: string;
@@ -14,8 +17,10 @@ interface FeedRowProps {
 
 export function FeedRow({
   avatar,
-  title,
-  subtitle,
+  displayName,
+  handle,
+  verified,
+  content,
   meta,
   onClick,
   className,
@@ -34,15 +39,17 @@ export function FeedRow({
     >
       <div className="shrink-0">{avatar}</div>
       <div className="min-w-0 flex-1">
-        <p className="text-[15px] leading-snug">
-          <span className="font-bold">{title}</span>
-          {subtitle && (
-            <span className="font-normal text-foreground"> {subtitle}</span>
+        <div className="flex items-center gap-1 text-[15px] leading-snug">
+          <span className="truncate font-bold">{displayName}</span>
+          {verified && (
+            <BadgeCheck className="h-4 w-4 shrink-0 fill-accent text-background" />
           )}
-        </p>
-        {meta && (
-          <p className="mt-1 text-[13px] text-muted">{meta}</p>
-        )}
+          {handle && (
+            <span className="truncate text-muted">@{handle}</span>
+          )}
+        </div>
+        <p className="mt-0.5 text-[15px] leading-snug text-foreground">{content}</p>
+        {meta && <p className="mt-1 text-[13px] text-muted">{meta}</p>}
       </div>
     </Wrapper>
   );
@@ -64,19 +71,19 @@ export function FeedAvatar({
         alt={alt}
         width={40}
         height={40}
-        className="h-10 w-10 rounded-full object-cover"
+        className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
         unoptimized
       />
     );
   }
 
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-lg">
+    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-lg ring-1 ring-border">
       {fallback}
     </div>
   );
 }
 
-export function FeedMeta({ source, time }: { source: string; time: string }) {
-  return `${source} · ${formatRelativeTime(time)}`;
+export function formatXMeta(handle: string, time: string): string {
+  return `@${handle} · ${formatRelativeTime(time)}`;
 }

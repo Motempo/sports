@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i.guim.co.uk" },
       { protocol: "https", hostname: "**.bbc.co.uk" },
       { protocol: "https", hostname: "**.bbci.co.uk" },
+      { protocol: "https", hostname: "unavatar.io" },
+      { protocol: "https", hostname: "**.skyassets.com" },
     ],
   },
 };

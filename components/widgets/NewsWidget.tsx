@@ -2,17 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { BadgeCheck } from "lucide-react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
-import { FeedAvatar, FeedMeta, FeedRow } from "@/components/ui/FeedRow";
+import { FeedAvatar, FeedRow, formatXMeta } from "@/components/ui/FeedRow";
 import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { NewsItem } from "@/lib/types";
-
-const SOURCE_EMOJI: Record<string, string> = {
-  "Google News": "📰",
-  "The Guardian": "🛡️",
-  "BBC Sport": "📻",
-};
 
 export function NewsWidget() {
   const [items, setItems] = useState<NewsItem[]>([]);
@@ -59,7 +54,7 @@ export function NewsWidget() {
   return (
     <>
       <FeedWidget
-        title="News"
+        title="News on X"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >
         {loading ? (
@@ -73,21 +68,25 @@ export function NewsWidget() {
             </div>
           ))
         ) : items.length === 0 ? (
-          <p className="px-4 py-6 text-[15px] text-muted">No news available right now.</p>
+          <p className="px-4 py-6 text-[15px] text-muted">
+            No news from trusted X sources right now.
+          </p>
         ) : (
           items.map((item) => (
             <FeedRow
               key={item.id}
               avatar={
                 <FeedAvatar
-                  src={item.imageUrl}
-                  alt={item.source}
-                  fallback={SOURCE_EMOJI[item.source] ?? "📰"}
+                  src={item.xAvatar}
+                  alt={item.xName}
+                  fallback={item.xName[0]}
                 />
               }
-              title={item.source}
-              subtitle={item.title}
-              meta={FeedMeta({ source: item.source, time: item.publishedAt })}
+              displayName={item.xName}
+              handle={item.xHandle}
+              verified={item.verified}
+              content={item.title}
+              meta={formatXMeta(item.xHandle, item.publishedAt)}
               onClick={() => openDetail(item)}
             />
           ))
@@ -109,6 +108,21 @@ export function NewsWidget() {
           </div>
         ) : detail ? (
           <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <FeedAvatar src={detail.xAvatar} alt={detail.xName} fallback={detail.xName[0]} />
+              <div>
+                <div className="flex items-center gap-1">
+                  <span className="font-bold">{detail.xName}</span>
+                  {detail.verified && (
+                    <BadgeCheck className="h-4 w-4 fill-accent text-background" />
+                  )}
+                  <span className="text-muted">@{detail.xHandle}</span>
+                </div>
+                <p className="text-[13px] text-muted">
+                  {new Date(detail.publishedAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
             {detail.imageUrl && (
               <Image
                 src={detail.imageUrl}
@@ -120,17 +134,24 @@ export function NewsWidget() {
               />
             )}
             <p className="text-[15px] leading-relaxed">{detail.summary}</p>
-            <p className="text-[13px] text-muted">
-              {detail.source} · {new Date(detail.publishedAt).toLocaleString()}
-            </p>
-            <a
-              href={detail.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block text-[15px] text-accent hover:underline"
-            >
-              Read full article →
-            </a>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={detail.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[15px] text-accent hover:underline"
+              >
+                Read full story →
+              </a>
+              <a
+                href={detail.xProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[15px] text-accent hover:underline"
+              >
+                View @{detail.xHandle} on X →
+              </a>
+            </div>
           </div>
         ) : null}
       </ExpandableModal>

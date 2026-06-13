@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { BadgeCheck } from "lucide-react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
-import { FeedAvatar, FeedRow } from "@/components/ui/FeedRow";
+import { FeedAvatar, FeedRow, formatXMeta } from "@/components/ui/FeedRow";
 import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { getFactSourceAvatar } from "@/lib/facts";
 import type { FunFact } from "@/lib/types";
 
 export function FunFactsWidget() {
@@ -53,7 +55,7 @@ export function FunFactsWidget() {
   return (
     <>
       <FeedWidget
-        title="Fun Facts"
+        title="Fun Facts on X"
         footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
       >
         {loading ? (
@@ -70,9 +72,17 @@ export function FunFactsWidget() {
           items.map((fact) => (
             <FeedRow
               key={fact.id}
-              avatar={<FeedAvatar alt={fact.category} fallback={fact.emoji} />}
-              title={fact.title}
-              subtitle={fact.summary}
+              avatar={
+                <FeedAvatar
+                  src={getFactSourceAvatar(fact.sourceHandle)}
+                  alt={fact.sourceName ?? fact.sourceHandle}
+                  fallback={fact.emoji}
+                />
+              }
+              displayName={fact.sourceName ?? fact.sourceHandle}
+              handle={fact.sourceHandle}
+              verified={fact.verified}
+              content={`${fact.title} — ${fact.summary}`}
               meta={fact.category}
               onClick={() => openDetail(fact)}
             />
@@ -96,6 +106,23 @@ export function FunFactsWidget() {
           </div>
         ) : detail ? (
           <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <FeedAvatar
+                src={getFactSourceAvatar(detail.sourceHandle)}
+                alt={detail.sourceName ?? detail.sourceHandle}
+                fallback={detail.emoji}
+              />
+              <div>
+                <div className="flex items-center gap-1">
+                  <span className="font-bold">{detail.sourceName ?? detail.sourceHandle}</span>
+                  {detail.verified && (
+                    <BadgeCheck className="h-4 w-4 fill-accent text-background" />
+                  )}
+                  <span className="text-muted">@{detail.sourceHandle}</span>
+                </div>
+                <p className="text-[13px] text-muted">{detail.category}</p>
+              </div>
+            </div>
             {detail.imageUrl && (
               <Image
                 src={detail.imageUrl}
@@ -106,8 +133,17 @@ export function FunFactsWidget() {
                 unoptimized
               />
             )}
-            <p className="text-[13px] font-medium text-accent">{detail.category}</p>
             <p className="text-[15px] leading-relaxed">{detail.detail}</p>
+            {detail.xProfileUrl && (
+              <a
+                href={detail.xProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-[15px] text-accent hover:underline"
+              >
+                Follow @{detail.sourceHandle} on X →
+              </a>
+            )}
           </div>
         ) : null}
       </ExpandableModal>

@@ -1,7 +1,38 @@
 import funFactsData from "@/data/fun-facts.json";
+import { FACT_SOURCES, getSourceByHandle } from "@/lib/x-sources";
 import type { FunFact } from "@/lib/types";
 
-const facts = funFactsData as FunFact[];
+const SOURCE_HANDLES = [
+  "OptaJoe",
+  "FIFAcom",
+  "BBCSport",
+  "guardian_sport",
+  "SkySports",
+];
+
+interface FunFactSeed {
+  id: string;
+  title: string;
+  summary: string;
+  category: string;
+  emoji: string;
+  wikipediaTitle?: string;
+  detail: string;
+  imageUrl?: string;
+  sourceHandle?: string;
+}
+
+const facts = (funFactsData as FunFactSeed[]).map((fact, i) => {
+  const handle = fact.sourceHandle ?? SOURCE_HANDLES[i % SOURCE_HANDLES.length];
+  const source = getSourceByHandle(handle);
+  return {
+    ...fact,
+    sourceHandle: handle,
+    sourceName: source?.name ?? handle,
+    xProfileUrl: source?.profileUrl ?? `https://x.com/${handle}`,
+    verified: source?.verified ?? true,
+  } satisfies FunFact;
+});
 
 export function getAllFacts(): FunFact[] {
   return facts;
@@ -19,6 +50,10 @@ export function getFactsPage(offset: number, limit = 3): FunFact[] {
 
 export function getFactById(id: string): FunFact | undefined {
   return facts.find((f) => f.id === id);
+}
+
+export function getFactSourceAvatar(handle: string): string {
+  return getSourceByHandle(handle)?.avatarUrl ?? `https://unavatar.io/x/${handle}`;
 }
 
 export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
@@ -45,3 +80,5 @@ export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
     return fact;
   }
 }
+
+export { FACT_SOURCES };

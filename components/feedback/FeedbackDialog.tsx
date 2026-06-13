@@ -81,7 +81,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         <div className="py-4 text-center">
           <p className="text-[15px] font-bold">Thank you!</p>
           <p className="mt-2 text-[15px] text-muted">
-            Your feedback has been received. We appreciate you helping improve Motempo Sports.
+            Your feedback has been received. We appreciate you helping improve Sports by Motempo.
           </p>
           <button
             type="button"

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import { themeInitScript } from "@/lib/theme";
+import { getCurrentSport, SITE_NAME, SITE_URL } from "@/lib/sports";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -13,22 +14,30 @@ export const viewport: Viewport = {
   ],
 };
 
+const currentSport = getCurrentSport();
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sports.motempo.com"),
-  title: "Sports by Motempo — FIFA World Cup 2026",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${currentSport.title} | ${SITE_NAME}`,
+    template: `%s | ${SITE_NAME}`,
+  },
   description:
-    "Track the FIFA World Cup 2026 knockout bracket, news from trusted X sources, and fun facts. An experiment by Motempo.",
+    "Live sports trackers by Motempo — World Cup brackets, standings, news, and more.",
+  applicationName: SITE_NAME,
   openGraph: {
-    title: "Sports by Motempo — FIFA World Cup 2026",
-    description: "Knockout bracket, news, and fun facts for World Cup 2026.",
-    url: "https://sports.motempo.com",
-    siteName: "Sports by Motempo",
+    siteName: SITE_NAME,
     type: "website",
+    locale: "en_US",
+    url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sports by Motempo — FIFA World Cup 2026",
-    description: "Knockout bracket, news, and fun facts for World Cup 2026.",
+    site: "@motempo",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 

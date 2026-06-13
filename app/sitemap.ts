@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
+import { getSportSitemapEntries, SITE_URL } from "@/lib/sports";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://sports.motempo.com",
+      url: SITE_URL,
       lastModified: new Date(),
-      changeFrequency: "hourly",
-      priority: 1,
+      changeFrequency: "daily",
+      priority: 0.9,
     },
+    ...getSportSitemapEntries(),
   ];
 }

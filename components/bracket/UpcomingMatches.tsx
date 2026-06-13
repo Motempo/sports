@@ -2,24 +2,25 @@ import { MatchesSection } from "@/components/bracket/MatchesSection";
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
 
-interface CurrentMatchesProps {
+interface UpcomingMatchesProps {
   matches: MatchInfo[];
   source: "api" | "seed";
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
 }
 
-export function CurrentMatches({ matches, source, groupMatches, standings }: CurrentMatchesProps) {
+export function UpcomingMatches({ matches, source, groupMatches, standings }: UpcomingMatchesProps) {
+  if (matches.length === 0) return null;
+
   return (
     <MatchesSection
-      title="Today's Matches"
+      title="Upcoming Matches"
       matches={matches}
       source={source}
       groupMatches={groupMatches}
       standings={standings}
-      emptyMessage={`No live or scheduled matches for today yet.${
-        source === "seed" ? " Add FOOTBALL_DATA_API_KEY on Vercel for real fixtures." : ""
-      }`}
+      emptyMessage="No upcoming matches scheduled."
+      subtitle={`${source === "api" ? "Live data" : "Preview data"} · Next 30 days`}
     />
   );
 }

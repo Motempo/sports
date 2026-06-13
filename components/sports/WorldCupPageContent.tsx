@@ -1,5 +1,6 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
 import { CurrentMatches } from "@/components/bracket/CurrentMatches";
+import { UpcomingMatches } from "@/components/bracket/UpcomingMatches";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
@@ -19,7 +20,7 @@ import {
 export const revalidate = 120;
 
 export async function WorldCupPageContent() {
-  const { matches, groupMatches, currentMatches, source } = await fetchMatches();
+  const { matches, groupMatches, todayMatches, upcomingMatches, source } = await fetchMatches();
   const grouped = groupMatchesByRound(matches);
   const phase = detectTournamentPhase(matches, groupMatches);
   const standingsPrimary = showGroupStandingsPrimary(phase);
@@ -62,7 +63,14 @@ export async function WorldCupPageContent() {
             </section>
 
             <CurrentMatches
-              matches={currentMatches}
+              matches={todayMatches}
+              source={source}
+              groupMatches={groupMatches}
+              standings={standings}
+            />
+
+            <UpcomingMatches
+              matches={upcomingMatches}
               source={source}
               groupMatches={groupMatches}
               standings={standings}
@@ -89,7 +97,14 @@ export async function WorldCupPageContent() {
         ) : (
           <>
             <CurrentMatches
-              matches={currentMatches}
+              matches={todayMatches}
+              source={source}
+              groupMatches={groupMatches}
+              standings={standings}
+            />
+
+            <UpcomingMatches
+              matches={upcomingMatches}
               source={source}
               groupMatches={groupMatches}
               standings={standings}

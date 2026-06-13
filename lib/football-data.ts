@@ -107,30 +107,63 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
 
 const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
 
-export function isCurrentMatch(match: MatchInfo, now = new Date()): boolean {
+function startOfLocalDay(now: Date): Date {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function endOfLocalDay(now: Date): Date {
+  const d = startOfLocalDay(now);
+  d.setDate(d.getDate() + 1);
+  return d;
+}
+
+function sortMatches(a: MatchInfo, b: MatchInfo): number {
+  const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;
+  const bLive = LIVE_STATUSES.has(b.status) ? 0 : 1;
+  if (aLive !== bLive) return aLive - bLive;
+  return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
+}
+
+export function isTodayMatch(match: MatchInfo, now = new Date()): boolean {
   if (LIVE_STATUSES.has(match.status)) return true;
 
   const matchTime = new Date(match.utcDate).getTime();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
-  const endOfWindow = new Date(startOfToday);
-  endOfWindow.setDate(endOfWindow.getDate() + 2);
+  const start = startOfLocalDay(now).getTime();
+  const end = endOfLocalDay(now).getTime();
+  const onToday = matchTime >= start && matchTime < end;
 
-  const inWindow = matchTime >= startOfToday.getTime() && matchTime < endOfWindow.getTime();
-  if (!inWindow) return false;
-
+  if (!onToday) return false;
   return match.status === "SCHEDULED" || match.status === "FINISHED";
 }
 
+export function isUpcomingMatch(match: MatchInfo, now = new Date()): boolean {
+  if (match.status !== "SCHEDULED") return false;
+
+  const matchTime = new Date(match.utcDate).getTime();
+  const afterToday = endOfLocalDay(now).getTime();
+  const horizon = new Date(afterToday);
+  horizon.setDate(horizon.getDate() + 30);
+
+  return matchTime >= afterToday && matchTime < horizon.getTime();
+}
+
+/** @deprecated Use isTodayMatch */
+export function isCurrentMatch(match: MatchInfo, now = new Date()): boolean {
+  return isTodayMatch(match, now) || isUpcomingMatch(match, now);
+}
+
+export function selectTodayMatches(matches: MatchInfo[]): MatchInfo[] {
+  return matches.filter((m) => isTodayMatch(m)).sort(sortMatches);
+}
+
+export function selectUpcomingMatches(matches: MatchInfo[]): MatchInfo[] {
+  return matches.filter((m) => isUpcomingMatch(m)).sort(sortMatches);
+}
+
 export function selectCurrentMatches(matches: MatchInfo[]): MatchInfo[] {
-  return matches
-    .filter((m) => isCurrentMatch(m))
-    .sort((a, b) => {
-      const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;
-      const bLive = LIVE_STATUSES.has(b.status) ? 0 : 1;
-      if (aLive !== bLive) return aLive - bLive;
-      return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
-    });
+  return selectTodayMatches(matches);
 }
 
 function generateSeedGroupMatches(): MatchInfo[] {
@@ -271,6 +304,9 @@ function generateSeedBracket(): MatchInfo[] {
 export async function fetchMatches(): Promise<{
   matches: MatchInfo[];
   groupMatches: MatchInfo[];
+  todayMatches: MatchInfo[];
+  upcomingMatches: MatchInfo[];
+  /** @deprecated Use todayMatches */
   currentMatches: MatchInfo[];
   source: "api" | "seed";
 }> {
@@ -290,12 +326,15 @@ export async function fetchMatches(): Promise<{
         if (all.length > 0) {
           const groupMatches = all.filter((m) => m.stage === "GROUP");
           const knockout = all.filter((m) => isKnockoutStage(m.stage));
-          const currentMatches = selectCurrentMatches(all);
+          const todayMatches = selectTodayMatches(all);
+          const upcomingMatches = selectUpcomingMatches(all);
 
           return {
             matches: knockout.length > 0 ? knockout : generateSeedBracket(),
             groupMatches,
-            currentMatches,
+            todayMatches,
+            upcomingMatches,
+            currentMatches: todayMatches,
             source: "api",
           };
         }
@@ -307,11 +346,15 @@ export async function fetchMatches(): Promise<{
 
   const groupMatches = generateSeedGroupMatches();
   const knockoutMatches = generateSeedBracket();
+  const todayMatches = selectTodayMatches(groupMatches);
+  const upcomingMatches = selectUpcomingMatches(groupMatches);
 
   return {
     matches: knockoutMatches,
     groupMatches,
-    currentMatches: selectCurrentMatches(groupMatches),
+    todayMatches,
+    upcomingMatches,
+    currentMatches: todayMatches,
     source: "seed",
   };
 }

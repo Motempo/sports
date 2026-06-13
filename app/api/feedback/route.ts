@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createFeedbackIssue } from "@/lib/github-issues";
+import { isInferredIntent } from "@/lib/feedback-context";
+import { createFeedbackIssue } from "@/lib/linear-issues";
 import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -23,12 +24,14 @@ export async function POST(request: NextRequest) {
       screenshotMimeType?: "image/png" | "image/jpeg" | "image/webp";
       screenshotFilename?: string;
       pageUrl?: string;
-      userAgent?: string;
+      inferredIntent?: unknown;
     };
 
     if (!body.description?.trim()) {
       return NextResponse.json({ error: "Feedback text is required" }, { status: 400 });
     }
+
+    const inferredIntent = isInferredIntent(body.inferredIntent) ? body.inferredIntent : null;
 
     await createFeedbackIssue({
       description: body.description.trim(),
@@ -36,7 +39,7 @@ export async function POST(request: NextRequest) {
       screenshotMimeType: body.screenshotMimeType,
       screenshotFilename: body.screenshotFilename,
       pageUrl: body.pageUrl,
-      userAgent: body.userAgent,
+      inferredIntent,
     });
 
     return NextResponse.json({ ok: true });

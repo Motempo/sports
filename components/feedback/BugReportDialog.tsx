@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { compressBugScreenshot } from "@/lib/compressBugScreenshot";
+import type { InferredIntent } from "@/lib/feedback-context";
 import { cn } from "@/lib/utils";
 import { ImagePlus, Loader2, MessageSquarePlus, Sparkles, X } from "lucide-react";
 
@@ -42,7 +43,7 @@ function readFileAsBase64(file: File): Promise<string> {
 function userFacingErrorText(message: string): string {
   const trimmed = message.trim();
   if (!trimmed || trimmed.startsWith("HTTP ")) return "";
-  if (/github|GITHUB_(?:TOKEN|BUG_REPO)/i.test(trimmed)) {
+  if (/linear|LINEAR_(?:API_KEY|TEAM)/i.test(trimmed)) {
     return "We couldn't send your feedback. Please try again later.";
   }
   return trimmed.length > 400 ? `${trimmed.slice(0, 400)}…` : trimmed;
@@ -76,6 +77,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [description, setDescription] = useState("");
+  const [inferredIntent, setInferredIntent] = useState<InferredIntent | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -86,6 +88,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
 
   const resetForm = useCallback(() => {
     setDescription("");
+    setInferredIntent(null);
     setImageFile(null);
     if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImagePreview(null);
@@ -116,10 +119,14 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
 
   const contextPayload = () => ({
     pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
-    userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
   });
 
   const busy = isSubmitting || isImproving || isCompressing;
+
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
+    setInferredIntent(null);
+  };
 
   const applyImageFile = useCallback(
     async (file: File) => {
@@ -208,8 +215,12 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
         throw new Error(await apiErrorMessage(res, "Could not improve your feedback right now. Try again or submit as-is."));
       }
 
-      const result = (await res.json()) as { improvedText: string };
+      const result = (await res.json()) as {
+        improvedText: string;
+        intent?: InferredIntent | null;
+      };
       setDescription(result.improvedText);
+      setInferredIntent(result.intent ?? null);
       toast({ title: "Text improved", description: "Review and edit before submitting." });
     } catch (err) {
       toast({
@@ -254,6 +265,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           description: trimmed,
+          inferredIntent,
           ...contextPayload(),
           screenshotBase64,
           screenshotMimeType: imageFile ? "image/jpeg" : undefined,
@@ -300,7 +312,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
               id="feedback-description"
               placeholder="What's working well, what's confusing, or what you'd like to see improved..."
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
               rows={8}
               disabled={busy}
               className="min-h-[140px] resize-y"

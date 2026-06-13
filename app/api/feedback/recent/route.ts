@@ -38,35 +38,56 @@ export async function GET() {
 
   try {
     const teamName = process.env.LINEAR_TEAM_NAME?.trim() || "motempo";
-    const data = await linearRequest<{
-      team: { issues: { nodes: Array<{
-        identifier: string;
-        title: string;
-        url: string;
-        createdAt: string;
-        updatedAt: string;
-        description?: string | null;
-      }> } } | null;
+    const teamData = await linearRequest<{
+      teams: { nodes: { id: string; name: string }[] };
     }>(
       apiKey,
-      `query RecentIssues($teamName: String!) {
-        team(filter: { name: { eqIgnoreCase: $teamName } }) {
-          issues(first: 10, orderBy: updatedAt) {
-            nodes {
-              identifier
-              title
-              url
-              createdAt
-              updatedAt
-              description
-            }
+      `query Teams {
+        teams {
+          nodes {
+            id
+            name
+          }
+        }
+      }`
+    );
+
+    const team = teamData.teams.nodes.find(
+      (entry) => entry.name.trim().toLowerCase() === teamName.toLowerCase()
+    );
+    if (!team) {
+      return NextResponse.json({ error: `Linear team "${teamName}" was not found.` }, { status: 404 });
+    }
+
+    const data = await linearRequest<{
+      issues: {
+        nodes: Array<{
+          identifier: string;
+          title: string;
+          url: string;
+          createdAt: string;
+          updatedAt: string;
+          description?: string | null;
+        }>;
+      };
+    }>(
+      apiKey,
+      `query RecentIssues($teamId: ID!) {
+        issues(filter: { team: { id: { eq: $teamId } } }, first: 10, orderBy: updatedAt) {
+          nodes {
+            identifier
+            title
+            url
+            createdAt
+            updatedAt
+            description
           }
         }
       }`,
-      { teamName }
+      { teamId: team.id }
     );
 
-    const issues = data.team?.issues.nodes ?? [];
+    const issues = data.issues.nodes;
     return NextResponse.json({
       ok: true,
       count: issues.length,

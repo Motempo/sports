@@ -42,7 +42,7 @@ export function FeedRow({
         <div className="flex min-w-0 items-center gap-1 text-[14px] leading-snug sm:text-[15px]">
           <span className="truncate font-bold">{displayName}</span>
           {verified && (
-            <BadgeCheck className="h-4 w-4 shrink-0 fill-accent text-background" />
+            <BadgeCheck className="h-4 w-4 shrink-0 fill-link text-background" />
           )}
           {handle && (
             <span className="truncate text-muted">@{handle}</span>

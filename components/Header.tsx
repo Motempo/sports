@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SportSelector } from "@/components/SportSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Header() {
@@ -15,15 +16,13 @@ export function Header() {
             priority
             unoptimized
           />
-          <div className="min-w-0 leading-tight">
-            <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0">
-              <h1 className="text-[18px] font-extrabold tracking-tight sm:text-[22px]">Sports</h1>
-              <span className="text-[12px] font-medium text-muted sm:text-[13px]">by Motempo</span>
-            </div>
-            <p className="truncate text-[12px] text-muted sm:text-[13px]">FIFA World Cup 2026</p>
-          </div>
+          <h1 className="text-[18px] font-extrabold tracking-tight sm:text-[22px]">Sports</h1>
         </div>
-        <ThemeToggle />
+
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <SportSelector />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

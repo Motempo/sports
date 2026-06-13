@@ -95,7 +95,7 @@ function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]>
               "shrink-0 snap-start border-b-2 px-4 py-3 text-[13px] font-medium transition-colors",
               "min-h-[44px] whitespace-nowrap",
               activeRound === round
-                ? "border-accent text-foreground"
+                ? "border-link text-foreground"
                 : "border-transparent text-muted active:text-foreground"
             )}
           >

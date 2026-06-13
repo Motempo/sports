@@ -1,5 +1,5 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
-import { FeedbackButton } from "@/components/feedback/FeedbackButton";
+import { ReportBugLink } from "@/components/feedback/ReportBugLink";
 import { Header } from "@/components/Header";
 import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
@@ -46,7 +46,7 @@ export default async function HomePage() {
             © {new Date().getFullYear()} Sports by Motempo · Experiment
           </p>
           <div className="flex justify-center sm:justify-end">
-            <FeedbackButton />
+            <ReportBugLink variant="footer" />
           </div>
         </div>
       </footer>

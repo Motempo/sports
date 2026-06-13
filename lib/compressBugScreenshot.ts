@@ -1,3 +1,4 @@
+/** Max file size before base64 (~33% overhead stays under typical proxy limits). */
 const TARGET_MAX_BYTES = 500_000;
 const MAX_DIMENSION = 1440;
 
@@ -11,7 +12,7 @@ function loadImage(file: File): Promise<HTMLImageElement> {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error("Could not load image. Try a different file or submit without a screenshot."));
+      reject(new Error("Could not load image"));
     };
     img.src = url;
   });
@@ -27,8 +28,10 @@ function canvasToBlob(canvas: HTMLCanvasElement, quality: number): Promise<Blob>
   });
 }
 
-/** Resize and re-encode screenshots so the upload stays under server body limits. */
-export async function compressFeedbackScreenshot(file: File): Promise<File> {
+/**
+ * Resize and re-encode screenshots so JSON + base64 stays under reverse-proxy body limits.
+ */
+export async function compressBugScreenshot(file: File): Promise<File> {
   const img = await loadImage(file);
   const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
   const w = Math.max(1, Math.round(img.width * scale));
@@ -50,29 +53,10 @@ export async function compressFeedbackScreenshot(file: File): Promise<File> {
 
   if (blob.size > TARGET_MAX_BYTES) {
     throw new Error(
-      "Screenshot is still too large. Try a smaller image or submit without a screenshot."
+      "Screenshot is still too large after compression. Try a smaller capture or submit without an image."
     );
   }
 
   const baseName = file.name.replace(/\.[^.]+$/, "") || "screenshot";
   return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
-}
-
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1];
-      if (!base64) {
-        reject(new Error("Could not read image file."));
-        return;
-      }
-      resolve(base64);
-    };
-    reader.onerror = () => {
-      reject(new Error("Could not read image file. Try again or submit without a screenshot."));
-    };
-    reader.readAsDataURL(file);
-  });
 }

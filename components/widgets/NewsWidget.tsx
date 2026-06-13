@@ -114,7 +114,7 @@ export function NewsWidget() {
                 <div className="flex items-center gap-1">
                   <span className="font-bold">{detail.xName}</span>
                   {detail.verified && (
-                    <BadgeCheck className="h-4 w-4 fill-accent text-background" />
+                    <BadgeCheck className="h-4 w-4 fill-link text-background" />
                   )}
                   <span className="text-muted">@{detail.xHandle}</span>
                 </div>
@@ -139,7 +139,7 @@ export function NewsWidget() {
                 href={detail.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[15px] text-accent hover:underline"
+                className="text-[15px] text-link hover:underline"
               >
                 Read full story →
               </a>
@@ -147,7 +147,7 @@ export function NewsWidget() {
                 href={detail.xProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[15px] text-accent hover:underline"
+                className="text-[15px] text-link hover:underline"
               >
                 View @{detail.xHandle} on X →
               </a>

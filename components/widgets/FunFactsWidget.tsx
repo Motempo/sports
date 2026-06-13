@@ -116,7 +116,7 @@ export function FunFactsWidget() {
                 <div className="flex items-center gap-1">
                   <span className="font-bold">{detail.sourceName ?? detail.sourceHandle}</span>
                   {detail.verified && (
-                    <BadgeCheck className="h-4 w-4 fill-accent text-background" />
+                    <BadgeCheck className="h-4 w-4 fill-link text-background" />
                   )}
                   <span className="text-muted">@{detail.sourceHandle}</span>
                 </div>
@@ -139,7 +139,7 @@ export function FunFactsWidget() {
                 href={detail.xProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-[15px] text-accent hover:underline"
+                className="inline-block text-[15px] text-link hover:underline"
               >
                 Follow @{detail.sourceHandle} on X →
               </a>

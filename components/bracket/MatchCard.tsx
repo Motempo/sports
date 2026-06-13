@@ -55,8 +55,8 @@ export function MatchCard({ match, compact }: MatchCardProps) {
         />
         <div className="flex shrink-0 flex-col items-center px-0.5 sm:px-1">
           {isLive && (
-            <span className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-accent sm:text-[11px]">
-              <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-accent" />
+            <span className="mb-0.5 flex items-center gap-1 text-[10px] font-medium text-link sm:text-[11px]">
+              <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-link" />
               Live
             </span>
           )}

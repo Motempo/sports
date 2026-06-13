@@ -5,9 +5,10 @@ export const revalidate = 120;
 
 export async function GET() {
   try {
-    const { matches, currentMatches, source } = await fetchMatches();
+    const { matches, groupMatches, currentMatches, source } = await fetchMatches();
     return NextResponse.json({
       matches,
+      groupMatches,
       currentMatches,
       source,
       lastUpdated: new Date().toISOString(),

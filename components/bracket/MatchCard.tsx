@@ -2,11 +2,16 @@
 
 import { cn } from "@/lib/utils";
 import type { MatchInfo } from "@/lib/types";
+import { getMatchdayLabel, getMatchStakes } from "@/lib/match-context";
+import type { GroupStandings } from "@/lib/group-standings";
 import { TeamCard } from "./TeamCard";
 
 interface MatchCardProps {
   match: MatchInfo;
   compact?: boolean;
+  groupMatches?: MatchInfo[];
+  standings?: GroupStandings[];
+  showContext?: boolean;
 }
 
 function formatScore(home: number | null, away: number | null, status: MatchInfo["status"]) {
@@ -20,7 +25,7 @@ function formatScore(home: number | null, away: number | null, status: MatchInfo
   return { display: `${home} – ${away}`, isLive };
 }
 
-export function MatchCard({ match, compact }: MatchCardProps) {
+export function MatchCard({ match, compact, groupMatches, standings, showContext }: MatchCardProps) {
   const { display, isLive } = formatScore(match.homeScore, match.awayScore, match.status);
   const finished = match.status === "FINISHED";
   const homeWinner = finished && match.winnerCode === match.homeTeam.code;
@@ -37,6 +42,10 @@ export function MatchCard({ match, compact }: MatchCardProps) {
   });
 
   const venueLine = [match.venue, match.city].filter(Boolean).join(" · ");
+  const matchday =
+    showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
+  const stakes =
+    showContext && standings ? getMatchStakes(match, standings) : null;
 
   return (
     <div
@@ -73,6 +82,8 @@ export function MatchCard({ match, compact }: MatchCardProps) {
         />
       </div>
       <div className="mt-2 space-y-0.5 text-center text-[11px] leading-snug text-muted sm:text-[12px]">
+        {matchday && <p className="font-medium text-foreground/80">{matchday}</p>}
+        {stakes && <p className="text-[11px] leading-snug">{stakes}</p>}
         <p className="break-words">{venueLine}</p>
         <p>{dateStr}</p>
       </div>

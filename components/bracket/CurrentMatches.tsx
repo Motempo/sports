@@ -1,9 +1,12 @@
 import { MatchCard } from "@/components/bracket/MatchCard";
+import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
 
 interface CurrentMatchesProps {
   matches: MatchInfo[];
   source: "api" | "seed";
+  groupMatches?: MatchInfo[];
+  standings?: GroupStandings[];
 }
 
 function formatGroupLabel(group?: string): string | null {
@@ -11,7 +14,7 @@ function formatGroupLabel(group?: string): string | null {
   return group.replace("GROUP_", "Group ");
 }
 
-export function CurrentMatches({ matches, source }: CurrentMatchesProps) {
+export function CurrentMatches({ matches, source, groupMatches, standings }: CurrentMatchesProps) {
   if (matches.length === 0) {
     return (
       <section className="border-b border-border">
@@ -43,7 +46,12 @@ export function CurrentMatches({ matches, source }: CurrentMatchesProps) {
                   {formatGroupLabel(match.group)}
                 </p>
               )}
-              <MatchCard match={match} />
+              <MatchCard
+                match={match}
+                showContext={!!groupMatches && !!standings}
+                groupMatches={groupMatches}
+                standings={standings}
+              />
             </div>
           ))}
         </div>

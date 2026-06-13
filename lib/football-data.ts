@@ -135,7 +135,7 @@ export function selectCurrentMatches(matches: MatchInfo[]): MatchInfo[] {
 
 function generateSeedGroupMatches(): MatchInfo[] {
   const teams = seedTeams.slice(0, 48).map((t) => buildTeamInfo(t.code, t.name));
-  const groups = ["GROUP_A", "GROUP_B", "GROUP_C", "GROUP_D", "GROUP_E", "GROUP_F", "GROUP_G", "GROUP_H"];
+  const groups = Array.from({ length: 12 }, (_, i) => `GROUP_${String.fromCharCode(65 + i)}`);
   const venues = [
     { venue: "MetLife Stadium", city: "East Rutherford, NJ" },
     { venue: "SoFi Stadium", city: "Los Angeles, CA" },
@@ -151,20 +151,23 @@ function generateSeedGroupMatches(): MatchInfo[] {
   const matches: MatchInfo[] = [];
   let id = 1000;
 
+  const roundRobin = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]];
+
   groups.forEach((group, gi) => {
-    const base = gi * 4;
-    const pairings = [
-      [base, base + 1],
-      [base + 2, base + 3],
-      [base, base + 2],
-    ];
+    const groupTeams = teams.slice(gi * 4, gi * 4 + 4);
+    if (groupTeams.length < 4) return;
 
-    pairings.forEach((pair, pi) => {
+    roundRobin.forEach((pair, pi) => {
       const d = new Date(now);
-      d.setDate(d.getDate() - 1 + pi);
-      d.setHours(14 + pi * 3, 0, 0, 0);
+      d.setDate(d.getDate() - 2 + Math.floor(pi / 2));
+      d.setHours(12 + (pi % 2) * 5 + gi, 0, 0, 0);
 
-      const finished = pi === 0;
+      const finished = pi < 2;
+      const scores = finished
+        ? pi === 0
+          ? [2, 1]
+          : [1, 1]
+        : [null, null];
       const v = venues[(gi + pi) % venues.length];
 
       matches.push({
@@ -172,15 +175,22 @@ function generateSeedGroupMatches(): MatchInfo[] {
         round: "R32",
         stage: "GROUP",
         group,
-        homeTeam: teams[pair[0] % teams.length],
-        awayTeam: teams[pair[1] % teams.length],
-        homeScore: finished ? 2 : null,
-        awayScore: finished ? 1 : null,
-        status: finished ? "FINISHED" : pi === 1 ? "SCHEDULED" : "SCHEDULED",
+        homeTeam: groupTeams[pair[0]],
+        awayTeam: groupTeams[pair[1]],
+        homeScore: scores[0],
+        awayScore: scores[1],
+        status: finished ? "FINISHED" : "SCHEDULED",
         utcDate: d.toISOString(),
         venue: v.venue,
         city: v.city,
-        winnerCode: finished ? teams[pair[0] % teams.length].code : undefined,
+        winnerCode:
+          finished && scores[0] !== null && scores[1] !== null
+            ? scores[0] > scores[1]
+              ? groupTeams[pair[0]].code
+              : scores[0] < scores[1]
+                ? groupTeams[pair[1]].code
+                : undefined
+            : undefined,
       });
     });
   });
@@ -215,12 +225,36 @@ function generateSeedBracket(): MatchInfo[] {
       const d = new Date(baseDate);
       d.setDate(d.getDate() + ri * 4 + i);
       const v = venues[i % venues.length];
+
+      const isFirstKnockout = round === "R32";
+      const groupLetter = String.fromCharCode(65 + (i % 12));
+      const placeholderHome =
+        round === "R16"
+          ? `Winner · Group ${groupLetter}`
+          : round === "QF"
+            ? `Winner · R32 ${i + 1}`
+            : round === "SF"
+              ? `Winner · QF ${i + 1}`
+              : round === "FINAL"
+                ? "Winner · Semi 1"
+                : "TBD";
+      const placeholderAway =
+        round === "R16"
+          ? `Runner-up · Group ${String.fromCharCode(65 + ((i + 1) % 12))}`
+          : round === "QF"
+            ? `Winner · R32 ${i + 2}`
+            : round === "SF"
+              ? `Winner · QF ${i + 2}`
+              : round === "FINAL"
+                ? "Winner · Semi 2"
+                : "TBD";
+
       matches.push({
         id: id++,
         round,
         stage: round,
-        homeTeam: round === "R32" ? teams[hi] : buildTeamInfo("TBD", "TBD"),
-        awayTeam: round === "R32" ? teams[ai] : buildTeamInfo("TBD", "TBD"),
+        homeTeam: isFirstKnockout ? teams[hi] : buildTeamInfo("TBD", placeholderHome),
+        awayTeam: isFirstKnockout ? teams[ai] : buildTeamInfo("TBD", placeholderAway),
         homeScore: null,
         awayScore: null,
         status: "SCHEDULED",
@@ -236,6 +270,7 @@ function generateSeedBracket(): MatchInfo[] {
 
 export async function fetchMatches(): Promise<{
   matches: MatchInfo[];
+  groupMatches: MatchInfo[];
   currentMatches: MatchInfo[];
   source: "api" | "seed";
 }> {
@@ -253,11 +288,13 @@ export async function fetchMatches(): Promise<{
         const all = data.matches.map(parseApiMatch);
 
         if (all.length > 0) {
+          const groupMatches = all.filter((m) => m.stage === "GROUP");
           const knockout = all.filter((m) => isKnockoutStage(m.stage));
           const currentMatches = selectCurrentMatches(all);
 
           return {
             matches: knockout.length > 0 ? knockout : generateSeedBracket(),
+            groupMatches,
             currentMatches,
             source: "api",
           };
@@ -273,6 +310,7 @@ export async function fetchMatches(): Promise<{
 
   return {
     matches: knockoutMatches,
+    groupMatches,
     currentMatches: selectCurrentMatches(groupMatches),
     source: "seed",
   };

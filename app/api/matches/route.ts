@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { fetchMatches } from "@/lib/football-data";
 
-export const revalidate = 600;
+export const revalidate = 120;
 
 export async function GET() {
   try {
-    const { matches, source } = await fetchMatches();
+    const { matches, currentMatches, source } = await fetchMatches();
     return NextResponse.json({
       matches,
+      currentMatches,
       source,
       lastUpdated: new Date().toISOString(),
     });

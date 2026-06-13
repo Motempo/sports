@@ -1,14 +1,15 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
+import { CurrentMatches } from "@/components/bracket/CurrentMatches";
 import { ReportBugLink } from "@/components/feedback/ReportBugLink";
 import { Header } from "@/components/Header";
 import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
 
-export const revalidate = 600;
+export const revalidate = 120;
 
 export default async function HomePage() {
-  const { matches, source } = await fetchMatches();
+  const { matches, currentMatches, source } = await fetchMatches();
   const grouped = groupMatchesByRound(matches);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -20,6 +21,8 @@ export default async function HomePage() {
       <Header />
 
       <main>
+        <CurrentMatches matches={currentMatches} source={source} />
+
         <section className="border-b border-border">
           <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
             <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">

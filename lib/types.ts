@@ -11,9 +11,13 @@ export interface TeamInfo {
   fifaRank?: number;
 }
 
+export type MatchStage = BracketRound | "GROUP";
+
 export interface MatchInfo {
   id: number;
   round: BracketRound;
+  stage: MatchStage;
+  group?: string;
   homeTeam: TeamInfo;
   awayTeam: TeamInfo;
   homeScore: number | null;

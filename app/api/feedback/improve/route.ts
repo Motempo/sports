@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 const IMPROVE_PROMPT =
   "Improve this user feedback for a bug report or product suggestion. Keep the same meaning, fix grammar, and make it clearer and more actionable. Return only the improved text, no preamble.";
 
-const GROK_MODEL = "grok-4.20-0309-non-reasoning";
+const GROK_MODELS = ["grok-4.3", "grok-4.20-0309-non-reasoning", "grok-3-mini"] as const;
 
 function getGrokApiKey(): string | undefined {
   const candidates = [
@@ -15,20 +15,35 @@ function getGrokApiKey(): string | undefined {
   return candidates.map((v) => v?.trim()).find(Boolean);
 }
 
-function extractResponseText(data: {
-  output?: Array<{
-    type?: string;
-    content?: Array<{ type?: string; text?: string }>;
-  }>;
-}): string | undefined {
-  for (const item of data.output ?? []) {
-    if (item.type !== "message") continue;
-    for (const part of item.content ?? []) {
-      if (part.type === "output_text" && part.text?.trim()) {
-        return part.text.trim();
-      }
-    }
+async function improveWithGrok(apiKey: string, description: string): Promise<string | undefined> {
+  for (const model of GROK_MODELS) {
+    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: IMPROVE_PROMPT },
+          { role: "user", content: description },
+        ],
+        reasoning_effort: "none",
+        temperature: 0.3,
+        max_tokens: 1024,
+      }),
+    });
+
+    if (!res.ok) continue;
+
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const improvedText = data.choices?.[0]?.message?.content?.trim();
+    if (improvedText) return improvedText;
   }
+
   return undefined;
 }
 
@@ -57,34 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const res = await fetch("https://api.x.ai/v1/responses", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: GROK_MODEL,
-        instructions: IMPROVE_PROMPT,
-        input: body.description.trim(),
-        temperature: 0.3,
-        max_output_tokens: 1024,
-        store: false,
-      }),
-    });
-
-    if (!res.ok) {
-      return NextResponse.json(
-        {
-          error: "AI_UNAVAILABLE",
-          message: "Could not improve your feedback right now. Try again or submit as-is.",
-        },
-        { status: 503 }
-      );
-    }
-
-    const data = (await res.json()) as Parameters<typeof extractResponseText>[0];
-    const improvedText = extractResponseText(data);
+    const improvedText = await improveWithGrok(apiKey, body.description.trim());
 
     if (!improvedText) {
       return NextResponse.json(

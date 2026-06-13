@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BracketRound, MatchInfo } from "@/lib/types";
 import { getRoundLabel, getRoundShortLabel, ROUND_ORDER } from "@/lib/bracket-constants";
@@ -43,14 +44,84 @@ function BracketColumn({
 }
 
 function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 8);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      observer.disconnect();
+    };
+  }, [updateScrollState, grouped]);
+
+  const scroll = (direction: "left" | "right") => {
+    scrollRef.current?.scrollBy({
+      left: direction === "left" ? -360 : 360,
+      behavior: "smooth",
+    });
+  };
+
   const splitMatches = (matches: MatchInfo[]) => {
     const half = Math.ceil(matches.length / 2);
     return { left: matches.slice(0, half), right: matches.slice(half) };
   };
 
   return (
-    <div className="hidden lg:block">
-      <div className="overflow-x-auto pb-4">
+    <div className="relative hidden lg:block">
+      {canScrollLeft && (
+        <>
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-background via-background/80 to-transparent"
+            aria-hidden
+          />
+          <button
+            type="button"
+            onClick={() => scroll("left")}
+            className="absolute left-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 shadow-md transition-colors hover:bg-surface"
+            aria-label="Scroll bracket left"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        </>
+      )}
+
+      {canScrollRight && (
+        <>
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-background via-background/80 to-transparent"
+            aria-hidden
+          />
+          <button
+            type="button"
+            onClick={() => scroll("right")}
+            className="absolute right-2 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/95 shadow-md transition-colors hover:bg-surface"
+            aria-label="Scroll bracket right"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </>
+      )}
+
+      <div
+        ref={scrollRef}
+        className="scrollbar-hide overflow-x-auto pb-4"
+      >
         <div className="mx-auto flex min-w-max items-center justify-center gap-6 px-4">
           {(["R32", "R16", "QF", "SF"] as BracketRound[]).map((round) => {
             const matches = grouped[round];
@@ -67,6 +138,12 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
           <BracketColumn round="FINAL" matches={grouped.FINAL} side="center" />
         </div>
       </div>
+
+      {(canScrollLeft || canScrollRight) && (
+        <p className="mt-1 text-center text-[11px] text-muted">
+          Scroll or use arrows to see later rounds
+        </p>
+      )}
     </div>
   );
 }

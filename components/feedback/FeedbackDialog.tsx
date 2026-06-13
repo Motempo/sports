@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
+import { compressFeedbackScreenshot, fileToBase64 } from "@/lib/compress-screenshot";
 
 interface FeedbackDialogProps {
   open: boolean;
@@ -36,16 +37,14 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
     try {
       let screenshotBase64: string | undefined;
+      let screenshotMimeType: "image/jpeg" | "image/png" | "image/webp" | undefined;
+      let screenshotFilename: string | undefined;
+
       if (screenshot) {
-        screenshotBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result as string;
-            resolve(result.split(",")[1] ?? "");
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(screenshot);
-        });
+        const compressed = await compressFeedbackScreenshot(screenshot);
+        screenshotBase64 = await fileToBase64(compressed);
+        screenshotMimeType = compressed.type as "image/jpeg" | "image/png" | "image/webp";
+        screenshotFilename = compressed.name;
       }
 
       const res = await fetch("/api/feedback", {
@@ -54,14 +53,27 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         body: JSON.stringify({
           description: text.trim(),
           screenshotBase64,
-          screenshotFilename: screenshot?.name,
+          screenshotMimeType,
+          screenshotFilename,
           pageUrl: window.location.href,
           userAgent: navigator.userAgent,
         }),
       });
 
+      let data: { error?: string } = {};
+      try {
+        data = (await res.json()) as { error?: string };
+      } catch {
+        if (!res.ok) {
+          throw new Error(
+            res.status === 413
+              ? "Screenshot is too large. Try a smaller image or submit without one."
+              : "Could not reach the server. Please try again."
+          );
+        }
+      }
+
       if (!res.ok) {
-        const data = (await res.json()) as { error?: string };
         throw new Error(data.error ?? "Failed to submit feedback");
       }
 
@@ -69,7 +81,12 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
       setText("");
       setScreenshot(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      const message = err instanceof Error ? err.message : "Something went wrong";
+      setError(
+        message === "Load failed"
+          ? "Upload failed — try a smaller screenshot or submit without one."
+          : message
+      );
     } finally {
       setSubmitting(false);
     }
@@ -116,9 +133,17 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
               id="feedback-screenshot"
               type="file"
               accept="image/png,image/jpeg,image/webp"
-              onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setScreenshot(e.target.files?.[0] ?? null);
+                setError(null);
+              }}
               className="w-full text-[13px] text-muted file:mr-3 file:rounded-full file:border-0 file:bg-surface file:px-3 file:py-1 file:text-[13px] file:text-foreground"
             />
+            {screenshot && (
+              <p className="mt-1 text-[12px] text-muted">
+                {screenshot.name} — will be compressed before upload
+              </p>
+            )}
           </div>
 
           {error && <p className="text-[13px] text-red-500">{error}</p>}

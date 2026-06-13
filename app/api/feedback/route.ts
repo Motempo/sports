@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as {
       description?: string;
       screenshotBase64?: string;
+      screenshotMimeType?: "image/png" | "image/jpeg" | "image/webp";
       screenshotFilename?: string;
       pageUrl?: string;
       userAgent?: string;
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
     await createFeedbackIssue({
       description: body.description.trim(),
       screenshotBase64: body.screenshotBase64,
+      screenshotMimeType: body.screenshotMimeType,
       screenshotFilename: body.screenshotFilename,
       pageUrl: body.pageUrl,
       userAgent: body.userAgent,

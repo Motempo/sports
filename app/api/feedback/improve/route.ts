@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const IMPROVE_PROMPT =
+  "Improve this user feedback for a bug report or product suggestion. Keep the same meaning, fix grammar, and make it clearer and more actionable. Return only the improved text, no preamble.";
+
+function getGrokApiKey(): string | undefined {
+  return process.env.GROK_API_KEY?.trim() || process.env.grok_api_key?.trim();
+}
+
 export async function GET() {
-  return NextResponse.json({ available: Boolean(process.env.GEMINI_API_KEY?.trim()) });
+  return NextResponse.json({ available: Boolean(getGrokApiKey()) });
 }
 
 export async function POST(request: NextRequest) {
@@ -14,7 +21,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY?.trim()) {
+    const apiKey = getGrokApiKey();
+    if (!apiKey) {
       return NextResponse.json(
         {
           error: "AI_UNAVAILABLE",
@@ -24,24 +32,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `Improve this user feedback for a bug report or product suggestion. Keep the same meaning, fix grammar, and make it clearer and more actionable. Return only the improved text, no preamble.\n\n${body.description.trim()}`,
-                },
-              ],
-            },
-          ],
-        }),
-      }
-    );
+    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "grok-build-0.1",
+        messages: [
+          { role: "system", content: IMPROVE_PROMPT },
+          { role: "user", content: body.description.trim() },
+        ],
+        temperature: 0.3,
+        max_tokens: 1024,
+      }),
+    });
 
     if (!res.ok) {
       return NextResponse.json(
@@ -54,9 +60,9 @@ export async function POST(request: NextRequest) {
     }
 
     const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      choices?: Array<{ message?: { content?: string } }>;
     };
-    const improvedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    const improvedText = data.choices?.[0]?.message?.content?.trim();
 
     if (!improvedText) {
       return NextResponse.json(

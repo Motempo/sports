@@ -1,24 +1,10 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useTheme } from "@/hooks/use-theme";
 
 export function ThemeToggle() {
-  const [light, setLight] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("theme");
-    const prefersLight = stored === "light";
-    setLight(prefersLight);
-    document.documentElement.classList.toggle("light", prefersLight);
-  }, []);
-
-  const toggle = () => {
-    const next = !light;
-    setLight(next);
-    document.documentElement.classList.toggle("light", next);
-    localStorage.setItem("theme", next ? "light" : "dark");
-  };
+  const { light, toggle, mounted } = useTheme();
 
   return (
     <button
@@ -27,7 +13,13 @@ export function ThemeToggle() {
       className="touch-target flex shrink-0 items-center justify-center rounded-full hover:bg-surface active:bg-surface"
       aria-label={light ? "Switch to dark mode" : "Switch to light mode"}
     >
-      {light ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+      {!mounted ? (
+        <Sun className="h-5 w-5 opacity-0" aria-hidden />
+      ) : light ? (
+        <Moon className="h-5 w-5" />
+      ) : (
+        <Sun className="h-5 w-5" />
+      )}
     </button>
   );
 }

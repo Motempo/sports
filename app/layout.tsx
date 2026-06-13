@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/toaster";
+import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -38,6 +39,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-dvh antialiased">
         {children}
         <Toaster />

@@ -1,6 +1,5 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
-import { CurrentMatches } from "@/components/bracket/CurrentMatches";
-import { UpcomingMatches } from "@/components/bracket/UpcomingMatches";
+import { ScheduleByDay } from "@/components/bracket/ScheduleByDay";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
@@ -62,15 +61,9 @@ export async function WorldCupPageContent() {
               </div>
             </section>
 
-            <CurrentMatches
-              matches={todayMatches}
-              source={source}
-              groupMatches={groupMatches}
-              standings={standings}
-            />
-
-            <UpcomingMatches
-              matches={upcomingMatches}
+            <ScheduleByDay
+              todayMatches={todayMatches}
+              upcomingMatches={upcomingMatches}
               source={source}
               groupMatches={groupMatches}
               standings={standings}
@@ -96,15 +89,9 @@ export async function WorldCupPageContent() {
           </>
         ) : (
           <>
-            <CurrentMatches
-              matches={todayMatches}
-              source={source}
-              groupMatches={groupMatches}
-              standings={standings}
-            />
-
-            <UpcomingMatches
-              matches={upcomingMatches}
+            <ScheduleByDay
+              todayMatches={todayMatches}
+              upcomingMatches={upcomingMatches}
               source={source}
               groupMatches={groupMatches}
               standings={standings}

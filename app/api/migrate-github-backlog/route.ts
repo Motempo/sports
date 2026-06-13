@@ -98,25 +98,23 @@ async function resolveTeamId(apiKey: string): Promise<string> {
   return match.id;
 }
 
-async function findExistingIssue(apiKey: string, githubNumber: number) {
-  const needle = `GitHub Motempo/sports#${githubNumber}`;
+async function findExistingIssue(apiKey: string, title: string) {
   const data = await linearRequest<{
-    issueSearch: { nodes: { identifier: string; url: string; description?: string | null }[] };
+    issues: { nodes: { identifier: string; url: string }[] };
   }>(
     apiKey,
-    `query Search($term: String!) {
-      issueSearch(query: $term, first: 10) {
+    `query Issues($title: String!) {
+      issues(filter: { title: { eq: $title } }, first: 1) {
         nodes {
           identifier
           url
-          description
         }
       }
     }`,
-    { term: needle }
+    { title }
   );
 
-  return data.issueSearch.nodes.find((issue) => issue.description?.includes(needle));
+  return data.issues.nodes[0];
 }
 
 export async function POST() {
@@ -135,7 +133,7 @@ export async function POST() {
     }> = [];
 
     for (const migration of MIGRATIONS) {
-      const existing = await findExistingIssue(apiKey, migration.gh);
+      const existing = await findExistingIssue(apiKey, migration.title);
       if (existing) {
         results.push({
           github: migration.gh,

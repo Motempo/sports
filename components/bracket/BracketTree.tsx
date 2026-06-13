@@ -1,0 +1,123 @@
+"use client";
+
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import type { BracketRound, MatchInfo } from "@/lib/types";
+import { getRoundLabel, ROUND_ORDER } from "@/lib/bracket-constants";
+import { MatchCard } from "./MatchCard";
+
+interface BracketTreeProps {
+  grouped: Record<BracketRound, MatchInfo[]>;
+}
+
+function BracketColumn({
+  round,
+  matches,
+  side,
+}: {
+  round: BracketRound;
+  matches: MatchInfo[];
+  side: "left" | "right" | "center";
+}) {
+  if (matches.length === 0) return null;
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-3",
+        side === "center" && "items-center",
+        side === "left" && "items-end",
+        side === "right" && "items-start"
+      )}
+    >
+      <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+        {getRoundLabel(round)}
+      </p>
+      {matches.map((match) => (
+        <div key={match.id} className="w-full min-w-[200px] max-w-[240px]">
+          <MatchCard match={match} compact />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
+  const splitMatches = (matches: MatchInfo[]) => {
+    const half = Math.ceil(matches.length / 2);
+    return { left: matches.slice(0, half), right: matches.slice(half) };
+  };
+
+  return (
+    <div className="hidden lg:block">
+      <div className="overflow-x-auto pb-4">
+        <div className="mx-auto flex min-w-max items-center justify-center gap-6 px-4">
+          {(["R32", "R16", "QF", "SF"] as BracketRound[]).map((round) => {
+            const matches = grouped[round];
+            if (!matches.length) return null;
+            const { left, right } = splitMatches(matches);
+
+            return (
+              <div key={round} className="flex gap-12">
+                <BracketColumn round={round} matches={left} side="left" />
+                <BracketColumn round={round} matches={right} side="right" />
+              </div>
+            );
+          })}
+          <BracketColumn round="FINAL" matches={grouped.FINAL} side="center" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
+  const [activeRound, setActiveRound] = useState<BracketRound>("R32");
+  const availableRounds = ROUND_ORDER.filter((r) => grouped[r].length > 0);
+
+  return (
+    <div className="lg:hidden">
+      <div className="flex gap-1 overflow-x-auto border-b border-border px-4 pb-0">
+        {availableRounds.map((round) => (
+          <button
+            key={round}
+            type="button"
+            onClick={() => setActiveRound(round)}
+            className={cn(
+              "shrink-0 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors",
+              activeRound === round
+                ? "border-accent text-foreground"
+                : "border-transparent text-muted hover:text-foreground"
+            )}
+          >
+            {getRoundLabel(round)}
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-col gap-3 p-4">
+        {grouped[activeRound].map((match) => (
+          <MatchCard key={match.id} match={match} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function BracketTree({ grouped }: BracketTreeProps) {
+  const totalMatches = Object.values(grouped).flat().length;
+
+  if (totalMatches === 0) {
+    return (
+      <p className="px-4 py-8 text-center text-muted">
+        Bracket data will appear as the tournament approaches.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <DesktopBracket grouped={grouped} />
+      <MobileBracket grouped={grouped} />
+    </>
+  );
+}

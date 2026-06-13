@@ -1,0 +1,11 @@
+{
+  "ARG": "ar", "AUS": "au", "AUT": "at", "BEL": "be", "BRA": "br", "CAN": "ca",
+  "CHI": "cl", "COL": "co", "CRO": "hr", "DEN": "dk", "ECU": "ec", "EGY": "eg",
+  "ENG": "gb-eng", "ESP": "es", "FRA": "fr", "GER": "de", "GHA": "gh", "IRN": "ir",
+  "ITA": "it", "JPN": "jp", "KOR": "kr", "MAR": "ma", "MEX": "mx", "NED": "nl",
+  "NOR": "no", "PAR": "py", "POR": "pt", "QAT": "qa", "RSA": "za", "SEN": "sn",
+  "SUI": "ch", "TUN": "tn", "URU": "uy", "USA": "us", "UZB": "uz", "WAL": "gb-wls",
+  "ALG": "dz", "CPV": "cv", "CIV": "ci", "CUW": "cw", "NZL": "nz", "PAN": "pa",
+  "SAU": "sa", "SCO": "gb-sct", "TUR": "tr", "UKR": "ua", "IRQ": "iq", "JOR": "jo",
+  "BOL": "bo", "CRC": "cr", "HON": "hn", "JAM": "jm", "HTI": "ht", "TBD": "un"
+}

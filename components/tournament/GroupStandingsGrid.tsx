@@ -84,7 +84,7 @@ export function GroupStandingsGrid({ standings }: GroupStandingsGridProps) {
         <GroupCard group={active} />
       </div>
 
-      <div className="hidden grid-cols-2 gap-3 lg:grid xl:grid-cols-3">
+      <div className="hidden gap-3 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         {standings.map((g) => (
           <GroupCard key={g.groupId} group={g} />
         ))}

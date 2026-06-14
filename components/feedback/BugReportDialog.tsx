@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Dialog,
   DialogContent,
@@ -13,15 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { compressBugScreenshot } from "@/lib/compressBugScreenshot";
+import {
+  canPreviewAttachment,
+  formatAttachmentSize,
+  MAX_ATTACHMENT_BYTES,
+  prepareFeedbackAttachment,
+  resolveAttachmentMimeType,
+} from "@/lib/feedback-attachment";
 import type { InferredIntent } from "@/lib/feedback-context";
 import { cn } from "@/lib/utils";
-import { ImagePlus, Loader2, MessageSquarePlus, Sparkles, X } from "lucide-react";
-
-const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
-const ACCEPTED_INPUT = ACCEPTED_TYPES.join(",");
-
-type AcceptedMime = (typeof ACCEPTED_TYPES)[number];
+import { FileIcon, ImagePlus, Loader2, MessageSquarePlus, Sparkles, X } from "lucide-react";
 
 function readFileAsBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -59,12 +61,16 @@ async function apiErrorMessage(res: Response, fallback: string): Promise<string>
   }
 
   if (res.status === 413) {
-    return "Your feedback is too large. Try without a screenshot or use a smaller image.";
+    return "Your feedback is too large. Try without an attachment or use a smaller file.";
   }
   if (res.status === 503) {
     return "Submit feedback is temporarily unavailable. Please try again in a few minutes.";
   }
   return fallback;
+}
+
+function hasFileDrag(dataTransfer: DataTransfer | null): boolean {
+  return Boolean(dataTransfer?.types && Array.from(dataTransfer.types).includes("Files"));
 }
 
 interface Props {
@@ -78,23 +84,26 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
 
   const [description, setDescription] = useState("");
   const [inferredIntent, setInferredIntent] = useState<InferredIntent | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isCompressing, setIsCompressing] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
+  const [isProcessingAttachment, setIsProcessingAttachment] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
   const [improveAvailable, setImproveAvailable] = useState(false);
+  const dragDepthRef = useRef(0);
+  const applyAttachmentRef = useRef<(file: File) => Promise<void>>(async () => {});
+  const busyRef = useRef(false);
 
   const resetForm = useCallback(() => {
     setDescription("");
     setInferredIntent(null);
-    setImageFile(null);
-    if (imagePreview) URL.revokeObjectURL(imagePreview);
-    setImagePreview(null);
+    setAttachmentFile(null);
+    if (attachmentPreview) URL.revokeObjectURL(attachmentPreview);
+    setAttachmentPreview(null);
     setIsDragging(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [imagePreview]);
+  }, [attachmentPreview]);
 
   useEffect(() => {
     if (!open) {
@@ -121,74 +130,108 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
     pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
   });
 
-  const busy = isSubmitting || isImproving || isCompressing;
+  const busy = isSubmitting || isImproving || isProcessingAttachment;
 
   const handleDescriptionChange = (value: string) => {
     setDescription(value);
     setInferredIntent(null);
   };
 
-  const applyImageFile = useCallback(
+  const applyAttachmentFile = useCallback(
     async (file: File) => {
-      if (!ACCEPTED_TYPES.includes(file.type as AcceptedMime)) {
-        toast({
-          variant: "destructive",
-          title: "Invalid image",
-          description: "Use PNG, JPEG, or WebP.",
-        });
-        return;
-      }
-
-      setIsCompressing(true);
+      setIsProcessingAttachment(true);
       try {
-        const compressed = await compressBugScreenshot(file);
-        if (imagePreview) URL.revokeObjectURL(imagePreview);
-        setImageFile(compressed);
-        setImagePreview(URL.createObjectURL(compressed));
+        const prepared = await prepareFeedbackAttachment(file);
+        if (attachmentPreview) URL.revokeObjectURL(attachmentPreview);
+        setAttachmentFile(prepared);
+        setAttachmentPreview(
+          canPreviewAttachment(prepared.type)
+            ? URL.createObjectURL(prepared)
+            : null
+        );
       } catch (e) {
         toast({
           variant: "destructive",
-          title: "Could not use image",
-          description: e instanceof Error ? e.message : "Try a smaller screenshot.",
+          title: "Could not use attachment",
+          description: e instanceof Error ? e.message : "Try a smaller file.",
         });
       } finally {
-        setIsCompressing(false);
+        setIsProcessingAttachment(false);
       }
     },
-    [imagePreview, toast]
+    [attachmentPreview, toast]
   );
+
+  applyAttachmentRef.current = applyAttachmentFile;
+  busyRef.current = busy;
+
+  useEffect(() => {
+    if (!open) return;
+
+    const resetDragState = () => {
+      dragDepthRef.current = 0;
+      setIsDragging(false);
+    };
+
+    const onDragEnter = (e: DragEvent) => {
+      if (!hasFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+      dragDepthRef.current += 1;
+      if (!busyRef.current) setIsDragging(true);
+    };
+
+    const onDragLeave = (e: DragEvent) => {
+      if (!hasFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+      dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+      if (dragDepthRef.current === 0) setIsDragging(false);
+    };
+
+    const onDragOver = (e: DragEvent) => {
+      if (!hasFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+    };
+
+    const onDrop = (e: DragEvent) => {
+      if (!hasFileDrag(e.dataTransfer)) return;
+      e.preventDefault();
+      resetDragState();
+      if (busyRef.current) return;
+      const file = e.dataTransfer?.files?.[0];
+      if (file) void applyAttachmentRef.current(file);
+    };
+
+    const onDragEnd = () => {
+      resetDragState();
+    };
+
+    window.addEventListener("dragenter", onDragEnter);
+    window.addEventListener("dragleave", onDragLeave);
+    window.addEventListener("dragover", onDragOver);
+    window.addEventListener("drop", onDrop);
+    window.addEventListener("dragend", onDragEnd);
+
+    return () => {
+      window.removeEventListener("dragenter", onDragEnter);
+      window.removeEventListener("dragleave", onDragLeave);
+      window.removeEventListener("dragover", onDragOver);
+      window.removeEventListener("drop", onDrop);
+      window.removeEventListener("dragend", onDragEnd);
+      resetDragState();
+    };
+  }, [open]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) void applyImageFile(file);
+    if (file) void applyAttachmentFile(file);
     e.target.value = "";
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!busy) setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    if (busy) return;
-    const file = e.dataTransfer.files?.[0];
-    if (file) void applyImageFile(file);
-  };
-
-  const clearImage = () => {
-    setImageFile(null);
-    if (imagePreview) URL.revokeObjectURL(imagePreview);
-    setImagePreview(null);
+  const clearAttachment = () => {
+    setAttachmentFile(null);
+    if (attachmentPreview) URL.revokeObjectURL(attachmentPreview);
+    setAttachmentPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -245,14 +288,14 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
     }
 
     let screenshotBase64: string | undefined;
-    if (imageFile) {
+    if (attachmentFile) {
       try {
-        screenshotBase64 = await readFileAsBase64(imageFile);
+        screenshotBase64 = await readFileAsBase64(attachmentFile);
       } catch {
         toast({
           variant: "destructive",
-          title: "Could not read screenshot",
-          description: "Try another image or submit without one.",
+          title: "Could not read attachment",
+          description: "Try another file or submit without one.",
         });
         return;
       }
@@ -268,8 +311,10 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
           inferredIntent,
           ...contextPayload(),
           screenshotBase64,
-          screenshotMimeType: imageFile ? "image/jpeg" : undefined,
-          screenshotFilename: imageFile?.name,
+          screenshotMimeType: attachmentFile
+            ? resolveAttachmentMimeType(attachmentFile)
+            : undefined,
+          screenshotFilename: attachmentFile?.name,
         }),
       });
 
@@ -293,7 +338,8 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border-border bg-card sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -320,50 +366,59 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedback-screenshot">Screenshot (optional)</Label>
+            <Label htmlFor="feedback-attachment">Attachment (optional)</Label>
             <input
-              id="feedback-screenshot"
+              id="feedback-attachment"
               ref={fileInputRef}
               type="file"
-              accept={ACCEPTED_INPUT}
+              accept="*/*"
               className="sr-only"
               onChange={handleFileChange}
               disabled={busy}
             />
-            {imagePreview ? (
+            {attachmentFile ? (
               <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/30">
-                <img
-                  src={imagePreview}
-                  alt="Screenshot preview"
-                  className="max-h-40 w-full object-contain"
-                />
+                {attachmentPreview ? (
+                  <img
+                    src={attachmentPreview}
+                    alt="Attachment preview"
+                    className="max-h-40 w-full object-contain"
+                  />
+                ) : (
+                  <div className="flex items-center gap-3 px-4 py-6">
+                    <FileIcon className="h-8 w-8 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{attachmentFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatAttachmentSize(attachmentFile.size)}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <Button
                   type="button"
                   variant="secondary"
                   size="icon"
                   className="absolute right-2 top-2 h-8 w-8"
-                  onClick={clearImage}
+                  onClick={clearAttachment}
                   disabled={busy}
-                  aria-label="Remove screenshot"
+                  aria-label="Remove attachment"
                 >
                   <X className="h-4 w-4" />
                 </Button>
                 <label
-                  htmlFor="feedback-screenshot"
+                  htmlFor="feedback-attachment"
                   className={cn(
                     "block cursor-pointer border-t border-border/50 px-2 py-2 text-center text-[10px] text-muted-foreground",
                     busy && "pointer-events-none opacity-50"
                   )}
                 >
-                  Tap to replace screenshot
+                  Tap to replace attachment
                 </label>
               </div>
             ) : (
               <label
-                htmlFor="feedback-screenshot"
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
+                htmlFor="feedback-attachment"
                 className={cn(
                   "flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 transition-colors",
                   "text-muted-foreground hover:border-primary/50 hover:bg-secondary/40 hover:text-foreground",
@@ -371,16 +426,18 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
                   busy && "pointer-events-none opacity-50"
                 )}
               >
-                {isCompressing ? (
+                {isProcessingAttachment ? (
                   <Loader2 className="h-8 w-8 animate-spin" />
                 ) : (
                   <ImagePlus className="h-8 w-8" />
                 )}
                 <span className="text-sm font-medium">
-                  {isDragging ? "Drop screenshot here" : "Tap to add screenshot"}
+                  {isDragging ? "Drop anywhere to attach" : "Tap to add attachment"}
                 </span>
-                <span className="hidden text-xs sm:inline">or drag and drop (PNG, JPEG, WebP)</span>
-                <span className="text-xs sm:hidden">PNG, JPEG, or WebP</span>
+                <span className="hidden text-xs sm:inline">
+                  or drop a file anywhere on screen (up to {formatAttachmentSize(MAX_ATTACHMENT_BYTES)})
+                </span>
+                <span className="text-xs sm:hidden">Or drop anywhere on screen</span>
               </label>
             )}
           </div>
@@ -412,5 +469,25 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+      {open &&
+        isDragging &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+            aria-hidden
+          >
+            <div className="pointer-events-none flex max-w-sm flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-primary bg-card px-8 py-7 text-center shadow-xl">
+              <ImagePlus className="h-10 w-10 text-primary" />
+              <p className="text-base font-semibold text-foreground">Drop to attach file</p>
+              <p className="text-sm text-muted-foreground">
+                Release anywhere on screen to add it to your feedback
+              </p>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
   );
 }

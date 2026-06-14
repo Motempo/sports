@@ -1,10 +1,12 @@
 "use client";
 
+import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
 import { cn } from "@/lib/utils";
 import { formatLocalMatchTime } from "@/lib/match-schedule";
 import { getMatchdayLabel, getMatchStakes } from "@/lib/match-context";
 import type { GroupStandings } from "@/lib/group-standings";
+import { formatMatchVenueLine } from "@/lib/match-venue";
 import type { MatchInfo } from "@/lib/types";
 
 interface MatchScheduleRowProps {
@@ -47,7 +49,7 @@ export function MatchScheduleRow({
   const groupLabel = formatGroupLabel(match.group);
   const matchday = showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
   const stakes = showContext && standings ? getMatchStakes(match, standings) : null;
-  const venueLine = [match.venue, match.city].filter(Boolean).join(" · ");
+  const venueLine = formatMatchVenueLine(match);
 
   return (
     <div
@@ -112,10 +114,13 @@ export function MatchScheduleRow({
         </div>
       </div>
 
-      {venueLine && (
-        <p className="mt-2 pl-[calc(3.25rem+0.75rem)] text-[11px] text-muted sm:pl-[calc(4rem+0.75rem)] sm:text-[12px]">
-          {venueLine}
-        </p>
+      {(venueLine || match.status !== "CANCELLED") && (
+        <div className="mt-2 space-y-1.5 pl-[calc(3.25rem+0.75rem)] sm:pl-[calc(4rem+0.75rem)]">
+          {venueLine && (
+            <p className="text-[11px] text-muted sm:text-[12px]">{venueLine}</p>
+          )}
+          {match.status !== "CANCELLED" && <MatchWatchLinks match={match} />}
+        </div>
       )}
     </div>
   );

@@ -1,0 +1,226 @@
+{
+  "537417": {
+    "fifaMatch": 73,
+    "home": { "code": "2A", "name": "Runner-up Group A" },
+    "away": { "code": "2B", "name": "Runner-up Group B" },
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "537423": {
+    "fifaMatch": 76,
+    "home": { "code": "1C", "name": "Winner Group C" },
+    "away": { "code": "2F", "name": "Runner-up Group F" },
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "537415": {
+    "fifaMatch": 74,
+    "home": { "code": "1E", "name": "Winner Group E" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups A/B/C/D/F" },
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "537418": {
+    "fifaMatch": 75,
+    "home": { "code": "1F", "name": "Winner Group F" },
+    "away": { "code": "2C", "name": "Runner-up Group C" },
+    "venue": "Estadio BBVA",
+    "city": "Monterrey, Mexico"
+  },
+  "537424": {
+    "fifaMatch": 78,
+    "home": { "code": "2E", "name": "Runner-up Group E" },
+    "away": { "code": "2I", "name": "Runner-up Group I" },
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "537416": {
+    "fifaMatch": 77,
+    "home": { "code": "1I", "name": "Winner Group I" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups C/D/F/G/H" },
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "537425": {
+    "fifaMatch": 79,
+    "home": { "code": "1A", "name": "Winner Group A" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups C/E/F/H/I" },
+    "venue": "Estadio Azteca",
+    "city": "Mexico City, Mexico"
+  },
+  "537426": {
+    "fifaMatch": 80,
+    "home": { "code": "1L", "name": "Winner Group L" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups E/H/I/J/K" },
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "537422": {
+    "fifaMatch": 82,
+    "home": { "code": "1G", "name": "Winner Group G" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups A/E/H/I/J" },
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "537421": {
+    "fifaMatch": 81,
+    "home": { "code": "1D", "name": "Winner Group D" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups B/E/F/I/J" },
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "537420": {
+    "fifaMatch": 84,
+    "home": { "code": "1H", "name": "Winner Group H" },
+    "away": { "code": "2J", "name": "Runner-up Group J" },
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "537419": {
+    "fifaMatch": 83,
+    "home": { "code": "2K", "name": "Runner-up Group K" },
+    "away": { "code": "2L", "name": "Runner-up Group L" },
+    "venue": "BMO Field",
+    "city": "Toronto, Canada"
+  },
+  "537429": {
+    "fifaMatch": 85,
+    "home": { "code": "1B", "name": "Winner Group B" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups E/F/G/I/J" },
+    "venue": "BC Place",
+    "city": "Vancouver, Canada"
+  },
+  "537428": {
+    "fifaMatch": 88,
+    "home": { "code": "2D", "name": "Runner-up Group D" },
+    "away": { "code": "2G", "name": "Runner-up Group G" },
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "537427": {
+    "fifaMatch": 86,
+    "home": { "code": "1J", "name": "Winner Group J" },
+    "away": { "code": "2H", "name": "Runner-up Group H" },
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "537430": {
+    "fifaMatch": 87,
+    "home": { "code": "1K", "name": "Winner Group K" },
+    "away": { "code": "3RD", "name": "Best 3rd · Groups D/E/I/J/L" },
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "537376": {
+    "fifaMatch": 90,
+    "home": { "code": "W73", "name": "Winner Match 73" },
+    "away": { "code": "W75", "name": "Winner Match 75" },
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "537375": {
+    "fifaMatch": 89,
+    "home": { "code": "W74", "name": "Winner Match 74" },
+    "away": { "code": "W77", "name": "Winner Match 77" },
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "537377": {
+    "fifaMatch": 91,
+    "home": { "code": "W76", "name": "Winner Match 76" },
+    "away": { "code": "W78", "name": "Winner Match 78" },
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "537378": {
+    "fifaMatch": 92,
+    "home": { "code": "W79", "name": "Winner Match 79" },
+    "away": { "code": "W80", "name": "Winner Match 80" },
+    "venue": "Estadio Azteca",
+    "city": "Mexico City, Mexico"
+  },
+  "537379": {
+    "fifaMatch": 93,
+    "home": { "code": "W83", "name": "Winner Match 83" },
+    "away": { "code": "W84", "name": "Winner Match 84" },
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "537380": {
+    "fifaMatch": 94,
+    "home": { "code": "W81", "name": "Winner Match 81" },
+    "away": { "code": "W82", "name": "Winner Match 82" },
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "537381": {
+    "fifaMatch": 95,
+    "home": { "code": "W86", "name": "Winner Match 86" },
+    "away": { "code": "W88", "name": "Winner Match 88" },
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "537382": {
+    "fifaMatch": 96,
+    "home": { "code": "W85", "name": "Winner Match 85" },
+    "away": { "code": "W87", "name": "Winner Match 87" },
+    "venue": "BC Place",
+    "city": "Vancouver, Canada"
+  },
+  "537383": {
+    "fifaMatch": 97,
+    "home": { "code": "W89", "name": "Winner Match 89" },
+    "away": { "code": "W90", "name": "Winner Match 90" },
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "537384": {
+    "fifaMatch": 98,
+    "home": { "code": "W93", "name": "Winner Match 93" },
+    "away": { "code": "W94", "name": "Winner Match 94" },
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "537385": {
+    "fifaMatch": 99,
+    "home": { "code": "W91", "name": "Winner Match 91" },
+    "away": { "code": "W92", "name": "Winner Match 92" },
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "537386": {
+    "fifaMatch": 100,
+    "home": { "code": "W95", "name": "Winner Match 95" },
+    "away": { "code": "W96", "name": "Winner Match 96" },
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "537387": {
+    "fifaMatch": 101,
+    "home": { "code": "W97", "name": "Winner Match 97" },
+    "away": { "code": "W98", "name": "Winner Match 98" },
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "537388": {
+    "fifaMatch": 102,
+    "home": { "code": "W99", "name": "Winner Match 99" },
+    "away": { "code": "W100", "name": "Winner Match 100" },
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "537389": {
+    "fifaMatch": 103,
+    "home": { "code": "L101", "name": "Loser Match 101" },
+    "away": { "code": "L102", "name": "Loser Match 102" },
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "537390": {
+    "fifaMatch": 104,
+    "home": { "code": "W101", "name": "Winner Match 101" },
+    "away": { "code": "W102", "name": "Winner Match 102" },
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  }
+}

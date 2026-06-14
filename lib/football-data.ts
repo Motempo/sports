@@ -1,3 +1,6 @@
+import { enrichMatchVenues } from "@/lib/match-venue";
+import { enrichKnockoutBracket } from "@/lib/knockout-enrich";
+import { computeGroupStandings } from "@/lib/group-standings";
 import teamIsoMap from "@/data/team-iso-map.json";
 import teamSeed from "@/data/team-seed.json";
 import type { BracketRound, MatchInfo, MatchStage, TeamInfo } from "@/lib/types";
@@ -100,7 +103,7 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
     awayScore: m.score.fullTime.away,
     status: toStatus(m.status),
     utcDate: m.utcDate,
-    venue: m.venue ?? "TBD",
+    venue: m.venue?.trim() || "",
     winnerCode: m.score.winner ?? undefined,
   };
 }
@@ -190,8 +193,6 @@ function generateSeedGroupMatches(): MatchInfo[] {
     const groupTeams = teams.slice(gi * 4, gi * 4 + 4);
     if (groupTeams.length < 4) return;
 
-    const daySlot = now.getDate() % 4;
-
     roundRobin.forEach((pair, pi) => {
       let d = new Date(now);
       let finished = false;
@@ -201,13 +202,10 @@ function generateSeedGroupMatches(): MatchInfo[] {
         d.setHours(14 + (gi % 4) * 2, 0, 0, 0);
         finished = true;
       } else if (pi === 4) {
-        const playsToday = gi % 4 === daySlot;
-        if (playsToday) {
-          d.setHours(12 + (gi % 4) * 2, 0, 0, 0);
-        } else {
-          d.setDate(d.getDate() + 1 + Math.floor(gi / 4));
-          d.setHours(14 + (gi % 4) * 2, 0, 0, 0);
-        }
+        // Matchday 1 — full slate on the current local date, staggered kickoffs.
+        const hour = 10 + Math.floor(gi / 2) * 2;
+        const minute = (gi % 2) * 30;
+        d.setHours(hour, minute, 0, 0);
       } else {
         d = endOfLocalDay(now);
         d.setDate(d.getDate() + 1 + Math.floor(gi / 4));
@@ -339,16 +337,25 @@ export async function fetchMatches(): Promise<{
 
       if (res.ok) {
         const data = (await res.json()) as { matches: FootballDataMatch[] };
-        const all = data.matches.map(parseApiMatch);
+        const all = await enrichMatchVenues(data.matches.map(parseApiMatch), {
+          footballDataApiKey: apiKey,
+          useGrok: true,
+        });
 
         if (all.length > 0) {
           const groupMatches = all.filter((m) => m.stage === "GROUP");
-          const knockout = all.filter((m) => isKnockoutStage(m.stage));
+          const standings = computeGroupStandings(groupMatches);
+          const knockoutRaw = all.filter((m) => isKnockoutStage(m.stage));
+          const knockout = enrichKnockoutBracket(
+            knockoutRaw.length > 0 ? knockoutRaw : generateSeedBracket(),
+            groupMatches,
+            standings
+          );
           const todayMatches = selectTodayMatches(all);
           const upcomingMatches = selectUpcomingMatches(all);
 
           return {
-            matches: knockout.length > 0 ? knockout : generateSeedBracket(),
+            matches: knockout,
             groupMatches,
             todayMatches,
             upcomingMatches,
@@ -363,7 +370,12 @@ export async function fetchMatches(): Promise<{
   }
 
   const groupMatches = generateSeedGroupMatches();
-  const knockoutMatches = generateSeedBracket();
+  const standings = computeGroupStandings(groupMatches);
+  const knockoutMatches = enrichKnockoutBracket(
+    generateSeedBracket(),
+    groupMatches,
+    standings
+  );
   const todayMatches = selectTodayMatches(groupMatches);
   const upcomingMatches = selectUpcomingMatches(groupMatches);
 

@@ -36,7 +36,7 @@ function BracketColumn({
       </p>
       {matches.map((match) => (
         <div key={match.id} className="w-full min-w-[200px] max-w-[240px]">
-          <MatchCard match={match} compact />
+          <MatchCard match={match} compact showForecast />
         </div>
       ))}
     </div>
@@ -188,7 +188,7 @@ function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]>
           </p>
         ) : (
           grouped[activeRound].map((match) => (
-            <MatchCard key={match.id} match={match} />
+            <MatchCard key={match.id} match={match} showForecast />
           ))
         )}
       </div>

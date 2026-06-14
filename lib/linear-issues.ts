@@ -5,7 +5,7 @@ import {
   type InferredIntent,
 } from "@/lib/feedback-context";
 
-type ImageMimeType = "image/png" | "image/jpeg" | "image/webp";
+type AttachmentMimeType = string;
 
 type LinearGraphqlError = { message: string };
 type LinearGraphqlResponse<T> = {
@@ -18,7 +18,7 @@ let cachedTeamId: string | null = null;
 export interface FeedbackPayload {
   description: string;
   screenshotBase64?: string;
-  screenshotMimeType?: ImageMimeType;
+  screenshotMimeType?: AttachmentMimeType;
   screenshotFilename?: string;
   pageUrl?: string;
   inferredIntent?: InferredIntent | null;
@@ -108,21 +108,44 @@ async function resolveTeamId(): Promise<string> {
   return match.id;
 }
 
-function mimeToExt(mime: ImageMimeType): string {
-  if (mime === "image/png") return "png";
-  if (mime === "image/webp") return "webp";
-  return "jpg";
+function extFromMime(mime: string): string {
+  const map: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/svg+xml": "svg",
+    "image/heic": "heic",
+    "image/heif": "heif",
+    "image/avif": "avif",
+    "image/bmp": "bmp",
+    "image/tiff": "tiff",
+    "application/pdf": "pdf",
+    "text/plain": "txt",
+    "text/csv": "csv",
+    "application/json": "json",
+    "application/zip": "zip",
+    "video/mp4": "mp4",
+    "video/quicktime": "mov",
+  };
+  return map[mime] ?? "bin";
 }
 
-async function uploadScreenshot(
-  imageBase64: string,
-  imageMimeType: ImageMimeType,
+function resolveUploadFilename(mimeType: string, filename?: string): string {
+  const trimmed = filename?.trim();
+  if (trimmed) return trimmed;
+  return `feedback-${randomUUID()}.${extFromMime(mimeType)}`;
+}
+
+async function uploadAttachment(
+  fileBase64: string,
+  mimeType: string,
   filename?: string
 ): Promise<string | undefined> {
   try {
-    const buffer = Buffer.from(imageBase64, "base64");
-    const ext = mimeToExt(imageMimeType);
-    const uploadFilename = filename?.trim() || `feedback-${randomUUID()}.${ext}`;
+    const contentType = mimeType.trim() || "application/octet-stream";
+    const buffer = Buffer.from(fileBase64, "base64");
+    const uploadFilename = resolveUploadFilename(contentType, filename);
 
     const data = await linearRequest<{
       fileUpload: {
@@ -149,7 +172,7 @@ async function uploadScreenshot(
       }`,
       {
         filename: uploadFilename,
-        contentType: imageMimeType,
+        contentType,
         size: buffer.byteLength,
       }
     );
@@ -159,7 +182,7 @@ async function uploadScreenshot(
       return undefined;
     }
 
-    const uploadHeaders = new Headers({ "Content-Type": imageMimeType });
+    const uploadHeaders = new Headers({ "Content-Type": contentType });
     for (const header of upload.headers ?? []) {
       uploadHeaders.set(header.key, header.value);
     }
@@ -180,9 +203,9 @@ async function uploadScreenshot(
 export async function createFeedbackIssue(payload: FeedbackPayload): Promise<FeedbackResult> {
   const teamId = await resolveTeamId();
 
-  let screenshotUrl: string | undefined;
+  let attachmentUrl: string | undefined;
   if (payload.screenshotBase64 && payload.screenshotMimeType) {
-    screenshotUrl = await uploadScreenshot(
+    attachmentUrl = await uploadAttachment(
       payload.screenshotBase64,
       payload.screenshotMimeType,
       payload.screenshotFilename
@@ -212,7 +235,9 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
         description: buildIssueBody({
           description: payload.description,
           pageUrl: payload.pageUrl,
-          screenshotUrl,
+          screenshotUrl: attachmentUrl,
+          attachmentFilename: payload.screenshotFilename,
+          attachmentMimeType: payload.screenshotMimeType,
           inferredIntent: payload.inferredIntent,
         }),
       },

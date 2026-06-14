@@ -35,7 +35,7 @@ export function FeedRow({
       className={cn(
         "flex w-full gap-3 px-3 py-3.5 text-left transition-colors sm:px-4",
         onClick && "cursor-pointer active:bg-surface sm:hover:bg-surface",
-        "min-h-[5.5rem]",
+        "min-h-[7rem] flex-1 sm:min-h-[7.25rem]",
         className
       )}
     >
@@ -50,7 +50,7 @@ export function FeedRow({
             <span className="truncate text-muted">@{handle}</span>
           )}
         </div>
-        <p className="mt-0.5 break-words text-[14px] leading-snug text-foreground sm:text-[15px]">
+        <p className="mt-0.5 min-h-[2.75rem] line-clamp-2 break-words text-[14px] leading-snug text-foreground sm:min-h-[2.875rem] sm:text-[15px]">
           {content}
         </p>
         {meta && (

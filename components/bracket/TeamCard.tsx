@@ -35,7 +35,7 @@ export function TeamCard({
         align === "right" && "flex-row-reverse text-right",
         isWinner && "font-bold",
         isLoser && "opacity-60",
-        compact ? "min-w-0 flex-1" : ""
+        compact ? "shrink-0" : ""
       )}
     >
       {isPlaceholder ? (
@@ -50,17 +50,16 @@ export function TeamCard({
       ) : (
         <TeamEmblem team={team} size={flagSize} />
       )}
-      <div className={cn("min-w-0", align === "right" && "items-end")}>
+      <div className={cn(!compact && "min-w-0", align === "right" && "items-end")}>
         <p
           className={cn(
-            "truncate font-semibold",
-            compact ? "text-[11px] sm:text-[12px]" : "text-[13px]",
+            "font-semibold",
+            compact ? "whitespace-nowrap text-[11px] sm:text-[12px]" : "truncate text-[13px]",
             isPlaceholder && "text-muted"
           )}
           title={team.name}
         >
-          <span className="sm:hidden">{displayName}</span>
-          <span className="hidden truncate sm:inline">{displayName}</span>
+          {displayName}
         </p>
         {!compact && !isPlaceholder && (
           <p className="text-[11px] text-muted">

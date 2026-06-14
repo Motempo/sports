@@ -20,7 +20,7 @@ export function FeedWidget({ title, children, footer, className }: FeedWidgetPro
       <header className="shrink-0 border-b border-border px-3 py-3 sm:px-4">
         <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
       </header>
-      <div className="flex min-h-[16.5rem] flex-1 flex-col divide-y divide-border">{children}</div>
+      <div className="flex min-h-[21rem] flex-1 flex-col divide-y divide-border [&>*]:flex-1">{children}</div>
       {footer && (
         <footer className="mt-auto shrink-0 border-t border-border px-3 py-3 sm:px-4">
           {footer}

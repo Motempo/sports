@@ -71,7 +71,8 @@ export async function WorldCupPageContent() {
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
                 <div className="mb-3 rounded-2xl border border-dashed border-border bg-surface/50 px-4 py-3 text-[13px] text-muted">
-                  Knockout bracket preview — some slots stay open until all 72 group games finish.
+                  Knockout bracket — slot labels show who fills each spot (e.g. 2A = Group A
+                  runner-up). Teams appear as groups finish and results come in.
                 </div>
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Knockout Bracket</h2>

@@ -1,9 +1,18 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
-import { combineScheduleMatches, groupMatchesByLocalDay } from "@/lib/match-schedule";
+import {
+  combineScheduleMatches,
+  groupMatchesByLocalDay,
+  selectScheduleMatches,
+  type MatchDayGroup,
+} from "@/lib/match-schedule";
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
+
+const INITIAL_VISIBLE_DAYS = 2;
+const LOAD_MORE_DAYS = 2;
 
 interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
@@ -13,6 +22,36 @@ interface ScheduleByDayProps {
   standings?: GroupStandings[];
 }
 
+function DayColumn({
+  group,
+  groupMatches,
+  standings,
+}: {
+  group: MatchDayGroup;
+  groupMatches?: MatchInfo[];
+  standings?: GroupStandings[];
+}) {
+  return (
+    <div className="min-w-0">
+      <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
+        {group.label}
+      </h3>
+      <div className="overflow-hidden rounded-2xl border border-border bg-background">
+        {group.matches.map((match, index) => (
+          <MatchScheduleRow
+            key={match.id}
+            match={match}
+            showDivider={index > 0}
+            groupMatches={groupMatches}
+            standings={standings}
+            showContext={!!groupMatches && !!standings}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ScheduleByDay({
   todayMatches,
   upcomingMatches,
@@ -20,8 +59,17 @@ export function ScheduleByDay({
   groupMatches,
   standings,
 }: ScheduleByDayProps) {
-  const scheduleMatches = combineScheduleMatches(todayMatches, upcomingMatches);
-  const dayGroups = groupMatchesByLocalDay(scheduleMatches);
+  const dayGroups = useMemo(() => {
+    const scheduleMatches = groupMatches?.length
+      ? selectScheduleMatches(groupMatches)
+      : combineScheduleMatches(todayMatches, upcomingMatches);
+    return groupMatchesByLocalDay(scheduleMatches);
+  }, [groupMatches, todayMatches, upcomingMatches]);
+
+  const [visibleDays, setVisibleDays] = useState(INITIAL_VISIBLE_DAYS);
+
+  const visibleGroups = dayGroups.slice(0, visibleDays);
+  const hasMore = visibleDays < dayGroups.length;
 
   if (dayGroups.length === 0) {
     return (
@@ -48,26 +96,31 @@ export function ScheduleByDay({
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start md:gap-5 xl:grid-cols-3">
-          {dayGroups.map((group) => (
-            <div key={group.dayKey} className="min-w-0">
-              <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
-                {group.label}
-              </h3>
-              <div className="overflow-hidden rounded-2xl border border-border bg-background">
-                {group.matches.map((match, index) => (
-                  <MatchScheduleRow
-                    key={match.id}
-                    match={match}
-                    showDivider={index > 0}
-                    groupMatches={groupMatches}
-                    standings={standings}
-                    showContext={!!groupMatches && !!standings}
-                  />
-                ))}
-              </div>
-            </div>
+          {visibleGroups.map((group) => (
+            <DayColumn
+              key={group.dayKey}
+              group={group}
+              groupMatches={groupMatches}
+              standings={standings}
+            />
           ))}
         </div>
+
+        {hasMore && (
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={() =>
+                setVisibleDays((count) =>
+                  Math.min(count + LOAD_MORE_DAYS, dayGroups.length)
+                )
+              }
+              className="min-h-[44px] rounded-xl border border-border bg-background px-5 text-[15px] font-medium text-link transition-colors hover:bg-surface active:bg-surface"
+            >
+              Show more games
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MAX_ATTACHMENT_BYTES } from "@/lib/feedback-attachment-markdown";
 import { isInferredIntent } from "@/lib/feedback-context";
 import { createFeedbackIssue } from "@/lib/linear-issues";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as {
       description?: string;
       screenshotBase64?: string;
-      screenshotMimeType?: "image/png" | "image/jpeg" | "image/webp";
+      screenshotMimeType?: string;
       screenshotFilename?: string;
       pageUrl?: string;
       inferredIntent?: unknown;
@@ -29,6 +30,18 @@ export async function POST(request: NextRequest) {
 
     if (!body.description?.trim()) {
       return NextResponse.json({ error: "Feedback text is required" }, { status: 400 });
+    }
+
+    if (body.screenshotBase64) {
+      const attachmentBytes = Buffer.byteLength(body.screenshotBase64, "base64");
+      if (attachmentBytes > MAX_ATTACHMENT_BYTES) {
+        return NextResponse.json(
+          {
+            error: "Attachment is too large. Try a smaller file or submit without an attachment.",
+          },
+          { status: 413 }
+        );
+      }
     }
 
     const inferredIntent = isInferredIntent(body.inferredIntent) ? body.inferredIntent : null;

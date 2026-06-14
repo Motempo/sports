@@ -46,6 +46,50 @@ export function formatLocalDayLabel(dayStart: Date, now = new Date()): string {
 }
 
 const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
+const SCHEDULE_STATUSES = new Set<MatchInfo["status"]>([
+  "SCHEDULED",
+  "LIVE",
+  "IN_PLAY",
+  "PAUSED",
+  "FINISHED",
+]);
+
+function startOfLocalDay(now: Date): Date {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function endOfLocalDay(now: Date): Date {
+  const d = startOfLocalDay(now);
+  d.setDate(d.getDate() + 1);
+  return d;
+}
+
+/**
+ * All matches to show in the day-grouped schedule: every game on each local
+ * calendar day from today through the next 30 days, plus any live fixtures.
+ */
+export function selectScheduleMatches(matches: MatchInfo[], now = new Date()): MatchInfo[] {
+  const todayStart = startOfLocalDay(now).getTime();
+  const todayEnd = endOfLocalDay(now).getTime();
+  const horizonEnd = endOfLocalDay(now);
+  horizonEnd.setDate(horizonEnd.getDate() + 30);
+
+  return matches
+    .filter((match) => {
+      if (!SCHEDULE_STATUSES.has(match.status)) return false;
+      if (LIVE_STATUSES.has(match.status)) return true;
+
+      const matchTime = new Date(match.utcDate).getTime();
+      if (match.status === "FINISHED") {
+        return matchTime >= todayStart && matchTime < todayEnd;
+      }
+
+      return matchTime >= todayStart && matchTime < horizonEnd.getTime();
+    })
+    .sort(sortMatchesInDay);
+}
 
 function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
   const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;

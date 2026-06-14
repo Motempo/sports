@@ -1,3 +1,5 @@
+import { attachmentMarkdown } from "@/lib/feedback-attachment-markdown";
+
 export type InferredIntent = "bug" | "feature";
 
 export interface PageContext {
@@ -66,17 +68,30 @@ export function buildIssueBody(options: {
   description: string;
   pageUrl?: string;
   screenshotUrl?: string;
+  attachmentFilename?: string;
+  attachmentMimeType?: string;
   inferredIntent?: InferredIntent | null;
 }): string {
-  const { description, pageUrl, screenshotUrl, inferredIntent } = options;
+  const {
+    description,
+    pageUrl,
+    screenshotUrl,
+    attachmentFilename,
+    attachmentMimeType,
+    inferredIntent,
+  } = options;
   const { pageUrl: normalizedUrl } = parsePageContext(pageUrl);
   const commit =
     process.env.COMMIT_SHA?.trim() ||
     process.env.VERCEL_GIT_COMMIT_SHA?.trim()?.slice(0, 7) ||
     undefined;
 
-  const screenshotMarkdown = screenshotUrl
-    ? `\n\n![Screenshot](${screenshotUrl})`
+  const attachmentBlock = screenshotUrl
+    ? attachmentMarkdown(
+        screenshotUrl,
+        attachmentFilename ?? "attachment",
+        attachmentMimeType
+      )
     : "";
 
   const contextLines = [
@@ -88,7 +103,7 @@ export function buildIssueBody(options: {
 
   return [
     description.trim(),
-    screenshotMarkdown,
+    attachmentBlock,
     "",
     "---",
     "**Context**",

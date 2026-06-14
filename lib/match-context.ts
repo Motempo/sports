@@ -39,11 +39,33 @@ export function getMatchStakes(
   return `${match.homeTeam.code} ${homeNeed}; ${match.awayTeam.code} ${awayNeed}`;
 }
 
+export function isKnockoutSlotCode(code: string): boolean {
+  return /^[12][A-L]$/.test(code) || /^W\d+$/.test(code) || /^L\d+$/.test(code) || code === "3RD";
+}
+
 export function formatKnockoutPlaceholder(code: string, name: string): string {
+  if (isKnockoutSlotCode(code)) return code === "3RD" ? "3rd" : code;
+
+  const winnerGroup = name.match(/^Winner · Group ([A-L])$/);
+  if (winnerGroup) return `1${winnerGroup[1]}`;
+
+  const runnerGroup = name.match(/^Runner-up · Group ([A-L])$/);
+  if (runnerGroup) return `2${runnerGroup[1]}`;
+
+  const winnerKnockout = name.match(/^Winner · (?:R32|QF|Semi) (\d+)$/);
+  if (winnerKnockout) return `W${winnerKnockout[1]}`;
+
+  const winnerMatch = name.match(/^Winner Match (\d+)$/);
+  if (winnerMatch) return `W${winnerMatch[1]}`;
+
+  const loserMatch = name.match(/^Loser Match (\d+)$/);
+  if (loserMatch) return `L${loserMatch[1]}`;
+
   if (code !== "TBD" && name !== "TBD") return name;
   return name !== "TBD" ? name : "TBD";
 }
 
 export function isPlaceholderTeam(code: string, name: string): boolean {
+  if (isKnockoutSlotCode(code)) return true;
   return code === "TBD" || name === "TBD" || name.startsWith("Winner") || name.startsWith("Runner-up") || name.startsWith("3rd");
 }

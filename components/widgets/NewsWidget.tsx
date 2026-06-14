@@ -9,6 +9,12 @@ import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { NewsItem } from "@/lib/types";
 
+function formatNewsPreview(item: NewsItem): string {
+  const summary = item.summary?.trim();
+  if (summary) return summary;
+  return item.title.trim();
+}
+
 interface NewsWidgetProps {
   sportSlug: string;
 }
@@ -64,9 +70,11 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
       >
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex gap-3 px-4 py-3">
+            <div key={i} className="flex min-h-[7rem] flex-1 gap-3 px-4 py-3">
               <Skeleton className="h-10 w-10 rounded-full" />
               <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-3 w-24" />
               </div>
@@ -90,7 +98,7 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
               displayName={item.xName}
               handle={item.xHandle}
               verified={item.verified}
-              content={item.title}
+              content={formatNewsPreview(item)}
               meta={formatXMeta(item.xHandle, item.publishedAt)}
               onClick={() => openDetail(item)}
             />

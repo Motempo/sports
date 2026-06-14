@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enrichNewsItem, fetchNewsItems } from "@/lib/news";
+import { fetchNewsItems } from "@/lib/news";
 import { CURRENT_SPORT_SLUG } from "@/lib/sports";
 
 export const revalidate = 1800;
@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
     if (!item) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    const enriched = await enrichNewsItem(item);
-    return NextResponse.json(enriched);
+    return NextResponse.json(item);
   }
 
   const offset = parseInt(searchParams.get("offset") ?? "0", 10);

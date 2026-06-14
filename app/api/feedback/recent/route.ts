@@ -68,12 +68,13 @@ export async function GET() {
           createdAt: string;
           updatedAt: string;
           description?: string | null;
+          state: { name: string; type: string };
         }>;
       };
     }>(
       apiKey,
       `query RecentIssues($teamId: ID!) {
-        issues(filter: { team: { id: { eq: $teamId } } }, first: 10, orderBy: updatedAt) {
+        issues(filter: { team: { id: { eq: $teamId } } }, first: 25, orderBy: updatedAt) {
           nodes {
             identifier
             title
@@ -81,6 +82,10 @@ export async function GET() {
             createdAt
             updatedAt
             description
+            state {
+              name
+              type
+            }
           }
         }
       }`,
@@ -88,15 +93,23 @@ export async function GET() {
     );
 
     const issues = data.issues.nodes;
+    const openIssues = issues.filter(
+      (issue) => issue.state.type !== "completed" && issue.state.type !== "canceled"
+    );
+
     return NextResponse.json({
       ok: true,
       count: issues.length,
+      openCount: openIssues.length,
       issues: issues.map((issue) => ({
         identifier: issue.identifier,
         title: issue.title,
         url: issue.url,
         createdAt: issue.createdAt,
         updatedAt: issue.updatedAt,
+        state: issue.state.name,
+        stateType: issue.state.type,
+        isOpen: issue.state.type !== "completed" && issue.state.type !== "canceled",
         descriptionPreview: issue.description?.split("\n")[0]?.slice(0, 160) ?? "",
       })),
     });

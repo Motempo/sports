@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { closeLinearIssues, isLinearConfigured } from "@/lib/linear-issues";
 
-/** Shipped work — keep MOT-6 (F1) and newer un triaged reports open. */
+/** Shipped work — run after deploy to close feedback tickets that are live in production. */
 const SHIPPED_IDENTIFIERS = [
+  "MOT-6",
   "MOT-7",
   "MOT-8",
   "MOT-9",
@@ -12,6 +13,10 @@ const SHIPPED_IDENTIFIERS = [
   "MOT-13",
   "MOT-14",
   "MOT-15",
+  "MOT-16",
+  "MOT-17",
+  "MOT-18",
+  "MOT-19",
 ] as const;
 
 const CLOSE_COMMENT =

@@ -136,36 +136,3 @@ export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
 
   return interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle);
 }
-
-export async function enrichNewsItem(item: NewsItem): Promise<NewsItem> {
-  const apiKey = process.env.GUARDIAN_API_KEY;
-  if (!apiKey || item.xHandle !== "guardian_sport") return item;
-
-  try {
-    const q = encodeURIComponent(item.title.slice(0, 80));
-    const res = await fetch(
-      `https://content.guardianapis.com/search?q=${q}&section=football&show-fields=thumbnail,trailText&api-key=${apiKey}`,
-      { next: { revalidate: 1800 } }
-    );
-    if (!res.ok) return item;
-    const data = (await res.json()) as {
-      response?: {
-        results?: Array<{
-          webUrl: string;
-          fields?: { thumbnail?: string; trailText?: string };
-        }>;
-      };
-    };
-    const result = data.response?.results?.[0];
-    if (!result) return item;
-
-    return {
-      ...item,
-      summary: result.fields?.trailText ?? item.summary,
-      imageUrl: result.fields?.thumbnail ?? item.imageUrl,
-      url: result.webUrl ?? item.url,
-    };
-  } catch {
-    return item;
-  }
-}

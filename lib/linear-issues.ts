@@ -409,3 +409,85 @@ export async function closeLinearIssues(
   }
   return results;
 }
+
+let cachedBacklogStateId: string | null = null;
+
+async function resolveBacklogStateId(): Promise<string> {
+  if (cachedBacklogStateId) return cachedBacklogStateId;
+
+  const teamId = await resolveTeamId();
+  const data = await linearRequest<{
+    workflowStates: { nodes: { id: string; name: string; type: string }[] };
+  }>(
+    `query BacklogStates($teamId: ID!) {
+      workflowStates(filter: { team: { id: { eq: $teamId } } }) {
+        nodes {
+          id
+          name
+          type
+        }
+      }
+    }`,
+    { teamId }
+  );
+
+  const backlog =
+    data.workflowStates.nodes.find((state) => state.type === "backlog") ??
+    data.workflowStates.nodes.find((state) => state.type === "unstarted") ??
+    data.workflowStates.nodes.find((state) => /^(todo|backlog)$/i.test(state.name));
+
+  if (!backlog) {
+    throw new Error("Linear backlog state was not found for this team.");
+  }
+
+  cachedBacklogStateId = backlog.id;
+  return backlog.id;
+}
+
+export async function reopenLinearIssue(identifier: string): Promise<CloseIssueResult> {
+  const issue = await findIssueByIdentifier(identifier);
+  if (!issue) {
+    return { identifier, status: "not_found" };
+  }
+
+  if (issue.stateType !== "completed" && issue.stateType !== "canceled") {
+    return { identifier, status: "already_closed", message: "Issue is already open." };
+  }
+
+  const stateId = await resolveBacklogStateId();
+  const data = await linearRequest<{
+    issueUpdate: { success: boolean };
+  }>(
+    `mutation IssueUpdate($id: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $id, input: $input) {
+        success
+      }
+    }`,
+    {
+      id: issue.id,
+      input: { stateId },
+    }
+  );
+
+  if (!data.issueUpdate.success) {
+    return { identifier, status: "failed", message: "Linear could not reopen the issue." };
+  }
+
+  return { identifier, status: "closed", message: "Reopened." };
+}
+
+export async function reopenLinearIssues(identifiers: string[]): Promise<CloseIssueResult[]> {
+  const results: CloseIssueResult[] = [];
+  for (const identifier of identifiers) {
+    try {
+      results.push(await reopenLinearIssue(identifier));
+    } catch (err) {
+      results.push({
+        identifier,
+        status: "failed",
+        message: err instanceof Error ? err.message : "Failed to reopen issue.",
+      });
+    }
+  }
+  return results;
+}

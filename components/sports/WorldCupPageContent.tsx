@@ -3,6 +3,7 @@ import { ScheduleByDay } from "@/components/bracket/ScheduleByDay";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
+import { GroupStageStatus } from "@/components/tournament/GroupStageStatus";
 import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
@@ -55,9 +56,7 @@ export async function WorldCupPageContent() {
                   cutlinePoints={thirdPlace.cutlinePoints}
                   cutlineGd={thirdPlace.cutlineGd}
                 />
-                {whatsNext && (
-                  <p className="mt-4 text-[13px] text-muted">{whatsNext}</p>
-                )}
+                <GroupStageStatus phase={phase} />
               </div>
             </section>
 

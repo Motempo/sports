@@ -157,3 +157,15 @@ a,
   background: var(--x-border);
   border-radius: 4px;
 }
+
+.motempo-logo-dark {
+  display: none;
+}
+
+.light .motempo-logo-dark {
+  display: block;
+}
+
+.light .motempo-logo-light {
+  display: none;
+}

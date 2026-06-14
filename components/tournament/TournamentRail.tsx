@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
+import { getTournamentGuide } from "@/lib/tournament-guide";
 import type { TournamentPhase } from "@/lib/tournament-phase";
-import { getActiveRailStep, getPhaseSubtitle, getRailSteps } from "@/lib/tournament-phase";
+import { getActiveRailStep, getRailSteps } from "@/lib/tournament-phase";
 import type { MatchInfo } from "@/lib/types";
 
 interface TournamentRailProps {
@@ -11,7 +12,7 @@ interface TournamentRailProps {
 export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) {
   const steps = getRailSteps();
   const active = getActiveRailStep(phase, knockoutMatches);
-  const subtitle = getPhaseSubtitle(phase);
+  const guide = getTournamentGuide(phase);
 
   return (
     <section className="border-b border-border bg-surface/40">
@@ -49,7 +50,19 @@ export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) 
             );
           })}
         </div>
-        <p className="mt-3 text-[13px] leading-snug text-muted sm:text-[14px]">{subtitle}</p>
+        <div className="mt-3 space-y-3 rounded-2xl border border-border/60 bg-background/50 px-3 py-3 sm:px-4 sm:py-4">
+          <p className="text-[13px] font-medium leading-snug text-foreground sm:text-[14px]">
+            {guide.intro}
+          </p>
+          <div className="space-y-2.5">
+            {guide.sections.map((section) => (
+              <p key={section.title} className="text-[12px] leading-relaxed text-muted sm:text-[13px]">
+                <span className="font-semibold text-foreground">{section.title}. </span>
+                {section.body}
+              </p>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

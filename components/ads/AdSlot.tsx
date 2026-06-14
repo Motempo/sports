@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 interface AdSlotProps {
   slot: AdSlotId;
   className?: string;
+  /** Sidebar: narrow column beside content. Banner: full content width. */
+  layout?: "banner" | "sidebar";
 }
 
 declare global {
@@ -22,11 +24,13 @@ declare global {
   }
 }
 
-export function AdSlot({ slot, className }: AdSlotProps) {
+export function AdSlot({ slot, className, layout = "banner" }: AdSlotProps) {
   const { adsAllowed } = useAdConsent();
   const pushed = useRef(false);
   const config = getAdSlot(slot);
   const configured = isSlotConfigured(slot);
+  const isSidebar = layout === "sidebar" || config.format === "vertical";
+  const isVertical = config.format === "vertical";
 
   useEffect(() => {
     if (!adsAllowed || !configured || adProvider !== "adsense" || pushed.current) return;
@@ -42,36 +46,64 @@ export function AdSlot({ slot, className }: AdSlotProps) {
 
   if (!configured) return null;
 
+  const adWidth = config.minWidth ?? 300;
+  const adHeight = config.minHeight;
+
   return (
     <aside
       aria-label={config.label}
       className={cn(
-        "mx-auto flex w-full max-w-6xl flex-col items-center justify-center px-3 sm:px-4",
+        isSidebar
+          ? "mx-auto flex w-full max-w-[300px] flex-col items-center lg:mx-0 lg:shrink-0"
+          : "mx-auto flex w-full max-w-6xl flex-col items-center justify-center px-3 sm:px-4",
         className
       )}
     >
-      <p className="mb-1 w-full text-[10px] font-medium uppercase tracking-wide text-muted/70">
+      <p
+        className={cn(
+          "mb-1 text-[10px] font-medium uppercase tracking-wide text-muted/70",
+          isSidebar ? "w-full text-center lg:text-left" : "w-full"
+        )}
+      >
         {config.label}
       </p>
       <div
-        className="flex w-full items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-surface/30"
-        style={{ minHeight: config.minHeight }}
+        className={cn(
+          "flex items-center justify-center overflow-hidden rounded-xl border border-border/60 bg-surface/30",
+          isSidebar ? "w-full" : "w-full"
+        )}
+        style={{
+          minHeight: adHeight,
+          ...(isVertical ? { maxWidth: adWidth, width: "100%" } : {}),
+        }}
       >
         {adsAllowed && adProvider === "adsense" && (
           <ins
-            className="adsbygoogle block w-full"
-            style={{ display: "block", minHeight: config.minHeight }}
+            className="adsbygoogle"
+            style={
+              isVertical
+                ? {
+                    display: "inline-block",
+                    width: adWidth,
+                    height: adHeight,
+                  }
+                : { display: "block", minHeight: adHeight, width: "100%" }
+            }
             data-ad-client={adsenseClientId}
             data-ad-slot={config.adsenseUnitId}
-            data-ad-format="auto"
-            data-full-width-responsive="true"
+            {...(isVertical
+              ? { "data-full-width-responsive": "false" }
+              : {
+                  "data-ad-format": "auto",
+                  "data-full-width-responsive": "true",
+                })}
           />
         )}
         {adsAllowed && adProvider === "nitro" && (
           <div
             id={config.nitroPlacementId}
             className="nitro-ad w-full"
-            style={{ minHeight: config.minHeight }}
+            style={{ minHeight: adHeight, ...(isVertical ? { maxWidth: adWidth } : {}) }}
           />
         )}
       </div>

@@ -52,13 +52,22 @@ export async function WorldCupPageContent() {
                     {source === "api" ? "Live data" : "Preview data"} · Updated {lastUpdated}
                   </p>
                 </div>
-                <GroupStandingsGrid standings={standings} />
-                <ThirdPlaceTracker
-                  rows={thirdPlace.rows}
-                  cutlinePoints={thirdPlace.cutlinePoints}
-                  cutlineGd={thirdPlace.cutlineGd}
-                />
-                <GroupStageStatus phase={phase} />
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
+                  <div className="min-w-0 flex-1">
+                    <GroupStandingsGrid standings={standings} />
+                    <ThirdPlaceTracker
+                      rows={thirdPlace.rows}
+                      cutlinePoints={thirdPlace.cutlinePoints}
+                      cutlineGd={thirdPlace.cutlineGd}
+                    />
+                    <GroupStageStatus phase={phase} />
+                  </div>
+                  <AdSlot
+                    slot="standings-sidebar"
+                    layout="sidebar"
+                    className="lg:sticky lg:top-20 lg:self-start"
+                  />
+                </div>
               </div>
             </section>
 
@@ -122,7 +131,16 @@ export async function WorldCupPageContent() {
               <section className="border-b border-border">
                 <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
                   <h2 className="mb-4 text-[18px] font-extrabold sm:text-[20px]">Final Group Standings</h2>
-                  <GroupStandingsGrid standings={standings} />
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
+                    <div className="min-w-0 flex-1">
+                      <GroupStandingsGrid standings={standings} />
+                    </div>
+                    <AdSlot
+                      slot="standings-sidebar"
+                      layout="sidebar"
+                      className="lg:sticky lg:top-20 lg:self-start"
+                    />
+                  </div>
                 </div>
               </section>
             )}

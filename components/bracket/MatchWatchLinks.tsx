@@ -1,7 +1,9 @@
+"use client";
+
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getMatchWatchLinks } from "@/lib/match-watch-links";
 import type { MatchInfo } from "@/lib/types";
-import { ExternalLink } from "lucide-react";
 
 interface MatchWatchLinksProps {
   match: MatchInfo;
@@ -14,7 +16,7 @@ export function MatchWatchLinks({ match, className, compact }: MatchWatchLinksPr
 
   return (
     <div
-      className={cn("flex flex-wrap items-center gap-1.5 sm:gap-2", className)}
+      className={cn("flex flex-wrap items-center gap-2", className)}
       aria-label="Watch on streaming services"
     >
       {!compact && (
@@ -30,15 +32,20 @@ export function MatchWatchLinks({ match, className, compact }: MatchWatchLinksPr
           rel="noopener noreferrer"
           title={`${link.label} (${link.hint})`}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2 py-1 text-[11px] font-medium text-link transition-colors",
-            "hover:border-link/30 hover:bg-link/5 active:bg-link/10 sm:text-[12px]"
+            "inline-flex items-center overflow-hidden rounded-md border border-border bg-background transition-colors",
+            "hover:border-link/30 hover:bg-link/5 active:bg-link/10",
+            compact ? "h-7 px-1.5" : "h-8 px-2"
           )}
         >
-          <span>{link.label}</span>
-          {!compact && (
-            <span className="hidden text-muted sm:inline">· {link.hint}</span>
-          )}
-          <ExternalLink className="h-3 w-3 shrink-0 opacity-70" aria-hidden />
+          <Image
+            src={link.logoSrc}
+            alt={link.label}
+            width={compact ? 72 : 88}
+            height={compact ? 14 : 16}
+            className={cn("h-auto w-auto max-h-4 object-contain", !compact && "max-h-[18px]")}
+            unoptimized
+          />
+          <span className="sr-only">{link.label}</span>
         </a>
       ))}
     </div>

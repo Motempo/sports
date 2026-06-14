@@ -46,6 +46,10 @@ function pick(seed: number, options: string[]): string {
   return options[Math.abs(seed) % options.length]!;
 }
 
+function teamName(team: TeamInfo): string {
+  return team.name?.trim() || team.code;
+}
+
 function finishedRecap(match: MatchInfo): string {
   const { homeTeam, awayTeam, homeScore, awayScore, winnerCode } = match;
   if (homeScore === null || awayScore === null) {
@@ -58,6 +62,7 @@ function finishedRecap(match: MatchInfo): string {
       ? homeTeam
       : awayTeam
     : null;
+  const winnerLabel = winner ? teamName(winner) : null;
 
   if (margin === 0) {
     return pick(match.id, [
@@ -66,26 +71,26 @@ function finishedRecap(match: MatchInfo): string {
     ]);
   }
 
-  if (winner) {
+  if (winner && winnerLabel) {
     if (margin >= 3) {
       return pick(match.id, [
-        `${winner.code} ran away with it — a statement knockout win.`,
-        `Comfortable for ${winner.code}; the scoreline flattered the loser.`,
+        `${winnerLabel} ran away with it — a statement knockout win.`,
+        `Comfortable for ${winnerLabel}; the scoreline flattered the loser.`,
       ]);
     }
     if (margin === 1) {
       return pick(match.id, [
-        `${winner.code} edged it — one moment of quality made the difference.`,
-        `Tight to the end; ${winner.code} found the decisive goal.`,
+        `${winnerLabel} edged it — one moment of quality made the difference.`,
+        `Tight to the end; ${winnerLabel} found the decisive goal.`,
       ]);
     }
     return pick(match.id, [
-      `${winner.code} advance after a hard-fought ${homeScore}–${awayScore}.`,
-      `Two good sides — ${winner.code} just had a little more on the night.`,
+      `${winnerLabel} advance after a hard-fought ${homeScore}–${awayScore}.`,
+      `Two good sides — ${winnerLabel} just had a little more on the night.`,
     ]);
   }
 
-  return `${homeTeam.code} ${homeScore}–${awayScore} ${awayTeam.code} at the final whistle.`;
+  return `${teamName(homeTeam)} ${homeScore}–${awayScore} ${teamName(awayTeam)} at the final whistle.`;
 }
 
 function liveComment(match: MatchInfo): string {
@@ -103,8 +108,8 @@ function liveComment(match: MatchInfo): string {
   const leader = h > a ? homeTeam : awayTeam;
   const trailer = h > a ? awayTeam : homeTeam;
   return pick(match.id, [
-    `${leader.code} lead — ${trailer.code} need a response before time runs out.`,
-    `${leader.code} in front, but knockout football can turn in minutes.`,
+    `${teamName(leader)} lead — ${teamName(trailer)} need a response before time runs out.`,
+    `${teamName(leader)} in front, but knockout football can turn in minutes.`,
   ]);
 }
 
@@ -141,15 +146,19 @@ function placeholderPreview(match: MatchInfo): string {
 
 function upcomingForecast(match: MatchInfo): string {
   const { homeTeam, awayTeam } = match;
+  const homeLabel = teamName(homeTeam);
+  const awayLabel = teamName(awayTeam);
   const fav = favorite(homeTeam, awayTeam);
   const dog = underdog(homeTeam, awayTeam);
+  const favLabel = fav ? teamName(fav) : null;
+  const dogLabel = dog ? teamName(dog) : null;
   const hr = rankOf(homeTeam);
   const ar = rankOf(awayTeam);
   const gap = hr !== null && ar !== null ? Math.abs(hr - ar) : null;
 
   if (RIVALRY_PAIRS.has(pairKey(homeTeam.code, awayTeam.code))) {
     return pick(match.id, [
-      `Classic ${homeTeam.code}–${awayTeam.code} rivalry — form goes out the window.`,
+      `Classic ${homeLabel}–${awayLabel} rivalry — form goes out the window.`,
       `History between these two — expect a tense, crowd-driven night.`,
       `Neither side wants to lose this one; a genuine coin-flip derby.`,
     ]);
@@ -169,39 +178,39 @@ function upcomingForecast(match: MatchInfo): string {
     if (homeStyle !== awayStyle) {
       return pick(match.id, [
         `${homeTeam.confederation} meets ${awayTeam.confederation} — contrasting styles on show.`,
-        `${homeTeam.code}'s ${homeStyle} approach vs ${awayTeam.code}'s ${awayStyle} game.`,
+        `${homeLabel}'s ${homeStyle} approach vs ${awayLabel}'s ${awayStyle} game.`,
       ]);
     }
   }
 
-  if (fav && dog && gap !== null) {
+  if (fav && dog && favLabel && dogLabel && gap !== null) {
     if (gap >= 15) {
       return pick(match.id, [
-        `${fav.code} heavy favorites on paper; ${dog.code} will need a perfect night.`,
-        `Upset alert if ${dog.code} pull this off — ${fav.code} should control tempo.`,
+        `${favLabel} heavy favorites on paper; ${dogLabel} will need a perfect night.`,
+        `Upset alert if ${dogLabel} pull this off — ${favLabel} should control tempo.`,
       ]);
     }
     if (gap >= 8) {
       return pick(match.id, [
-        `${fav.code} slight edge in the rankings — ${dog.code} live on the counter.`,
-        `Lean ${fav.code}, but knockout margins are rarely comfortable.`,
+        `${favLabel} slight edge in the rankings — ${dogLabel} live on the counter.`,
+        `Lean ${favLabel}, but knockout margins are rarely comfortable.`,
       ]);
     }
     if (gap <= 3) {
       return pick(match.id, [
-        `FIFA rankings have this as a toss-up between ${homeTeam.code} and ${awayTeam.code}.`,
+        `FIFA rankings have this as a toss-up between ${homeLabel} and ${awayLabel}.`,
         `Evenly matched on paper — one set piece could decide it.`,
         `Too close to call; expect a cautious start and a frantic finish.`,
       ]);
     }
     return pick(match.id, [
-      `${fav.code} enter as favorites, though ${dog.code} won't lack belief.`,
-      `Slight nod to ${fav.code}; ${dog.code} have paths to an upset.`,
+      `${favLabel} enter as favorites, though ${dogLabel} won't lack belief.`,
+      `Slight nod to ${favLabel}; ${dogLabel} have paths to an upset.`,
     ]);
   }
 
   return pick(match.id, [
-    `Open knockout tie — ${homeTeam.code} and ${awayTeam.code} both one win from advancing.`,
+    `Open knockout tie — ${homeLabel} and ${awayLabel} both one win from advancing.`,
     `Win-or-go-home: whoever handles the big moments goes through.`,
     `Hard to split these two before kickoff; expect a tight 90 minutes.`,
   ]);

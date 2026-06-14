@@ -4,6 +4,7 @@ export interface MatchWatchLink {
   label: string;
   href: string;
   hint: string;
+  logoSrc: string;
 }
 
 function buildWatchQuery(match: MatchInfo): string {
@@ -23,12 +24,20 @@ export function getMatchWatchLinks(match: MatchInfo): MatchWatchLink[] {
     {
       label: "YouTube TV",
       hint: "Fox · FS1",
+      logoSrc: "/watch/youtube-tv.svg",
       href: `https://tv.youtube.com/search?q=${encodeURIComponent(query)}`,
     },
     {
       label: "Prime Video",
       hint: "Fox One",
+      logoSrc: "/watch/prime-video.svg",
       href: `https://www.amazon.com/gp/video/search?phrase=${encodeURIComponent(query)}`,
+    },
+    {
+      label: "Fox",
+      hint: "FS1",
+      logoSrc: "/watch/fox.svg",
+      href: `https://www.foxsports.com/search?q=${encodeURIComponent(query)}`,
     },
   ];
 }

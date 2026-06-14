@@ -37,7 +37,6 @@ export async function WorldCupPageContent() {
       <Header activeSportSlug="world-cup" />
 
       <main>
-        <h1 className="sr-only">FIFA World Cup 2026</h1>
         <TournamentRail phase={phase} knockoutMatches={matches} />
 
         {standingsPrimary ? (

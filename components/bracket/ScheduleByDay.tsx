@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
 import {
   combineScheduleMatches,
@@ -10,9 +10,6 @@ import {
 } from "@/lib/match-schedule";
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
-
-const INITIAL_VISIBLE_DAYS = 2;
-const LOAD_MORE_DAYS = 2;
 
 interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
@@ -66,11 +63,6 @@ export function ScheduleByDay({
     return groupMatchesByLocalDay(scheduleMatches);
   }, [groupMatches, todayMatches, upcomingMatches]);
 
-  const [visibleDays, setVisibleDays] = useState(INITIAL_VISIBLE_DAYS);
-
-  const visibleGroups = dayGroups.slice(0, visibleDays);
-  const hasMore = visibleDays < dayGroups.length;
-
   if (dayGroups.length === 0) {
     return (
       <section className="border-b border-border">
@@ -96,7 +88,7 @@ export function ScheduleByDay({
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start md:gap-5 xl:grid-cols-3">
-          {visibleGroups.map((group) => (
+          {dayGroups.map((group) => (
             <DayColumn
               key={group.dayKey}
               group={group}
@@ -105,22 +97,6 @@ export function ScheduleByDay({
             />
           ))}
         </div>
-
-        {hasMore && (
-          <div className="mt-5 flex justify-center">
-            <button
-              type="button"
-              onClick={() =>
-                setVisibleDays((count) =>
-                  Math.min(count + LOAD_MORE_DAYS, dayGroups.length)
-                )
-              }
-              className="min-h-[44px] rounded-xl border border-border bg-background px-5 text-[15px] font-medium text-link transition-colors hover:bg-surface active:bg-surface"
-            >
-              Show more games
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );

@@ -17,6 +17,20 @@ export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) 
   return (
     <section className="border-b border-border bg-surface/40">
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4">
+        <div className="mb-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-link sm:text-[12px]">
+            USA · Mexico · Canada
+          </p>
+          <h1 className="mt-1 text-[24px] font-extrabold leading-tight tracking-tight sm:text-[30px]">
+            <span className="bg-gradient-to-r from-link via-[#00ba7c] to-link bg-clip-text text-transparent">
+              FIFA World Cup 2026
+            </span>
+          </h1>
+        </div>
+
+        <h2 className="mb-2 text-[12px] font-semibold text-muted sm:text-[13px]">
+          Stages of the Championship
+        </h2>
         <div className="scrollbar-hide -mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
           {steps.map((step) => {
             const isActive = step.id === active;

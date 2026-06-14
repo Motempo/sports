@@ -17,4 +17,4 @@ Each sport has its own source config in this folder (`{sport-slug}.json`).
 
 ## World Cup
 
-Configured from the curated 25-account list. News prioritizes official, major media, and high-reliability journalists via RSS and Google News (FIFA.com RSS is not used — feed returns HTML). Fun facts cite a matching authoritative X account per fact.
+Configured from the curated expert and outlet list. News mixes ~50% individual journalists/analysts (via dedicated Google News feeds) with ~50% official and major outlets. Fun facts alternate the same way — 15 expert voices, 15 organizations.

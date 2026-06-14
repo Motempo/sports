@@ -23,20 +23,44 @@
     "ussoccer",
     "SeFutbol",
     "CBSSports",
-    "nytimes"
+    "nytimes",
+    "TaylorTwellman",
+    "AlexiLalas",
+    "honigstein",
+    "jonawils",
+    "LaurensJulien",
+    "herculezg",
+    "stuholden",
+    "MelissaReddy",
+    "RogBennett"
   ],
   "factHandles": [
     "TifoFootball_",
-    "FIFAWorldCup",
-    "FIFAcom",
-    "MenInBlazers",
     "Marcotti",
     "GaryLineker",
     "GuillemBalague",
     "sidlowe",
     "henrywinter",
     "PhilMcNulty",
-    "Fernando_Duarte"
+    "Fernando_Duarte",
+    "FabrizioRomano",
+    "TaylorTwellman",
+    "AlexiLalas",
+    "honigstein",
+    "jonawils",
+    "LaurensJulien",
+    "herculezg",
+    "stuholden",
+    "MelissaReddy",
+    "RogBennett",
+    "MenInBlazers",
+    "FIFAWorldCup",
+    "FIFAcom",
+    "ussoccer",
+    "CBF_Futebol",
+    "SeFutbol",
+    "FOXSoccer",
+    "BBCSport"
   ],
   "sources": [
     {
@@ -286,6 +310,87 @@
       "reliability": "high",
       "category": "Major Media",
       "rssUrl": "https://rss.nytimes.com/services/xml/rss/nyt/Soccer.xml"
+    },
+    {
+      "rank": 28,
+      "handle": "TaylorTwellman",
+      "name": "Taylor Twellman",
+      "type": "journalist",
+      "description": "ESPN lead analyst and former USMNT striker — World Cup authority.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 29,
+      "handle": "AlexiLalas",
+      "name": "Alexi Lalas",
+      "type": "journalist",
+      "description": "Fox Sports pundit and USMNT legend with sharp tournament takes.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 30,
+      "handle": "honigstein",
+      "name": "Raphael Honigstein",
+      "type": "journalist",
+      "description": "The Athletic and BBC — German football and World Cup historian.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 31,
+      "handle": "jonawils",
+      "name": "Jonathan Wilson",
+      "type": "journalist",
+      "description": "Guardian tactical writer and author of Inverting the Pyramid.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 32,
+      "handle": "LaurensJulien",
+      "name": "Julien Laurens",
+      "type": "journalist",
+      "description": "ESPN FC correspondent covering France and the global game.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 33,
+      "handle": "herculezg",
+      "name": "Herculez Gomez",
+      "type": "journalist",
+      "description": "Former USMNT forward — FS1 analyst for Mexico and CONCACAF.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 34,
+      "handle": "stuholden",
+      "name": "Stu Holden",
+      "type": "journalist",
+      "description": "Fox Sports and USMNT midfielder-turned-broadcaster.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 35,
+      "handle": "MelissaReddy",
+      "name": "Melissa Reddy",
+      "type": "journalist",
+      "description": "Senior international football correspondent for NBC and USA Today Sports.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 36,
+      "handle": "RogBennett",
+      "name": "Rog Bennett",
+      "type": "journalist",
+      "description": "Men in Blazers co-host — World Cup storytelling for US audiences.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
     }
   ],
   "supplementalFeeds": [
@@ -300,6 +405,90 @@
       "name": "Google News",
       "handle": "FIFAWorldCup",
       "rssUrl": "https://news.google.com/rss/search?q=World+Cup+2026+OR+FIFA+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-marcotti",
+      "name": "Gabriele Marcotti",
+      "handle": "Marcotti",
+      "rssUrl": "https://news.google.com/rss/search?q=Gabriele+Marcotti+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-sidlowe",
+      "name": "Sid Lowe",
+      "handle": "sidlowe",
+      "rssUrl": "https://news.google.com/rss/search?q=Sid+Lowe+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-twellman",
+      "name": "Taylor Twellman",
+      "handle": "TaylorTwellman",
+      "rssUrl": "https://news.google.com/rss/search?q=Taylor+Twellman+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-honigstein",
+      "name": "Raphael Honigstein",
+      "handle": "honigstein",
+      "rssUrl": "https://news.google.com/rss/search?q=Raphael+Honigstein+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-wilson",
+      "name": "Jonathan Wilson",
+      "handle": "jonawils",
+      "rssUrl": "https://news.google.com/rss/search?q=Jonathan+Wilson+World+Cup+football&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-laurens",
+      "name": "Julien Laurens",
+      "handle": "LaurensJulien",
+      "rssUrl": "https://news.google.com/rss/search?q=Julien+Laurens+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-balague",
+      "name": "Guillem Balague",
+      "handle": "GuillemBalague",
+      "rssUrl": "https://news.google.com/rss/search?q=Guillem+Balague+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-lineker",
+      "name": "Gary Lineker",
+      "handle": "GaryLineker",
+      "rssUrl": "https://news.google.com/rss/search?q=Gary+Lineker+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-mcnulty",
+      "name": "Phil McNulty",
+      "handle": "PhilMcNulty",
+      "rssUrl": "https://news.google.com/rss/search?q=Phil+McNulty+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-holdengomez",
+      "name": "Stu Holden & Herculez Gomez",
+      "handle": "stuholden",
+      "rssUrl": "https://news.google.com/rss/search?q=Stu+Holden+OR+Herculez+Gomez+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-romano",
+      "name": "Fabrizio Romano",
+      "handle": "FabrizioRomano",
+      "rssUrl": "https://news.google.com/rss/search?q=Fabrizio+Romano+World+Cup&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-duarte",
+      "name": "Fernando Duarte",
+      "handle": "Fernando_Duarte",
+      "rssUrl": "https://news.google.com/rss/search?q=Fernando+Duarte+World+Cup&hl=en-US&gl=US&ceid=US:en",
       "googleNews": true
     }
   ]

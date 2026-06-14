@@ -37,7 +37,7 @@
     "emoji": "\ud83c\udde7\ud83c\uddf7",
     "wikipediaTitle": "Brazil national football team",
     "detail": "Brazil is the only nation to have played in every World Cup tournament. Germany and Italy each have 4 titles. Brazil also holds the record for most goals scored in World Cup history.",
-    "sourceHandle": "Marcotti"
+    "sourceHandle": "CBF_Futebol"
   },
   {
     "id": "fact-5",
@@ -137,7 +137,7 @@
     "emoji": "\ud83c\uddf2\ud83c\uddfd",
     "wikipediaTitle": "Rafael M\u00e1rquez",
     "detail": "Only four players have appeared in five World Cups: Antonio Carbajal, Rafael M\u00e1rquez (both Mexico), Lothar Matth\u00e4us (Germany), and Cristiano Ronaldo (Portugal).",
-    "sourceHandle": "Fernando_Duarte"
+    "sourceHandle": "FIFAcom"
   },
   {
     "id": "fact-15",
@@ -157,7 +157,7 @@
     "emoji": "\ud83c\uddf6\ud83c\udde6",
     "wikipediaTitle": "2022 FIFA World Cup",
     "detail": "Qatar has an area of just 11,571 km\u00b2 \u2014 smaller than Connecticut. All eight stadiums were within a 55km radius, making it the most compact World Cup ever.",
-    "sourceHandle": "henrywinter"
+    "sourceHandle": "BBCSport"
   },
   {
     "id": "fact-17",
@@ -197,7 +197,7 @@
     "emoji": "\ud83c\uddee\ud83c\uddf9",
     "wikipediaTitle": "Italy national football team",
     "detail": "Italy's unbeaten streak included two World Cup titles (1934, 1938). The streak ended with a shocking 3-2 loss to Sweden in 1950.",
-    "sourceHandle": "Marcotti"
+    "sourceHandle": "jonawils"
   },
   {
     "id": "fact-21",
@@ -237,7 +237,7 @@
     "emoji": "\ud83d\udc80",
     "wikipediaTitle": "2026 FIFA World Cup",
     "detail": "With 12 groups of 4 teams, the top two from each group plus the eight best third-placed teams advance to the Round of 32 \u2014 a new knockout format.",
-    "sourceHandle": "TifoFootball_"
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-25",
@@ -247,7 +247,7 @@
     "emoji": "\u26a1",
     "wikipediaTitle": "Hakan \u015e\u00fck\u00fcr",
     "detail": "Turkey's Hakan \u015e\u00fck\u00fcr scored the fastest goal in World Cup history just 11 seconds into the third-place playoff against South Korea in 2002.",
-    "sourceHandle": "Marcotti"
+    "sourceHandle": "honigstein"
   },
   {
     "id": "fact-26",
@@ -277,7 +277,7 @@
     "emoji": "\ud83c\udfdf\ufe0f",
     "wikipediaTitle": "Estadio Azteca",
     "detail": "Estadio Azteca hosted the 1970 and 1986 World Cups and will host again in 2026. It was the venue for Diego Maradona's 'Hand of God' and 'Goal of the Century' in 1986.",
-    "sourceHandle": "Fernando_Duarte"
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-29",
@@ -297,6 +297,6 @@
     "emoji": "\ud83e\udd8a",
     "wikipediaTitle": "FIFA World Cup",
     "detail": "The World Cup is famous for upsets. Uruguay beat Brazil at home in 1950, West Germany upset the 'Magnificent Magyars' in 1954, and Argentina came from behind to beat France in 2022.",
-    "sourceHandle": "Marcotti"
+    "sourceHandle": "TaylorTwellman"
   }
 ]

@@ -113,20 +113,23 @@ export function getNewsFeedSources(sportSlug: string): ResolvedSportSource[] {
       return true;
     });
 
-  const supplemental = config.supplementalFeeds.map((feed) => ({
-    rank: 0,
-    handle: feed.handle,
-    name: feed.name,
-    type: feed.googleNews ? "aggregator" : "media",
-    description: feed.name,
-    reliability: "high" as const,
-    category: "Supplemental",
-    rssUrl: feed.rssUrl,
-    profileUrl: `https://x.com/${feed.handle}`,
-    avatarUrl: `https://unavatar.io/x/${feed.handle}`,
-    verified: true,
-    googleNews: feed.googleNews,
-  }));
+  const supplemental = config.supplementalFeeds.map((feed) => {
+    const entry = config.sources.find((s) => s.handle === feed.handle);
+    return {
+      rank: entry?.rank ?? 0,
+      handle: feed.handle,
+      name: entry?.name ?? feed.name,
+      type: entry?.type ?? (feed.googleNews ? "aggregator" : "media"),
+      description: entry?.description ?? feed.name,
+      reliability: (entry?.reliability ?? "high") as SourceReliability,
+      category: entry?.category ?? "Supplemental",
+      rssUrl: feed.rssUrl,
+      profileUrl: `https://x.com/${feed.handle}`,
+      avatarUrl: `https://unavatar.io/x/${feed.handle}`,
+      verified: entry ? isVerified(entry.reliability) : true,
+      googleNews: feed.googleNews,
+    };
+  });
 
   return [...rssSources, ...supplemental];
 }
@@ -176,6 +179,49 @@ export function matchOutletToHandle(sportSlug: string, outletName: string): stri
     normalized.includes(s.name.toLowerCase())
   );
   return byName?.handle ?? config.newsHandles[0];
+}
+
+const PERSON_SOURCE_TYPES = new Set(["journalist", "analysis", "entertainment"]);
+
+export function isPersonSource(sportSlug: string, handle: string): boolean {
+  const source = getSourceByHandle(sportSlug, handle);
+  if (!source) return false;
+  return PERSON_SOURCE_TYPES.has(source.type);
+}
+
+/** Alternate person and organization items (~50/50) while preserving order within each group. */
+export function interleavePersonOrgMix<T>(
+  items: T[],
+  sportSlug: string,
+  getHandle: (item: T) => string
+): T[] {
+  const people: T[] = [];
+  const orgs: T[] = [];
+
+  for (const item of items) {
+    if (isPersonSource(sportSlug, getHandle(item))) {
+      people.push(item);
+    } else {
+      orgs.push(item);
+    }
+  }
+
+  const mixed: T[] = [];
+  let personIdx = 0;
+  let orgIdx = 0;
+
+  while (personIdx < people.length || orgIdx < orgs.length) {
+    if (personIdx < people.length) {
+      mixed.push(people[personIdx]!);
+      personIdx++;
+    }
+    if (orgIdx < orgs.length) {
+      mixed.push(orgs[orgIdx]!);
+      orgIdx++;
+    }
+  }
+
+  return mixed;
 }
 
 export function getSourceRank(sportSlug: string, handle: string): number {

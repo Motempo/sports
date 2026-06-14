@@ -3,7 +3,8 @@ import {
   getNewsFeedSources,
   getNewsKeywordPattern,
   getSourceByHandle,
-  getSourceRank,
+  interleavePersonOrgMix,
+  isPersonSource,
   matchOutletToHandle,
   type ResolvedSportSource,
 } from "@/lib/sport-sources";
@@ -66,7 +67,7 @@ function parseRssItems(
       let profileUrl = source.profileUrl;
       let verified = source.verified;
 
-      if (source.googleNews) {
+      if (source.googleNews && !isPersonSource(sportSlug, source.handle)) {
         const outlet = parseOutletName(item.source);
         if (outlet) {
           const matched = matchOutletToHandle(sportSlug, outlet);
@@ -121,42 +122,6 @@ async function fetchSourceFeed(
   }
 }
 
-/** Interleave items by source rank so the feed surfaces official and major media, not one outlet. */
-function sortNewsByAuthority(items: NewsItem[], sportSlug: string): NewsItem[] {
-  const queues = new Map<string, NewsItem[]>();
-
-  for (const item of items) {
-    const list = queues.get(item.xHandle) ?? [];
-    list.push(item);
-    queues.set(item.xHandle, list);
-  }
-
-  for (const list of queues.values()) {
-    list.sort(
-      (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-    );
-  }
-
-  const handles = [...queues.keys()].sort(
-    (a, b) => getSourceRank(sportSlug, a) - getSourceRank(sportSlug, b)
-  );
-
-  const sorted: NewsItem[] = [];
-  let hasItems = true;
-  while (hasItems) {
-    hasItems = false;
-    for (const handle of handles) {
-      const queue = queues.get(handle);
-      if (queue?.length) {
-        sorted.push(queue.shift()!);
-        hasItems = true;
-      }
-    }
-  }
-
-  return sorted;
-}
-
 export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
   const sources = getNewsFeedSources(sportSlug);
   const keywordPattern = getNewsKeywordPattern(sportSlug);
@@ -169,7 +134,7 @@ export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .filter((item, idx, arr) => arr.findIndex((x) => x.title === item.title) === idx);
 
-  return sortNewsByAuthority(deduped, sportSlug);
+  return interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle);
 }
 
 export async function enrichNewsItem(item: NewsItem): Promise<NewsItem> {

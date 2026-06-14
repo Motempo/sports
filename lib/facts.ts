@@ -3,6 +3,7 @@ import {
   getFactSourceHandles,
   getSourceByHandle,
   getXAvatar,
+  interleavePersonOrgMix,
 } from "@/lib/sport-sources";
 import type { FunFact } from "@/lib/types";
 
@@ -45,7 +46,11 @@ const factsCache = new Map<string, FunFact[]>();
 function getSportFacts(sportSlug: string): FunFact[] {
   if (!factsCache.has(sportSlug)) {
     try {
-      factsCache.set(sportSlug, buildFactsForSport(sportSlug));
+      const built = buildFactsForSport(sportSlug);
+      factsCache.set(
+        sportSlug,
+        interleavePersonOrgMix(built, sportSlug, (fact) => fact.sourceHandle)
+      );
     } catch {
       factsCache.set(sportSlug, []);
     }

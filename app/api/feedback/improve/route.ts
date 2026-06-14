@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isInferredIntent, type InferredIntent } from "@/lib/feedback-context";
+import { getGrokApiKey } from "@/lib/grok";
 
 const IMPROVE_PROMPT = `Improve this user feedback for a Motempo web app. Keep the same meaning, fix grammar, and make it clearer and more actionable.
 
@@ -12,16 +13,6 @@ Respond with JSON only, no markdown fences:
 {"text":"improved feedback here","intent":"bug"|"feature"|null}`;
 
 const GROK_MODELS = ["grok-4.3", "grok-4.20-0309-non-reasoning", "grok-3-mini"] as const;
-
-function getGrokApiKey(): string | undefined {
-  const candidates = [
-    process.env.GROK_API_KEY,
-    process.env.grok_api_key,
-    process.env.XAI_API_KEY,
-    process.env.xai_api_key,
-  ];
-  return candidates.map((v) => v?.trim()).find(Boolean);
-}
 
 function parseImproveResponse(raw: string): { improvedText: string; intent: InferredIntent | null } {
   const trimmed = raw.trim();

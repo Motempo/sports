@@ -146,21 +146,12 @@ export function isUpcomingMatch(match: MatchInfo, now = new Date(), timeZone?: s
   return matchDay > today && matchDay <= horizon;
 }
 
-/** @deprecated Use isTodayMatch */
-export function isCurrentMatch(match: MatchInfo, now = new Date()): boolean {
-  return isTodayMatch(match, now) || isUpcomingMatch(match, now);
-}
-
 export function selectTodayMatches(matches: MatchInfo[]): MatchInfo[] {
   return matches.filter((m) => isTodayMatch(m)).sort(sortMatches);
 }
 
 export function selectUpcomingMatches(matches: MatchInfo[]): MatchInfo[] {
   return matches.filter((m) => isUpcomingMatch(m)).sort(sortMatches);
-}
-
-export function selectCurrentMatches(matches: MatchInfo[]): MatchInfo[] {
-  return selectTodayMatches(matches);
 }
 
 function generateSeedGroupMatches(): MatchInfo[] {
@@ -317,8 +308,6 @@ export async function fetchMatches(): Promise<{
   groupMatches: MatchInfo[];
   todayMatches: MatchInfo[];
   upcomingMatches: MatchInfo[];
-  /** @deprecated Use todayMatches */
-  currentMatches: MatchInfo[];
   source: "api" | "seed";
 }> {
   const apiKey = process.env.FOOTBALL_DATA_API_KEY;
@@ -354,7 +343,6 @@ export async function fetchMatches(): Promise<{
             groupMatches,
             todayMatches,
             upcomingMatches,
-            currentMatches: todayMatches,
             source: "api",
           };
         }
@@ -379,7 +367,6 @@ export async function fetchMatches(): Promise<{
     groupMatches,
     todayMatches,
     upcomingMatches,
-    currentMatches: todayMatches,
     source: "seed",
   };
 }

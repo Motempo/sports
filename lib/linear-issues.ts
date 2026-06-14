@@ -257,3 +257,155 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
 export function isLinearConfigured(): boolean {
   return Boolean(process.env.LINEAR_API_KEY?.trim());
 }
+
+let cachedCompletedStateId: string | null = null;
+
+async function resolveCompletedStateId(): Promise<string> {
+  if (cachedCompletedStateId) return cachedCompletedStateId;
+
+  const teamId = await resolveTeamId();
+  const data = await linearRequest<{
+    workflowStates: { nodes: { id: string; name: string; type: string }[] };
+  }>(
+    `query CompletedStates($teamId: ID!) {
+      workflowStates(filter: { team: { id: { eq: $teamId } } }) {
+        nodes {
+          id
+          name
+          type
+        }
+      }
+    }`,
+    { teamId }
+  );
+
+  const completed =
+    data.workflowStates.nodes.find((state) => state.type === "completed") ??
+    data.workflowStates.nodes.find((state) => /^(done|completed)$/i.test(state.name));
+
+  if (!completed) {
+    throw new Error("Linear completed state was not found for this team.");
+  }
+
+  cachedCompletedStateId = completed.id;
+  return completed.id;
+}
+
+async function findIssueByIdentifier(identifier: string): Promise<{ id: string; stateType: string } | null> {
+  const teamId = await resolveTeamId();
+  const data = await linearRequest<{
+    issues: {
+      nodes: Array<{
+        id: string;
+        identifier: string;
+        state: { type: string };
+      }>;
+    };
+  }>(
+    `query IssueByIdentifier($teamId: ID!, $number: Float!) {
+      issues(
+        filter: {
+          team: { id: { eq: $teamId } }
+          number: { eq: $number }
+        }
+        first: 1
+      ) {
+        nodes {
+          id
+          identifier
+          state {
+            type
+          }
+        }
+      }
+    }`,
+    {
+      teamId,
+      number: Number.parseInt(identifier.replace(/^MOT-/i, ""), 10),
+    }
+  );
+
+  const issue = data.issues.nodes[0];
+  if (!issue || issue.identifier !== identifier) return null;
+  return { id: issue.id, stateType: issue.state.type };
+}
+
+export interface CloseIssueResult {
+  identifier: string;
+  status: "closed" | "already_closed" | "not_found" | "failed";
+  message?: string;
+}
+
+export async function closeLinearIssue(
+  identifier: string,
+  comment?: string
+): Promise<CloseIssueResult> {
+  const issue = await findIssueByIdentifier(identifier);
+  if (!issue) {
+    return { identifier, status: "not_found" };
+  }
+
+  if (issue.stateType === "completed" || issue.stateType === "canceled") {
+    return { identifier, status: "already_closed" };
+  }
+
+  const stateId = await resolveCompletedStateId();
+  const data = await linearRequest<{
+    issueUpdate: { success: boolean };
+  }>(
+    `mutation IssueUpdate($id: String!, $input: IssueUpdateInput!) {
+      issueUpdate(id: $id, input: $input) {
+        success
+      }
+    }`,
+    {
+      id: issue.id,
+      input: { stateId },
+    }
+  );
+
+  if (!data.issueUpdate.success) {
+    return { identifier, status: "failed", message: "Linear could not update the issue." };
+  }
+
+  if (comment?.trim()) {
+    try {
+      await linearRequest<{ commentCreate: { success: boolean } }>(
+        `mutation CommentCreate($input: CommentCreateInput!) {
+          commentCreate(input: $input) {
+            success
+          }
+        }`,
+        {
+          input: {
+            issueId: issue.id,
+            body: comment.trim(),
+          },
+        }
+      );
+    } catch {
+      // Issue is closed even if the comment fails.
+    }
+  }
+
+  return { identifier, status: "closed" };
+}
+
+export async function closeLinearIssues(
+  identifiers: string[],
+  comment?: string
+): Promise<CloseIssueResult[]> {
+  const results: CloseIssueResult[] = [];
+  for (const identifier of identifiers) {
+    try {
+      results.push(await closeLinearIssue(identifier, comment));
+    } catch (err) {
+      results.push({
+        identifier,
+        status: "failed",
+        message: err instanceof Error ? err.message : "Failed to close issue.",
+      });
+    }
+  }
+  return results;
+}

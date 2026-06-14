@@ -1,5 +1,6 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
 import { ScheduleByDay } from "@/components/bracket/ScheduleByDay";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
@@ -39,6 +40,8 @@ export async function WorldCupPageContent() {
       <main>
         <TournamentRail phase={phase} knockoutMatches={matches} />
 
+        <AdSlot slot="header-leaderboard" className="border-b border-border py-3 sm:py-4" />
+
         {standingsPrimary ? (
           <>
             <section className="border-b border-border">
@@ -66,6 +69,8 @@ export async function WorldCupPageContent() {
               groupMatches={groupMatches}
               standings={standings}
             />
+
+            <AdSlot slot="mid-content" className="border-b border-border py-4 sm:py-5" />
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
@@ -95,6 +100,8 @@ export async function WorldCupPageContent() {
               groupMatches={groupMatches}
               standings={standings}
             />
+
+            <AdSlot slot="mid-content" className="border-b border-border py-4 sm:py-5" />
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">

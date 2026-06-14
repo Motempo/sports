@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { AdProvider } from "@/components/ads/AdProvider";
 import { CookieNotice } from "@/components/legal/CookieNotice";
 import { Toaster } from "@/components/ui/toaster";
 import { themeInitScript } from "@/lib/theme";
@@ -51,10 +52,27 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                wait_for_update: 500
+              });
+            `,
+          }}
+        />
       </head>
       <body className="min-h-dvh antialiased">
-        {children}
-        <CookieNotice />
+        <AdProvider>
+          {children}
+          <CookieNotice />
+        </AdProvider>
         <Toaster />
       </body>
     </html>

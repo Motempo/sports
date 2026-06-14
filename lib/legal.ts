@@ -28,7 +28,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     bullets: [
       "Usage and device data — browser type, pages viewed, approximate location (from IP address), and referral source. Our host (Vercel) and any analytics or advertising partners we enable may process standard server and cookie data.",
       "Preferences — theme choice (light/dark) stored in your browser’s local storage.",
-      "Cookie notice choice — whether you dismissed our cookie banner, stored in local storage.",
+      "Cookie notice choice — whether you accepted cookies and, if applicable, advertising cookies, stored in local storage.",
       "Feedback you submit — text, optional screenshot or attachment, page URL, and browser metadata needed to investigate reports. Feedback is sent to our issue tracker (Linear).",
       "We do not knowingly collect payment information or government ID on this site.",
     ],
@@ -42,7 +42,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       "Respond to bug reports and product feedback.",
       "Measure performance and fix errors.",
       "Comply with law and protect the service from abuse.",
-      "If we enable advertising, to serve and measure ads and comply with ad-network policies (including consent where required).",
+      "If we enable advertising, to serve contextual ads (for example sports, health, and lifestyle) and measure ad performance in line with your consent choices and applicable law.",
     ],
   },
   {
@@ -56,15 +56,16 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       "Linear — feedback and issue tracking when you submit a report.",
       "football-data.org — match and tournament data when configured.",
       "News & media RSS — headlines and summaries from configured publishers.",
-      "Future advertising partners — if we display ads, partners such as Google may use cookies or similar technologies as described in their policies and your consent choices.",
+      "Google AdSense — contextual display advertising when enabled and you consent to ad cookies. We configure category blocks to exclude gambling, dating, alcohol, mature content, and similar sensitive categories.",
+      "NitroPay — optional alternative ad network for sports and fan-site inventory when enabled.",
     ],
   },
   {
     id: "cookies",
     title: "Cookies and similar technologies",
     paragraphs: [
-      "We use essential cookies and local storage needed for basic functionality (for example theme and cookie-banner state). If we add analytics or advertising, we may use additional cookies or identifiers subject to applicable consent requirements.",
-      "You can control cookies through your browser settings. Blocking essential storage may affect how the site works.",
+      "We use essential cookies and local storage for basic functionality (theme, cookie-banner state). With your consent, advertising partners may use additional cookies or similar technologies to serve and measure contextual ads.",
+      "You can accept or decline advertising cookies in our cookie banner. You can also control cookies through your browser settings. Blocking essential storage may affect how the site works.",
     ],
   },
   {
@@ -86,7 +87,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     id: "children",
     title: "Children",
     paragraphs: [
-      "The site is intended for a general audience and is not directed at children under 13 (or 16 in the EEA/UK). We do not knowingly collect personal information from children. Contact us if you believe a child has provided personal information.",
+      "The site is intended for a general family-friendly audience. We configure advertising to block sensitive categories (including gambling and mature content). We do not knowingly collect personal information from children under 13 (or 16 in the EEA/UK). Contact us if you believe a child has provided personal information.",
     ],
   },
   {
@@ -159,7 +160,8 @@ export const TERMS_SECTIONS: LegalSection[] = [
     id: "ads",
     title: "Advertising",
     paragraphs: [
-      "We may display advertisements from third-party ad networks. Ads may be personalized where permitted by law and your consent choices. Ad partners are responsible for their ad content subject to their policies.",
+      "We may display contextual advertisements from third-party networks such as Google AdSense. Ads are served based on page content, not behavioral profiles of children. Where required by law, we ask for your consent before loading advertising cookies. You can choose “Essential only” to use the site without ad cookies.",
+      "We block sensitive ad categories including gambling, sports betting, dating, alcohol, and mature content in our ad-network settings. Ad partners remain responsible for their creatives subject to their policies and our blocks.",
     ],
   },
   {

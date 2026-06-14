@@ -62,7 +62,7 @@ export function GroupStandingsGrid({ standings }: GroupStandingsGridProps) {
 
   return (
     <div>
-      <div className="scrollbar-hide -mx-3 mb-4 flex gap-1 overflow-x-auto border-b border-border px-3 lg:hidden sm:-mx-0 sm:px-0">
+      <div className="scrollbar-hide mb-4 flex gap-1 overflow-x-auto border-b border-border pb-1 lg:hidden">
         {standings.map((g) => (
           <button
             key={g.groupId}

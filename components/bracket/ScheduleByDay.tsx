@@ -88,7 +88,7 @@ export function ScheduleByDay({
   if (dayGroups.length === 0) {
     return (
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Matches</h2>
           <p className="mt-2 text-[14px] text-muted">
             No live or scheduled matches yet.

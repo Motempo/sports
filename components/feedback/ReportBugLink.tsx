@@ -19,14 +19,15 @@ export function ReportBugLink({ className, variant = "footer" }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "inline-flex items-center gap-1.5 transition-colors",
-          variant === "footer" && "text-xs text-neutral-500 hover:text-primary",
+          "inline-flex items-center gap-2 transition-colors",
+          variant === "footer" &&
+            "min-h-[44px] rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-foreground hover:bg-surface active:bg-surface",
           variant === "sidebar" &&
             "w-full rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground",
           className
         )}
       >
-        <MessageSquarePlus className={variant === "sidebar" ? "h-4 w-4" : "h-3.5 w-3.5"} />
+        <MessageSquarePlus className={variant === "sidebar" ? "h-4 w-4" : "h-5 w-5 shrink-0"} />
         Submit Feedback
       </button>
       <BugReportDialog open={open} onOpenChange={setOpen} />

@@ -38,7 +38,7 @@ export async function WorldCupPageContent() {
   });
 
   return (
-    <div className="min-h-dvh">
+    <div className="min-h-dvh overflow-x-clip">
       <Header activeSportSlug="world-cup" />
 
       <main className="text-[15px] leading-relaxed sm:text-base">
@@ -49,7 +49,7 @@ export async function WorldCupPageContent() {
         {standingsPrimary ? (
           <>
             <section className="border-b border-border">
-              <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+              <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Group Standings</h2>
                   <p className="text-[11px] text-muted sm:text-[12px]">
@@ -82,7 +82,7 @@ export async function WorldCupPageContent() {
             <WorldCupMidAd />
 
             <section className="border-b border-border">
-              <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+              <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <div className="mb-3 rounded-2xl border border-dashed border-border bg-surface/50 px-4 py-3 text-[13px] text-muted">
                   Knockout bracket — slot labels show who fills each spot (e.g. 2A = Group A
                   runner-up). Teams appear as groups finish and results come in.
@@ -95,7 +95,7 @@ export async function WorldCupPageContent() {
             </section>
 
             <section className="border-b border-border">
-              <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+              <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <RulesPrimer />
               </div>
             </section>
@@ -113,7 +113,7 @@ export async function WorldCupPageContent() {
             <WorldCupMidAd />
 
             <section className="border-b border-border">
-              <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+              <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Knockout Bracket</h2>
                   <p className="text-[11px] text-muted sm:text-[12px]">
@@ -129,7 +129,7 @@ export async function WorldCupPageContent() {
 
             {standings.length > 0 && (
               <section className="border-b border-border">
-                <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+                <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                   <h2 className="mb-4 text-[18px] font-extrabold sm:text-[20px]">Final Group Standings</h2>
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
                     <div className="min-w-0 flex-1">
@@ -143,7 +143,7 @@ export async function WorldCupPageContent() {
           </>
         )}
 
-        <section className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
+        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-4 sm:py-8">
           <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 lg:grid-cols-2">
             <div className="h-full">
               <NewsWidget sportSlug="world-cup" />

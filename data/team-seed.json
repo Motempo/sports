@@ -46,5 +46,10 @@
   { "code": "CPV", "name": "Cape Verde", "capital": "Praia", "confederation": "CAF", "fifaRank": 72 },
   { "code": "JOR", "name": "Jordan", "capital": "Amman", "confederation": "AFC", "fifaRank": 75 },
   { "code": "IRQ", "name": "Iraq", "capital": "Baghdad", "confederation": "AFC", "fifaRank": 78 },
-  { "code": "CUW", "name": "Curaçao", "capital": "Willemstad", "confederation": "CONCACAF", "fifaRank": 80 }
+  { "code": "CUW", "name": "Curaçao", "capital": "Willemstad", "confederation": "CONCACAF", "fifaRank": 80 },
+  { "code": "CZE", "name": "Czechia", "capital": "Prague", "confederation": "UEFA", "fifaRank": 31 },
+  { "code": "BIH", "name": "Bosnia and Herzegovina", "capital": "Sarajevo", "confederation": "UEFA", "fifaRank": 57 },
+  { "code": "HAI", "name": "Haiti", "capital": "Port-au-Prince", "confederation": "CONCACAF", "fifaRank": 63 },
+  { "code": "SWE", "name": "Sweden", "capital": "Stockholm", "confederation": "UEFA", "fifaRank": 33 },
+  { "code": "COD", "name": "DR Congo", "capital": "Kinshasa", "confederation": "CAF", "fifaRank": 64 }
 ]

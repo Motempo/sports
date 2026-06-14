@@ -16,7 +16,7 @@ export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) 
 
   return (
     <section className="border-b border-border bg-surface/40">
-      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4">
         <div className="mb-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-link sm:text-[12px]">
             USA · Mexico · Canada

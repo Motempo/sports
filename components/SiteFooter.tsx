@@ -4,7 +4,7 @@ import { ReportBugLink } from "@/components/feedback/ReportBugLink";
 export function SiteFooter() {
   return (
     <footer className="border-t border-border safe-bottom">
-      <div className="mx-auto flex max-w-6xl flex-col items-stretch gap-4 px-3 py-6 sm:px-4 sm:py-8">
+      <div className="mx-auto flex max-w-6xl flex-col items-stretch gap-4 px-4 py-6 sm:px-4 sm:py-8">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-center text-[13px] text-muted sm:text-left">
             © {new Date().getFullYear()} Sports by Motempo

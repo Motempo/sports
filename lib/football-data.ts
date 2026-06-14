@@ -11,10 +11,12 @@ import {
 } from "@/lib/match-timezone";
 import teamIsoMap from "@/data/team-iso-map.json";
 import teamSeed from "@/data/team-seed.json";
+import wc2026Groups from "@/data/wc2026-groups.json";
 import type { BracketRound, MatchInfo, MatchStage, TeamInfo } from "@/lib/types";
 import { ROUND_ORDER } from "@/lib/bracket-constants";
 
 const isoMap = teamIsoMap as Record<string, string>;
+const officialGroups = wc2026Groups as Record<string, string[]>;
 const seedTeams = teamSeed as Array<{
   code: string;
   name: string;
@@ -155,7 +157,6 @@ export function selectUpcomingMatches(matches: MatchInfo[]): MatchInfo[] {
 }
 
 function generateSeedGroupMatches(): MatchInfo[] {
-  const teams = seedTeams.slice(0, 48).map((t) => buildTeamInfo(t.code, t.name));
   const groups = Array.from({ length: 12 }, (_, i) => `GROUP_${String.fromCharCode(65 + i)}`);
   const venues = [
     { venue: "MetLife Stadium", city: "East Rutherford, NJ" },
@@ -186,7 +187,10 @@ function generateSeedGroupMatches(): MatchInfo[] {
   ];
 
   groups.forEach((group, gi) => {
-    const groupTeams = teams.slice(gi * 4, gi * 4 + 4);
+    const codes = officialGroups[group];
+    if (!codes?.length) return;
+
+    const groupTeams = codes.map((code) => buildTeamInfo(code, ""));
     if (groupTeams.length < 4) return;
 
     roundRobin.forEach((pair, pi) => {

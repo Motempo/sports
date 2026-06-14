@@ -1,3 +1,10 @@
+import {
+  addDaysToDayKey,
+  dayKeyToLocalDate,
+  localDayKeyFromUtc,
+  resolveScheduleTimeZone,
+  todayKey,
+} from "@/lib/match-timezone";
 import type { MatchInfo } from "@/lib/types";
 
 export interface MatchDayGroup {
@@ -7,19 +14,6 @@ export interface MatchDayGroup {
   matches: MatchInfo[];
 }
 
-function localDayKey(date: Date): string {
-  return [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
-}
-
-function startOfLocalDayFromKey(dayKey: string): Date {
-  const [year, month, day] = dayKey.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
-
 export function formatLocalMatchTime(utcDate: string): string {
   return new Date(utcDate).toLocaleTimeString(undefined, {
     hour: "numeric",
@@ -27,12 +21,15 @@ export function formatLocalMatchTime(utcDate: string): string {
   });
 }
 
-export function formatLocalDayLabel(dayStart: Date, now = new Date()): string {
-  const todayKey = localDayKey(now);
-  const dayKey = localDayKey(dayStart);
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowKey = localDayKey(tomorrow);
+export function formatLocalDayLabel(
+  dayKey: string,
+  now = new Date(),
+  timeZone?: string
+): string {
+  const tz = resolveScheduleTimeZone(timeZone);
+  const today = todayKey(now, tz);
+  const tomorrow = addDaysToDayKey(today, 1);
+  const dayStart = dayKeyToLocalDate(dayKey);
 
   const weekday = dayStart.toLocaleDateString(undefined, { weekday: "short" });
   const monthDay = dayStart.toLocaleDateString(undefined, {
@@ -40,8 +37,8 @@ export function formatLocalDayLabel(dayStart: Date, now = new Date()): string {
     day: "numeric",
   });
 
-  if (dayKey === todayKey) return `Today · ${weekday}, ${monthDay}`;
-  if (dayKey === tomorrowKey) return `Tomorrow · ${weekday}, ${monthDay}`;
+  if (dayKey === today) return `Today · ${weekday}, ${monthDay}`;
+  if (dayKey === tomorrow) return `Tomorrow · ${weekday}, ${monthDay}`;
   return `${weekday}, ${monthDay}`;
 }
 
@@ -54,39 +51,29 @@ const SCHEDULE_STATUSES = new Set<MatchInfo["status"]>([
   "FINISHED",
 ]);
 
-function startOfLocalDay(now: Date): Date {
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function endOfLocalDay(now: Date): Date {
-  const d = startOfLocalDay(now);
-  d.setDate(d.getDate() + 1);
-  return d;
-}
-
 /**
- * All matches to show in the day-grouped schedule: every game on each local
- * calendar day from today through the next 30 days, plus any live fixtures.
+ * Matches for the day-grouped schedule from today through the next 30 local
+ * calendar days, plus any live fixtures in that window.
  */
-export function selectScheduleMatches(matches: MatchInfo[], now = new Date()): MatchInfo[] {
-  const todayStart = startOfLocalDay(now).getTime();
-  const todayEnd = endOfLocalDay(now).getTime();
-  const horizonEnd = endOfLocalDay(now);
-  horizonEnd.setDate(horizonEnd.getDate() + 30);
+export function selectScheduleMatches(
+  matches: MatchInfo[],
+  now = new Date(),
+  timeZone?: string
+): MatchInfo[] {
+  const tz = resolveScheduleTimeZone(timeZone);
+  const today = todayKey(now, tz);
+  const horizon = addDaysToDayKey(today, 30);
 
   return matches
     .filter((match) => {
       if (!SCHEDULE_STATUSES.has(match.status)) return false;
+
+      const matchDay = localDayKeyFromUtc(match.utcDate, tz);
+      if (matchDay < today || matchDay > horizon) return false;
+
       if (LIVE_STATUSES.has(match.status)) return true;
-
-      const matchTime = new Date(match.utcDate).getTime();
-      if (match.status === "FINISHED") {
-        return matchTime >= todayStart && matchTime < todayEnd;
-      }
-
-      return matchTime >= todayStart && matchTime < horizonEnd.getTime();
+      if (match.status === "FINISHED") return matchDay === today;
+      return true;
     })
     .sort(sortMatchesInDay);
 }
@@ -100,28 +87,41 @@ function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
 
 export function groupMatchesByLocalDay(
   matches: MatchInfo[],
-  now = new Date()
+  now = new Date(),
+  timeZone?: string
 ): MatchDayGroup[] {
+  const tz = resolveScheduleTimeZone(timeZone);
+  const today = todayKey(now, tz);
   const buckets = new Map<string, MatchInfo[]>();
 
   for (const match of matches) {
-    const key = localDayKey(new Date(match.utcDate));
+    const key = localDayKeyFromUtc(match.utcDate, tz);
+    if (key < today) continue;
+
     const list = buckets.get(key) ?? [];
     list.push(match);
     buckets.set(key, list);
   }
 
-  return Array.from(buckets.entries())
+  const groups = Array.from(buckets.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([dayKey, dayMatches]) => {
-      const dayStart = startOfLocalDayFromKey(dayKey);
-      return {
-        dayKey,
-        dayStart,
-        label: formatLocalDayLabel(dayStart, now),
-        matches: [...dayMatches].sort(sortMatchesInDay),
-      };
+    .map(([dayKey, dayMatches]) => ({
+      dayKey,
+      dayStart: dayKeyToLocalDate(dayKey),
+      label: formatLocalDayLabel(dayKey, now, tz),
+      matches: [...dayMatches].sort(sortMatchesInDay),
+    }));
+
+  if (groups.length > 0 && groups[0]!.dayKey > today) {
+    groups.unshift({
+      dayKey: today,
+      dayStart: dayKeyToLocalDate(today),
+      label: formatLocalDayLabel(today, now, tz),
+      matches: [],
     });
+  }
+
+  return groups;
 }
 
 export function combineScheduleMatches(

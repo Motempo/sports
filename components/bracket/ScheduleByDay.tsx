@@ -35,16 +35,20 @@ function DayColumn({
         {group.label}
       </h3>
       <div className="overflow-hidden rounded-2xl border border-border bg-background">
-        {group.matches.map((match, index) => (
-          <MatchScheduleRow
-            key={match.id}
-            match={match}
-            showDivider={index > 0}
-            groupMatches={groupMatches}
-            standings={standings}
-            showContext={!!groupMatches && !!standings}
-          />
-        ))}
+        {group.matches.length === 0 ? (
+          <p className="px-3 py-4 text-[13px] text-muted sm:px-4">No matches today.</p>
+        ) : (
+          group.matches.map((match, index) => (
+            <MatchScheduleRow
+              key={match.id}
+              match={match}
+              showDivider={index > 0}
+              groupMatches={groupMatches}
+              standings={standings}
+              showContext={!!groupMatches && !!standings}
+            />
+          ))
+        )}
       </div>
     </div>
   );
@@ -59,17 +63,23 @@ export function ScheduleByDay({
 }: ScheduleByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
+  const timeZone = useMemo(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+    []
+  );
 
   const dayGroups = useMemo(() => {
-    const scheduleMatches = groupMatches?.length
-      ? selectScheduleMatches(groupMatches)
+    const now = new Date();
+    const raw = groupMatches?.length
+      ? groupMatches
       : combineScheduleMatches(todayMatches, upcomingMatches);
-    return groupMatchesByLocalDay(scheduleMatches);
-  }, [groupMatches, todayMatches, upcomingMatches]);
+    const scheduleMatches = selectScheduleMatches(raw, now, timeZone);
+    return groupMatchesByLocalDay(scheduleMatches, now, timeZone);
+  }, [groupMatches, todayMatches, upcomingMatches, timeZone]);
 
   useEffect(() => {
     setVisibleRows(1);
-  }, [dayGroups.length]);
+  }, [dayGroups.length, timeZone]);
 
   const visibleCount = Math.min(visibleRows * columnsPerRow, dayGroups.length);
   const visibleGroups = dayGroups.slice(0, visibleCount);

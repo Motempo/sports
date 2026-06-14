@@ -1,6 +1,14 @@
 import { enrichMatchVenues } from "@/lib/match-venue";
 import { enrichKnockoutBracket } from "@/lib/knockout-enrich";
 import { computeGroupStandings } from "@/lib/group-standings";
+import {
+  addDaysToDayKey,
+  isOnLocalDay,
+  localDayKeyFromUtc,
+  resolveScheduleTimeZone,
+  todayKey,
+  tournamentKickoffIso,
+} from "@/lib/match-timezone";
 import teamIsoMap from "@/data/team-iso-map.json";
 import teamSeed from "@/data/team-seed.json";
 import type { BracketRound, MatchInfo, MatchStage, TeamInfo } from "@/lib/types";
@@ -110,18 +118,6 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
 
 const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
 
-function startOfLocalDay(now: Date): Date {
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function endOfLocalDay(now: Date): Date {
-  const d = startOfLocalDay(now);
-  d.setDate(d.getDate() + 1);
-  return d;
-}
-
 function sortMatches(a: MatchInfo, b: MatchInfo): number {
   const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;
   const bLive = LIVE_STATUSES.has(b.status) ? 0 : 1;
@@ -129,27 +125,25 @@ function sortMatches(a: MatchInfo, b: MatchInfo): number {
   return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
 }
 
-export function isTodayMatch(match: MatchInfo, now = new Date()): boolean {
+export function isTodayMatch(match: MatchInfo, now = new Date(), timeZone?: string): boolean {
   if (LIVE_STATUSES.has(match.status)) return true;
 
-  const matchTime = new Date(match.utcDate).getTime();
-  const start = startOfLocalDay(now).getTime();
-  const end = endOfLocalDay(now).getTime();
-  const onToday = matchTime >= start && matchTime < end;
+  const tz = resolveScheduleTimeZone(timeZone);
+  const today = todayKey(now, tz);
+  if (!isOnLocalDay(match.utcDate, today, tz)) return false;
 
-  if (!onToday) return false;
   return match.status === "SCHEDULED" || match.status === "FINISHED";
 }
 
-export function isUpcomingMatch(match: MatchInfo, now = new Date()): boolean {
+export function isUpcomingMatch(match: MatchInfo, now = new Date(), timeZone?: string): boolean {
   if (match.status !== "SCHEDULED") return false;
 
-  const matchTime = new Date(match.utcDate).getTime();
-  const afterToday = endOfLocalDay(now).getTime();
-  const horizon = new Date(afterToday);
-  horizon.setDate(horizon.getDate() + 30);
+  const tz = resolveScheduleTimeZone(timeZone);
+  const today = todayKey(now, tz);
+  const horizon = addDaysToDayKey(today, 30);
 
-  return matchTime >= afterToday && matchTime < horizon.getTime();
+  const matchDay = localDayKeyFromUtc(match.utcDate, tz);
+  return matchDay > today && matchDay <= horizon;
 }
 
 /** @deprecated Use isTodayMatch */
@@ -183,34 +177,35 @@ function generateSeedGroupMatches(): MatchInfo[] {
     { venue: "Lincoln Financial Field", city: "Philadelphia, PA" },
   ];
 
-  const now = new Date();
+  /** Official-style group-stage windows: three matchdays, four groups per calendar day. */
+  const matchdayBases = ["2026-06-11", "2026-06-16", "2026-06-22"];
+  const kickoffHours = [13, 16, 19, 22];
+
   const matches: MatchInfo[] = [];
   let id = 1000;
+  const nowMs = Date.now();
 
-  const roundRobin = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]];
+  const roundRobin = [
+    [0, 1],
+    [2, 3],
+    [0, 2],
+    [1, 3],
+    [0, 3],
+    [1, 2],
+  ];
 
   groups.forEach((group, gi) => {
     const groupTeams = teams.slice(gi * 4, gi * 4 + 4);
     if (groupTeams.length < 4) return;
 
     roundRobin.forEach((pair, pi) => {
-      let d = new Date(now);
-      let finished = false;
-
-      if (pi < 4) {
-        d.setDate(d.getDate() - (5 - pi));
-        d.setHours(14 + (gi % 4) * 2, 0, 0, 0);
-        finished = true;
-      } else if (pi === 4) {
-        // Matchday 1 — full slate on the current local date, staggered kickoffs.
-        const hour = 10 + Math.floor(gi / 2) * 2;
-        const minute = (gi % 2) * 30;
-        d.setHours(hour, minute, 0, 0);
-      } else {
-        d = endOfLocalDay(now);
-        d.setDate(d.getDate() + 1 + Math.floor(gi / 4));
-        d.setHours(16 + (gi % 4) * 2, 0, 0, 0);
-      }
+      const matchday = Math.floor(pi / 2);
+      const dayInMatchday = Math.floor(gi / 4);
+      const dayKey = addDaysToDayKey(matchdayBases[matchday]!, dayInMatchday);
+      const hour = kickoffHours[gi % 4]! + (pi % 2);
+      const minute = gi % 2 === 0 ? 0 : 30;
+      const utcDate = tournamentKickoffIso(dayKey, hour, minute);
+      const finished = new Date(utcDate).getTime() < nowMs;
 
       const scores = finished
         ? pi % 2 === 0
@@ -224,20 +219,20 @@ function generateSeedGroupMatches(): MatchInfo[] {
         round: "R32",
         stage: "GROUP",
         group,
-        homeTeam: groupTeams[pair[0]],
-        awayTeam: groupTeams[pair[1]],
-        homeScore: scores[0],
-        awayScore: scores[1],
+        homeTeam: groupTeams[pair[0]!]!,
+        awayTeam: groupTeams[pair[1]!]!,
+        homeScore: scores[0]!,
+        awayScore: scores[1]!,
         status: finished ? "FINISHED" : "SCHEDULED",
-        utcDate: d.toISOString(),
+        utcDate,
         venue: v.venue,
         city: v.city,
         winnerCode:
           finished && scores[0] !== null && scores[1] !== null
-            ? scores[0] > scores[1]
-              ? groupTeams[pair[0]].code
-              : scores[0] < scores[1]
-                ? groupTeams[pair[1]].code
+            ? scores[0]! > scores[1]!
+              ? groupTeams[pair[0]!]!.code
+              : scores[0]! < scores[1]!
+                ? groupTeams[pair[1]!]!.code
                 : undefined
             : undefined,
       });

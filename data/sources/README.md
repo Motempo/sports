@@ -17,4 +17,4 @@ Each sport has its own source config in this folder (`{sport-slug}.json`).
 
 ## World Cup
 
-Configured from the curated 25-account list. News prioritizes official, major media, and high-reliability journalists. Fun facts rotate through tactical, official, and historical voices (Tifo, FIFA, Marcotti, etc.).
+Configured from the curated 25-account list. News prioritizes official, major media, and high-reliability journalists via RSS and Google News (FIFA.com RSS is not used — feed returns HTML). Fun facts cite a matching authoritative X account per fact.

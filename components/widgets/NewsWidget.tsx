@@ -82,7 +82,7 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
           ))
         ) : items.length === 0 ? (
           <p className="px-4 py-6 text-[15px] text-muted">
-            No World Cup news right now. Check back soon.
+            No news right now. Check back soon.
           </p>
         ) : (
           items.map((item) => (

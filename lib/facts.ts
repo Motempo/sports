@@ -27,8 +27,8 @@ function buildFactsForSport(sportSlug: string): FunFact[] {
   const seeds = FACTS_BY_SPORT[sportSlug] ?? [];
   const handles = getFactSourceHandles(sportSlug);
 
-  return seeds.map((fact, i) => {
-    const handle = fact.sourceHandle ?? handles[i % Math.max(handles.length, 1)] ?? "FIFAWorldCup";
+  return seeds.map((fact) => {
+    const handle = fact.sourceHandle ?? handles[0] ?? "FIFAWorldCup";
     const source = getSourceByHandle(sportSlug, handle);
     return {
       ...fact,

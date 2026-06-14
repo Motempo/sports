@@ -2,271 +2,301 @@
   {
     "id": "fact-1",
     "title": "First 48-team World Cup",
-    "summary": "2026 expands from 32 to 48 teams — the biggest format change since 1998.",
+    "summary": "2026 expands from 32 to 48 teams \u2014 the biggest format change since 1998.",
     "category": "2026",
-    "emoji": "🏆",
+    "emoji": "\ud83c\udfc6",
     "wikipediaTitle": "2026 FIFA World Cup",
-    "detail": "The 2026 FIFA World Cup will be the first edition to feature 48 teams, up from 32. There will be 12 groups of 4 teams, with 104 total matches played across 16 host venues in the United States, Mexico, and Canada."
+    "detail": "The 2026 FIFA World Cup will be the first edition to feature 48 teams, up from 32. There will be 12 groups of 4 teams, with 104 total matches played across 16 host venues in the United States, Mexico, and Canada.",
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-2",
     "title": "Tri-host tournament",
     "summary": "USA, Mexico, and Canada share hosting duties for the first time ever.",
     "category": "2026",
-    "emoji": "🌎",
+    "emoji": "\ud83c\udf0e",
     "wikipediaTitle": "2026 FIFA World Cup",
-    "detail": "This is the first World Cup hosted by three nations. Mexico becomes the first country to host three times (1970, 1986, 2026). The US hosts 11 venues, Mexico 3, and Canada 2."
+    "detail": "This is the first World Cup hosted by three nations. Mexico becomes the first country to host three times (1970, 1986, 2026). The US hosts 11 venues, Mexico 3, and Canada 2.",
+    "sourceHandle": "FIFAcom"
   },
   {
     "id": "fact-3",
     "title": "104 matches total",
-    "summary": "Up from 64 in Qatar 2022 — nearly two months of football.",
+    "summary": "Up from 64 in Qatar 2022 \u2014 nearly two months of football.",
     "category": "2026",
-    "emoji": "⚽",
+    "emoji": "\u26bd",
     "wikipediaTitle": "2026 FIFA World Cup",
-    "detail": "The expanded format means 104 matches instead of 64. The tournament runs from June 11 to July 19, 2026, with the opening match in Mexico City and the final at MetLife Stadium in New Jersey."
+    "detail": "The expanded format means 104 matches instead of 64. The tournament runs from June 11 to July 19, 2026, with the opening match in Mexico City and the final at MetLife Stadium in New Jersey.",
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-4",
     "title": "Most World Cup titles",
     "summary": "Brazil leads with 5 championships (1958, 1962, 1970, 1994, 2002).",
     "category": "History",
-    "emoji": "🇧🇷",
+    "emoji": "\ud83c\udde7\ud83c\uddf7",
     "wikipediaTitle": "Brazil national football team",
-    "detail": "Brazil is the only nation to have played in every World Cup tournament. Germany and Italy each have 4 titles. Brazil also holds the record for most goals scored in World Cup history."
+    "detail": "Brazil is the only nation to have played in every World Cup tournament. Germany and Italy each have 4 titles. Brazil also holds the record for most goals scored in World Cup history.",
+    "sourceHandle": "Marcotti"
   },
   {
     "id": "fact-5",
     "title": "Youngest scorer",
-    "summary": "Pelé scored in the 1958 final aged just 17 years and 249 days.",
+    "summary": "Pel\u00e9 scored in the 1958 final aged just 17 years and 249 days.",
     "category": "Records",
-    "emoji": "⭐",
-    "wikipediaTitle": "Pelé",
-    "detail": "Edson Arantes do Nascimento, known as Pelé, scored twice in the 1958 World Cup final against Sweden. He went on to win three World Cups with Brazil (1958, 1962, 1970)."
+    "emoji": "\u2b50",
+    "wikipediaTitle": "Pel\u00e9",
+    "detail": "Edson Arantes do Nascimento, known as Pel\u00e9, scored twice in the 1958 World Cup final against Sweden. He went on to win three World Cups with Brazil (1958, 1962, 1970).",
+    "sourceHandle": "GaryLineker"
   },
   {
     "id": "fact-6",
     "title": "Fastest hat-trick",
     "summary": "Geoff Hurst's 1966 final hat-trick remains the only one in a World Cup final.",
     "category": "Records",
-    "emoji": "🎩",
+    "emoji": "\ud83c\udfa9",
     "wikipediaTitle": "Geoff Hurst",
-    "detail": "Sir Geoff Hurst scored three goals in the 1966 World Cup final as England beat West Germany 4-2 after extra time. It remains England's only World Cup victory."
+    "detail": "Sir Geoff Hurst scored three goals in the 1966 World Cup final as England beat West Germany 4-2 after extra time. It remains England's only World Cup victory.",
+    "sourceHandle": "PhilMcNulty"
   },
   {
     "id": "fact-7",
     "title": "Most goals in a tournament",
-    "summary": "Just Fontaine scored 13 goals in 1958 — a record that still stands.",
+    "summary": "Just Fontaine scored 13 goals in 1958 \u2014 a record that still stands.",
     "category": "Records",
-    "emoji": "🎯",
+    "emoji": "\ud83c\udfaf",
     "wikipediaTitle": "Just Fontaine",
-    "detail": "French striker Just Fontaine scored 13 goals in just 6 matches at the 1958 World Cup in Sweden. No player has come close to matching this single-tournament record."
+    "detail": "French striker Just Fontaine scored 13 goals in just 6 matches at the 1958 World Cup in Sweden. No player has come close to matching this single-tournament record.",
+    "sourceHandle": "Marcotti"
   },
   {
     "id": "fact-8",
     "title": "The Jules Rimet Trophy",
     "summary": "Brazil kept the original trophy permanently after winning it for the third time in 1970.",
     "category": "History",
-    "emoji": "🏅",
+    "emoji": "\ud83c\udfc5",
     "wikipediaTitle": "FIFA World Cup Trophy",
-    "detail": "The original World Cup trophy was named after FIFA president Jules Rimet. Brazil was awarded it permanently after their 1970 triumph. The current trophy has been used since 1974."
+    "detail": "The original World Cup trophy was named after FIFA president Jules Rimet. Brazil was awarded it permanently after their 1970 triumph. The current trophy has been used since 1974.",
+    "sourceHandle": "FIFAcom"
   },
   {
     "id": "fact-9",
     "title": "Biggest World Cup win",
-    "summary": "Hungary beat El Salvador 10-1 in 1982 — the largest margin in finals history.",
+    "summary": "Hungary beat El Salvador 10-1 in 1982 \u2014 the largest margin in finals history.",
     "category": "Records",
-    "emoji": "💥",
+    "emoji": "\ud83d\udca5",
     "wikipediaTitle": "1982 FIFA World Cup",
-    "detail": "Hungary's 10-1 demolition of El Salvador in 1982 remains the biggest victory in World Cup finals history. László Kiss scored a hat-trick in just 7 minutes."
+    "detail": "Hungary's 10-1 demolition of El Salvador in 1982 remains the biggest victory in World Cup finals history. L\u00e1szl\u00f3 Kiss scored a hat-trick in just 7 minutes.",
+    "sourceHandle": "Fernando_Duarte"
   },
   {
     "id": "fact-10",
     "title": "Most attended match",
-    "summary": "1950 final at Maracanã: Uruguay upset Brazil before ~174,000 fans.",
+    "summary": "1950 final at Maracan\u00e3: Uruguay upset Brazil before ~174,000 fans.",
     "category": "History",
-    "emoji": "🏟️",
+    "emoji": "\ud83c\udfdf\ufe0f",
     "wikipediaTitle": "Maracanazo",
-    "detail": "The 1950 World Cup final at Maracanã Stadium in Rio de Janeiro is one of the most iconic matches ever. Uruguay's 2-1 victory over hosts Brazil is known as the 'Maracanazo'."
+    "detail": "The 1950 World Cup final at Maracan\u00e3 Stadium in Rio de Janeiro is one of the most iconic matches ever. Uruguay's 2-1 victory over hosts Brazil is known as the 'Maracanazo'.",
+    "sourceHandle": "sidlowe"
   },
   {
     "id": "fact-11",
     "title": "VAR debut",
     "summary": "Video Assistant Referee was first used at the 2018 World Cup in Russia.",
     "category": "History",
-    "emoji": "📺",
+    "emoji": "\ud83d\udcfa",
     "wikipediaTitle": "Video assistant referee",
-    "detail": "The 2018 World Cup in Russia was the first to use VAR technology. It was used in 29 of 64 matches and helped overturn 17 decisions."
+    "detail": "The 2018 World Cup in Russia was the first to use VAR technology. It was used in 29 of 64 matches and helped overturn 17 decisions.",
+    "sourceHandle": "TifoFootball_"
   },
   {
     "id": "fact-12",
     "title": "Winter World Cup",
-    "summary": "Qatar 2022 was the first World Cup held in November–December.",
+    "summary": "Qatar 2022 was the first World Cup held in November\u2013December.",
     "category": "History",
-    "emoji": "❄️",
+    "emoji": "\u2744\ufe0f",
     "wikipediaTitle": "2022 FIFA World Cup",
-    "detail": "Due to Qatar's extreme summer heat, the 2022 tournament was moved to winter for the first time. Argentina won their third title, defeating France on penalties in a thrilling final."
+    "detail": "Due to Qatar's extreme summer heat, the 2022 tournament was moved to winter for the first time. Argentina won their third title, defeating France on penalties in a thrilling final.",
+    "sourceHandle": "GuillemBalague"
   },
   {
     "id": "fact-13",
     "title": "MetLife Stadium final",
     "summary": "The 2026 final will be at MetLife Stadium in East Rutherford, New Jersey.",
     "category": "2026",
-    "emoji": "🗽",
+    "emoji": "\ud83d\uddfd",
     "wikipediaTitle": "MetLife Stadium",
-    "detail": "MetLife Stadium, home of the NFL's Giants and Jets, will host the 2026 World Cup final on July 19. It has a capacity of approximately 82,500."
+    "detail": "MetLife Stadium, home of the NFL's Giants and Jets, will host the 2026 World Cup final on July 19. It has a capacity of approximately 82,500.",
+    "sourceHandle": "FOXSoccer"
   },
   {
     "id": "fact-14",
     "title": "Most World Cup appearances",
-    "summary": "Antonio Carbajal and Rafael Márquez each played in 5 World Cups for Mexico.",
+    "summary": "Antonio Carbajal and Rafael M\u00e1rquez each played in 5 World Cups for Mexico.",
     "category": "Records",
-    "emoji": "🇲🇽",
-    "wikipediaTitle": "Rafael Márquez",
-    "detail": "Only four players have appeared in five World Cups: Antonio Carbajal, Rafael Márquez (both Mexico), Lothar Matthäus (Germany), and Cristiano Ronaldo (Portugal)."
+    "emoji": "\ud83c\uddf2\ud83c\uddfd",
+    "wikipediaTitle": "Rafael M\u00e1rquez",
+    "detail": "Only four players have appeared in five World Cups: Antonio Carbajal, Rafael M\u00e1rquez (both Mexico), Lothar Matth\u00e4us (Germany), and Cristiano Ronaldo (Portugal).",
+    "sourceHandle": "Fernando_Duarte"
   },
   {
     "id": "fact-15",
     "title": "Golden Boot history",
     "summary": "Just Fontaine's 13 goals in 1958 is still the single-tournament record.",
     "category": "Records",
-    "emoji": "👟",
+    "emoji": "\ud83d\udc5f",
     "wikipediaTitle": "FIFA World Cup awards",
-    "detail": "The Golden Boot is awarded to the top scorer. Kylian Mbappé scored 8 goals in 2022 but shared the award with Lionel Messi who also scored 8 (including the final)."
+    "detail": "The Golden Boot is awarded to the top scorer. Kylian Mbapp\u00e9 scored 8 goals in 2022 but shared the award with Lionel Messi who also scored 8 (including the final).",
+    "sourceHandle": "Marcotti"
   },
   {
     "id": "fact-16",
     "title": "Smallest host nation",
     "summary": "Qatar 2022 was the smallest country ever to host the World Cup.",
     "category": "History",
-    "emoji": "🇶🇦",
+    "emoji": "\ud83c\uddf6\ud83c\udde6",
     "wikipediaTitle": "2022 FIFA World Cup",
-    "detail": "Qatar has an area of just 11,571 km² — smaller than Connecticut. All eight stadiums were within a 55km radius, making it the most compact World Cup ever."
+    "detail": "Qatar has an area of just 11,571 km\u00b2 \u2014 smaller than Connecticut. All eight stadiums were within a 55km radius, making it the most compact World Cup ever.",
+    "sourceHandle": "henrywinter"
   },
   {
     "id": "fact-17",
     "title": "First World Cup",
     "summary": "Uruguay hosted and won the inaugural tournament in 1930.",
     "category": "History",
-    "emoji": "📅",
+    "emoji": "\ud83d\udcc5",
     "wikipediaTitle": "1930 FIFA World Cup",
-    "detail": "Only 13 teams participated in the first World Cup in 1930. Uruguay defeated Argentina 4-2 in the final at Estadio Centenario in Montevideo."
+    "detail": "Only 13 teams participated in the first World Cup in 1930. Uruguay defeated Argentina 4-2 in the final at Estadio Centenario in Montevideo.",
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-18",
     "title": "Penalty shootout record",
     "summary": "The 2022 Argentina-France final had the most goals (6) in a World Cup final.",
     "category": "Records",
-    "emoji": "🎭",
+    "emoji": "\ud83c\udfad",
     "wikipediaTitle": "2022 FIFA World Cup final",
-    "detail": "Argentina led 2-0, France equalized to 2-2 in 97 seconds, went to extra time at 3-3, and Argentina won 4-2 on penalties. Lionel Messi finally won his World Cup."
+    "detail": "Argentina led 2-0, France equalized to 2-2 in 97 seconds, went to extra time at 3-3, and Argentina won 4-2 on penalties. Lionel Messi finally won his World Cup.",
+    "sourceHandle": "GaryLineker"
   },
   {
     "id": "fact-19",
     "title": "16 host venues",
     "summary": "2026 uses stadiums across 11 US cities, 3 Mexican, and 2 Canadian cities.",
     "category": "2026",
-    "emoji": "🗺️",
+    "emoji": "\ud83d\uddfa\ufe0f",
     "wikipediaTitle": "2026 FIFA World Cup",
-    "detail": "Host cities include New York/New Jersey, Los Angeles, Dallas, Houston, Atlanta, Miami, Philadelphia, Seattle, San Francisco, Kansas City, Boston, Mexico City, Guadalajara, Monterrey, Toronto, and Vancouver."
+    "detail": "Host cities include New York/New Jersey, Los Angeles, Dallas, Houston, Atlanta, Miami, Philadelphia, Seattle, San Francisco, Kansas City, Boston, Mexico City, Guadalajara, Monterrey, Toronto, and Vancouver.",
+    "sourceHandle": "FIFAcom"
   },
   {
     "id": "fact-20",
     "title": "Longest unbeaten run",
     "summary": "Italy went 37 World Cup matches unbeaten from 1934 to 1950.",
     "category": "Records",
-    "emoji": "🇮🇹",
+    "emoji": "\ud83c\uddee\ud83c\uddf9",
     "wikipediaTitle": "Italy national football team",
-    "detail": "Italy's unbeaten streak included two World Cup titles (1934, 1938). The streak ended with a shocking 3-2 loss to Sweden in 1950."
+    "detail": "Italy's unbeaten streak included two World Cup titles (1934, 1938). The streak ended with a shocking 3-2 loss to Sweden in 1950.",
+    "sourceHandle": "Marcotti"
   },
   {
     "id": "fact-21",
     "title": "Own goals record",
-    "summary": "Qatar 2022 had 12 own goals — the most in any World Cup.",
+    "summary": "Qatar 2022 had 12 own goals \u2014 the most in any World Cup.",
     "category": "Records",
-    "emoji": "😅",
+    "emoji": "\ud83d\ude05",
     "wikipediaTitle": "2022 FIFA World Cup",
-    "detail": "The 2022 tournament saw a record number of own goals, surpassing the previous record of 6. Morocco became the first African nation to reach a World Cup semi-final."
+    "detail": "The 2022 tournament saw a record number of own goals, surpassing the previous record of 6. Morocco became the first African nation to reach a World Cup semi-final.",
+    "sourceHandle": "sidlowe"
   },
   {
     "id": "fact-22",
     "title": "Opening match tradition",
     "summary": "The host nation traditionally plays in the opening match.",
     "category": "History",
-    "emoji": "🎬",
+    "emoji": "\ud83c\udfac",
     "wikipediaTitle": "FIFA World Cup opening match",
-    "detail": "Mexico will kick off the 2026 tournament at Estadio Azteca in Mexico City on June 11, 2026 — the third time Mexico City hosts an opening match."
+    "detail": "Mexico will kick off the 2026 tournament at Estadio Azteca in Mexico City on June 11, 2026 \u2014 the third time Mexico City hosts an opening match.",
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-23",
     "title": "Most clean sheets",
     "summary": "Peter Shilton kept 10 clean sheets across three World Cups for England.",
     "category": "Records",
-    "emoji": "🧤",
+    "emoji": "\ud83e\udde4",
     "wikipediaTitle": "Peter Shilton",
-    "detail": "Goalkeeper Peter Shilton played in three World Cups (1982, 1986, 1990) and holds the record for most clean sheets in World Cup history."
+    "detail": "Goalkeeper Peter Shilton played in three World Cups (1982, 1986, 1990) and holds the record for most clean sheets in World Cup history.",
+    "sourceHandle": "PhilMcNulty"
   },
   {
     "id": "fact-24",
     "title": "Group of Death tradition",
-    "summary": "Every World Cup has a fiercely competitive group — 2026's 12 groups multiply the drama.",
+    "summary": "Every World Cup has a fiercely competitive group \u2014 2026's 12 groups multiply the drama.",
     "category": "2026",
-    "emoji": "💀",
+    "emoji": "\ud83d\udc80",
     "wikipediaTitle": "2026 FIFA World Cup",
-    "detail": "With 12 groups of 4 teams, the top two from each group plus the eight best third-placed teams advance to the Round of 32 — a new knockout format."
+    "detail": "With 12 groups of 4 teams, the top two from each group plus the eight best third-placed teams advance to the Round of 32 \u2014 a new knockout format.",
+    "sourceHandle": "TifoFootball_"
   },
   {
     "id": "fact-25",
     "title": "Fastest goal",
-    "summary": "Hakan Şükür scored after 11 seconds for Turkey vs South Korea in 2002.",
+    "summary": "Hakan \u015e\u00fck\u00fcr scored after 11 seconds for Turkey vs South Korea in 2002.",
     "category": "Records",
-    "emoji": "⚡",
-    "wikipediaTitle": "Hakan Şükür",
-    "detail": "Turkey's Hakan Şükür scored the fastest goal in World Cup history just 11 seconds into the third-place playoff against South Korea in 2002."
+    "emoji": "\u26a1",
+    "wikipediaTitle": "Hakan \u015e\u00fck\u00fcr",
+    "detail": "Turkey's Hakan \u015e\u00fck\u00fcr scored the fastest goal in World Cup history just 11 seconds into the third-place playoff against South Korea in 2002.",
+    "sourceHandle": "Marcotti"
   },
   {
     "id": "fact-26",
     "title": "Women's World Cup parallel",
-    "summary": "The FIFA Women's World Cup began in 1991 — the US has won 4 titles.",
+    "summary": "The FIFA Women's World Cup began in 1991 \u2014 the US has won 4 titles.",
     "category": "History",
-    "emoji": "👩‍⚽",
+    "emoji": "\ud83d\udc69\u200d\u26bd",
     "wikipediaTitle": "FIFA Women's World Cup",
-    "detail": "The United States women's national team has won 4 Women's World Cups (1991, 1999, 2015, 2019), more than any other nation."
+    "detail": "The United States women's national team has won 4 Women's World Cups (1991, 1999, 2015, 2019), more than any other nation.",
+    "sourceHandle": "ussoccer"
   },
   {
     "id": "fact-27",
     "title": "Total World Cup goals",
     "summary": "Over 2,700 goals have been scored in World Cup finals history.",
     "category": "History",
-    "emoji": "📊",
+    "emoji": "\ud83d\udcca",
     "wikipediaTitle": "FIFA World Cup",
-    "detail": "Since 1930, more than 2,700 goals have been scored across 22 World Cup tournaments. Brazil has scored the most with over 230 goals."
+    "detail": "Since 1930, more than 2,700 goals have been scored across 22 World Cup tournaments. Brazil has scored the most with over 230 goals.",
+    "sourceHandle": "FIFAWorldCup"
   },
   {
     "id": "fact-28",
     "title": "Estadio Azteca legacy",
     "summary": "Mexico City's Azteca will be the first stadium to host three World Cups.",
     "category": "2026",
-    "emoji": "🏟️",
+    "emoji": "\ud83c\udfdf\ufe0f",
     "wikipediaTitle": "Estadio Azteca",
-    "detail": "Estadio Azteca hosted the 1970 and 1986 World Cups and will host again in 2026. It was the venue for Diego Maradona's 'Hand of God' and 'Goal of the Century' in 1986."
+    "detail": "Estadio Azteca hosted the 1970 and 1986 World Cups and will host again in 2026. It was the venue for Diego Maradona's 'Hand of God' and 'Goal of the Century' in 1986.",
+    "sourceHandle": "Fernando_Duarte"
   },
   {
     "id": "fact-29",
     "title": "Red card record",
     "summary": "Rigobert Song and Zinedine Zidane each received 2 World Cup red cards.",
     "category": "Records",
-    "emoji": "🟥",
+    "emoji": "\ud83d\udfe5",
     "wikipediaTitle": "Zinedine Zidane",
-    "detail": "Zinedine Zidane's headbutt on Marco Materazzi in the 2006 final is the most famous World Cup red card. He was sent off in his final professional match."
+    "detail": "Zinedine Zidane's headbutt on Marco Materazzi in the 2006 final is the most famous World Cup red card. He was sent off in his final professional match.",
+    "sourceHandle": "GuillemBalague"
   },
   {
     "id": "fact-30",
     "title": "Underdog champions",
     "summary": "Uruguay (1950), West Germany (1954), and Argentina (2022) all shocked favorites.",
     "category": "History",
-    "emoji": "🦊",
+    "emoji": "\ud83e\udd8a",
     "wikipediaTitle": "FIFA World Cup",
-    "detail": "The World Cup is famous for upsets. Uruguay beat Brazil at home in 1950, West Germany upset the 'Magnificent Magyars' in 1954, and Argentina came from behind to beat France in 2022."
+    "detail": "The World Cup is famous for upsets. Uruguay beat Brazil at home in 1950, West Germany upset the 'Magnificent Magyars' in 1954, and Argentina came from behind to beat France in 2022.",
+    "sourceHandle": "Marcotti"
   }
 ]

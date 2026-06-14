@@ -162,6 +162,10 @@ export function matchOutletToHandle(sportSlug: string, outletName: string): stri
     "fox sports": "FOXSoccer",
     athletic: "TheAthleticFC",
     "the athletic": "TheAthleticFC",
+    "cbs sports": "CBSSports",
+    cbs: "CBSSports",
+    "new york times": "nytimes",
+    nytimes: "nytimes",
   };
 
   for (const [key, handle] of Object.entries(aliases)) {
@@ -172,6 +176,10 @@ export function matchOutletToHandle(sportSlug: string, outletName: string): stri
     normalized.includes(s.name.toLowerCase())
   );
   return byName?.handle ?? config.newsHandles[0];
+}
+
+export function getSourceRank(sportSlug: string, handle: string): number {
+  return getSourceByHandle(sportSlug, handle)?.rank ?? 999;
 }
 
 export function getXAvatar(handle: string): string {

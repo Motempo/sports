@@ -21,7 +21,9 @@
     "FOXSoccer",
     "CBF_Futebol",
     "ussoccer",
-    "SeFutbol"
+    "SeFutbol",
+    "CBSSports",
+    "nytimes"
   ],
   "factHandles": [
     "TifoFootball_",
@@ -44,8 +46,7 @@
       "type": "official",
       "description": "Official FIFA World Cup account for announcements, highlights, stats, and live updates.",
       "reliability": "highest",
-      "category": "Official",
-      "rssUrl": "https://www.fifa.com/rss-feeds/news"
+      "category": "Official"
     },
     {
       "rank": 2,
@@ -54,8 +55,7 @@
       "type": "official",
       "description": "Main FIFA account covering global football news and events.",
       "reliability": "highest",
-      "category": "Official",
-      "rssUrl": "https://www.fifa.com/rss-feeds/news"
+      "category": "Official"
     },
     {
       "rank": 3,
@@ -93,8 +93,7 @@
       "type": "media",
       "description": "Fast news, transfers, match coverage, and highlights.",
       "reliability": "high",
-      "category": "Major Media",
-      "rssUrl": "https://www.goal.com/feeds/news"
+      "category": "Major Media"
     },
     {
       "rank": 7,
@@ -221,8 +220,7 @@
       "type": "media",
       "description": "Opinionated analysis and Mediawatch.",
       "reliability": "high",
-      "category": "Major Media",
-      "rssUrl": "https://www.football365.com/feed"
+      "category": "Major Media"
     },
     {
       "rank": 21,
@@ -268,6 +266,26 @@
       "description": "Official Spain national team.",
       "reliability": "high",
       "category": "National Teams"
+    },
+    {
+      "rank": 26,
+      "handle": "CBSSports",
+      "name": "CBS Sports",
+      "type": "media",
+      "description": "Major US sports outlet with dedicated soccer coverage.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://www.cbssports.com/rss/headlines/soccer/"
+    },
+    {
+      "rank": 27,
+      "handle": "nytimes",
+      "name": "The New York Times",
+      "type": "media",
+      "description": "Award-winning international football reporting.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "https://rss.nytimes.com/services/xml/rss/nyt/Soccer.xml"
     }
   ],
   "supplementalFeeds": [

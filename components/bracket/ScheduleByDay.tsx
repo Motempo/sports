@@ -47,9 +47,9 @@ export function ScheduleByDay({
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start md:gap-5 xl:grid-cols-3">
           {dayGroups.map((group) => (
-            <div key={group.dayKey}>
+            <div key={group.dayKey} className="min-w-0">
               <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
                 {group.label}
               </h3>

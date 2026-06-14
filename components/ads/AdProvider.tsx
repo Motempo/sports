@@ -18,6 +18,7 @@ import {
 } from "@/lib/ad-consent";
 import {
   adsEnabled,
+  adsPlacementsLive,
   adProvider,
   adsenseClientId,
   isAdsStackConfigured,
@@ -71,6 +72,7 @@ export function AdProvider({ children }: { children: ReactNode }) {
 
   const adsAllowed =
     hydrated &&
+    adsPlacementsLive &&
     adsEnabled &&
     isAdsStackConfigured() &&
     consent === "all";
@@ -90,7 +92,7 @@ export function AdProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdConsentContext.Provider value={value}>
-      {hydrated && consent === "all" && isAdsStackConfigured() && (
+      {hydrated && consent === "all" && adsPlacementsLive && isAdsStackConfigured() && (
         <Script id="google-consent-granted" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -130,7 +132,11 @@ export function useAdConsent(): AdConsentContextValue {
   if (!ctx) {
     return {
       consent: typeof window !== "undefined" ? readAdConsent() : null,
-      adsAllowed: typeof window !== "undefined" && hasAdConsent() && adsEnabled,
+      adsAllowed:
+        typeof window !== "undefined" &&
+        hasAdConsent() &&
+        adsPlacementsLive &&
+        adsEnabled,
       acceptAll: () => writeAdConsent("all"),
       acceptEssentialOnly: () => writeAdConsent("essential"),
     };

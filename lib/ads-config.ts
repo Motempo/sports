@@ -31,6 +31,9 @@ const truthy = (value: string | undefined): boolean => value?.trim().toLowerCase
 
 export const adsEnabled = truthy(process.env.NEXT_PUBLIC_ADS_ENABLED);
 
+/** Set true in env once AdSense authorizes the site and slots are configured. */
+export const adsPlacementsLive = truthy(process.env.NEXT_PUBLIC_ADS_PLACEMENTS_LIVE);
+
 export const adProvider: AdProviderName =
   process.env.NEXT_PUBLIC_ADS_PROVIDER?.trim().toLowerCase() === "nitro"
     ? "nitro"
@@ -83,6 +86,8 @@ export function getAdSlot(slot: AdSlotId): AdSlotConfig {
 }
 
 export function isSlotConfigured(slot: AdSlotId): boolean {
+  if (!adsPlacementsLive) return false;
+
   const config = AD_SLOTS[slot];
   if (!adsEnabled || adProvider === "none") return false;
 
@@ -105,4 +110,5 @@ export function isAdsStackConfigured(): boolean {
 }
 
 /** Shown in cookie banner when ads may load after consent. */
-export const adsConsentRequired = adsEnabled && isAdsStackConfigured();
+export const adsConsentRequired =
+  adsPlacementsLive && adsEnabled && isAdsStackConfigured();

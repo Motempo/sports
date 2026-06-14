@@ -1,6 +1,10 @@
 import { BracketTree } from "@/components/bracket/BracketTree";
 import { ScheduleByDay } from "@/components/bracket/ScheduleByDay";
-import { AdSlot } from "@/components/ads/AdSlot";
+import {
+  WorldCupMidAd,
+  WorldCupStandingsAd,
+  WorldCupAdPlacements,
+} from "@/components/ads/WorldCupAdPlacements";
 import { Header } from "@/components/Header";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
@@ -40,7 +44,7 @@ export async function WorldCupPageContent() {
       <main>
         <TournamentRail phase={phase} knockoutMatches={matches} />
 
-        <AdSlot slot="header-leaderboard" className="border-b border-border py-3 sm:py-4" />
+        <WorldCupAdPlacements />
 
         {standingsPrimary ? (
           <>
@@ -62,11 +66,7 @@ export async function WorldCupPageContent() {
                     />
                     <GroupStageStatus phase={phase} />
                   </div>
-                  <AdSlot
-                    slot="standings-sidebar"
-                    layout="sidebar"
-                    className="hidden lg:flex lg:sticky lg:top-20 lg:self-start"
-                  />
+                  <WorldCupStandingsAd />
                 </div>
               </div>
             </section>
@@ -79,7 +79,7 @@ export async function WorldCupPageContent() {
               standings={standings}
             />
 
-            <AdSlot slot="mid-content" className="border-b border-border py-4 sm:py-5" />
+            <WorldCupMidAd />
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
@@ -110,7 +110,7 @@ export async function WorldCupPageContent() {
               standings={standings}
             />
 
-            <AdSlot slot="mid-content" className="border-b border-border py-4 sm:py-5" />
+            <WorldCupMidAd />
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
@@ -135,11 +135,7 @@ export async function WorldCupPageContent() {
                     <div className="min-w-0 flex-1">
                       <GroupStandingsGrid standings={standings} />
                     </div>
-                    <AdSlot
-                      slot="standings-sidebar"
-                      layout="sidebar"
-                      className="hidden lg:flex lg:sticky lg:top-20 lg:self-start"
-                    />
+                    <WorldCupStandingsAd />
                   </div>
                 </div>
               </section>

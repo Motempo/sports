@@ -25,16 +25,14 @@ export function CookieNotice() {
       role="dialog"
       aria-live="polite"
       aria-label="Cookie notice"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur-md safe-bottom sm:p-4"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 backdrop-blur-md safe-bottom sm:px-4"
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[13px] leading-relaxed text-foreground/90 sm:text-[14px]">
-          We use essential cookies and local storage for site functionality. If we add analytics or
-          ads, we will update our{" "}
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 sm:gap-4">
+        <p className="text-[12px] leading-snug text-foreground/85 sm:text-[13px]">
+          We use cookies for site functionality.{" "}
           <Link href="/privacy" className="text-link hover:underline">
             Privacy Policy
-          </Link>{" "}
-          and honor applicable consent requirements.
+          </Link>
         </p>
         <button
           type="button"
@@ -46,7 +44,7 @@ export function CookieNotice() {
             }
             setVisible(false);
           }}
-          className="min-h-[44px] shrink-0 rounded-xl bg-link px-5 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80"
+          className="shrink-0 rounded-lg bg-link px-3 py-1.5 text-[12px] font-medium text-white transition-opacity hover:opacity-90 active:opacity-80"
         >
           Got it
         </button>

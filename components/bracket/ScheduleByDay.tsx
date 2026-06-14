@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
+import { useColumnsPerRow } from "@/hooks/use-columns-per-row";
 import {
   combineScheduleMatches,
   groupMatchesByLocalDay,
@@ -56,12 +57,23 @@ export function ScheduleByDay({
   groupMatches,
   standings,
 }: ScheduleByDayProps) {
+  const columnsPerRow = useColumnsPerRow();
+  const [visibleRows, setVisibleRows] = useState(1);
+
   const dayGroups = useMemo(() => {
     const scheduleMatches = groupMatches?.length
       ? selectScheduleMatches(groupMatches)
       : combineScheduleMatches(todayMatches, upcomingMatches);
     return groupMatchesByLocalDay(scheduleMatches);
   }, [groupMatches, todayMatches, upcomingMatches]);
+
+  useEffect(() => {
+    setVisibleRows(1);
+  }, [dayGroups.length]);
+
+  const visibleCount = Math.min(visibleRows * columnsPerRow, dayGroups.length);
+  const visibleGroups = dayGroups.slice(0, visibleCount);
+  const hasMore = visibleCount < dayGroups.length;
 
   if (dayGroups.length === 0) {
     return (
@@ -88,7 +100,7 @@ export function ScheduleByDay({
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start md:gap-5 xl:grid-cols-3">
-          {dayGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <DayColumn
               key={group.dayKey}
               group={group}
@@ -97,6 +109,18 @@ export function ScheduleByDay({
             />
           ))}
         </div>
+
+        {hasMore && (
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setVisibleRows((rows) => rows + 1)}
+              className="min-h-[44px] rounded-xl border border-border bg-background px-5 text-[15px] font-medium text-link transition-colors hover:bg-surface active:bg-surface"
+            >
+              Show more games
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

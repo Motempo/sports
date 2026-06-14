@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { CookieNotice } from "@/components/legal/CookieNotice";
 import { Toaster } from "@/components/ui/toaster";
 import { themeInitScript } from "@/lib/theme";
 import { getCurrentSport, SITE_NAME, SITE_URL } from "@/lib/sports";
@@ -53,6 +54,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-dvh antialiased">
         {children}
+        <CookieNotice />
         <Toaster />
       </body>
     </html>

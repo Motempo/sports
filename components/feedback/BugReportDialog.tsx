@@ -81,6 +81,7 @@ interface Props {
 export function BugReportDialog({ open, onOpenChange }: Props) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [description, setDescription] = useState("");
   const [inferredIntent, setInferredIntent] = useState<InferredIntent | null>(null);
@@ -149,6 +150,13 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
             ? URL.createObjectURL(prepared)
             : null
         );
+        requestAnimationFrame(() => {
+          const el = textareaRef.current;
+          if (!el) return;
+          el.focus();
+          const end = el.value.length;
+          el.setSelectionRange(end, end);
+        });
       } catch (e) {
         toast({
           variant: "destructive",
@@ -353,19 +361,6 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="feedback-description">Your feedback</Label>
-            <Textarea
-              id="feedback-description"
-              placeholder="What's working well, what's confusing, or what you'd like to see improved..."
-              value={description}
-              onChange={(e) => handleDescriptionChange(e.target.value)}
-              rows={8}
-              disabled={busy}
-              className="min-h-[140px] resize-y"
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="feedback-attachment">Attachment (optional)</Label>
             <input
               id="feedback-attachment"
@@ -379,6 +374,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
             {attachmentFile ? (
               <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/30">
                 {attachmentPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={attachmentPreview}
                     alt="Attachment preview"
@@ -440,6 +436,20 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
                 <span className="text-xs sm:hidden">Or drop anywhere on screen</span>
               </label>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="feedback-description">Your feedback</Label>
+            <Textarea
+              ref={textareaRef}
+              id="feedback-description"
+              placeholder="What's working well, what's confusing, or what you'd like to see improved..."
+              value={description}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+              rows={8}
+              disabled={busy}
+              className="min-h-[140px] resize-y text-base leading-relaxed"
+            />
           </div>
         </div>
 

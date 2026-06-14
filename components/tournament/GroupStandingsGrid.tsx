@@ -18,8 +18,8 @@ function GroupCard({ group }: { group: GroupStandings }) {
   return (
     <div className="rounded-2xl border border-border bg-background p-3">
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-[13px] font-bold">{group.groupLabel}</h3>
-        <span className="text-[11px] text-muted">
+        <h3 className="text-[14px] font-bold">{group.groupLabel}</h3>
+        <span className="text-[12px] text-muted">
           MD {group.matchday}/{group.totalMatchdays}
         </span>
       </div>
@@ -32,10 +32,10 @@ function GroupCard({ group }: { group: GroupStandings }) {
               ZONE_STYLES[row.zone]
             )}
           >
-            <span className="w-4 shrink-0 text-[11px] font-bold text-muted">{row.position}</span>
+            <span className="w-4 shrink-0 text-[12px] font-bold text-muted">{row.position}</span>
             <TeamEmblem team={row.team} size={20} className="!h-5 !w-5 border" />
-            <span className="min-w-0 flex-1 truncate text-[12px] font-semibold">{row.team.code}</span>
-            <span className="shrink-0 text-[11px] tabular-nums text-muted">
+            <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{row.team.code}</span>
+            <span className="shrink-0 text-[12px] tabular-nums text-muted">
               {row.points}pts · {row.goalDifference >= 0 ? "+" : ""}
               {row.goalDifference}
             </span>

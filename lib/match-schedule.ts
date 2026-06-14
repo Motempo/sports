@@ -78,11 +78,26 @@ export function selectScheduleMatches(
     .sort(sortMatchesInDay);
 }
 
+function matchDaySortRank(status: MatchInfo["status"]): number {
+  if (LIVE_STATUSES.has(status)) return 0;
+  if (status === "SCHEDULED") return 1;
+  if (status === "FINISHED") return 2;
+  return 3;
+}
+
 function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
-  const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;
-  const bLive = LIVE_STATUSES.has(b.status) ? 0 : 1;
-  if (aLive !== bLive) return aLive - bLive;
-  return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
+  const rankDiff = matchDaySortRank(a.status) - matchDaySortRank(b.status);
+  if (rankDiff !== 0) return rankDiff;
+
+  const aTime = new Date(a.utcDate).getTime();
+  const bTime = new Date(b.utcDate).getTime();
+
+  // Upcoming/live: soonest first. Finished today: most recent first.
+  if (a.status === "FINISHED" && b.status === "FINISHED") {
+    return bTime - aTime;
+  }
+
+  return aTime - bTime;
 }
 
 export function groupMatchesByLocalDay(
@@ -137,7 +152,5 @@ export function combineScheduleMatches(
     combined.push(match);
   }
 
-  return combined.sort(
-    (a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime()
-  );
+  return combined.sort(sortMatchesInDay);
 }

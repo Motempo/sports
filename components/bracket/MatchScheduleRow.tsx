@@ -61,12 +61,12 @@ export function MatchScheduleRow({
       <div className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 sm:grid-cols-[4rem_1fr_auto]">
         <div className="text-right">
           {isLive ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-link sm:text-[12px]">
+            <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-link sm:text-[13px]">
               <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-link" />
               Live
             </span>
           ) : (
-            <span className="text-[12px] font-medium tabular-nums text-muted sm:text-[13px]">
+            <span className="text-[13px] font-medium tabular-nums text-muted sm:text-[14px]">
               {timeLabel}
             </span>
           )}
@@ -77,7 +77,7 @@ export function MatchScheduleRow({
             <TeamEmblem team={match.homeTeam} size={20} className="shrink-0" />
             <span
               className={cn(
-                "truncate text-[13px] sm:text-[14px]",
+                "truncate text-[14px] sm:text-[15px]",
                 homeWinner && "font-semibold",
                 finished && !homeWinner && match.winnerCode && "text-muted"
               )}
@@ -89,7 +89,7 @@ export function MatchScheduleRow({
             <TeamEmblem team={match.awayTeam} size={20} className="shrink-0" />
             <span
               className={cn(
-                "truncate text-[13px] sm:text-[14px]",
+                "truncate text-[14px] sm:text-[15px]",
                 awayWinner && "font-semibold",
                 finished && !awayWinner && match.winnerCode && "text-muted"
               )}
@@ -98,18 +98,18 @@ export function MatchScheduleRow({
             </span>
           </div>
           {(groupLabel || matchday) && (
-            <p className="mt-1.5 truncate text-[11px] text-muted sm:text-[12px]">
+            <p className="mt-1.5 truncate text-[12px] text-muted sm:text-[13px]">
               {[groupLabel, matchday].filter(Boolean).join(" · ")}
             </p>
           )}
           {stakes && (
-            <p className="mt-1 text-[13px] font-bold leading-snug text-foreground sm:text-[14px]">
+            <p className="mt-1 text-[14px] font-bold leading-snug text-foreground sm:text-[15px]">
               {stakes}
             </p>
           )}
         </div>
 
-        <div className="min-w-[2.25rem] text-right text-[15px] font-extrabold tabular-nums sm:text-[16px]">
+        <div className="min-w-[2.25rem] text-right text-[16px] font-extrabold tabular-nums sm:text-[17px]">
           {display}
         </div>
       </div>
@@ -117,7 +117,7 @@ export function MatchScheduleRow({
       {(venueLine || match.status !== "CANCELLED") && (
         <div className="mt-2 space-y-1.5 pl-[calc(3.25rem+0.75rem)] sm:pl-[calc(4rem+0.75rem)]">
           {venueLine && (
-            <p className="text-[11px] text-muted sm:text-[12px]">{venueLine}</p>
+            <p className="text-[12px] text-muted sm:text-[13px]">{venueLine}</p>
           )}
           {match.status !== "CANCELLED" && <MatchWatchLinks match={match} />}
         </div>

@@ -41,7 +41,7 @@ export async function WorldCupPageContent() {
     <div className="min-h-dvh">
       <Header activeSportSlug="world-cup" />
 
-      <main>
+      <main className="text-[15px] leading-relaxed sm:text-base">
         <TournamentRail phase={phase} knockoutMatches={matches} />
 
         <WorldCupAdPlacements />

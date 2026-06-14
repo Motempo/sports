@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getMatchWatchLinks } from "@/lib/match-watch-links";
 import type { MatchInfo } from "@/lib/types";
@@ -20,7 +19,7 @@ export function MatchWatchLinks({ match, className, compact }: MatchWatchLinksPr
       aria-label="Watch on streaming services"
     >
       {!compact && (
-        <span className="mr-0.5 text-[10px] font-medium uppercase tracking-wide text-muted sm:text-[11px]">
+        <span className="mr-0.5 text-[11px] font-medium uppercase tracking-wide text-muted sm:text-[12px]">
           Watch
         </span>
       )}
@@ -34,16 +33,17 @@ export function MatchWatchLinks({ match, className, compact }: MatchWatchLinksPr
           className={cn(
             "inline-flex items-center overflow-hidden rounded-md border border-border bg-background transition-colors",
             "hover:border-link/30 hover:bg-link/5 active:bg-link/10",
-            compact ? "h-7 px-1.5" : "h-8 px-2"
+            compact ? "h-8 px-2" : "h-9 px-2.5"
           )}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={link.logoSrc}
             alt={link.label}
-            width={compact ? 72 : 88}
-            height={compact ? 14 : 16}
-            className={cn("h-auto w-auto max-h-4 object-contain", !compact && "max-h-[18px]")}
-            unoptimized
+            width={compact ? 80 : 96}
+            height={20}
+            className="h-5 w-auto max-w-[96px] object-contain"
+            loading="lazy"
           />
           <span className="sr-only">{link.label}</span>
         </a>

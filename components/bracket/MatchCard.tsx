@@ -180,13 +180,13 @@ export function MatchCard({
           />
         </div>
       )}
-      <div className="mt-2 space-y-0.5 text-center text-[11px] leading-snug text-muted sm:text-[12px]">
+      <div className="mt-2 space-y-0.5 text-center text-[12px] leading-snug text-muted sm:text-[13px]">
         {matchday && <p className="font-medium text-foreground/80">{matchday}</p>}
         {stakes && (
-          <p className="text-[13px] font-bold leading-snug text-foreground sm:text-[14px]">{stakes}</p>
+          <p className="text-[14px] font-bold leading-snug text-foreground sm:text-[15px]">{stakes}</p>
         )}
         {forecast && (
-          <p className="text-[11px] leading-snug text-foreground/80 sm:text-[12px]">{forecast}</p>
+          <p className="text-[12px] leading-snug text-foreground/80 sm:text-[13px]">{forecast}</p>
         )}
         {venueLine && <p className="break-words">{venueLine}</p>}
         {match.status !== "CANCELLED" && (

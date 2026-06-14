@@ -83,7 +83,9 @@ export function MatchCard({ match, compact, groupMatches, standings, showContext
       </div>
       <div className="mt-2 space-y-0.5 text-center text-[11px] leading-snug text-muted sm:text-[12px]">
         {matchday && <p className="font-medium text-foreground/80">{matchday}</p>}
-        {stakes && <p className="text-[11px] leading-snug">{stakes}</p>}
+        {stakes && (
+          <p className="text-[13px] font-bold leading-snug text-foreground sm:text-[14px]">{stakes}</p>
+        )}
         <p className="break-words">{venueLine}</p>
         <p>{dateStr}</p>
       </div>

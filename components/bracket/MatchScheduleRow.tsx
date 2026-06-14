@@ -95,9 +95,14 @@ export function MatchScheduleRow({
               {match.awayTeam.name}
             </span>
           </div>
-          {(groupLabel || matchday || stakes) && (
+          {(groupLabel || matchday) && (
             <p className="mt-1.5 truncate text-[11px] text-muted sm:text-[12px]">
-              {[groupLabel, matchday, stakes].filter(Boolean).join(" · ")}
+              {[groupLabel, matchday].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          {stakes && (
+            <p className="mt-1 text-[13px] font-bold leading-snug text-foreground sm:text-[14px]">
+              {stakes}
             </p>
           )}
         </div>

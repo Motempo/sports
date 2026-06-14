@@ -65,7 +65,7 @@ export async function WorldCupPageContent() {
                   <AdSlot
                     slot="standings-sidebar"
                     layout="sidebar"
-                    className="lg:sticky lg:top-20 lg:self-start"
+                    className="hidden lg:flex lg:sticky lg:top-20 lg:self-start"
                   />
                 </div>
               </div>
@@ -138,7 +138,7 @@ export async function WorldCupPageContent() {
                     <AdSlot
                       slot="standings-sidebar"
                       layout="sidebar"
-                      className="lg:sticky lg:top-20 lg:self-start"
+                      className="hidden lg:flex lg:sticky lg:top-20 lg:self-start"
                     />
                   </div>
                 </div>

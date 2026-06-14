@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { getConstructorColor } from "@/lib/f1-constructor-colors";
 import type { F1ConstructorStandingRow, F1StandingRow } from "@/lib/f1-types";
@@ -106,6 +106,21 @@ function ConstructorTable({ rows }: { rows: F1ConstructorStandingRow[] }) {
   );
 }
 
+function StandingsPanel({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <h3 className="mb-3 text-[14px] font-bold sm:text-[15px]">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
 export function ChampionshipStandings({
   driverStandings,
   constructorStandings,
@@ -114,7 +129,8 @@ export function ChampionshipStandings({
 
   return (
     <div>
-      <div className="mb-4 flex gap-1 border-b border-border">
+      {/* Mobile: tabs */}
+      <div className="mb-4 flex gap-1 border-b border-border lg:hidden">
         {(["drivers", "constructors"] as const).map((key) => (
           <button
             key={key}
@@ -132,11 +148,23 @@ export function ChampionshipStandings({
         ))}
       </div>
 
-      {tab === "drivers" ? (
-        <DriverTable rows={driverStandings} />
-      ) : (
-        <ConstructorTable rows={constructorStandings} />
-      )}
+      <div className="lg:hidden">
+        {tab === "drivers" ? (
+          <DriverTable rows={driverStandings} />
+        ) : (
+          <ConstructorTable rows={constructorStandings} />
+        )}
+      </div>
+
+      {/* Desktop: side by side */}
+      <div className="hidden gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+        <StandingsPanel title="Drivers">
+          <DriverTable rows={driverStandings} />
+        </StandingsPanel>
+        <StandingsPanel title="Constructors">
+          <ConstructorTable rows={constructorStandings} />
+        </StandingsPanel>
+      </div>
     </div>
   );
 }

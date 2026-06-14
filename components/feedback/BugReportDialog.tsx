@@ -22,6 +22,8 @@ import {
   resolveAttachmentMimeType,
 } from "@/lib/feedback-attachment";
 import type { InferredIntent } from "@/lib/feedback-context";
+import { formatSportRequestDescription } from "@/lib/feedback-context";
+import { SPORTS } from "@/lib/sports";
 import { cn } from "@/lib/utils";
 import { FileIcon, ImagePlus, Loader2, MessageSquarePlus, Sparkles, X } from "lucide-react";
 
@@ -76,14 +78,23 @@ function hasFileDrag(dataTransfer: DataTransfer | null): boolean {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  mode?: "default" | "sport-request";
+  currentSportSlug?: string;
 }
 
-export function BugReportDialog({ open, onOpenChange }: Props) {
+export function BugReportDialog({
+  open,
+  onOpenChange,
+  mode = "default",
+  currentSportSlug,
+}: Props) {
+  const isSportRequest = mode === "sport-request";
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [description, setDescription] = useState("");
+  const [requestedSport, setRequestedSport] = useState("");
   const [inferredIntent, setInferredIntent] = useState<InferredIntent | null>(null);
   const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(null);
@@ -98,6 +109,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
 
   const resetForm = useCallback(() => {
     setDescription("");
+    setRequestedSport("");
     setInferredIntent(null);
     setAttachmentFile(null);
     if (attachmentPreview) URL.revokeObjectURL(attachmentPreview);
@@ -285,8 +297,19 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
   };
 
   const handleSubmit = async () => {
+    const trimmedSport = requestedSport.trim();
     const trimmed = description.trim();
-    if (!trimmed) {
+
+    if (isSportRequest && !trimmedSport) {
+      toast({
+        variant: "destructive",
+        title: "Add a sport name",
+        description: "Tell us which sport you'd like to see on Sports by Motempo.",
+      });
+      return;
+    }
+
+    if (!isSportRequest && !trimmed) {
       toast({
         variant: "destructive",
         title: "Add your feedback",
@@ -294,6 +317,10 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
       });
       return;
     }
+
+    const submissionText = isSportRequest
+      ? formatSportRequestDescription(trimmedSport, trimmed)
+      : trimmed;
 
     let screenshotBase64: string | undefined;
     if (attachmentFile) {
@@ -315,8 +342,18 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: trimmed,
-          inferredIntent,
+          description: submissionText,
+          inferredIntent: isSportRequest ? "feature" : inferredIntent,
+          feedbackCategory: isSportRequest ? "sport-request" : "general",
+          sportRequest: isSportRequest
+            ? {
+                requestedSport: trimmedSport,
+                currentSportSlug: currentSportSlug ?? SPORTS[0]?.slug ?? "world-cup",
+                availableSportSlugs: SPORTS.map((sport) => sport.slug),
+                userAgent:
+                  typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+              }
+            : undefined,
           ...contextPayload(),
           screenshotBase64,
           screenshotMimeType: attachmentFile
@@ -331,7 +368,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
       }
 
       toast({
-        title: "Thank you for your feedback",
+        title: isSportRequest ? "Thanks — we got your suggestion" : "Thank you for your feedback",
       });
       onOpenChange(false);
     } catch (err) {
@@ -352,103 +389,132 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageSquarePlus className="h-5 w-5 text-primary" />
-            Submit Feedback
+            {isSportRequest ? "Suggest a sport" : "Submit Feedback"}
           </DialogTitle>
           <DialogDescription>
-            Share ideas, report a problem, or tell us what could work better. We read every submission.
+            {isSportRequest
+              ? "Which sport should we add next? Your suggestion helps us decide what to build."
+              : "Share ideas, report a problem, or tell us what could work better. We read every submission."}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="feedback-attachment">Attachment (optional)</Label>
-            <input
-              id="feedback-attachment"
-              ref={fileInputRef}
-              type="file"
-              accept="*/*"
-              className="sr-only"
-              onChange={handleFileChange}
-              disabled={busy}
-            />
-            {attachmentFile ? (
-              <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/30">
-                {attachmentPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={attachmentPreview}
-                    alt="Attachment preview"
-                    className="max-h-40 w-full object-contain"
-                  />
-                ) : (
-                  <div className="flex items-center gap-3 px-4 py-6">
-                    <FileIcon className="h-8 w-8 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{attachmentFile.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatAttachmentSize(attachmentFile.size)}
-                      </p>
+          {isSportRequest && (
+            <div className="space-y-2">
+              <Label htmlFor="feedback-sport-name">Sport</Label>
+              <input
+                id="feedback-sport-name"
+                type="text"
+                value={requestedSport}
+                onChange={(e) => setRequestedSport(e.target.value)}
+                placeholder="e.g. NBA, Tennis, Olympics"
+                disabled={busy}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+          )}
+
+          {!isSportRequest && (
+            <div className="space-y-2">
+              <Label htmlFor="feedback-attachment">Attachment (optional)</Label>
+              <input
+                id="feedback-attachment"
+                ref={fileInputRef}
+                type="file"
+                accept="*/*"
+                className="sr-only"
+                onChange={handleFileChange}
+                disabled={busy}
+              />
+              {attachmentFile ? (
+                <div className="relative overflow-hidden rounded-lg border border-border bg-secondary/30">
+                  {attachmentPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={attachmentPreview}
+                      alt="Attachment preview"
+                      className="max-h-40 w-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex items-center gap-3 px-4 py-6">
+                      <FileIcon className="h-8 w-8 shrink-0 text-muted-foreground" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{attachmentFile.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatAttachmentSize(attachmentFile.size)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="icon"
-                  className="absolute right-2 top-2 h-8 w-8"
-                  onClick={clearAttachment}
-                  disabled={busy}
-                  aria-label="Remove attachment"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    className="absolute right-2 top-2 h-8 w-8"
+                    onClick={clearAttachment}
+                    disabled={busy}
+                    aria-label="Remove attachment"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <label
+                    htmlFor="feedback-attachment"
+                    className={cn(
+                      "block cursor-pointer border-t border-border/50 px-2 py-2 text-center text-[10px] text-muted-foreground",
+                      busy && "pointer-events-none opacity-50"
+                    )}
+                  >
+                    Tap to replace attachment
+                  </label>
+                </div>
+              ) : (
                 <label
                   htmlFor="feedback-attachment"
                   className={cn(
-                    "block cursor-pointer border-t border-border/50 px-2 py-2 text-center text-[10px] text-muted-foreground",
+                    "flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 transition-colors",
+                    "text-muted-foreground hover:border-primary/50 hover:bg-secondary/40 hover:text-foreground",
+                    isDragging && "border-primary bg-primary/10 text-foreground",
                     busy && "pointer-events-none opacity-50"
                   )}
                 >
-                  Tap to replace attachment
+                  {isProcessingAttachment ? (
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  ) : (
+                    <ImagePlus className="h-8 w-8" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {isDragging ? "Drop anywhere to attach" : "Tap to add attachment"}
+                  </span>
+                  <span className="hidden text-xs sm:inline">
+                    or drop a file anywhere on screen (up to{" "}
+                    {formatAttachmentSize(MAX_ATTACHMENT_BYTES)})
+                  </span>
+                  <span className="text-xs sm:hidden">Or drop anywhere on screen</span>
                 </label>
-              </div>
-            ) : (
-              <label
-                htmlFor="feedback-attachment"
-                className={cn(
-                  "flex w-full cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-8 transition-colors",
-                  "text-muted-foreground hover:border-primary/50 hover:bg-secondary/40 hover:text-foreground",
-                  isDragging && "border-primary bg-primary/10 text-foreground",
-                  busy && "pointer-events-none opacity-50"
-                )}
-              >
-                {isProcessingAttachment ? (
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                ) : (
-                  <ImagePlus className="h-8 w-8" />
-                )}
-                <span className="text-sm font-medium">
-                  {isDragging ? "Drop anywhere to attach" : "Tap to add attachment"}
-                </span>
-                <span className="hidden text-xs sm:inline">
-                  or drop a file anywhere on screen (up to {formatAttachmentSize(MAX_ATTACHMENT_BYTES)})
-                </span>
-                <span className="text-xs sm:hidden">Or drop anywhere on screen</span>
-              </label>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
-            <Label htmlFor="feedback-description">Your feedback</Label>
+            <Label htmlFor="feedback-description">
+              {isSportRequest ? "Why this sport? (optional)" : "Your feedback"}
+            </Label>
             <Textarea
               ref={textareaRef}
               id="feedback-description"
-              placeholder="What's working well, what's confusing, or what you'd like to see improved..."
+              placeholder={
+                isSportRequest
+                  ? "What would you want to track — standings, schedule, news, something else?"
+                  : "What's working well, what's confusing, or what you'd like to see improved..."
+              }
               value={description}
               onChange={(e) => handleDescriptionChange(e.target.value)}
-              rows={8}
+              rows={isSportRequest ? 5 : 8}
               disabled={busy}
-              className="min-h-[140px] resize-y text-base leading-relaxed"
+              className={cn(
+                "resize-y text-base leading-relaxed",
+                isSportRequest ? "min-h-[100px]" : "min-h-[140px]"
+              )}
             />
           </div>
         </div>
@@ -457,7 +523,7 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
           <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={busy}>
             Cancel
           </Button>
-          {improveAvailable && (
+          {improveAvailable && !isSportRequest && (
             <Button
               type="button"
               variant="secondary"
@@ -472,9 +538,13 @@ export function BugReportDialog({ open, onOpenChange }: Props) {
               Improve text
             </Button>
           )}
-          <Button type="button" onClick={handleSubmit} disabled={busy || !description.trim()}>
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={busy || (isSportRequest ? !requestedSport.trim() : !description.trim())}
+          >
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Submit feedback
+            {isSportRequest ? "Send suggestion" : "Submit feedback"}
           </Button>
         </DialogFooter>
       </DialogContent>

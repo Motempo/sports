@@ -2,7 +2,9 @@ import { randomUUID } from "node:crypto";
 import {
   buildIssueBody,
   buildIssueTitle,
+  type FeedbackCategory,
   type InferredIntent,
+  type SportRequestMetadata,
 } from "@/lib/feedback-context";
 
 type AttachmentMimeType = string;
@@ -22,6 +24,8 @@ export interface FeedbackPayload {
   screenshotFilename?: string;
   pageUrl?: string;
   inferredIntent?: InferredIntent | null;
+  feedbackCategory?: FeedbackCategory;
+  sportRequest?: SportRequestMetadata;
 }
 
 export interface FeedbackResult {
@@ -231,7 +235,10 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
     {
       input: {
         teamId,
-        title: buildIssueTitle(payload.description, payload.pageUrl),
+        title: buildIssueTitle(payload.description, payload.pageUrl, {
+          category: payload.feedbackCategory,
+          requestedSport: payload.sportRequest?.requestedSport,
+        }),
         description: buildIssueBody({
           description: payload.description,
           pageUrl: payload.pageUrl,
@@ -239,6 +246,8 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
           attachmentFilename: payload.screenshotFilename,
           attachmentMimeType: payload.screenshotMimeType,
           inferredIntent: payload.inferredIntent,
+          category: payload.feedbackCategory,
+          sportRequest: payload.sportRequest,
         }),
       },
     }

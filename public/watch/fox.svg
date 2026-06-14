@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 24" role="img" aria-label="Fox">
-  <rect width="56" height="24" rx="4" fill="#003366"/>
-  <text x="28" y="16" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" text-anchor="middle">FOX</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Fox">
+  <rect width="24" height="24" rx="5" fill="#003366"/>
+  <circle cx="9" cy="12" r="4.2" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>
+  <circle cx="15" cy="12" r="4.2" fill="none" stroke="#FFFFFF" stroke-width="1.8"/>
 </svg>

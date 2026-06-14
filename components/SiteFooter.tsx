@@ -21,7 +21,7 @@ export function SiteFooter() {
             </Link>
           </nav>
         </div>
-        <div className="flex justify-center sm:justify-end">
+        <div className="flex justify-center">
           <ReportBugLink variant="footer" />
         </div>
       </div>

@@ -2,6 +2,15 @@ import { attachmentMarkdown } from "@/lib/feedback-attachment-markdown";
 
 export type InferredIntent = "bug" | "feature";
 
+export type FeedbackCategory = "general" | "sport-request";
+
+export interface SportRequestMetadata {
+  requestedSport: string;
+  currentSportSlug: string;
+  availableSportSlugs: string[];
+  userAgent?: string;
+}
+
 export interface PageContext {
   app: string;
   path: string;
@@ -56,7 +65,15 @@ function normalizeSummary(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-export function buildIssueTitle(description: string, pageUrl?: string): string {
+export function buildIssueTitle(
+  description: string,
+  pageUrl?: string,
+  options?: { category?: FeedbackCategory; requestedSport?: string }
+): string {
+  if (options?.category === "sport-request" && options.requestedSport?.trim()) {
+    return `[sport-request] ${normalizeSummary(options.requestedSport).slice(0, 60)}`;
+  }
+
   const { app, path } = parsePageContext(pageUrl);
   const firstLine = normalizeSummary(description.split("\n")[0] ?? "");
   const summary = firstLine.slice(0, 72) || "User feedback";
@@ -71,6 +88,8 @@ export function buildIssueBody(options: {
   attachmentFilename?: string;
   attachmentMimeType?: string;
   inferredIntent?: InferredIntent | null;
+  category?: FeedbackCategory;
+  sportRequest?: SportRequestMetadata;
 }): string {
   const {
     description,
@@ -79,6 +98,8 @@ export function buildIssueBody(options: {
     attachmentFilename,
     attachmentMimeType,
     inferredIntent,
+    category = "general",
+    sportRequest,
   } = options;
   const { pageUrl: normalizedUrl } = parsePageContext(pageUrl);
   const commit =
@@ -95,6 +116,19 @@ export function buildIssueBody(options: {
     : "";
 
   const contextLines = [
+    `- Category: ${category}`,
+    category === "sport-request" && sportRequest?.requestedSport
+      ? `- Requested sport: ${sportRequest.requestedSport}`
+      : null,
+    category === "sport-request" && sportRequest?.currentSportSlug
+      ? `- Current sport: ${sportRequest.currentSportSlug}`
+      : null,
+    category === "sport-request" && sportRequest?.availableSportSlugs?.length
+      ? `- Available sports: ${sportRequest.availableSportSlugs.join(", ")}`
+      : null,
+    category === "sport-request" && sportRequest?.userAgent
+      ? `- User agent: ${sportRequest.userAgent}`
+      : null,
     normalizedUrl ? `- Page: ${normalizedUrl}` : null,
     commit ? `- Deploy: \`${commit}\`` : null,
     `- Reported: ${new Date().toISOString()}`,
@@ -113,4 +147,32 @@ export function buildIssueBody(options: {
 
 export function isInferredIntent(value: unknown): value is InferredIntent {
   return value === "bug" || value === "feature";
+}
+
+export function isFeedbackCategory(value: unknown): value is FeedbackCategory {
+  return value === "general" || value === "sport-request";
+}
+
+export function isSportRequestMetadata(value: unknown): value is SportRequestMetadata {
+  if (!value || typeof value !== "object") return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.requestedSport === "string" &&
+    v.requestedSport.trim().length > 0 &&
+    typeof v.currentSportSlug === "string" &&
+    Array.isArray(v.availableSportSlugs) &&
+    v.availableSportSlugs.every((s) => typeof s === "string")
+  );
+}
+
+export function formatSportRequestDescription(
+  requestedSport: string,
+  notes?: string
+): string {
+  const sport = requestedSport.trim();
+  const detail = notes?.trim();
+  if (!detail) {
+    return `Sport request: ${sport}`;
+  }
+  return `Sport request: ${sport}\n\n${detail}`;
 }

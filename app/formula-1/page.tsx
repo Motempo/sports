@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { FormulaOneComingSoon } from "@/components/sports/FormulaOneComingSoon";
+import { FormulaOnePageContent } from "@/components/sports/FormulaOnePageContent";
 import { buildSportMetadata, getSportBySlug } from "@/lib/sports";
 
 const sport = getSportBySlug("formula-1")!;
 
-export const metadata: Metadata = {
-  ...buildSportMetadata(sport),
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export const metadata: Metadata = buildSportMetadata(sport);
 
 export default function FormulaOnePage() {
-  return <FormulaOneComingSoon />;
+  return <FormulaOnePageContent />;
 }

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "f1-fact-1",
+    "title": "First World Championship race",
+    "summary": "The first F1 World Championship race was at Silverstone in 1950.",
+    "category": "History",
+    "emoji": "🏁",
+    "wikipediaTitle": "1950 British Grand Prix",
+    "detail": "Giuseppe Farina won the inaugural Formula One World Championship race on May 13, 1950, at Silverstone in the United Kingdom. Only seven races counted toward that first title.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-2",
+    "title": "Youngest world champion",
+    "summary": "Max Verstappen became champion at 24 years old in 2021.",
+    "category": "Records",
+    "emoji": "⭐",
+    "wikipediaTitle": "Max Verstappen",
+    "detail": "Max Verstappen clinched his first drivers' title at the 2021 Abu Dhabi Grand Prix, becoming one of the youngest champions in F1 history after a dramatic season finale.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-3",
+    "title": "Monaco's tight streets",
+    "summary": "The Monaco Grand Prix is the slowest and most glamorous race on the calendar.",
+    "category": "Circuits",
+    "emoji": "🇲🇨",
+    "wikipediaTitle": "Monaco Grand Prix",
+    "detail": "Monaco's street circuit has barely any room for error — barriers line the entire track. Overtaking is extremely difficult, so qualifying position is especially important.",
+    "sourceHandle": "wtf1official"
+  },
+  {
+    "id": "f1-fact-4",
+    "title": "Points for top ten",
+    "summary": "Finishing 10th still earns 1 championship point.",
+    "category": "Rules",
+    "emoji": "🔢",
+    "wikipediaTitle": "Formula One regulations",
+    "detail": "The current points system awards 25 for a win, 18 for second, down to 1 point for tenth place. Both driver and constructor championships use the same points.",
+    "sourceHandle": "FIA"
+  },
+  {
+    "id": "f1-fact-5",
+    "title": "Safety Car",
+    "summary": "A Safety Car bunches the field together after a big incident.",
+    "category": "Rules",
+    "emoji": "🚗",
+    "wikipediaTitle": "Safety car",
+    "detail": "When track conditions are too dangerous, a Safety Car leads the field at reduced speed. Racing resumes when the marshals clear the incident and the SC pulls into the pits.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-6",
+    "title": "DRS overtaking boost",
+    "summary": "DRS opens a flap on the rear wing to reduce drag and help passing.",
+    "category": "Rules",
+    "emoji": "💨",
+    "wikipediaTitle": "Drag reduction system",
+    "detail": "Drivers can activate DRS when they're within one second of the car ahead on designated straights. It gives a temporary speed advantage to encourage overtaking.",
+    "sourceHandle": "wtf1official"
+  },
+  {
+    "id": "f1-fact-7",
+    "title": "Pit stops in under 3 seconds",
+    "summary": "Top teams change all four tyres in about two seconds.",
+    "category": "Teamwork",
+    "emoji": "🔧",
+    "wikipediaTitle": "Pit stop",
+    "detail": "A pit crew of around 20 people swaps tyres and adjusts the car during a race. One slow stop can cost several positions on track.",
+    "sourceHandle": "redbullracing"
+  },
+  {
+    "id": "f1-fact-8",
+    "title": "Most titles — drivers",
+    "summary": "Lewis Hamilton and Michael Schumacher share the record with 7 titles each.",
+    "category": "Records",
+    "emoji": "🏆",
+    "wikipediaTitle": "List of Formula One World Drivers' Champions",
+    "detail": "Michael Schumacher won five consecutive titles with Ferrari from 2000–2004. Lewis Hamilton matched his seven championships with McLaren and Mercedes.",
+    "sourceHandle": "MercedesAMGF1"
+  },
+  {
+    "id": "f1-fact-9",
+    "title": "Ferrari — oldest team",
+    "summary": "Scuderia Ferrari is the only team to have competed in every F1 season since 1950.",
+    "category": "History",
+    "emoji": "🔴",
+    "wikipediaTitle": "Scuderia Ferrari",
+    "detail": "Enzo Ferrari founded the team that bears his name. Ferrari is the most successful constructor in F1 history by total race wins and championships.",
+    "sourceHandle": "ScuderiaFerrari"
+  },
+  {
+    "id": "f1-fact-10",
+    "title": "Sprint race weekends",
+    "summary": "On sprint weekends, Saturday's sprint sets part of Sunday's grid.",
+    "category": "Rules",
+    "emoji": "⚡",
+    "wikipediaTitle": "F1 Sprint",
+    "detail": "Sprint weekends shorten traditional practice and add a 100 km race on Saturday. Sprint results decide the starting order for Sunday's main Grand Prix.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-11",
+    "title": "Halo head protection",
+    "summary": "The halo titanium ring has saved drivers from serious injuries.",
+    "category": "Safety",
+    "emoji": "🛡️",
+    "wikipediaTitle": "Halo (safety device)",
+    "detail": "Introduced in 2018, the halo protects a driver's head from impacts with barriers, debris, or other cars. It was controversial at first but is now credited with preventing fatalities.",
+    "sourceHandle": "FIA"
+  },
+  {
+    "id": "f1-fact-12",
+    "title": "Night race in Singapore",
+    "summary": "Singapore hosted F1's first modern night race in 2008.",
+    "category": "Circuits",
+    "emoji": "🌃",
+    "wikipediaTitle": "Singapore Grand Prix",
+    "detail": "Floodlights illuminate the Marina Bay street circuit. The heat and humidity make it one of the most physically demanding races for drivers.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-13",
+    "title": "Tyre compounds",
+    "summary": "Teams must use at least two different tyre compounds during a dry race.",
+    "category": "Strategy",
+    "emoji": "🛞",
+    "wikipediaTitle": "Formula One tyres",
+    "detail": "Pirelli supplies soft, medium, and hard compounds (plus intermediates and wets for rain). Softer tyres are faster but wear out quicker.",
+    "sourceHandle": "autosport"
+  },
+  {
+    "id": "f1-fact-14",
+    "title": "Chequered flag",
+    "summary": "The black-and-white flag means the race is over.",
+    "category": "Tradition",
+    "emoji": "🏁",
+    "wikipediaTitle": "Racing flags",
+    "detail": "The chequered flag has ended motor races for over a century. In F1, the first car to cross the line after seeing it wins the Grand Prix.",
+    "sourceHandle": "FIA"
+  },
+  {
+    "id": "f1-fact-15",
+    "title": "2026 power unit rules",
+    "summary": "2026 brings new engines with more electric power and sustainable fuel.",
+    "category": "2026",
+    "emoji": "⚙️",
+    "wikipediaTitle": "Formula One engines",
+    "detail": "The 2026 regulations increase hybrid electric contribution and require 100% sustainable fuel. Cars are also slightly shorter and lighter to improve racing.",
+    "sourceHandle": "F1"
+  },
+  {
+    "id": "f1-fact-16",
+    "title": "Constructors matter",
+    "summary": "Teams score points too — the Constructors' Championship is a separate title.",
+    "category": "Rules",
+    "emoji": "👥",
+    "wikipediaTitle": "Formula One World Constructors' Championship",
+    "detail": "Both drivers' points count toward their team total. The Constructors' title brings prestige and a larger share of prize money to the team.",
+    "sourceHandle": "McLarenF1"
+  },
+  {
+    "id": "f1-fact-17",
+    "title": "Fastest lap bonus",
+    "summary": "The driver with the fastest lap gets an extra point — if they finish in the top ten.",
+    "category": "Rules",
+    "emoji": "⏱️",
+    "wikipediaTitle": "Formula One regulations",
+    "detail": "Since 2019, one bonus point goes to the fastest lap finisher inside the top ten. It can decide tight championship battles late in the season.",
+    "sourceHandle": "the_race"
+  },
+  {
+    "id": "f1-fact-18",
+    "title": "National anthems",
+    "summary": "The winner's and their team's anthems play on the podium.",
+    "category": "Tradition",
+    "emoji": "🎵",
+    "wikipediaTitle": "Formula One podium",
+    "detail": "After each race, the top three drivers stand on the podium. The winning driver's national anthem plays first, followed by their team's anthem.",
+    "sourceHandle": "WillBuxton"
+  },
+  {
+    "id": "f1-fact-19",
+    "title": "Longest race distance",
+    "summary": "Every race must be at least 305 km (about 190 miles), except Monaco.",
+    "category": "Rules",
+    "emoji": "📏",
+    "wikipediaTitle": "Formula One racing",
+    "detail": "Most races run for roughly 90 minutes or 305 km, whichever comes first. Monaco is shorter because its lap is only 3.3 km long.",
+    "sourceHandle": "F1Torn"
+  },
+  {
+    "id": "f1-fact-20",
+    "title": "Racing around the world",
+    "summary": "The F1 calendar visits five continents and over 20 countries.",
+    "category": "Calendar",
+    "emoji": "🌍",
+    "wikipediaTitle": "Formula One",
+    "detail": "From Melbourne to Abu Dhabi, teams fly cars, equipment, and hundreds of staff to each race. The season runs from March to December.",
+    "sourceHandle": "F1"
+  }
+]

@@ -150,26 +150,48 @@ export function matchOutletToHandle(sportSlug: string, outletName: string): stri
   if (!config) return undefined;
 
   const normalized = outletName.toLowerCase();
-  const aliases: Record<string, string> = {
-    bbc: "BBCSport",
-    "bbc sport": "BBCSport",
-    espn: "ESPNFC",
-    "espn fc": "ESPNFC",
-    goal: "goal",
-    "sky sports": "SkySports",
-    fifa: "FIFAWorldCup",
-    "the guardian": "guardian_sport",
-    guardian: "guardian_sport",
-    "football365": "F365",
-    fox: "FOXSoccer",
-    "fox sports": "FOXSoccer",
-    athletic: "TheAthleticFC",
-    "the athletic": "TheAthleticFC",
-    "cbs sports": "CBSSports",
-    cbs: "CBSSports",
-    "new york times": "nytimes",
-    nytimes: "nytimes",
+
+  const aliasesBySport: Record<string, Record<string, string>> = {
+    "world-cup": {
+      bbc: "BBCSport",
+      "bbc sport": "BBCSport",
+      espn: "ESPNFC",
+      "espn fc": "ESPNFC",
+      goal: "goal",
+      "sky sports": "SkySports",
+      fifa: "FIFAWorldCup",
+      "the guardian": "guardian_sport",
+      guardian: "guardian_sport",
+      "football365": "F365",
+      fox: "FOXSoccer",
+      "fox sports": "FOXSoccer",
+      athletic: "TheAthleticFC",
+      "the athletic": "TheAthleticFC",
+      "cbs sports": "CBSSports",
+      cbs: "CBSSports",
+      "new york times": "nytimes",
+      nytimes: "nytimes",
+    },
+    "formula-1": {
+      bbc: "BBCSport",
+      "bbc sport": "BBCSport",
+      espn: "ESPNUK",
+      "sky sports f1": "SkySportsF1",
+      "sky sports": "SkySportsF1",
+      autosport: "autosport",
+      "the race": "the_race",
+      formula: "F1",
+      "formula 1": "F1",
+      f1: "F1",
+      fia: "FIA",
+      ferrari: "ScuderiaFerrari",
+      mercedes: "MercedesAMGF1",
+      "red bull": "redbullracing",
+      mclaren: "McLarenF1",
+    },
   };
+
+  const aliases = aliasesBySport[sportSlug] ?? aliasesBySport["world-cup"] ?? {};
 
   for (const [key, handle] of Object.entries(aliases)) {
     if (normalized.includes(key)) return handle;

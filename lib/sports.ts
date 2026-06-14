@@ -40,10 +40,17 @@ export const SPORTS: SportConfig[] = [
     slug: "formula-1",
     label: "Formula 1",
     available: true,
-    title: "Formula 1 — Coming Soon",
+    title: "Formula 1 2026 — Standings, Race Calendar & News",
     description:
-      "Formula 1 race calendar, standings, and live updates are coming soon to Sports by Motempo.",
-    keywords: ["Formula 1", "F1", "Grand Prix", "F1 standings", "F1 schedule"],
+      "Track the Formula 1 2026 season with driver and constructor standings, race calendar, this weekend's sessions, news, and fun facts. Family-friendly F1 companion.",
+    keywords: [
+      "Formula 1 2026",
+      "F1 standings",
+      "F1 schedule",
+      "F1 race calendar",
+      "Grand Prix",
+      "F1 news",
+    ],
   },
 ];
 

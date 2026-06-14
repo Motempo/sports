@@ -1,8 +1,261 @@
 {
   "sportSlug": "formula-1",
-  "newsKeywordPattern": "formula 1|f1|grand prix|gp",
-  "newsHandles": [],
-  "factHandles": [],
-  "sources": [],
-  "supplementalFeeds": []
+  "newsKeywordPattern": "formula 1|f1|grand prix|gp|formula one|motorsport",
+  "newsHandles": [
+    "F1",
+    "FIA",
+    "BBCSport",
+    "SkySportsF1",
+    "ESPNUK",
+    "autosport",
+    "the_race",
+    "wtf1official",
+    "WillBuxton",
+    "ChrisMedland",
+    "JennieGow",
+    "LukeSmithF1",
+    "AndrewBensonF1",
+    "Lawarr",
+    "TiffaniF",
+    "F1Torn",
+    "MercedesAMGF1",
+    "ScuderiaFerrari",
+    "redbullracing",
+    "McLarenF1",
+    "AstonMartinF1",
+    "AlpineF1Team",
+    "WilliamsRacing",
+    "HaasF1Team",
+    "BBCNews"
+  ],
+  "factHandles": [
+    "F1",
+    "FIA",
+    "wtf1official",
+    "WillBuxton",
+    "ChrisMedland",
+    "TiffaniF",
+    "F1Torn",
+    "autosport",
+    "the_race",
+    "BBCSport",
+    "SkySportsF1",
+    "MercedesAMGF1",
+    "ScuderiaFerrari",
+    "redbullracing",
+    "McLarenF1"
+  ],
+  "sources": [
+    {
+      "rank": 1,
+      "handle": "F1",
+      "name": "Formula 1",
+      "type": "official",
+      "description": "Official Formula 1 account for race updates, highlights, and championship news.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 2,
+      "handle": "FIA",
+      "name": "FIA",
+      "type": "official",
+      "description": "Global motorsport governing body — rules, safety, and race direction.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 3,
+      "handle": "BBCSport",
+      "name": "BBC Sport",
+      "type": "media",
+      "description": "Comprehensive F1 reporting and live race coverage.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/formula1/rss.xml"
+    },
+    {
+      "rank": 4,
+      "handle": "SkySportsF1",
+      "name": "Sky Sports F1",
+      "type": "media",
+      "description": "In-depth F1 analysis, interviews, and race weekend coverage.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 5,
+      "handle": "autosport",
+      "name": "Autosport",
+      "type": "media",
+      "description": "Breaking F1 news, technical analysis, and paddock reporting.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 6,
+      "handle": "the_race",
+      "name": "The Race",
+      "type": "media",
+      "description": "Modern F1 journalism with strong technical and strategic focus.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 7,
+      "handle": "WillBuxton",
+      "name": "Will Buxton",
+      "type": "journalist",
+      "description": "F1 TV presenter and paddock insider with driver and team access.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 8,
+      "handle": "ChrisMedland",
+      "name": "Chris Medland",
+      "type": "journalist",
+      "description": "Fast, reliable F1 news from the paddock.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 9,
+      "handle": "AndrewBensonF1",
+      "name": "Andrew Benson",
+      "type": "journalist",
+      "description": "BBC chief F1 writer with deep championship context.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 10,
+      "handle": "LukeSmithF1",
+      "name": "Luke Smith",
+      "type": "journalist",
+      "description": "The Race correspondent covering teams and strategy.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 11,
+      "handle": "Lawarr",
+      "name": "Lawrence Barretto",
+      "type": "journalist",
+      "description": "F1.com and broadcast reporter with strong driver relationships.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 12,
+      "handle": "TiffaniF",
+      "name": "Tiff Needell",
+      "type": "journalist",
+      "description": "Racing presenter bringing accessible F1 storytelling.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 13,
+      "handle": "wtf1official",
+      "name": "WTF1",
+      "type": "entertainment",
+      "description": "Fun, fan-friendly F1 explainers and race weekend content.",
+      "reliability": "high",
+      "category": "Fan & Entertainment"
+    },
+    {
+      "rank": 14,
+      "handle": "F1Torn",
+      "name": "F1 Torn",
+      "type": "analysis",
+      "description": "Stats-driven F1 history and championship analysis.",
+      "reliability": "medium",
+      "category": "Fan & Entertainment"
+    },
+    {
+      "rank": 15,
+      "handle": "MercedesAMGF1",
+      "name": "Mercedes-AMG PETRONAS F1",
+      "type": "team",
+      "description": "Official Mercedes F1 team updates.",
+      "reliability": "high",
+      "category": "Teams"
+    },
+    {
+      "rank": 16,
+      "handle": "ScuderiaFerrari",
+      "name": "Scuderia Ferrari",
+      "type": "team",
+      "description": "Official Ferrari F1 team account.",
+      "reliability": "high",
+      "category": "Teams"
+    },
+    {
+      "rank": 17,
+      "handle": "redbullracing",
+      "name": "Oracle Red Bull Racing",
+      "type": "team",
+      "description": "Official Red Bull Racing updates.",
+      "reliability": "high",
+      "category": "Teams"
+    },
+    {
+      "rank": 18,
+      "handle": "McLarenF1",
+      "name": "McLaren",
+      "type": "team",
+      "description": "Official McLaren F1 team account.",
+      "reliability": "high",
+      "category": "Teams"
+    },
+    {
+      "rank": 19,
+      "handle": "JennieGow",
+      "name": "Jennie Gow",
+      "type": "journalist",
+      "description": "F1 presenter and reporter covering teams and drivers.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 20,
+      "handle": "ESPNUK",
+      "name": "ESPN UK",
+      "type": "media",
+      "description": "Major sports outlet with F1 race coverage.",
+      "reliability": "high",
+      "category": "Major Media"
+    }
+  ],
+  "supplementalFeeds": [
+    {
+      "id": "google-news-f1",
+      "name": "Google News",
+      "handle": "F1",
+      "rssUrl": "https://news.google.com/rss/search?q=Formula+1+OR+F1+Grand+Prix&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-buxton",
+      "name": "Will Buxton",
+      "handle": "WillBuxton",
+      "rssUrl": "https://news.google.com/rss/search?q=Will+Buxton+Formula+1&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-medland",
+      "name": "Chris Medland",
+      "handle": "ChrisMedland",
+      "rssUrl": "https://news.google.com/rss/search?q=Chris+Medland+F1&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-benson",
+      "name": "Andrew Benson",
+      "handle": "AndrewBensonF1",
+      "rssUrl": "https://news.google.com/rss/search?q=Andrew+Benson+Formula+1&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    }
+  ]
 }

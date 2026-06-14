@@ -1,0 +1,685 @@
+{
+  "season": 2026,
+  "calendar": [
+    {
+      "round": 1,
+      "name": "Australian Grand Prix",
+      "circuit": "Albert Park Grand Prix Circuit",
+      "country": "Australia",
+      "date": "2026-03-08",
+      "utcDate": "2026-03-08T04:00:00Z",
+      "isSprintWeekend": false,
+      "status": "completed",
+      "winner": "George Russell",
+      "winnerCode": "RUS"
+    },
+    {
+      "round": 2,
+      "name": "Chinese Grand Prix",
+      "circuit": "Shanghai International Circuit",
+      "country": "China",
+      "date": "2026-03-15",
+      "utcDate": "2026-03-15T07:00:00Z",
+      "isSprintWeekend": true,
+      "status": "completed",
+      "winner": "Andrea Kimi Antonelli",
+      "winnerCode": "ANT"
+    },
+    {
+      "round": 3,
+      "name": "Japanese Grand Prix",
+      "circuit": "Suzuka Circuit",
+      "country": "Japan",
+      "date": "2026-03-29",
+      "utcDate": "2026-03-29T05:00:00Z",
+      "isSprintWeekend": false,
+      "status": "completed",
+      "winner": "Andrea Kimi Antonelli",
+      "winnerCode": "ANT"
+    },
+    {
+      "round": 4,
+      "name": "Miami Grand Prix",
+      "circuit": "Miami International Autodrome",
+      "country": "USA",
+      "date": "2026-05-03",
+      "utcDate": "2026-05-03T20:00:00Z",
+      "isSprintWeekend": true,
+      "status": "completed",
+      "winner": "Andrea Kimi Antonelli",
+      "winnerCode": "ANT"
+    },
+    {
+      "round": 5,
+      "name": "Canadian Grand Prix",
+      "circuit": "Circuit Gilles Villeneuve",
+      "country": "Canada",
+      "date": "2026-05-24",
+      "utcDate": "2026-05-24T20:00:00Z",
+      "isSprintWeekend": true,
+      "status": "completed",
+      "winner": "Andrea Kimi Antonelli",
+      "winnerCode": "ANT"
+    },
+    {
+      "round": 6,
+      "name": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "country": "Monaco",
+      "date": "2026-06-07",
+      "utcDate": "2026-06-07T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "completed",
+      "winner": "Andrea Kimi Antonelli",
+      "winnerCode": "ANT"
+    },
+    {
+      "round": 7,
+      "name": "Barcelona Grand Prix",
+      "circuit": "Circuit de Barcelona-Catalunya",
+      "country": "Spain",
+      "date": "2026-06-14",
+      "utcDate": "2026-06-14T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "current"
+    },
+    {
+      "round": 8,
+      "name": "Austrian Grand Prix",
+      "circuit": "Red Bull Ring",
+      "country": "Austria",
+      "date": "2026-06-28",
+      "utcDate": "2026-06-28T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 9,
+      "name": "British Grand Prix",
+      "circuit": "Silverstone Circuit",
+      "country": "UK",
+      "date": "2026-07-05",
+      "utcDate": "2026-07-05T14:00:00Z",
+      "isSprintWeekend": true,
+      "status": "upcoming"
+    },
+    {
+      "round": 10,
+      "name": "Belgian Grand Prix",
+      "circuit": "Circuit de Spa-Francorchamps",
+      "country": "Belgium",
+      "date": "2026-07-19",
+      "utcDate": "2026-07-19T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 11,
+      "name": "Hungarian Grand Prix",
+      "circuit": "Hungaroring",
+      "country": "Hungary",
+      "date": "2026-07-26",
+      "utcDate": "2026-07-26T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 12,
+      "name": "Dutch Grand Prix",
+      "circuit": "Circuit Park Zandvoort",
+      "country": "Netherlands",
+      "date": "2026-08-23",
+      "utcDate": "2026-08-23T13:00:00Z",
+      "isSprintWeekend": true,
+      "status": "upcoming"
+    },
+    {
+      "round": 13,
+      "name": "Italian Grand Prix",
+      "circuit": "Autodromo Nazionale di Monza",
+      "country": "Italy",
+      "date": "2026-09-06",
+      "utcDate": "2026-09-06T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 14,
+      "name": "Spanish Grand Prix",
+      "circuit": "Madring",
+      "country": "Spain",
+      "date": "2026-09-13",
+      "utcDate": "2026-09-13T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 15,
+      "name": "Azerbaijan Grand Prix",
+      "circuit": "Baku City Circuit",
+      "country": "Azerbaijan",
+      "date": "2026-09-26",
+      "utcDate": "2026-09-26T11:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 16,
+      "name": "Singapore Grand Prix",
+      "circuit": "Marina Bay Street Circuit",
+      "country": "Singapore",
+      "date": "2026-10-11",
+      "utcDate": "2026-10-11T12:00:00Z",
+      "isSprintWeekend": true,
+      "status": "upcoming"
+    },
+    {
+      "round": 17,
+      "name": "United States Grand Prix",
+      "circuit": "Circuit of the Americas",
+      "country": "USA",
+      "date": "2026-10-25",
+      "utcDate": "2026-10-25T20:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 18,
+      "name": "Mexico City Grand Prix",
+      "circuit": "Aut\u00f3dromo Hermanos Rodr\u00edguez",
+      "country": "Mexico",
+      "date": "2026-11-01",
+      "utcDate": "2026-11-01T20:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 19,
+      "name": "Brazilian Grand Prix",
+      "circuit": "Aut\u00f3dromo Jos\u00e9 Carlos Pace",
+      "country": "Brazil",
+      "date": "2026-11-08",
+      "utcDate": "2026-11-08T17:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 20,
+      "name": "Las Vegas Grand Prix",
+      "circuit": "Las Vegas Strip Street Circuit",
+      "country": "USA",
+      "date": "2026-11-22",
+      "utcDate": "2026-11-22T04:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 21,
+      "name": "Qatar Grand Prix",
+      "circuit": "Losail International Circuit",
+      "country": "Qatar",
+      "date": "2026-11-29",
+      "utcDate": "2026-11-29T16:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 22,
+      "name": "Abu Dhabi Grand Prix",
+      "circuit": "Yas Marina Circuit",
+      "country": "UAE",
+      "date": "2026-12-06",
+      "utcDate": "2026-12-06T13:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    }
+  ],
+  "driverStandings": [
+    {
+      "position": 1,
+      "driverId": "antonelli",
+      "driverCode": "ANT",
+      "driverName": "Andrea Kimi Antonelli",
+      "constructorId": "mercedes",
+      "constructorName": "Mercedes",
+      "points": 156.0,
+      "wins": 5
+    },
+    {
+      "position": 2,
+      "driverId": "hamilton",
+      "driverCode": "HAM",
+      "driverName": "Lewis Hamilton",
+      "constructorId": "ferrari",
+      "constructorName": "Ferrari",
+      "points": 90.0,
+      "wins": 0
+    },
+    {
+      "position": 3,
+      "driverId": "russell",
+      "driverCode": "RUS",
+      "driverName": "George Russell",
+      "constructorId": "mercedes",
+      "constructorName": "Mercedes",
+      "points": 88.0,
+      "wins": 1
+    },
+    {
+      "position": 4,
+      "driverId": "leclerc",
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "constructorId": "ferrari",
+      "constructorName": "Ferrari",
+      "points": 75.0,
+      "wins": 0
+    },
+    {
+      "position": 5,
+      "driverId": "piastri",
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "constructorId": "mclaren",
+      "constructorName": "McLaren",
+      "points": 58.0,
+      "wins": 0
+    },
+    {
+      "position": 6,
+      "driverId": "norris",
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "constructorId": "mclaren",
+      "constructorName": "McLaren",
+      "points": 58.0,
+      "wins": 0
+    },
+    {
+      "position": 7,
+      "driverId": "max_verstappen",
+      "driverCode": "VER",
+      "driverName": "Max Verstappen",
+      "constructorId": "red_bull",
+      "constructorName": "Red Bull",
+      "points": 43.0,
+      "wins": 0
+    },
+    {
+      "position": 8,
+      "driverId": "gasly",
+      "driverCode": "GAS",
+      "driverName": "Pierre Gasly",
+      "constructorId": "alpine",
+      "constructorName": "Alpine F1 Team",
+      "points": 35.0,
+      "wins": 0
+    },
+    {
+      "position": 9,
+      "driverId": "hadjar",
+      "driverCode": "HAD",
+      "driverName": "Isack Hadjar",
+      "constructorId": "red_bull",
+      "constructorName": "Red Bull",
+      "points": 26.0,
+      "wins": 0
+    },
+    {
+      "position": 10,
+      "driverId": "lawson",
+      "driverCode": "LAW",
+      "driverName": "Liam Lawson",
+      "constructorId": "rb",
+      "constructorName": "RB F1 Team",
+      "points": 24.0,
+      "wins": 0
+    },
+    {
+      "position": 11,
+      "driverId": "bearman",
+      "driverCode": "BEA",
+      "driverName": "Oliver Bearman",
+      "constructorId": "haas",
+      "constructorName": "Haas F1 Team",
+      "points": 18.0,
+      "wins": 0
+    },
+    {
+      "position": 12,
+      "driverId": "colapinto",
+      "driverCode": "COL",
+      "driverName": "Franco Colapinto",
+      "constructorId": "alpine",
+      "constructorName": "Alpine F1 Team",
+      "points": 15.0,
+      "wins": 0
+    },
+    {
+      "position": 13,
+      "driverId": "arvid_lindblad",
+      "driverCode": "LIN",
+      "driverName": "Arvid Lindblad",
+      "constructorId": "rb",
+      "constructorName": "RB F1 Team",
+      "points": 11.0,
+      "wins": 0
+    },
+    {
+      "position": 14,
+      "driverId": "sainz",
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "constructorId": "williams",
+      "constructorName": "Williams",
+      "points": 6.0,
+      "wins": 0
+    },
+    {
+      "position": 15,
+      "driverId": "albon",
+      "driverCode": "ALB",
+      "driverName": "Alexander Albon",
+      "constructorId": "williams",
+      "constructorName": "Williams",
+      "points": 5.0,
+      "wins": 0
+    },
+    {
+      "position": 16,
+      "driverId": "ocon",
+      "driverCode": "OCO",
+      "driverName": "Esteban Ocon",
+      "constructorId": "haas",
+      "constructorName": "Haas F1 Team",
+      "points": 3.0,
+      "wins": 0
+    },
+    {
+      "position": 17,
+      "driverId": "bortoleto",
+      "driverCode": "BOR",
+      "driverName": "Gabriel Bortoleto",
+      "constructorId": "audi",
+      "constructorName": "Audi",
+      "points": 2.0,
+      "wins": 0
+    },
+    {
+      "position": 18,
+      "driverId": "alonso",
+      "driverCode": "ALO",
+      "driverName": "Fernando Alonso",
+      "constructorId": "aston_martin",
+      "constructorName": "Aston Martin",
+      "points": 1.0,
+      "wins": 0
+    },
+    {
+      "position": 19,
+      "driverId": "hulkenberg",
+      "driverCode": "HUL",
+      "driverName": "Nico H\u00fclkenberg",
+      "constructorId": "audi",
+      "constructorName": "Audi",
+      "points": 0.0,
+      "wins": 0
+    },
+    {
+      "position": 20,
+      "driverId": "bottas",
+      "driverCode": "BOT",
+      "driverName": "Valtteri Bottas",
+      "constructorId": "cadillac",
+      "constructorName": "Cadillac F1 Team",
+      "points": 0.0,
+      "wins": 0
+    },
+    {
+      "position": 21,
+      "driverId": "perez",
+      "driverCode": "PER",
+      "driverName": "Sergio P\u00e9rez",
+      "constructorId": "cadillac",
+      "constructorName": "Cadillac F1 Team",
+      "points": 0.0,
+      "wins": 0
+    },
+    {
+      "position": 22,
+      "driverId": "stroll",
+      "driverCode": "STR",
+      "driverName": "Lance Stroll",
+      "constructorId": "aston_martin",
+      "constructorName": "Aston Martin",
+      "points": 0.0,
+      "wins": 0
+    }
+  ],
+  "constructorStandings": [
+    {
+      "position": 1,
+      "constructorId": "mercedes",
+      "constructorName": "Mercedes",
+      "points": 244.0,
+      "wins": 6
+    },
+    {
+      "position": 2,
+      "constructorId": "ferrari",
+      "constructorName": "Ferrari",
+      "points": 165.0,
+      "wins": 0
+    },
+    {
+      "position": 3,
+      "constructorId": "mclaren",
+      "constructorName": "McLaren",
+      "points": 116.0,
+      "wins": 0
+    },
+    {
+      "position": 4,
+      "constructorId": "red_bull",
+      "constructorName": "Red Bull",
+      "points": 69.0,
+      "wins": 0
+    },
+    {
+      "position": 5,
+      "constructorId": "alpine",
+      "constructorName": "Alpine F1 Team",
+      "points": 50.0,
+      "wins": 0
+    },
+    {
+      "position": 6,
+      "constructorId": "rb",
+      "constructorName": "RB F1 Team",
+      "points": 35.0,
+      "wins": 0
+    },
+    {
+      "position": 7,
+      "constructorId": "haas",
+      "constructorName": "Haas F1 Team",
+      "points": 21.0,
+      "wins": 0
+    },
+    {
+      "position": 8,
+      "constructorId": "williams",
+      "constructorName": "Williams",
+      "points": 11.0,
+      "wins": 0
+    },
+    {
+      "position": 9,
+      "constructorId": "audi",
+      "constructorName": "Audi",
+      "points": 2.0,
+      "wins": 0
+    },
+    {
+      "position": 10,
+      "constructorId": "aston_martin",
+      "constructorName": "Aston Martin",
+      "points": 1.0,
+      "wins": 0
+    },
+    {
+      "position": 11,
+      "constructorId": "cadillac",
+      "constructorName": "Cadillac F1 Team",
+      "points": 0.0,
+      "wins": 0
+    }
+  ],
+  "sessions": [
+    {
+      "id": "6-FirstPractice",
+      "round": 6,
+      "gpName": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "country": "Monaco",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 1",
+      "utcDate": "2026-06-05T11:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "6-SecondPractice",
+      "round": 6,
+      "gpName": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "country": "Monaco",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 2",
+      "utcDate": "2026-06-05T15:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "6-ThirdPractice",
+      "round": 6,
+      "gpName": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "country": "Monaco",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 3",
+      "utcDate": "2026-06-06T10:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "6-Qualifying",
+      "round": 6,
+      "gpName": "Monaco Grand Prix",
+      "circuit": "Circuit de Monaco",
+      "country": "Monaco",
+      "sessionType": "qualifying",
+      "sessionLabel": "Qualifying",
+      "utcDate": "2026-06-06T14:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "7-FirstPractice",
+      "round": 7,
+      "gpName": "Barcelona Grand Prix",
+      "circuit": "Circuit de Barcelona-Catalunya",
+      "country": "Spain",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 1",
+      "utcDate": "2026-06-12T11:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "7-SecondPractice",
+      "round": 7,
+      "gpName": "Barcelona Grand Prix",
+      "circuit": "Circuit de Barcelona-Catalunya",
+      "country": "Spain",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 2",
+      "utcDate": "2026-06-12T15:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "7-ThirdPractice",
+      "round": 7,
+      "gpName": "Barcelona Grand Prix",
+      "circuit": "Circuit de Barcelona-Catalunya",
+      "country": "Spain",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 3",
+      "utcDate": "2026-06-13T10:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "7-Qualifying",
+      "round": 7,
+      "gpName": "Barcelona Grand Prix",
+      "circuit": "Circuit de Barcelona-Catalunya",
+      "country": "Spain",
+      "sessionType": "qualifying",
+      "sessionLabel": "Qualifying",
+      "utcDate": "2026-06-13T14:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "8-FirstPractice",
+      "round": 8,
+      "gpName": "Austrian Grand Prix",
+      "circuit": "Red Bull Ring",
+      "country": "Austria",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 1",
+      "utcDate": "2026-06-26T11:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "8-SecondPractice",
+      "round": 8,
+      "gpName": "Austrian Grand Prix",
+      "circuit": "Red Bull Ring",
+      "country": "Austria",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 2",
+      "utcDate": "2026-06-26T15:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "8-ThirdPractice",
+      "round": 8,
+      "gpName": "Austrian Grand Prix",
+      "circuit": "Red Bull Ring",
+      "country": "Austria",
+      "sessionType": "practice",
+      "sessionLabel": "Practice 3",
+      "utcDate": "2026-06-27T10:30:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    },
+    {
+      "id": "8-Qualifying",
+      "round": 8,
+      "gpName": "Austrian Grand Prix",
+      "circuit": "Red Bull Ring",
+      "country": "Austria",
+      "sessionType": "qualifying",
+      "sessionLabel": "Qualifying",
+      "utcDate": "2026-06-27T14:00:00Z",
+      "status": "scheduled",
+      "isSprintWeekend": false
+    }
+  ],
+  "lastRaceResults": []
+}

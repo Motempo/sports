@@ -14,6 +14,11 @@ type VenueRecord = {
   city?: string;
 };
 
+export type ResolvedStadium = {
+  venue: string;
+  city: string;
+};
+
 const stadiumList = stadiums as StadiumEntry[];
 const seedCache = venueCacheSeed as Record<string, VenueRecord>;
 
@@ -36,14 +41,40 @@ export function isMissingVenue(venue?: string | null): boolean {
   return !trimmed || trimmed.toUpperCase() === "TBD";
 }
 
+export function resolveStadium(venue?: string | null): ResolvedStadium | null {
+  if (isMissingVenue(venue)) return null;
+
+  const trimmed = venue!.trim();
+  const candidates = [trimmed, trimmed.split(",")[0]?.trim()].filter(Boolean) as string[];
+
+  for (const candidate of candidates) {
+    const entry = stadiumByNormalized.get(normalizeName(candidate));
+    if (entry) return { venue: entry.venue, city: entry.city };
+  }
+
+  const normalized = normalizeName(trimmed);
+  for (const stadium of stadiumList) {
+    const names = [stadium.venue, ...(stadium.aliases ?? [])];
+    for (const name of names) {
+      const nameNorm = normalizeName(name);
+      if (nameNorm.length < 4) continue;
+      if (normalized.includes(nameNorm) || nameNorm.includes(normalized)) {
+        return { venue: stadium.venue, city: stadium.city };
+      }
+    }
+  }
+
+  return null;
+}
+
 export function cityForStadium(venue: string): string | undefined {
-  const entry = stadiumByNormalized.get(normalizeName(venue));
-  return entry?.city;
+  return resolveStadium(venue)?.city;
 }
 
 export function formatMatchVenueLine(match: Pick<MatchInfo, "venue" | "city">): string | null {
-  const venue = match.venue?.trim();
-  const city = match.city?.trim() || (venue ? cityForStadium(venue) : undefined);
+  const resolved = resolveStadium(match.venue);
+  const venue = resolved?.venue ?? match.venue?.trim();
+  const city = resolved?.city ?? match.city?.trim() ?? (venue ? cityForStadium(venue) : undefined);
 
   if (isMissingVenue(venue)) {
     if (city && !isMissingVenue(city)) return city;
@@ -56,6 +87,9 @@ export function formatMatchVenueLine(match: Pick<MatchInfo, "venue" | "city">): 
 function applyVenueRecord(match: MatchInfo, record: VenueRecord): MatchInfo {
   const venue = record.venue?.trim();
   if (!venue || isMissingVenue(venue)) return match;
+
+  const resolved = resolveStadium(venue);
+  if (resolved) return { ...match, venue: resolved.venue, city: resolved.city };
 
   const city = record.city?.trim() || cityForStadium(venue);
   return { ...match, venue, city };
@@ -87,6 +121,10 @@ function isNearTermMatch(match: MatchInfo, now = new Date()): boolean {
   return matchTime >= start.getTime() - 86_400_000 && matchTime < end.getTime();
 }
 
+function needsVenueResolution(match: MatchInfo): boolean {
+  return !resolveStadium(match.venue);
+}
+
 async function fetchVenueFromFootballData(
   apiKey: string,
   matchId: number
@@ -102,7 +140,10 @@ async function fetchVenueFromFootballData(
     const venue = data.venue?.trim();
     if (!venue || isMissingVenue(venue)) return undefined;
 
-    return { venue, city: cityForStadium(venue) };
+    const resolved = resolveStadium(venue);
+    if (!resolved) return undefined;
+
+    return resolved;
   } catch {
     return undefined;
   }
@@ -137,7 +178,8 @@ Respond with JSON only — an object keyed by match id string:
   for (const match of matches) {
     const record = parsed[String(match.id)] ?? parsed[match.id as unknown as string];
     if (record?.venue && !isMissingVenue(record.venue)) {
-      const normalized: VenueRecord = {
+      const resolved = resolveStadium(record.venue.trim());
+      const normalized: VenueRecord = resolved ?? {
         venue: record.venue.trim(),
         city: record.city?.trim() || cityForStadium(record.venue),
       };
@@ -154,23 +196,23 @@ export async function enrichMatchVenues(
   options?: { footballDataApiKey?: string; useGrok?: boolean }
 ): Promise<MatchInfo[]> {
   const enriched = matches.map((match) => {
-    if (!isMissingVenue(match.venue)) {
-      const city = match.city || cityForStadium(match.venue);
-      return city !== match.city ? { ...match, city } : match;
+    const resolved = resolveStadium(match.venue);
+    if (resolved) {
+      return { ...match, venue: resolved.venue, city: resolved.city };
     }
 
     const cached = lookupCachedVenue(match);
     return cached ? applyVenueRecord(match, cached) : match;
   });
 
-  const stillMissing = enriched.filter((m) => isMissingVenue(m.venue));
-  if (stillMissing.length === 0) return enriched;
+  const stillUnresolved = enriched.filter((m) => needsVenueResolution(m));
+  if (stillUnresolved.length === 0) return enriched;
 
-  const nearTermMissing = stillMissing.filter((m) => isNearTermMatch(m));
+  const nearTermUnresolved = stillUnresolved.filter((m) => isNearTermMatch(m));
 
-  if (options?.footballDataApiKey && nearTermMissing.length > 0) {
+  if (options?.footballDataApiKey && nearTermUnresolved.length > 0) {
     const detailResults = await Promise.all(
-      nearTermMissing.slice(0, 24).map(async (match) => {
+      nearTermUnresolved.slice(0, 24).map(async (match) => {
         const record = await fetchVenueFromFootballData(options.footballDataApiKey!, match.id);
         if (record) runtimeCache.set(match.id, record);
         return { matchId: match.id, record };
@@ -184,7 +226,7 @@ export async function enrichMatchVenues(
     }
   }
 
-  const needsGrok = enriched.filter((m) => isMissingVenue(m.venue) && isNearTermMatch(m));
+  const needsGrok = enriched.filter((m) => needsVenueResolution(m) && isNearTermMatch(m));
   if (needsGrok.length > 0 && options?.useGrok !== false) {
     const grokResults = await resolveVenuesWithGrok(needsGrok.slice(0, 32));
     for (let i = 0; i < enriched.length; i++) {
@@ -194,6 +236,10 @@ export async function enrichMatchVenues(
   }
 
   return enriched.map((match) => {
+    const resolved = resolveStadium(match.venue);
+    if (resolved) {
+      return { ...match, venue: resolved.venue, city: resolved.city };
+    }
     if (isMissingVenue(match.venue)) {
       return { ...match, venue: "" };
     }

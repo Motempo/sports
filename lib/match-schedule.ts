@@ -78,26 +78,8 @@ export function selectScheduleMatches(
     .sort(sortMatchesInDay);
 }
 
-function matchDaySortRank(status: MatchInfo["status"]): number {
-  if (LIVE_STATUSES.has(status)) return 0;
-  if (status === "SCHEDULED") return 1;
-  if (status === "FINISHED") return 2;
-  return 3;
-}
-
 function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
-  const rankDiff = matchDaySortRank(a.status) - matchDaySortRank(b.status);
-  if (rankDiff !== 0) return rankDiff;
-
-  const aTime = new Date(a.utcDate).getTime();
-  const bTime = new Date(b.utcDate).getTime();
-
-  // Upcoming/live: soonest first. Finished today: most recent first.
-  if (a.status === "FINISHED" && b.status === "FINISHED") {
-    return bTime - aTime;
-  }
-
-  return aTime - bTime;
+  return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
 }
 
 export function groupMatchesByLocalDay(

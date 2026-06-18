@@ -1,19 +1,87 @@
 [
-  { "venue": "MetLife Stadium", "city": "East Rutherford, NJ", "aliases": ["MetLife", "Met Life Stadium"] },
-  { "venue": "SoFi Stadium", "city": "Inglewood, CA", "aliases": ["SoFi"] },
-  { "venue": "AT&T Stadium", "city": "Arlington, TX", "aliases": ["AT&T", "ATT Stadium"] },
-  { "venue": "Mercedes-Benz Stadium", "city": "Atlanta, GA", "aliases": ["Mercedes Benz Stadium"] },
-  { "venue": "Hard Rock Stadium", "city": "Miami Gardens, FL", "aliases": [] },
-  { "venue": "Lincoln Financial Field", "city": "Philadelphia, PA", "aliases": ["Lincoln Financial"] },
-  { "venue": "Levi's Stadium", "city": "Santa Clara, CA", "aliases": ["Levis Stadium"] },
-  { "venue": "Lumen Field", "city": "Seattle, WA", "aliases": ["Seattle Stadium"] },
-  { "venue": "Arrowhead Stadium", "city": "Kansas City, MO", "aliases": [] },
-  { "venue": "NRG Stadium", "city": "Houston, TX", "aliases": [] },
-  { "venue": "Gillette Stadium", "city": "Foxborough, MA", "aliases": [] },
-  { "venue": "Bank of America Stadium", "city": "Charlotte, NC", "aliases": [] },
-  { "venue": "Estadio Azteca", "city": "Mexico City", "aliases": ["Azteca"] },
-  { "venue": "Estadio BBVA", "city": "Monterrey", "aliases": ["BBVA Stadium"] },
-  { "venue": "Estadio Akron", "city": "Guadalajara", "aliases": ["Akron Stadium"] },
-  { "venue": "BC Place", "city": "Vancouver", "aliases": [] },
-  { "venue": "BMO Field", "city": "Toronto", "aliases": [] }
+  {
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ",
+    "aliases": ["MetLife", "Met Life Stadium", "MetLife Stadium, East Rutherford", "East Rutherford"]
+  },
+  {
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA",
+    "aliases": ["SoFi", "SoFi Stadium, Inglewood", "Inglewood"]
+  },
+  {
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX",
+    "aliases": ["AT&T", "ATT Stadium", "AT&T Stadium, Arlington", "Arlington"]
+  },
+  {
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA",
+    "aliases": ["Mercedes Benz Stadium", "Mercedes-Benz Stadium, Atlanta", "Atlanta"]
+  },
+  {
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL",
+    "aliases": ["Hard Rock Stadium, Miami", "Hard Rock Stadium, Miami Gardens", "Miami Gardens"]
+  },
+  {
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA",
+    "aliases": ["Lincoln Financial", "Lincoln Financial Field, Philadelphia", "Philadelphia"]
+  },
+  {
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA",
+    "aliases": ["Levis Stadium", "Levi's Stadium, Santa Clara", "Santa Clara"]
+  },
+  {
+    "venue": "Lumen Field",
+    "city": "Seattle, WA",
+    "aliases": ["Seattle Stadium", "Lumen Field, Seattle", "Seattle"]
+  },
+  {
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO",
+    "aliases": ["Arrowhead Stadium, Kansas City", "Kansas City"]
+  },
+  {
+    "venue": "NRG Stadium",
+    "city": "Houston, TX",
+    "aliases": ["NRG Stadium, Houston", "Houston"]
+  },
+  {
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA",
+    "aliases": ["Gillette Stadium, Foxborough", "Foxborough"]
+  },
+  {
+    "venue": "Bank of America Stadium",
+    "city": "Charlotte, NC",
+    "aliases": ["Bank of America Stadium, Charlotte", "Charlotte"]
+  },
+  {
+    "venue": "Estadio Azteca",
+    "city": "Mexico City",
+    "aliases": ["Azteca", "Estadio Azteca, Mexico City"]
+  },
+  {
+    "venue": "Estadio BBVA",
+    "city": "Monterrey",
+    "aliases": ["BBVA Stadium", "Estadio BBVA, Monterrey"]
+  },
+  {
+    "venue": "Estadio Akron",
+    "city": "Guadalajara",
+    "aliases": ["Akron Stadium", "Estadio Akron, Guadalajara"]
+  },
+  {
+    "venue": "BC Place",
+    "city": "Vancouver",
+    "aliases": ["BC Place, Vancouver"]
+  },
+  {
+    "venue": "BMO Field",
+    "city": "Toronto",
+    "aliases": ["BMO Field, Toronto"]
+  }
 ]

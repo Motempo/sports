@@ -1,4 +1,4 @@
-import { enrichMatchVenues } from "@/lib/match-venue";
+import { enrichMatchVenues, resolveStadium } from "@/lib/match-venue";
 import { enrichKnockoutBracket } from "@/lib/knockout-enrich";
 import { computeGroupStandings } from "@/lib/group-standings";
 import {
@@ -102,6 +102,8 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
   const homeCode = m.homeTeam.tla ?? "TBD";
   const awayCode = m.awayTeam.tla ?? "TBD";
   const stage = mapStage(m.stage);
+  const rawVenue = m.venue?.trim() || "";
+  const resolved = resolveStadium(rawVenue);
   return {
     id: m.id,
     round: isKnockoutStage(stage) ? stage : "R32",
@@ -113,7 +115,8 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
     awayScore: m.score.fullTime.away,
     status: toStatus(m.status),
     utcDate: m.utcDate,
-    venue: m.venue?.trim() || "",
+    venue: resolved?.venue ?? rawVenue,
+    city: resolved?.city,
     winnerCode: m.score.winner ?? undefined,
   };
 }
@@ -121,9 +124,6 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
 const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
 
 function sortMatches(a: MatchInfo, b: MatchInfo): number {
-  const aLive = LIVE_STATUSES.has(a.status) ? 0 : 1;
-  const bLive = LIVE_STATUSES.has(b.status) ? 0 : 1;
-  if (aLive !== bLive) return aLive - bLive;
   return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
 }
 
@@ -160,10 +160,10 @@ function generateSeedGroupMatches(): MatchInfo[] {
   const groups = Array.from({ length: 12 }, (_, i) => `GROUP_${String.fromCharCode(65 + i)}`);
   const venues = [
     { venue: "MetLife Stadium", city: "East Rutherford, NJ" },
-    { venue: "SoFi Stadium", city: "Los Angeles, CA" },
+    { venue: "SoFi Stadium", city: "Inglewood, CA" },
     { venue: "AT&T Stadium", city: "Arlington, TX" },
     { venue: "Mercedes-Benz Stadium", city: "Atlanta, GA" },
-    { venue: "Hard Rock Stadium", city: "Miami, FL" },
+    { venue: "Hard Rock Stadium", city: "Miami Gardens, FL" },
     { venue: "Estadio Azteca", city: "Mexico City" },
     { venue: "BC Place", city: "Vancouver" },
     { venue: "Lincoln Financial Field", city: "Philadelphia, PA" },
@@ -245,10 +245,10 @@ function generateSeedBracket(): MatchInfo[] {
 
   const venues = [
     { venue: "MetLife Stadium", city: "East Rutherford, NJ" },
-    { venue: "SoFi Stadium", city: "Los Angeles, CA" },
+    { venue: "SoFi Stadium", city: "Inglewood, CA" },
     { venue: "AT&T Stadium", city: "Arlington, TX" },
     { venue: "Mercedes-Benz Stadium", city: "Atlanta, GA" },
-    { venue: "Hard Rock Stadium", city: "Miami, FL" },
+    { venue: "Hard Rock Stadium", city: "Miami Gardens, FL" },
     { venue: "Estadio Azteca", city: "Mexico City" },
     { venue: "BC Place", city: "Vancouver" },
     { venue: "Lincoln Financial Field", city: "Philadelphia, PA" },
@@ -327,7 +327,7 @@ export async function fetchMatches(): Promise<{
         const data = (await res.json()) as { matches: FootballDataMatch[] };
         const all = await enrichMatchVenues(data.matches.map(parseApiMatch), {
           footballDataApiKey: apiKey,
-          useGrok: true,
+          useGrok: false,
         });
 
         if (all.length > 0) {

@@ -1,7 +1,7 @@
 import knockoutFixtures from "@/data/wc2026-knockout-fixtures.json";
 import teamIsoMap from "@/data/team-iso-map.json";
 import type { GroupStandings } from "@/lib/group-standings";
-import { isMissingVenue } from "@/lib/match-venue";
+import { resolveStadium } from "@/lib/match-venue";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 
 type SlotDef = { code: string; name: string };
@@ -98,8 +98,9 @@ function applyFixtureMetadata(match: MatchInfo, fixture: FixtureDef): MatchInfo 
     awayTeam = slotTeam(fixture.away.code, fixture.away.name);
   }
 
-  const venue = isMissingVenue(match.venue) ? fixture.venue : match.venue;
-  const city = match.city || fixture.city;
+  const resolved = resolveStadium(match.venue);
+  const venue = resolved?.venue ?? fixture.venue;
+  const city = resolved?.city ?? fixture.city;
 
   return { ...match, homeTeam, awayTeam, venue, city };
 }

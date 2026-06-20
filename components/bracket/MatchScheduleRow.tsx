@@ -48,7 +48,8 @@ export function MatchScheduleRow({
   const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate);
   const groupLabel = formatGroupLabel(match.group);
   const matchday = showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
-  const stakes = showContext && standings ? getMatchStakes(match, standings) : null;
+  const stakes =
+    showContext && standings ? getMatchStakes(match, standings, groupMatches) : null;
   const venueLine = formatMatchVenueLine(match);
 
   return (

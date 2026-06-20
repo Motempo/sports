@@ -70,7 +70,7 @@ export function MatchCard({
   const matchday =
     showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
   const stakes =
-    showContext && standings ? getMatchStakes(match, standings) : null;
+    showContext && standings ? getMatchStakes(match, standings, groupMatches) : null;
   const forecast = showForecast ? getMatchForecast(match) : null;
 
   const homeLabel = getBracketTeamLabel(match.homeTeam);

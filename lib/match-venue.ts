@@ -1,6 +1,7 @@
 import stadiums from "@/data/wc2026-stadiums.json";
 import venueCacheSeed from "@/data/wc2026-venue-cache.json";
 import { grokChatJson } from "@/lib/grok";
+import { lookupGroupFixture } from "@/lib/wc2026-fixtures";
 import type { MatchInfo } from "@/lib/types";
 
 type StadiumEntry = {
@@ -202,6 +203,11 @@ export async function enrichMatchVenues(
   options?: { footballDataApiKey?: string; useGrok?: boolean }
 ): Promise<MatchInfo[]> {
   const enriched = matches.map((match) => {
+    const official = lookupGroupFixture(match);
+    if (official) {
+      return applyVenueRecord(match, official);
+    }
+
     const resolved = resolveStadium(match.venue);
     if (resolved) {
       return { ...match, venue: resolved.venue, city: resolved.city };

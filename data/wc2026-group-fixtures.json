@@ -1,0 +1,362 @@
+{
+  "GROUP_A|MEX|RSA": {
+    "fifaMatch": 1,
+    "venue": "Estadio Azteca",
+    "city": "Mexico City"
+  },
+  "GROUP_A|KOR|CZE": {
+    "fifaMatch": 2,
+    "venue": "Estadio Akron",
+    "city": "Guadalajara"
+  },
+  "GROUP_B|CAN|BIH": {
+    "fifaMatch": 3,
+    "venue": "BMO Field",
+    "city": "Toronto"
+  },
+  "GROUP_D|USA|PAR": {
+    "fifaMatch": 4,
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "GROUP_C|HAI|SCO": {
+    "fifaMatch": 5,
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "GROUP_D|AUS|TUR": {
+    "fifaMatch": 6,
+    "venue": "BC Place",
+    "city": "Vancouver"
+  },
+  "GROUP_C|BRA|MAR": {
+    "fifaMatch": 7,
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "GROUP_B|QAT|SUI": {
+    "fifaMatch": 8,
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "GROUP_E|CIV|ECU": {
+    "fifaMatch": 9,
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "GROUP_E|GER|CUW": {
+    "fifaMatch": 10,
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "GROUP_F|NED|JPN": {
+    "fifaMatch": 11,
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "GROUP_F|SWE|TUN": {
+    "fifaMatch": 12,
+    "venue": "Estadio BBVA",
+    "city": "Monterrey"
+  },
+  "GROUP_H|SAU|URU": {
+    "fifaMatch": 13,
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "GROUP_H|ESP|CPV": {
+    "fifaMatch": 14,
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "GROUP_G|IRN|NZL": {
+    "fifaMatch": 15,
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "GROUP_G|BEL|EGY": {
+    "fifaMatch": 16,
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "GROUP_I|FRA|SEN": {
+    "fifaMatch": 17,
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "GROUP_I|IRQ|NOR": {
+    "fifaMatch": 18,
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "GROUP_J|ARG|ALG": {
+    "fifaMatch": 19,
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "GROUP_J|AUT|JOR": {
+    "fifaMatch": 20,
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "GROUP_L|GHA|PAN": {
+    "fifaMatch": 21,
+    "venue": "BMO Field",
+    "city": "Toronto"
+  },
+  "GROUP_L|ENG|CRO": {
+    "fifaMatch": 22,
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "GROUP_K|POR|COD": {
+    "fifaMatch": 23,
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "GROUP_K|UZB|COL": {
+    "fifaMatch": 24,
+    "venue": "Estadio Azteca",
+    "city": "Mexico City"
+  },
+  "GROUP_A|CZE|RSA": {
+    "fifaMatch": 25,
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "GROUP_B|SUI|BIH": {
+    "fifaMatch": 26,
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "GROUP_B|CAN|QAT": {
+    "fifaMatch": 27,
+    "venue": "BC Place",
+    "city": "Vancouver"
+  },
+  "GROUP_A|MEX|KOR": {
+    "fifaMatch": 28,
+    "venue": "Estadio Akron",
+    "city": "Guadalajara"
+  },
+  "GROUP_C|BRA|HAI": {
+    "fifaMatch": 29,
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "GROUP_C|SCO|MAR": {
+    "fifaMatch": 30,
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "GROUP_D|TUR|PAR": {
+    "fifaMatch": 31,
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "GROUP_D|USA|AUS": {
+    "fifaMatch": 32,
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "GROUP_E|GER|CIV": {
+    "fifaMatch": 33,
+    "venue": "BMO Field",
+    "city": "Toronto"
+  },
+  "GROUP_E|ECU|CUW": {
+    "fifaMatch": 34,
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "GROUP_F|NED|SWE": {
+    "fifaMatch": 35,
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "GROUP_F|TUN|JPN": {
+    "fifaMatch": 36,
+    "venue": "Estadio BBVA",
+    "city": "Monterrey"
+  },
+  "GROUP_H|URU|CPV": {
+    "fifaMatch": 37,
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "GROUP_H|ESP|SAU": {
+    "fifaMatch": 38,
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "GROUP_G|BEL|IRN": {
+    "fifaMatch": 39,
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "GROUP_G|NZL|EGY": {
+    "fifaMatch": 40,
+    "venue": "BC Place",
+    "city": "Vancouver"
+  },
+  "GROUP_I|NOR|SEN": {
+    "fifaMatch": 41,
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "GROUP_I|FRA|IRQ": {
+    "fifaMatch": 42,
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "GROUP_J|ARG|AUT": {
+    "fifaMatch": 43,
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "GROUP_J|JOR|ALG": {
+    "fifaMatch": 44,
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "GROUP_L|ENG|GHA": {
+    "fifaMatch": 45,
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "GROUP_L|PAN|CRO": {
+    "fifaMatch": 46,
+    "venue": "BMO Field",
+    "city": "Toronto"
+  },
+  "GROUP_K|POR|UZB": {
+    "fifaMatch": 47,
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "GROUP_K|COL|COD": {
+    "fifaMatch": 48,
+    "venue": "Estadio Akron",
+    "city": "Guadalajara"
+  },
+  "GROUP_C|SCO|BRA": {
+    "fifaMatch": 49,
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "GROUP_C|MAR|HAI": {
+    "fifaMatch": 50,
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  },
+  "GROUP_B|SUI|CAN": {
+    "fifaMatch": 51,
+    "venue": "BC Place",
+    "city": "Vancouver"
+  },
+  "GROUP_B|BIH|QAT": {
+    "fifaMatch": 52,
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "GROUP_A|CZE|MEX": {
+    "fifaMatch": 53,
+    "venue": "Estadio Azteca",
+    "city": "Mexico City"
+  },
+  "GROUP_A|RSA|KOR": {
+    "fifaMatch": 54,
+    "venue": "Estadio BBVA",
+    "city": "Monterrey"
+  },
+  "GROUP_E|CUW|CIV": {
+    "fifaMatch": 55,
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "GROUP_E|ECU|GER": {
+    "fifaMatch": 56,
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "GROUP_F|JPN|SWE": {
+    "fifaMatch": 57,
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "GROUP_F|TUN|NED": {
+    "fifaMatch": 58,
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "GROUP_D|TUR|USA": {
+    "fifaMatch": 59,
+    "venue": "SoFi Stadium",
+    "city": "Inglewood, CA"
+  },
+  "GROUP_D|PAR|AUS": {
+    "fifaMatch": 60,
+    "venue": "Levi's Stadium",
+    "city": "Santa Clara, CA"
+  },
+  "GROUP_I|NOR|FRA": {
+    "fifaMatch": 61,
+    "venue": "Gillette Stadium",
+    "city": "Foxborough, MA"
+  },
+  "GROUP_I|SEN|IRQ": {
+    "fifaMatch": 62,
+    "venue": "BMO Field",
+    "city": "Toronto"
+  },
+  "GROUP_G|EGY|IRN": {
+    "fifaMatch": 63,
+    "venue": "Lumen Field",
+    "city": "Seattle, WA"
+  },
+  "GROUP_G|NZL|BEL": {
+    "fifaMatch": 64,
+    "venue": "BC Place",
+    "city": "Vancouver"
+  },
+  "GROUP_H|CPV|SAU": {
+    "fifaMatch": 65,
+    "venue": "NRG Stadium",
+    "city": "Houston, TX"
+  },
+  "GROUP_H|URU|ESP": {
+    "fifaMatch": 66,
+    "venue": "Estadio Akron",
+    "city": "Guadalajara"
+  },
+  "GROUP_L|PAN|ENG": {
+    "fifaMatch": 67,
+    "venue": "MetLife Stadium",
+    "city": "East Rutherford, NJ"
+  },
+  "GROUP_L|CRO|GHA": {
+    "fifaMatch": 68,
+    "venue": "Lincoln Financial Field",
+    "city": "Philadelphia, PA"
+  },
+  "GROUP_J|ALG|AUT": {
+    "fifaMatch": 69,
+    "venue": "Arrowhead Stadium",
+    "city": "Kansas City, MO"
+  },
+  "GROUP_J|JOR|ARG": {
+    "fifaMatch": 70,
+    "venue": "AT&T Stadium",
+    "city": "Arlington, TX"
+  },
+  "GROUP_K|COL|POR": {
+    "fifaMatch": 71,
+    "venue": "Hard Rock Stadium",
+    "city": "Miami Gardens, FL"
+  },
+  "GROUP_K|COD|UZB": {
+    "fifaMatch": 72,
+    "venue": "Mercedes-Benz Stadium",
+    "city": "Atlanta, GA"
+  }
+}

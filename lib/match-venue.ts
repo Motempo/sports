@@ -72,9 +72,14 @@ export function cityForStadium(venue: string): string | undefined {
 }
 
 export function formatMatchVenueLine(match: Pick<MatchInfo, "venue" | "city">): string | null {
-  const resolved = resolveStadium(match.venue);
-  const venue = resolved?.venue ?? match.venue?.trim();
-  const city = resolved?.city ?? match.city?.trim() ?? (venue ? cityForStadium(venue) : undefined);
+  const rawVenue = match.venue?.trim() ?? "";
+  const resolved = resolveStadium(rawVenue);
+  const venue = resolved?.venue ?? (rawVenue.includes(",") ? rawVenue.split(",")[0]!.trim() : rawVenue);
+  const city =
+    resolved?.city ??
+    match.city?.trim() ??
+    (rawVenue.includes(",") ? rawVenue.split(",").slice(1).join(",").trim() : undefined) ??
+    (venue ? cityForStadium(venue) : undefined);
 
   if (isMissingVenue(venue)) {
     if (city && !isMissingVenue(city)) return city;
@@ -122,7 +127,7 @@ function isNearTermMatch(match: MatchInfo, now = new Date()): boolean {
 }
 
 function needsVenueResolution(match: MatchInfo): boolean {
-  return !resolveStadium(match.venue);
+  return isMissingVenue(match.venue) || !resolveStadium(match.venue);
 }
 
 async function fetchVenueFromFootballData(
@@ -141,9 +146,10 @@ async function fetchVenueFromFootballData(
     if (!venue || isMissingVenue(venue)) return undefined;
 
     const resolved = resolveStadium(venue);
-    if (!resolved) return undefined;
+    if (resolved) return resolved;
 
-    return resolved;
+    const commaCity = venue.includes(",") ? venue.split(",").slice(1).join(",").trim() : undefined;
+    return { venue, city: cityForStadium(venue) ?? commaCity };
   } catch {
     return undefined;
   }
@@ -208,11 +214,13 @@ export async function enrichMatchVenues(
   const stillUnresolved = enriched.filter((m) => needsVenueResolution(m));
   if (stillUnresolved.length === 0) return enriched;
 
-  const nearTermUnresolved = stillUnresolved.filter((m) => isNearTermMatch(m));
+  const needDetailFetch = enriched.filter(
+    (m) => isMissingVenue(m.venue) && isNearTermMatch(m)
+  );
 
-  if (options?.footballDataApiKey && nearTermUnresolved.length > 0) {
+  if (options?.footballDataApiKey && needDetailFetch.length > 0) {
     const detailResults = await Promise.all(
-      nearTermUnresolved.slice(0, 24).map(async (match) => {
+      needDetailFetch.slice(0, 48).map(async (match) => {
         const record = await fetchVenueFromFootballData(options.footballDataApiKey!, match.id);
         if (record) runtimeCache.set(match.id, record);
         return { matchId: match.id, record };

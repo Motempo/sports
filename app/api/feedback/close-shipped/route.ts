@@ -23,6 +23,8 @@ const SHIPPED_IDENTIFIERS = [
   "MOT-23",
   "MOT-24",
   "MOT-25",
+  "MOT-26",
+  "MOT-27",
 ] as const;
 
 const CLOSE_COMMENT =

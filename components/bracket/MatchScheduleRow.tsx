@@ -108,6 +108,9 @@ export function MatchScheduleRow({
               {stakes}
             </p>
           )}
+          {venueLine && (
+            <p className="mt-1 text-[12px] text-muted sm:text-[13px]">{venueLine}</p>
+          )}
         </div>
 
         <div className="min-w-[2.25rem] text-right text-[16px] font-extrabold tabular-nums sm:text-[17px]">
@@ -115,12 +118,9 @@ export function MatchScheduleRow({
         </div>
       </div>
 
-      {(venueLine || match.status !== "CANCELLED") && (
-        <div className="mt-2 space-y-1.5 pl-[calc(3.25rem+0.75rem)] sm:pl-[calc(4rem+0.75rem)]">
-          {venueLine && (
-            <p className="text-[12px] text-muted sm:text-[13px]">{venueLine}</p>
-          )}
-          {match.status !== "CANCELLED" && <MatchWatchLinks match={match} />}
+      {match.status !== "CANCELLED" && (
+        <div className="mt-2 pl-[calc(3.25rem+0.75rem)] sm:pl-[calc(4rem+0.75rem)]">
+          <MatchWatchLinks match={match} />
         </div>
       )}
     </div>

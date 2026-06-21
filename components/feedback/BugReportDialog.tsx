@@ -21,7 +21,7 @@ import {
   prepareFeedbackAttachment,
   resolveAttachmentMimeType,
 } from "@/lib/feedback-attachment";
-import type { InferredIntent } from "@/lib/feedback-context";
+import { getDefaultMotempoAppId, type InferredIntent } from "@/lib/feedback-context";
 import { formatSportRequestDescription } from "@/lib/feedback-context";
 import { SPORTS } from "@/lib/sports";
 import { cn } from "@/lib/utils";
@@ -141,6 +141,7 @@ export function BugReportDialog({
 
   const contextPayload = () => ({
     pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
+    appId: getDefaultMotempoAppId(),
   });
 
   const busy = isSubmitting || isImproving || isProcessingAttachment;

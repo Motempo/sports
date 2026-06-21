@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = (await request.json()) as {
+      appId?: string;
       description?: string;
       screenshotBase64?: string;
       screenshotMimeType?: string;
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
     const inferredIntent = isInferredIntent(body.inferredIntent) ? body.inferredIntent : null;
 
     await createFeedbackIssue({
+      appId: body.appId,
       description: body.description.trim(),
       screenshotBase64: body.screenshotBase64,
       screenshotMimeType: body.screenshotMimeType,

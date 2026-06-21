@@ -61,6 +61,16 @@ export function parsePageContext(pageUrl?: string): PageContext {
   }
 }
 
+export function resolveAppId(explicitAppId?: string, pageUrl?: string): string {
+  const explicit = explicitAppId?.trim();
+  if (explicit) return explicit;
+  return parsePageContext(pageUrl).app;
+}
+
+export function linearAppLabel(appId: string): string {
+  return `app:${appId}`;
+}
+
 function normalizeSummary(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
@@ -68,13 +78,14 @@ function normalizeSummary(text: string): string {
 export function buildIssueTitle(
   description: string,
   pageUrl?: string,
-  options?: { category?: FeedbackCategory; requestedSport?: string }
+  options?: { category?: FeedbackCategory; requestedSport?: string; appId?: string }
 ): string {
   if (options?.category === "sport-request" && options.requestedSport?.trim()) {
     return `[sport-request] ${normalizeSummary(options.requestedSport).slice(0, 60)}`;
   }
 
-  const { app, path } = parsePageContext(pageUrl);
+  const app = resolveAppId(options?.appId, pageUrl);
+  const { path } = parsePageContext(pageUrl);
   const firstLine = normalizeSummary(description.split("\n")[0] ?? "");
   const summary = firstLine.slice(0, 72) || "User feedback";
   const scope = path !== "/" ? `${app}${path}` : app;
@@ -84,6 +95,7 @@ export function buildIssueTitle(
 export function buildIssueBody(options: {
   description: string;
   pageUrl?: string;
+  appId?: string;
   screenshotUrl?: string;
   attachmentFilename?: string;
   attachmentMimeType?: string;
@@ -94,6 +106,7 @@ export function buildIssueBody(options: {
   const {
     description,
     pageUrl,
+    appId: explicitAppId,
     screenshotUrl,
     attachmentFilename,
     attachmentMimeType,
@@ -101,7 +114,11 @@ export function buildIssueBody(options: {
     category = "general",
     sportRequest,
   } = options;
-  const { pageUrl: normalizedUrl } = parsePageContext(pageUrl);
+  const { pageUrl: normalizedUrl, app: inferredApp } = parsePageContext(pageUrl);
+  const appId = resolveAppId(explicitAppId, pageUrl);
+  if (explicitAppId && inferredApp !== appId && process.env.NODE_ENV !== "production") {
+    console.warn(`Feedback appId mismatch: explicit=${appId} hostname=${inferredApp}`);
+  }
   const commit =
     process.env.COMMIT_SHA?.trim() ||
     process.env.VERCEL_GIT_COMMIT_SHA?.trim()?.slice(0, 7) ||
@@ -116,6 +133,7 @@ export function buildIssueBody(options: {
     : "";
 
   const contextLines = [
+    `- **App:** ${appId}`,
     `- Category: ${category}`,
     category === "sport-request" && sportRequest?.requestedSport
       ? `- Requested sport: ${sportRequest.requestedSport}`

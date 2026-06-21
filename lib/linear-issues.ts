@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import {
   buildIssueBody,
   buildIssueTitle,
+  linearAppLabel,
+  resolveAppId,
   type FeedbackCategory,
   type InferredIntent,
   type SportRequestMetadata,
@@ -16,8 +18,10 @@ type LinearGraphqlResponse<T> = {
 };
 
 let cachedTeamId: string | null = null;
+const labelIdCache = new Map<string, string>();
 
 export interface FeedbackPayload {
+  appId?: string;
   description: string;
   screenshotBase64?: string;
   screenshotMimeType?: AttachmentMimeType;
@@ -110,6 +114,41 @@ async function resolveTeamId(): Promise<string> {
 
   cachedTeamId = match.id;
   return match.id;
+}
+
+async function resolveLabelId(name: string): Promise<string | undefined> {
+  if (labelIdCache.has(name)) return labelIdCache.get(name);
+  const teamId = await resolveTeamId();
+  const data = await linearRequest<{
+    issueLabels: { nodes: { id: string; name: string }[] };
+  }>(
+    `query Labels($teamId: ID!) {
+      issueLabels(filter: { team: { id: { eq: $teamId } } }) {
+        nodes { id name }
+      }
+    }`,
+    { teamId }
+  );
+  const existing = data.issueLabels.nodes.find((l) => l.name === name);
+  if (existing) {
+    labelIdCache.set(name, existing.id);
+    return existing.id;
+  }
+  try {
+    const created = await linearRequest<{
+      issueLabelCreate: { success: boolean; issueLabel?: { id: string } };
+    }>(
+      `mutation CreateLabel($input: IssueLabelCreateInput!) {
+        issueLabelCreate(input: $input) { success issueLabel { id } }
+      }`,
+      { input: { teamId, name, color: "#00C805" } }
+    );
+    const id = created.issueLabelCreate.issueLabel?.id;
+    if (id) labelIdCache.set(name, id);
+    return id;
+  } catch {
+    return undefined;
+  }
 }
 
 function extFromMime(mime: string): string {
@@ -206,6 +245,9 @@ async function uploadAttachment(
 
 export async function createFeedbackIssue(payload: FeedbackPayload): Promise<FeedbackResult> {
   const teamId = await resolveTeamId();
+  const appId = resolveAppId(payload.appId, payload.pageUrl);
+  const labelId = await resolveLabelId(linearAppLabel(appId));
+  const labelIds = labelId ? [labelId] : undefined;
 
   let attachmentUrl: string | undefined;
   if (payload.screenshotBase64 && payload.screenshotMimeType) {
@@ -238,10 +280,12 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
         title: buildIssueTitle(payload.description, payload.pageUrl, {
           category: payload.feedbackCategory,
           requestedSport: payload.sportRequest?.requestedSport,
+          appId,
         }),
         description: buildIssueBody({
           description: payload.description,
           pageUrl: payload.pageUrl,
+          appId,
           screenshotUrl: attachmentUrl,
           attachmentFilename: payload.screenshotFilename,
           attachmentMimeType: payload.screenshotMimeType,
@@ -249,6 +293,7 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
           category: payload.feedbackCategory,
           sportRequest: payload.sportRequest,
         }),
+        labelIds,
       },
     }
   );

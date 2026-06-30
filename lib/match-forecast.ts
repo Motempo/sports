@@ -57,17 +57,25 @@ function finishedRecap(match: MatchInfo): string {
   }
 
   const margin = Math.abs(homeScore - awayScore);
-  const winner = winnerCode
-    ? winnerCode === homeTeam.code
+  const winner =
+    winnerCode === homeTeam.code
       ? homeTeam
-      : awayTeam
-    : null;
+      : winnerCode === awayTeam.code
+        ? awayTeam
+        : null;
   const winnerLabel = winner ? teamName(winner) : null;
 
   if (margin === 0) {
+    const scoreline = `${homeScore}–${awayScore}`;
+    if (winner && winnerLabel) {
+      return pick(match.id, [
+        `${scoreline} after 90 — ${winnerLabel} advance on penalties.`,
+        `${winnerLabel} win the shootout after a ${scoreline} draw.`,
+      ]);
+    }
     return pick(match.id, [
-      "Deadlocked after 90 — extra time and penalties decided it.",
-      "Neither side blinked in regulation; a shootout settled the tie.",
+      `Finished ${scoreline} — honors shared after 90 minutes.`,
+      `A ${scoreline} draw at the final whistle.`,
     ]);
   }
 
@@ -99,9 +107,10 @@ function liveComment(match: MatchInfo): string {
   const a = awayScore ?? 0;
 
   if (h === a) {
+    const scoreline = `${h}–${a}`;
     return pick(match.id, [
-      "Level so far — expect both managers to chase a winner.",
-      "All square at the moment; the next goal swings the tie.",
+      `Level at ${scoreline} — expect both managers to chase a winner.`,
+      `All square at ${scoreline}; the next goal swings the tie.`,
     ]);
   }
 

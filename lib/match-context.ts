@@ -143,7 +143,7 @@ function describeFinishedStakes(
   let opener = "";
   if (hs > as) opener = `${match.homeTeam.code} take the points`;
   else if (hs < as) opener = `${match.awayTeam.code} take the points`;
-  else opener = "Honors even";
+  else opener = `Honors even at ${hs}–${as}`;
 
   return clampStakes(`${opener}: ${homeLine}; ${awayLine}`);
 }

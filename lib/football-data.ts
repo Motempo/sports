@@ -69,6 +69,13 @@ function isKnockoutStage(stage: MatchStage): stage is BracketRound {
   return stage !== "GROUP";
 }
 
+type FootballDataScoreSide = {
+  home?: number | null;
+  away?: number | null;
+  homeTeam?: number | null;
+  awayTeam?: number | null;
+};
+
 interface FootballDataMatch {
   id: number;
   utcDate: string;
@@ -78,10 +85,53 @@ interface FootballDataMatch {
   homeTeam: { id: number | null; name: string | null; shortName?: string | null; tla?: string | null; crest?: string | null };
   awayTeam: { id: number | null; name: string | null; shortName?: string | null; tla?: string | null; crest?: string | null };
   score: {
-    fullTime: { home: number | null; away: number | null };
+    fullTime?: FootballDataScoreSide | null;
+    regularTime?: FootballDataScoreSide | null;
+    duration?: string | null;
     winner?: string | null;
   };
   venue?: string | null;
+}
+
+function readScoreSide(side: FootballDataScoreSide | null | undefined): {
+  home: number | null;
+  away: number | null;
+} {
+  if (!side) return { home: null, away: null };
+  return {
+    home: side.home ?? side.homeTeam ?? null,
+    away: side.away ?? side.awayTeam ?? null,
+  };
+}
+
+function resolveDisplayScores(score: FootballDataMatch["score"]): {
+  home: number | null;
+  away: number | null;
+} {
+  const fullTime = readScoreSide(score.fullTime);
+  const regularTime = readScoreSide(score.regularTime);
+  const duration = score.duration ?? "REGULAR";
+
+  if (
+    (duration === "PENALTY_SHOOTOUT" || duration === "EXTRA_TIME") &&
+    regularTime.home !== null &&
+    regularTime.away !== null
+  ) {
+    return regularTime;
+  }
+
+  return fullTime;
+}
+
+function resolveWinnerCode(
+  winner: string | null | undefined,
+  homeCode: string,
+  awayCode: string
+): string | undefined {
+  if (!winner || winner === "DRAW") return undefined;
+  if (winner === "HOME_TEAM") return homeCode;
+  if (winner === "AWAY_TEAM") return awayCode;
+  return winner;
 }
 
 function toStatus(status: string): MatchInfo["status"] {
@@ -104,6 +154,7 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
   const stage = mapStage(m.stage);
   const rawVenue = m.venue?.trim() || "";
   const resolved = resolveStadium(rawVenue);
+  const { home, away } = resolveDisplayScores(m.score);
   return {
     id: m.id,
     round: isKnockoutStage(stage) ? stage : "R32",
@@ -111,13 +162,13 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
     group: m.group ?? undefined,
     homeTeam: buildTeamInfo(homeCode, m.homeTeam.name ?? "TBD", m.homeTeam.crest ?? undefined),
     awayTeam: buildTeamInfo(awayCode, m.awayTeam.name ?? "TBD", m.awayTeam.crest ?? undefined),
-    homeScore: m.score.fullTime.home,
-    awayScore: m.score.fullTime.away,
+    homeScore: home,
+    awayScore: away,
     status: toStatus(m.status),
     utcDate: m.utcDate,
     venue: resolved?.venue ?? rawVenue,
     city: resolved?.city,
-    winnerCode: m.score.winner ?? undefined,
+    winnerCode: resolveWinnerCode(m.score.winner, homeCode, awayCode),
   };
 }
 

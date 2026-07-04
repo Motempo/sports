@@ -16,8 +16,11 @@ interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
   upcomingMatches: MatchInfo[];
   source: "api" | "seed";
+  /** Matches to list in the day-grouped schedule (group stage or knockouts). */
+  scheduleMatches?: MatchInfo[];
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
+  title?: string;
 }
 
 function DayColumn({
@@ -58,8 +61,10 @@ export function ScheduleByDay({
   todayMatches,
   upcomingMatches,
   source,
+  scheduleMatches,
   groupMatches,
   standings,
+  title = "Matches",
 }: ScheduleByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
@@ -70,12 +75,14 @@ export function ScheduleByDay({
 
   const dayGroups = useMemo(() => {
     const now = new Date();
-    const raw = groupMatches?.length
-      ? groupMatches
-      : combineScheduleMatches(todayMatches, upcomingMatches);
-    const scheduleMatches = selectScheduleMatches(raw, now, timeZone);
-    return groupMatchesByLocalDay(scheduleMatches, now, timeZone);
-  }, [groupMatches, todayMatches, upcomingMatches, timeZone]);
+    const raw =
+      scheduleMatches ??
+      (groupMatches?.length
+        ? groupMatches
+        : combineScheduleMatches(todayMatches, upcomingMatches));
+    const filtered = selectScheduleMatches(raw, now, timeZone);
+    return groupMatchesByLocalDay(filtered, now, timeZone);
+  }, [scheduleMatches, groupMatches, todayMatches, upcomingMatches, timeZone]);
 
   useEffect(() => {
     setVisibleRows(1);
@@ -89,7 +96,7 @@ export function ScheduleByDay({
     return (
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Matches</h2>
+          <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="mt-2 text-[14px] text-muted">
             No live or scheduled matches yet.
             {source === "seed" ? " Add FOOTBALL_DATA_API_KEY on Vercel for real fixtures." : ""}
@@ -103,7 +110,7 @@ export function ScheduleByDay({
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Matches</h2>
+          <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
             {source === "api" ? "Live data" : "Preview data"} · Times in your local timezone
           </p>

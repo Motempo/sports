@@ -59,7 +59,7 @@ function BracketRoundDesktop({
         <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
           {getRoundLabel(round)}
         </p>
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {matches.map((match) => (
             <div key={match.id} className="w-full min-w-[200px] max-w-[240px]">
               <MatchCard match={match} compact showForecast />
@@ -117,7 +117,7 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
   };
 
   return (
-    <div className="relative hidden lg:block">
+    <div className="relative hidden md:block">
       {canScrollLeft && (
         <>
           <div
@@ -189,7 +189,7 @@ function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]>
   }, [grouped, activeRound, availableRounds]);
 
   return (
-    <div className="lg:hidden">
+    <div className="md:hidden">
       <div className="scrollbar-hide -mx-3 flex snap-x snap-mandatory gap-1 overflow-x-auto border-b border-border px-3 sm:-mx-0 sm:px-4">
         {availableRounds.map((round) => (
           <button

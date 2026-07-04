@@ -4,10 +4,11 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getTournamentGuide } from "@/lib/tournament-guide";
+import type { TournamentPhase } from "@/lib/tournament-phase";
 
-export function RulesPrimer() {
+export function RulesPrimer({ phase = "GROUP" }: { phase?: TournamentPhase }) {
   const [open, setOpen] = useState(false);
-  const guide = getTournamentGuide("GROUP");
+  const guide = getTournamentGuide(phase);
 
   return (
     <div className="rounded-2xl border border-border bg-background">

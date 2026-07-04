@@ -32,8 +32,7 @@ export async function WorldCupPageContent() {
   const standings = computeGroupStandings(groupMatches);
   const thirdPlace = computeThirdPlaceTracker(standings);
   const whatsNext = getWhatsNextLine(phase);
-  const scheduleMatches = standingsPrimary ? groupMatches : matches;
-  const scheduleTitle = standingsPrimary ? "Matches" : "Knockout Matches";
+  const scheduleMatches = standingsPrimary ? groupMatches : undefined;
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -80,7 +79,6 @@ export async function WorldCupPageContent() {
               scheduleMatches={scheduleMatches}
               groupMatches={groupMatches}
               standings={standings}
-              title={scheduleTitle}
             />
 
             <WorldCupMidAd />
@@ -100,7 +98,7 @@ export async function WorldCupPageContent() {
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
-                <RulesPrimer />
+                <RulesPrimer phase={phase} />
               </div>
             </section>
           </>
@@ -108,6 +106,10 @@ export async function WorldCupPageContent() {
           <>
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
+                <div className="mb-3 rounded-2xl border border-dashed border-border bg-surface/50 px-4 py-3 text-[13px] text-muted">
+                  Knockout bracket — slot labels show who fills each spot (e.g. 2A = Group A
+                  runner-up). Tap a round to browse; scroll on larger screens to see later rounds.
+                </div>
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Knockout Bracket</h2>
                   <p className="text-[11px] text-muted sm:text-[12px]">
@@ -123,15 +125,11 @@ export async function WorldCupPageContent() {
 
             <WorldCupMidAd />
 
-            <ScheduleByDay
-              todayMatches={todayMatches}
-              upcomingMatches={upcomingMatches}
-              source={source}
-              scheduleMatches={scheduleMatches}
-              groupMatches={groupMatches}
-              standings={standings}
-              title={scheduleTitle}
-            />
+            <section className="border-b border-border">
+              <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
+                <RulesPrimer phase={phase} />
+              </div>
+            </section>
 
             {standings.length > 0 && (
               <section className="border-b border-border">

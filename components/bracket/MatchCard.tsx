@@ -29,7 +29,7 @@ function getBracketTeamLabel(team: MatchInfo["homeTeam"]): string {
   if (isPlaceholderTeam(team.code, team.name)) {
     return formatKnockoutPlaceholder(team.code, team.name);
   }
-  return team.code;
+  return team.name?.trim() || team.code;
 }
 
 function formatScore(home: number | null, away: number | null, status: MatchInfo["status"]) {
@@ -104,9 +104,7 @@ export function MatchCard({
             <span
               className={cn(
                 "whitespace-nowrap text-[12px] font-semibold tabular-nums",
-                homePlaceholder &&
-                  !isKnockoutSlotCode(match.homeTeam.code) &&
-                  "max-w-[4.5rem] truncate text-muted",
+                !homePlaceholder && "max-w-[6.5rem] truncate",
                 homePlaceholder && isKnockoutSlotCode(match.homeTeam.code) && "text-muted"
               )}
               title={match.homeTeam.name}
@@ -135,9 +133,7 @@ export function MatchCard({
             <span
               className={cn(
                 "whitespace-nowrap text-[12px] font-semibold tabular-nums",
-                awayPlaceholder &&
-                  !isKnockoutSlotCode(match.awayTeam.code) &&
-                  "max-w-[4.5rem] truncate text-muted",
+                !awayPlaceholder && "max-w-[6.5rem] truncate",
                 awayPlaceholder && isKnockoutSlotCode(match.awayTeam.code) && "text-muted"
               )}
               title={match.awayTeam.name}

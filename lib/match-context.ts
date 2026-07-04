@@ -7,7 +7,7 @@ import {
 } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
 
-const MAX_STAKES = 160;
+const MAX_STAKES = 200;
 
 const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
 

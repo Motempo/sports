@@ -4,7 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { BracketRound, MatchInfo } from "@/lib/types";
-import { getRoundLabel, getRoundShortLabel, ROUND_ORDER } from "@/lib/bracket-constants";
+import {
+  getDefaultBracketRound,
+  getRoundLabel,
+  getRoundShortLabel,
+  ROUND_ORDER,
+} from "@/lib/bracket-constants";
 import { MatchCard } from "./MatchCard";
 
 interface BracketTreeProps {
@@ -109,6 +114,17 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
     };
   }, [updateScrollState, grouped]);
 
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || grouped.R16.length === 0) return;
+
+    const r16 = el.querySelector('[data-bracket-round="R16"]');
+    if (r16) {
+      r16.scrollIntoView({ inline: "start", block: "nearest" });
+      updateScrollState();
+    }
+  }, [grouped, updateScrollState]);
+
   const scroll = (direction: "left" | "right") => {
     scrollRef.current?.scrollBy({
       left: direction === "left" ? -360 : 360,
@@ -161,7 +177,11 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
             const matches = grouped[round];
             if (!matches.length) return null;
 
-            return <BracketRoundDesktop key={round} round={round} matches={matches} />;
+            return (
+              <div key={round} data-bracket-round={round}>
+                <BracketRoundDesktop round={round} matches={matches} />
+              </div>
+            );
           })}
           <BracketColumn round="FINAL" matches={grouped.FINAL} side="center" />
         </div>
@@ -178,13 +198,13 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
 
 function MobileBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
   const availableRounds = ROUND_ORDER.filter((r) => grouped[r].length > 0);
-  const [activeRound, setActiveRound] = useState<BracketRound>(
-    () => availableRounds[0] ?? "R32"
+  const [activeRound, setActiveRound] = useState<BracketRound>(() =>
+    getDefaultBracketRound(grouped)
   );
 
   useEffect(() => {
     if (availableRounds.length > 0 && !availableRounds.includes(activeRound)) {
-      setActiveRound(availableRounds[0]);
+      setActiveRound(getDefaultBracketRound(grouped));
     }
   }, [grouped, activeRound, availableRounds]);
 

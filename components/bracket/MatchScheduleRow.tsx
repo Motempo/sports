@@ -4,6 +4,7 @@ import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
 import { cn } from "@/lib/utils";
 import { formatLocalMatchTime } from "@/lib/match-schedule";
+import { getRoundLabel } from "@/lib/bracket-constants";
 import { getMatchdayLabel, getMatchStakes } from "@/lib/match-context";
 import type { GroupStandings } from "@/lib/group-standings";
 import { formatMatchVenueLine } from "@/lib/match-venue";
@@ -47,6 +48,7 @@ export function MatchScheduleRow({
 
   const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate);
   const groupLabel = formatGroupLabel(match.group);
+  const roundLabel = match.stage !== "GROUP" ? getRoundLabel(match.round) : null;
   const matchday = showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
   const stakes =
     showContext && standings ? getMatchStakes(match, standings, groupMatches) : null;
@@ -98,9 +100,9 @@ export function MatchScheduleRow({
               {match.awayTeam.name}
             </span>
           </div>
-          {(groupLabel || matchday) && (
+          {(roundLabel || groupLabel || matchday) && (
             <p className="mt-1.5 truncate text-[12px] text-muted sm:text-[13px]">
-              {[groupLabel, matchday].filter(Boolean).join(" · ")}
+              {[roundLabel, groupLabel, matchday].filter(Boolean).join(" · ")}
             </p>
           )}
           {stakes && (

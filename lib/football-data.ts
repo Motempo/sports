@@ -414,8 +414,9 @@ export async function fetchMatches(): Promise<{
     groupMatches,
     standings
   );
-  const todayMatches = selectTodayMatches(groupMatches);
-  const upcomingMatches = selectUpcomingMatches(groupMatches);
+  const allMatches = [...groupMatches, ...knockoutMatches];
+  const todayMatches = selectTodayMatches(allMatches);
+  const upcomingMatches = selectUpcomingMatches(allMatches);
 
   return {
     matches: knockoutMatches,

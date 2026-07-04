@@ -43,6 +43,45 @@ function BracketColumn({
   );
 }
 
+function BracketRoundDesktop({
+  round,
+  matches,
+}: {
+  round: BracketRound;
+  matches: MatchInfo[];
+}) {
+  if (matches.length === 0) return null;
+
+  // Keep all Round of 32 games visible without scrolling past a split column.
+  if (round === "R32") {
+    return (
+      <div className="flex flex-col gap-3">
+        <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted">
+          {getRoundLabel(round)}
+        </p>
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          {matches.map((match) => (
+            <div key={match.id} className="w-full min-w-[200px] max-w-[240px]">
+              <MatchCard match={match} compact showForecast />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const half = Math.ceil(matches.length / 2);
+  const left = matches.slice(0, half);
+  const right = matches.slice(half);
+
+  return (
+    <div className="flex gap-12">
+      <BracketColumn round={round} matches={left} side="left" />
+      <BracketColumn round={round} matches={right} side="right" />
+    </div>
+  );
+}
+
 function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]> }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -75,11 +114,6 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
       left: direction === "left" ? -360 : 360,
       behavior: "smooth",
     });
-  };
-
-  const splitMatches = (matches: MatchInfo[]) => {
-    const half = Math.ceil(matches.length / 2);
-    return { left: matches.slice(0, half), right: matches.slice(half) };
   };
 
   return (
@@ -122,18 +156,12 @@ function DesktopBracket({ grouped }: { grouped: Record<BracketRound, MatchInfo[]
         ref={scrollRef}
         className="scrollbar-hide overflow-x-auto pb-4"
       >
-        <div className="mx-auto flex min-w-max items-center justify-center gap-6 px-4">
+        <div className="mx-auto flex min-w-max items-start justify-center gap-6 px-4">
           {(["R32", "R16", "QF", "SF"] as BracketRound[]).map((round) => {
             const matches = grouped[round];
             if (!matches.length) return null;
-            const { left, right } = splitMatches(matches);
 
-            return (
-              <div key={round} className="flex gap-12">
-                <BracketColumn round={round} matches={left} side="left" />
-                <BracketColumn round={round} matches={right} side="right" />
-              </div>
-            );
+            return <BracketRoundDesktop key={round} round={round} matches={matches} />;
           })}
           <BracketColumn round="FINAL" matches={grouped.FINAL} side="center" />
         </div>

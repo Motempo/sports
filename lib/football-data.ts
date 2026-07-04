@@ -1,5 +1,5 @@
 import { enrichMatchVenues, resolveStadium } from "@/lib/match-venue";
-import { enrichKnockoutBracket } from "@/lib/knockout-enrich";
+import { enrichKnockoutBracket, generateBracketFromFixtures } from "@/lib/knockout-enrich";
 import { computeGroupStandings } from "@/lib/group-standings";
 import {
   addDaysToDayKey,
@@ -386,7 +386,7 @@ export async function fetchMatches(): Promise<{
           const standings = computeGroupStandings(groupMatches);
           const knockoutRaw = all.filter((m) => isKnockoutStage(m.stage));
           const knockout = enrichKnockoutBracket(
-            knockoutRaw.length > 0 ? knockoutRaw : generateSeedBracket(),
+            knockoutRaw.length > 0 ? knockoutRaw : generateBracketFromFixtures(),
             groupMatches,
             standings
           );
@@ -410,7 +410,7 @@ export async function fetchMatches(): Promise<{
   const groupMatches = generateSeedGroupMatches();
   const standings = computeGroupStandings(groupMatches);
   const knockoutMatches = enrichKnockoutBracket(
-    generateSeedBracket(),
+    generateBracketFromFixtures(),
     groupMatches,
     standings
   );

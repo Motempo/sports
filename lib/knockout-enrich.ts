@@ -1,8 +1,9 @@
 import knockoutFixtures from "@/data/wc2026-knockout-fixtures.json";
 import teamIsoMap from "@/data/team-iso-map.json";
 import type { GroupStandings } from "@/lib/group-standings";
+import { isPlaceholderTeam } from "@/lib/match-context";
 import { resolveStadium } from "@/lib/match-venue";
-import type { MatchInfo, TeamInfo } from "@/lib/types";
+import type { BracketRound, MatchInfo, TeamInfo } from "@/lib/types";
 
 type SlotDef = { code: string; name: string };
 
@@ -25,8 +26,44 @@ function slotTeam(code: string, name: string): TeamInfo {
   };
 }
 
-function isRealTeam(team: TeamInfo): boolean {
-  return team.code !== "TBD" && team.name !== "TBD";
+function needsSlotResolution(team: TeamInfo): boolean {
+  return isPlaceholderTeam(team.code, team.name);
+}
+
+function roundFromFifaMatch(fifaMatch: number): BracketRound {
+  if (fifaMatch >= 104) return "FINAL";
+  if (fifaMatch === 103) return "THIRD";
+  if (fifaMatch >= 101) return "SF";
+  if (fifaMatch >= 97) return "QF";
+  if (fifaMatch >= 89) return "R16";
+  return "R32";
+}
+
+export function generateBracketFromFixtures(): MatchInfo[] {
+  const baseDate = new Date("2026-06-28T18:00:00Z");
+
+  return Object.entries(fixtures)
+    .map(([id, fixture]) => {
+      const round = roundFromFifaMatch(fixture.fifaMatch);
+      const dayOffset = Math.max(0, fixture.fifaMatch - 73);
+      const utcDate = new Date(baseDate);
+      utcDate.setDate(utcDate.getDate() + Math.floor(dayOffset / 2));
+
+      return {
+        id: Number(id),
+        round,
+        stage: round,
+        homeTeam: slotTeam(fixture.home.code, fixture.home.name),
+        awayTeam: slotTeam(fixture.away.code, fixture.away.name),
+        homeScore: null,
+        awayScore: null,
+        status: "SCHEDULED" as const,
+        utcDate: utcDate.toISOString(),
+        venue: fixture.venue,
+        city: fixture.city,
+      };
+    })
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime());
 }
 
 function isGroupComplete(groupId: string, groupMatches: MatchInfo[]): boolean {
@@ -81,7 +118,7 @@ function resolveSlotTeam(
     if (!source || source.status !== "FINISHED" || !source.winnerCode) return null;
     const winner =
       source.homeTeam.code === source.winnerCode ? source.homeTeam : source.awayTeam;
-    return isRealTeam(winner) ? winner : null;
+    return isPlaceholderTeam(winner.code, winner.name) ? null : winner;
   }
 
   return null;
@@ -91,10 +128,10 @@ function applyFixtureMetadata(match: MatchInfo, fixture: FixtureDef): MatchInfo 
   let homeTeam = match.homeTeam;
   let awayTeam = match.awayTeam;
 
-  if (!isRealTeam(homeTeam)) {
+  if (needsSlotResolution(homeTeam)) {
     homeTeam = slotTeam(fixture.home.code, fixture.home.name);
   }
-  if (!isRealTeam(awayTeam)) {
+  if (needsSlotResolution(awayTeam)) {
     awayTeam = slotTeam(fixture.away.code, fixture.away.name);
   }
 
@@ -117,11 +154,11 @@ function resolveKnownTeams(
   let homeTeam = match.homeTeam;
   let awayTeam = match.awayTeam;
 
-  if (!isRealTeam(homeTeam)) {
+  if (needsSlotResolution(homeTeam)) {
     const resolved = resolveSlotTeam(fixture.home, matchesByFifa, standings, groupMatches);
     homeTeam = resolved ?? homeTeam;
   }
-  if (!isRealTeam(awayTeam)) {
+  if (needsSlotResolution(awayTeam)) {
     const resolved = resolveSlotTeam(fixture.away, matchesByFifa, standings, groupMatches);
     awayTeam = resolved ?? awayTeam;
   }
@@ -149,17 +186,20 @@ export function enrichKnockoutBracket(
     if (fixture) matchesByFifa.set(fixture.fifaMatch, match);
   }
 
-  let enriched = withMetadata.map((match) =>
-    resolveKnownTeams(match, matchesByFifa, standings, groupMatches)
-  );
+  let enriched = withMetadata.map((match) => {
+    const fixture = fixtures[String(match.id)];
+    const resolved = resolveKnownTeams(match, matchesByFifa, standings, groupMatches);
+    if (fixture) matchesByFifa.set(fixture.fifaMatch, resolved);
+    return resolved;
+  });
 
-  // Re-run winner propagation after group teams are applied (two passes).
-  for (let pass = 0; pass < 2; pass++) {
+  // Re-run winner propagation through later rounds (R32 → R16 → QF → SF).
+  for (let pass = 0; pass < 5; pass++) {
     enriched = enriched.map((match) => {
       const fixture = fixtures[String(match.id)];
-      if (!fixture) return match;
-      matchesByFifa.set(fixture.fifaMatch, match);
-      return resolveKnownTeams(match, matchesByFifa, standings, groupMatches);
+      const resolved = resolveKnownTeams(match, matchesByFifa, standings, groupMatches);
+      if (fixture) matchesByFifa.set(fixture.fifaMatch, resolved);
+      return resolved;
     });
   }
 

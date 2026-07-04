@@ -32,6 +32,8 @@ export async function WorldCupPageContent() {
   const standings = computeGroupStandings(groupMatches);
   const thirdPlace = computeThirdPlaceTracker(standings);
   const whatsNext = getWhatsNextLine(phase);
+  const scheduleMatches = standingsPrimary ? groupMatches : matches;
+  const scheduleTitle = standingsPrimary ? "Matches" : "Knockout Matches";
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -75,8 +77,10 @@ export async function WorldCupPageContent() {
               todayMatches={todayMatches}
               upcomingMatches={upcomingMatches}
               source={source}
+              scheduleMatches={scheduleMatches}
               groupMatches={groupMatches}
               standings={standings}
+              title={scheduleTitle}
             />
 
             <WorldCupMidAd />
@@ -102,16 +106,6 @@ export async function WorldCupPageContent() {
           </>
         ) : (
           <>
-            <ScheduleByDay
-              todayMatches={todayMatches}
-              upcomingMatches={upcomingMatches}
-              source={source}
-              groupMatches={groupMatches}
-              standings={standings}
-            />
-
-            <WorldCupMidAd />
-
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -126,6 +120,18 @@ export async function WorldCupPageContent() {
                 <BracketTree grouped={grouped} />
               </div>
             </section>
+
+            <WorldCupMidAd />
+
+            <ScheduleByDay
+              todayMatches={todayMatches}
+              upcomingMatches={upcomingMatches}
+              source={source}
+              scheduleMatches={scheduleMatches}
+              groupMatches={groupMatches}
+              standings={standings}
+              title={scheduleTitle}
+            />
 
             {standings.length > 0 && (
               <section className="border-b border-border">

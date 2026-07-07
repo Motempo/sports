@@ -26,7 +26,8 @@ import { BracketMatchCard } from "./BracketMatchCard";
 const WHEEL_ZOOM_INTENSITY = 0.0012;
 const BUTTON_ZOOM_FACTOR = 1.12;
 const MIN_ZOOM_PERCENT = 25;
-const MAX_ZOOM_PERCENT = 400;
+const MAX_ZOOM_PERCENT = 800;
+const PAN_PADDING_PX = 20;
 const FIT_ANIMATION_MS = 280;
 
 interface BracketZoomViewProps {
@@ -41,6 +42,37 @@ interface TransformState {
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
+}
+
+/** Keep panned content inside the viewport — no large empty margins. */
+function clampPanOffset(
+  offset: number,
+  viewportSize: number,
+  contentSize: number,
+  padding = PAN_PADDING_PX
+): number {
+  if (contentSize <= viewportSize) {
+    const centered = (viewportSize - contentSize) / 2;
+    const maxSlack = Math.max(0, (viewportSize - contentSize) / 2 - padding);
+    return clamp(offset, centered - maxSlack, centered + maxSlack);
+  }
+  return clamp(offset, viewportSize - contentSize - padding, padding);
+}
+
+function clampTransformToViewport(
+  state: TransformState,
+  fitScale: number,
+  viewportW: number,
+  viewportH: number,
+  geomW: number,
+  geomH: number
+): TransformState {
+  const scale = (state.zoomPercent / 100) * fitScale;
+  return {
+    ...state,
+    offsetX: clampPanOffset(state.offsetX, viewportW, geomW * scale),
+    offsetY: clampPanOffset(state.offsetY, viewportH, geomH * scale),
+  };
 }
 
 function connectorPath(
@@ -178,14 +210,29 @@ export function BracketZoomView({ grouped }: BracketZoomViewProps) {
         nextDetail
       );
 
-      transformRef.current = adjusted;
-      fitScaleRef.current = adjustedFit;
-      setFitScale(adjustedFit);
-      setZoomPercent(Math.round(adjusted.zoomPercent));
-      setOffset({ x: adjusted.offsetX, y: adjusted.offsetY });
+      const viewport = viewportRef.current;
+      let finalState = adjusted;
+      let finalFit = adjustedFit;
+      if (viewport) {
+        const geom = computeBracketTreeGeometry(layout, detail, layoutBaseRef.current);
+        finalState = clampTransformToViewport(
+          adjusted,
+          adjustedFit,
+          viewport.clientWidth,
+          viewport.clientHeight,
+          geom.widthPx,
+          geom.heightPx
+        );
+      }
+
+      transformRef.current = finalState;
+      fitScaleRef.current = finalFit;
+      setFitScale(finalFit);
+      setZoomPercent(Math.round(finalState.zoomPercent));
+      setOffset({ x: finalState.offsetX, y: finalState.offsetY });
       if (detail !== detailLevel) setDetailLevel(detail);
     },
-    [applyDetailLevelChange, detailLevel]
+    [applyDetailLevelChange, detailLevel, layout]
   );
 
   const scheduleCommit = useCallback(
@@ -241,6 +288,19 @@ export function BracketZoomView({ grouped }: BracketZoomViewProps) {
   useEffect(() => {
     if (!fitted) fitToView();
   }, [fitToView, fitted]);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || !fitted) return;
+
+    const onResize = () => {
+      commitTransform(transformRef.current, fitScaleRef.current);
+    };
+
+    const observer = new ResizeObserver(onResize);
+    observer.observe(viewport);
+    return () => observer.disconnect();
+  }, [commitTransform, fitted]);
 
   const buttonZoom = useCallback(
     (factor: number) => {

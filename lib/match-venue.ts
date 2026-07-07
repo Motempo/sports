@@ -1,7 +1,9 @@
 import stadiums from "@/data/wc2026-stadiums.json";
 import venueCacheSeed from "@/data/wc2026-venue-cache.json";
+import knockoutFixtures from "@/data/wc2026-knockout-fixtures.json";
 import { grokChatJson } from "@/lib/grok";
 import { lookupGroupFixture } from "@/lib/wc2026-fixtures";
+import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo } from "@/lib/types";
 
 type StadiumEntry = {
@@ -14,6 +16,20 @@ type VenueRecord = {
   venue: string;
   city?: string;
 };
+
+type KnockoutFixtureDef = {
+  venue: string;
+  city: string;
+};
+
+const knockoutFixtureById = knockoutFixtures as Record<string, KnockoutFixtureDef>;
+
+function lookupKnockoutFixture(match: MatchInfo): VenueRecord | undefined {
+  if (match.stage === "GROUP") return undefined;
+  const fixture = knockoutFixtureById[String(match.id)];
+  if (!fixture?.venue) return undefined;
+  return { venue: fixture.venue, city: fixture.city };
+}
 
 export type ResolvedStadium = {
   venue: string;
@@ -138,7 +154,7 @@ async function fetchVenueFromFootballData(
   try {
     const res = await fetch(`https://api.football-data.org/v4/matches/${matchId}`, {
       headers: { "X-Auth-Token": apiKey },
-      next: { revalidate: 3600 },
+      ...uncachedFetch,
     });
     if (!res.ok) return undefined;
 
@@ -208,6 +224,11 @@ export async function enrichMatchVenues(
       return applyVenueRecord(match, official);
     }
 
+    const knockout = lookupKnockoutFixture(match);
+    if (knockout) {
+      return applyVenueRecord(match, knockout);
+    }
+
     const resolved = resolveStadium(match.venue);
     if (resolved) {
       return { ...match, venue: resolved.venue, city: resolved.city };
@@ -220,9 +241,7 @@ export async function enrichMatchVenues(
   const stillUnresolved = enriched.filter((m) => needsVenueResolution(m));
   if (stillUnresolved.length === 0) return enriched;
 
-  const needDetailFetch = enriched.filter(
-    (m) => isMissingVenue(m.venue) && isNearTermMatch(m)
-  );
+  const needDetailFetch = enriched.filter((m) => needsVenueResolution(m));
 
   if (options?.footballDataApiKey && needDetailFetch.length > 0) {
     const detailResults = await Promise.all(

@@ -13,6 +13,7 @@ import { getMatchForecast } from "@/lib/match-forecast";
 import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
 import { formatMatchVenueLine } from "@/lib/match-venue";
+import { isMatchLive, isMatchPlayed } from "@/lib/match-status";
 import type { GroupStandings } from "@/lib/group-standings";
 import { TeamCard } from "./TeamCard";
 
@@ -33,14 +34,14 @@ function getBracketTeamLabel(team: MatchInfo["homeTeam"]): string {
 }
 
 function formatScore(home: number | null, away: number | null, status: MatchInfo["status"]) {
-  const isLive = status === "LIVE" || status === "IN_PLAY" || status === "PAUSED";
-  const played = status === "FINISHED" || isLive;
+  const live = isMatchLive(status);
+  const played = isMatchPlayed(status, home, away);
 
-  if (!played || home === null || away === null) {
-    return { display: "–", isLive };
+  if (!played) {
+    return { display: "–", isLive: live };
   }
 
-  return { display: `${home} – ${away}`, isLive };
+  return { display: `${home} – ${away}`, isLive: live };
 }
 
 export function MatchCard({

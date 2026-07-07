@@ -22,8 +22,6 @@ import {
   showStandingsPrimary,
 } from "@/lib/f1-phase";
 
-export const revalidate = 120;
-
 export async function FormulaOnePageContent() {
   const data = await fetchF1SeasonData();
   const phase = detectSeasonPhase(data.calendar);

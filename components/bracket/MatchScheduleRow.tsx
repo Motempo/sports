@@ -8,6 +8,7 @@ import { getRoundLabel } from "@/lib/bracket-constants";
 import { getMatchdayLabel, getMatchStakes } from "@/lib/match-context";
 import type { GroupStandings } from "@/lib/group-standings";
 import { formatMatchVenueLine } from "@/lib/match-venue";
+import { isMatchLive, isMatchPlayed } from "@/lib/match-status";
 import type { MatchInfo } from "@/lib/types";
 
 interface MatchScheduleRowProps {
@@ -24,14 +25,14 @@ function formatGroupLabel(group?: string): string | null {
 }
 
 function formatScore(home: number | null, away: number | null, status: MatchInfo["status"]) {
-  const isLive = status === "LIVE" || status === "IN_PLAY" || status === "PAUSED";
-  const played = status === "FINISHED" || isLive;
+  const live = isMatchLive(status);
+  const played = isMatchPlayed(status, home, away);
 
-  if (!played || home === null || away === null) {
-    return { display: "–", isLive };
+  if (!played) {
+    return { display: "–", isLive: live };
   }
 
-  return { display: `${home}–${away}`, isLive };
+  return { display: `${home}–${away}`, isLive: live };
 }
 
 export function MatchScheduleRow({

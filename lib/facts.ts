@@ -6,6 +6,7 @@ import {
   getXAvatar,
   interleavePersonOrgMix,
 } from "@/lib/sport-sources";
+import { uncachedFetch } from "@/lib/fetch-options";
 import type { FunFact } from "@/lib/types";
 
 interface FunFactSeed {
@@ -89,7 +90,7 @@ export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
     const title = encodeURIComponent(fact.wikipediaTitle.replace(/ /g, "_"));
     const res = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${title}`,
-      { next: { revalidate: 604800 } }
+      uncachedFetch
     );
     if (!res.ok) return fact;
     const data = (await res.json()) as {
@@ -99,7 +100,7 @@ export async function enrichFactWithWikipedia(fact: FunFact): Promise<FunFact> {
 
     return {
       ...fact,
-      detail: data.extract ?? fact.detail,
+      detail: fact.detail.trim() ? fact.detail : (data.extract ?? fact.detail),
       imageUrl: data.thumbnail?.source ?? fact.imageUrl,
     };
   } catch {

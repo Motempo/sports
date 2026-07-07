@@ -78,20 +78,22 @@ export function FeedAvatar({
 
   if (src && !failed) {
     return (
-      <Image
-        src={src}
-        alt={alt}
-        width={40}
-        height={40}
-        className="h-10 w-10 rounded-full object-cover ring-1 ring-border"
-        unoptimized
-        onError={() => setFailed(true)}
-      />
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface ring-1 ring-border">
+        <Image
+          src={src}
+          alt={alt}
+          width={40}
+          height={40}
+          className="h-full w-full object-contain p-0.5"
+          unoptimized
+          onError={() => setFailed(true)}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-lg ring-1 ring-border">
+    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-lg leading-none ring-1 ring-border">
       {fallback}
     </div>
   );

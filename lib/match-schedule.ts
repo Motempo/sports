@@ -6,6 +6,7 @@ import {
   todayKey,
 } from "@/lib/match-timezone";
 import type { MatchInfo } from "@/lib/types";
+import { LIVE_MATCH_STATUSES } from "@/lib/match-status";
 
 export interface MatchDayGroup {
   dayKey: string;
@@ -42,7 +43,7 @@ export function formatLocalDayLabel(
   return `${weekday}, ${monthDay}`;
 }
 
-const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
+const LIVE_STATUSES = LIVE_MATCH_STATUSES;
 const SCHEDULE_STATUSES = new Set<MatchInfo["status"]>([
   "SCHEDULED",
   "LIVE",

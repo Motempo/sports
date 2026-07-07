@@ -10,6 +10,7 @@ import type {
   F1TitleFightInsight,
 } from "@/lib/f1-types";
 import { countRacesRemaining } from "@/lib/f1-phase";
+import { uncachedFetch } from "@/lib/fetch-options";
 import seedData from "@/data/f1-season-seed.json";
 
 const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
@@ -287,9 +288,7 @@ async function fetchOpenF1Sessions(
     const gp = calendar.find((g) => g.round === targetRound);
     if (!gp) return [];
 
-    const res = await fetch(`${OPENF1_BASE}/sessions?year=${season}`, {
-      next: { revalidate: 120 },
-    });
+    const res = await fetch(`${OPENF1_BASE}/sessions?year=${season}`, uncachedFetch);
     if (!res.ok) return [];
 
     const data = (await res.json()) as OpenF1Session[];
@@ -383,9 +382,9 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
 
   try {
     const [calRes, dsRes, csRes] = await Promise.all([
-      fetch(`${JOLPICA_BASE}/${season}.json`, { next: { revalidate: 120 } }),
-      fetch(`${JOLPICA_BASE}/${season}/driverStandings.json`, { next: { revalidate: 120 } }),
-      fetch(`${JOLPICA_BASE}/${season}/constructorStandings.json`, { next: { revalidate: 120 } }),
+      fetch(`${JOLPICA_BASE}/${season}.json`, uncachedFetch),
+      fetch(`${JOLPICA_BASE}/${season}/driverStandings.json`, uncachedFetch),
+      fetch(`${JOLPICA_BASE}/${season}/constructorStandings.json`, uncachedFetch),
     ]);
 
     if (!calRes.ok) throw new Error("calendar fetch failed");
@@ -411,9 +410,7 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
 
     let lastRaceResults: F1RaceResult[] = [];
     if (standingsRound > 0) {
-      const lastRes = await fetch(`${JOLPICA_BASE}/${season}/${standingsRound}/results.json`, {
-        next: { revalidate: 120 },
-      });
+      const lastRes = await fetch(`${JOLPICA_BASE}/${season}/${standingsRound}/results.json`, uncachedFetch);
       if (lastRes.ok) {
         lastRaceResults = parseRaceResults(await lastRes.json());
       }

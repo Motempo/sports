@@ -1,4 +1,5 @@
 import type { BracketRound, MatchInfo } from "@/lib/types";
+import { isMatchLive } from "@/lib/match-status";
 
 export type TournamentPhase =
   | "PRE"
@@ -31,7 +32,7 @@ function hasKnockoutActivity(matches: MatchInfo[]): boolean {
   return matches.some(
     (m) =>
       m.stage !== "GROUP" &&
-      (m.status === "LIVE" || m.status === "IN_PLAY" || m.status === "PAUSED" || m.status === "FINISHED")
+      (isMatchLive(m.status) || m.status === "FINISHED")
   );
 }
 

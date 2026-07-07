@@ -6,7 +6,7 @@ World Cup 2026 tracker at [sports.motempo.com](https://sports.motempo.com).
 
 - Next.js 15 + TypeScript + Tailwind CSS
 - football-data.org (matches), RSS (news), static JSON + Wikipedia (fun facts)
-- GitHub Issues (feedback)
+- Linear (feedback)
 
 ## Local dev
 

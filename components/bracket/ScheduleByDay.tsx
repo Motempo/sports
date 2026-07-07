@@ -10,12 +10,14 @@ import {
   type MatchDayGroup,
 } from "@/lib/match-schedule";
 import type { GroupStandings } from "@/lib/group-standings";
+import type { MatchDataSource } from "@/lib/football-data";
+import { formatMatchDataSource } from "@/lib/match-data-source";
 import type { MatchInfo } from "@/lib/types";
 
 interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
   upcomingMatches: MatchInfo[];
-  source: "api" | "seed";
+  source: MatchDataSource;
   /** Matches to list in the day-grouped schedule (group stage or knockouts). */
   scheduleMatches?: MatchInfo[];
   groupMatches?: MatchInfo[];
@@ -98,8 +100,10 @@ export function ScheduleByDay({
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="mt-2 text-[14px] text-muted">
-            No live or scheduled matches yet.
-            {source === "seed" ? " Add FOOTBALL_DATA_API_KEY on Vercel for real fixtures." : ""}
+            No live or scheduled matches in the next 30 days.
+            {source === "seed"
+              ? " Match data is temporarily unavailable — refresh shortly or check back during the tournament."
+              : ""}
           </p>
         </div>
       </section>
@@ -112,7 +116,7 @@ export function ScheduleByDay({
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
-            {source === "api" ? "Live data" : "Preview data"} · Times in your local timezone
+            {formatMatchDataSource(source)} · Times in your local timezone
           </p>
         </div>
 

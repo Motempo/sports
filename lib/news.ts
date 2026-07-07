@@ -1,4 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
+import { uncachedFetch } from "@/lib/fetch-options";
 import {
   getNewsFeedSources,
   getNewsKeywordPattern,
@@ -110,7 +111,7 @@ async function fetchSourceFeed(
 
   try {
     const res = await fetch(source.rssUrl, {
-      next: { revalidate: 1800 },
+      ...uncachedFetch,
       headers: { "User-Agent": "Sports-by-Motempo/1.0" },
     });
     if (!res.ok) return [];

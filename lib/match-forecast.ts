@@ -4,6 +4,9 @@ import { isPlaceholderTeam } from "@/lib/match-context";
 
 const MAX_FORECAST = 300;
 
+/** Bracket zoom cards use a shorter cap than schedule match cards. */
+export const FORECAST_MAX_CHARS = 200;
+
 const RIVALRY_PAIRS = new Set([
   "ARG|BRA",
   "BRA|ARG",
@@ -83,6 +86,28 @@ function clampForecast(text: string): string {
   }
 
   return `${trimmed.slice(0, MAX_FORECAST - 1).trim()}…`;
+}
+
+export function capForecast(text: string, max = FORECAST_MAX_CHARS): string {
+  const trimmed = text.replace(/\s+/g, " ").trim();
+  if (trimmed.length <= max) return trimmed;
+
+  const slice = trimmed.slice(0, max);
+  const sentenceEnd = Math.max(
+    slice.lastIndexOf(". "),
+    slice.lastIndexOf("! "),
+    slice.lastIndexOf("? ")
+  );
+  if (sentenceEnd >= Math.floor(max * 0.55)) {
+    return trimmed.slice(0, sentenceEnd + 1).trim();
+  }
+
+  const lastSpace = slice.lastIndexOf(" ");
+  if (lastSpace >= Math.floor(max * 0.75)) {
+    return `${trimmed.slice(0, lastSpace).trim()}…`;
+  }
+
+  return `${trimmed.slice(0, max - 1).trim()}…`;
 }
 
 function rankTag(team: TeamInfo): string {

@@ -3,6 +3,7 @@ import teamIsoMap from "@/data/team-iso-map.json";
 import type { GroupStandings } from "@/lib/group-standings";
 import { isPlaceholderTeam } from "@/lib/match-context";
 import { resolveStadium } from "@/lib/match-venue";
+import { thirdPlaceTeamForWinnerSlot } from "@/lib/wc2026-third-place";
 import type { BracketRound, MatchInfo, TeamInfo } from "@/lib/types";
 
 type SlotDef = { code: string; name: string };
@@ -31,6 +32,10 @@ function slotTeam(code: string, name: string): TeamInfo {
 
 function needsSlotResolution(team: TeamInfo): boolean {
   return isPlaceholderTeam(team.code, team.name);
+}
+
+function isRealTeam(team: TeamInfo): boolean {
+  return !needsSlotResolution(team);
 }
 
 function roundFromFifaMatch(fifaMatch: number): BracketRound {
@@ -64,9 +69,16 @@ export function generateBracketFromFixtures(): MatchInfo[] {
     .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime());
 }
 
-function isGroupComplete(groupId: string, groupMatches: MatchInfo[]): boolean {
+function isGroupComplete(
+  groupId: string,
+  groupMatches: MatchInfo[],
+  standings: GroupStandings[]
+): boolean {
   const games = groupMatches.filter((m) => m.group === groupId);
-  return games.length >= 6 && games.every((m) => m.status === "FINISHED");
+  if (games.length >= 6 && games.every((m) => m.status === "FINISHED")) return true;
+
+  const group = standings.find((g) => g.groupId === groupId);
+  return group != null && group.rows.length >= 4 && group.rows.every((r) => r.played >= 3);
 }
 
 function teamFromGroupPosition(
@@ -76,7 +88,7 @@ function teamFromGroupPosition(
   groupMatches: MatchInfo[]
 ): TeamInfo | null {
   const groupId = `GROUP_${groupLetter}`;
-  if (!isGroupComplete(groupId, groupMatches)) return null;
+  if (!isGroupComplete(groupId, groupMatches, standings)) return null;
 
   const group = standings.find((g) => g.groupId === groupId);
   const row = group?.rows.find((r) => r.position === position);
@@ -94,11 +106,58 @@ function parseWinnerSlot(code: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
+/** Ensure every official knockout fixture exists, overlaying API data when present. */
+export function mergeKnockoutWithFixtures(knockoutMatches: MatchInfo[]): MatchInfo[] {
+  const byId = new Map<number, MatchInfo>();
+
+  for (const [idStr, fixture] of Object.entries(fixtures)) {
+    const id = Number(idStr);
+    const round = roundFromFifaMatch(fixture.fifaMatch);
+    byId.set(id, {
+      id,
+      round,
+      stage: round,
+      homeTeam: slotTeam(fixture.home.code, fixture.home.name),
+      awayTeam: slotTeam(fixture.away.code, fixture.away.name),
+      homeScore: null,
+      awayScore: null,
+      status: "SCHEDULED",
+      utcDate: fixture.utcDate,
+      venue: fixture.venue,
+      city: fixture.city,
+    });
+  }
+
+  for (const match of knockoutMatches) {
+    const existing = byId.get(match.id);
+    if (existing) {
+      byId.set(match.id, {
+        ...existing,
+        ...match,
+        homeTeam: isRealTeam(match.homeTeam) ? match.homeTeam : existing.homeTeam,
+        awayTeam: isRealTeam(match.awayTeam) ? match.awayTeam : existing.awayTeam,
+        utcDate:
+          match.status === "FINISHED" || LIVE_STATUSES.has(match.status)
+            ? match.utcDate
+            : existing.utcDate,
+      });
+    } else {
+      byId.set(match.id, match);
+    }
+  }
+
+  return [...byId.values()].sort(
+    (a, b) =>
+      (fixtures[String(a.id)]?.fifaMatch ?? 0) - (fixtures[String(b.id)]?.fifaMatch ?? 0)
+  );
+}
+
 function resolveSlotTeam(
   slot: SlotDef,
   matchesByFifa: Map<number, MatchInfo>,
   standings: GroupStandings[],
-  groupMatches: MatchInfo[]
+  groupMatches: MatchInfo[],
+  opponentWinnerSlot?: SlotDef
 ): TeamInfo | null {
   const groupSlot = parseGroupSlot(slot.code);
   if (groupSlot) {
@@ -116,7 +175,14 @@ function resolveSlotTeam(
     if (!source || source.status !== "FINISHED" || !source.winnerCode) return null;
     const winner =
       source.homeTeam.code === source.winnerCode ? source.homeTeam : source.awayTeam;
-    return isPlaceholderTeam(winner.code, winner.name) ? null : winner;
+    return needsSlotResolution(winner) ? null : winner;
+  }
+
+  if (slot.code === "3RD" && opponentWinnerSlot) {
+    const winnerSlot = parseGroupSlot(opponentWinnerSlot.code);
+    if (winnerSlot?.position === 1) {
+      return thirdPlaceTeamForWinnerSlot(winnerSlot.letter, standings, groupMatches);
+    }
   }
 
   return null;
@@ -157,11 +223,23 @@ function resolveKnownTeams(
   let awayTeam = match.awayTeam;
 
   if (needsSlotResolution(homeTeam)) {
-    const resolved = resolveSlotTeam(fixture.home, matchesByFifa, standings, groupMatches);
+    const resolved = resolveSlotTeam(
+      fixture.home,
+      matchesByFifa,
+      standings,
+      groupMatches,
+      fixture.away.code === "3RD" ? fixture.home : undefined
+    );
     homeTeam = resolved ?? homeTeam;
   }
   if (needsSlotResolution(awayTeam)) {
-    const resolved = resolveSlotTeam(fixture.away, matchesByFifa, standings, groupMatches);
+    const resolved = resolveSlotTeam(
+      fixture.away,
+      matchesByFifa,
+      standings,
+      groupMatches,
+      fixture.away.code === "3RD" ? fixture.home : undefined
+    );
     awayTeam = resolved ?? awayTeam;
   }
 
@@ -195,7 +273,6 @@ export function enrichKnockoutBracket(
     return resolved;
   });
 
-  // Re-run winner propagation through later rounds (R32 → R16 → QF → SF).
   for (let pass = 0; pass < 5; pass++) {
     enriched = enriched.map((match) => {
       const fixture = fixtures[String(match.id)];

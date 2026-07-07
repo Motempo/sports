@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchNewsItems } from "@/lib/news";
 import { CURRENT_SPORT_SLUG } from "@/lib/sports";
 
-export const revalidate = 1800;
+export const dynamic = "force-dynamic";
+
+const NO_CACHE_HEADERS = { "Cache-Control": "no-store" };
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (!item) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    return NextResponse.json(item);
+    return NextResponse.json(item, { headers: NO_CACHE_HEADERS });
   }
 
   const offset = parseInt(searchParams.get("offset") ?? "0", 10);
@@ -23,5 +25,5 @@ export async function GET(request: NextRequest) {
   const all = await fetchNewsItems(sport);
   const items = all.slice(offset, offset + limit);
 
-  return NextResponse.json({ items, total: all.length, sport });
+  return NextResponse.json({ items, total: all.length, sport }, { headers: NO_CACHE_HEADERS });
 }

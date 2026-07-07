@@ -38,7 +38,6 @@ export function TeamEmblem({
 
   const active = sourceIndex < sources.length ? sources[sourceIndex] : null;
   const radius = rounded === "full" ? "rounded-full" : "rounded-md";
-  const dimension = Math.round(size * (rounded === "full" ? 1 : 0.75));
 
   if (!active) {
     return (
@@ -58,7 +57,7 @@ export function TeamEmblem({
   return (
     <div
       className={cn(
-        "relative shrink-0 overflow-hidden border-2 border-border bg-surface shadow-sm",
+        "relative flex shrink-0 items-center justify-center overflow-hidden border-2 border-border bg-surface shadow-sm",
         radius,
         className
       )}
@@ -69,8 +68,11 @@ export function TeamEmblem({
         src={active.url}
         alt={`${team.name} emblem`}
         width={size}
-        height={dimension}
-        className="h-full w-full object-cover"
+        height={size}
+        className={cn(
+          "max-h-full max-w-full",
+          active.kind === "flag" ? "h-[85%] w-[85%] object-contain" : "h-full w-full object-cover"
+        )}
         unoptimized
         onError={() => {
           setSourceIndex((current) => current + 1);

@@ -11,20 +11,23 @@ import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
 import { GroupStageStatus } from "@/components/tournament/GroupStageStatus";
 import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
-import { TournamentAwardsPanel } from "@/components/tournament/TournamentAwardsPanel";
-import { TournamentRecordsPanel } from "@/components/tournament/TournamentRecordsPanel";
+import { TournamentAutoRefresh } from "@/components/tournament/TournamentAutoRefresh";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
 import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
+import { WorldCupAwardsSection } from "@/components/tournament/WorldCupAwardsSection";
+import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsSection";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
+import { formatMatchDataSource } from "@/lib/match-data-source";
 import { computeGroupStandings, computeThirdPlaceTracker } from "@/lib/group-standings";
+import { buildWorldCupAwards } from "@/lib/world-cup-awards";
+import { buildWorldCupRecords } from "@/lib/world-cup-records";
+import { fetchTournamentGoalStats } from "@/lib/tournament-goal-stats";
 import {
   detectTournamentPhase,
   getWhatsNextLine,
   showGroupStandingsPrimary,
 } from "@/lib/tournament-phase";
-import { fetchTournamentAwards } from "@/lib/tournament-awards";
-import { computeTournamentRecords } from "@/lib/tournament-records";
 
 export const revalidate = 120;
 
@@ -37,18 +40,18 @@ export async function WorldCupPageContent() {
   const thirdPlace = computeThirdPlaceTracker(standings);
   const whatsNext = getWhatsNextLine(phase);
   const scheduleMatches = standingsPrimary ? groupMatches : undefined;
-  const allMatches = [...groupMatches, ...matches];
-  const awards = await fetchTournamentAwards(allMatches, {
-    apiKey: process.env.FOOTBALL_DATA_API_KEY,
-  });
-  const records = computeTournamentRecords(allMatches);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
   });
+  const allMatches = [...groupMatches, ...matches];
+  const goalStats = await fetchTournamentGoalStats(allMatches);
+  const awards = await buildWorldCupAwards(allMatches, goalStats);
+  const records = buildWorldCupRecords(allMatches, goalStats);
 
   return (
     <div className="min-h-dvh overflow-x-clip">
+      <TournamentAutoRefresh />
       <Header activeSportSlug="world-cup" />
 
       <main className="text-[15px] leading-relaxed sm:text-base">
@@ -63,7 +66,7 @@ export async function WorldCupPageContent() {
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Group Standings</h2>
                   <p className="text-[11px] text-muted sm:text-[12px]">
-                    {source === "api" ? "Live data" : "Preview data"} · Updated {lastUpdated}
+                    {formatMatchDataSource(source)} · Updated {lastUpdated}
                   </p>
                 </div>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
@@ -105,9 +108,6 @@ export async function WorldCupPageContent() {
               </div>
             </section>
 
-            <TournamentAwardsPanel awards={awards} source={source} />
-            <TournamentRecordsPanel records={records} />
-
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <RulesPrimer phase={phase} />
@@ -116,29 +116,34 @@ export async function WorldCupPageContent() {
           </>
         ) : (
           <>
+            <ScheduleByDay
+              todayMatches={todayMatches}
+              upcomingMatches={upcomingMatches}
+              source={source}
+              groupMatches={groupMatches}
+              standings={standings}
+            />
+
+            <WorldCupMidAd />
+
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
-                <div className="mb-3 rounded-2xl border border-dashed border-border bg-surface/50 px-4 py-3 text-[13px] text-muted">
-                  Knockout bracket — slot labels show who fills each spot (e.g. 2A = Group A
-                  runner-up). Tap a round to browse; scroll on larger screens to see later rounds.
-                </div>
                 <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="text-[18px] font-extrabold sm:text-[20px]">Knockout Bracket</h2>
                   <p className="text-[11px] text-muted sm:text-[12px]">
-                    {source === "api" ? "Live data" : "Preview data"} · Updated {lastUpdated}
+                    {formatMatchDataSource(source)} · Updated {lastUpdated}
                   </p>
                 </div>
                 {whatsNext && (
                   <p className="mb-4 text-[13px] text-muted">{whatsNext}</p>
                 )}
+                <div className="mb-3 rounded-2xl border border-dashed border-border bg-surface/50 px-4 py-3 text-[13px] text-muted">
+                  Pathways bracket — zoom out for flags &amp; scores; zoom in for stadium and
+                  match analysis. Drag to explore both sides of the draw.
+                </div>
                 <BracketTree grouped={grouped} />
               </div>
             </section>
-
-            <TournamentAwardsPanel awards={awards} source={source} />
-            <TournamentRecordsPanel records={records} />
-
-            <WorldCupMidAd />
 
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
@@ -172,6 +177,9 @@ export async function WorldCupPageContent() {
             </div>
           </div>
         </section>
+
+        <WorldCupAwardsSection awards={awards} />
+        <WorldCupRecordsSection records={records} />
       </main>
 
       <SiteFooter />

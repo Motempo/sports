@@ -29,7 +29,9 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
   const [detail, setDetail] = useState<NewsItem | null>(null);
 
   const loadItems = useCallback(async (newOffset: number) => {
-    const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`);
+    const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`, {
+      cache: "no-store",
+    });
     const data = (await res.json()) as { items: NewsItem[] };
     setItems(data.items);
   }, [sportSlug]);
@@ -51,7 +53,9 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
     setDetail(item);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(item.id)}`);
+      const res = await fetch(`/api/news?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(item.id)}`, {
+        cache: "no-store",
+      });
       if (res.ok) {
         const data = (await res.json()) as NewsItem;
         setDetail(data);

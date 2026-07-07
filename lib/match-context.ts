@@ -6,10 +6,11 @@ import {
   type GroupStandings,
 } from "@/lib/group-standings";
 import type { MatchInfo } from "@/lib/types";
+import { LIVE_MATCH_STATUSES } from "@/lib/match-status";
 
 const MAX_STAKES = 200;
 
-const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
+const LIVE_STATUSES = LIVE_MATCH_STATUSES;
 
 export function getMatchdayLabel(match: MatchInfo, groupMatches: MatchInfo[]): string | null {
   if (!match.group) return null;

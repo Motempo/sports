@@ -1,6 +1,13 @@
+import { freshUpstreamFetch } from "@/lib/fetch-options";
 import { enrichMatchVenues, resolveStadium } from "@/lib/match-venue";
-import { enrichKnockoutBracket, generateBracketFromFixtures } from "@/lib/knockout-enrich";
+import {
+  enrichKnockoutBracket,
+  generateBracketFromFixtures,
+  mergeKnockoutWithFixtures,
+} from "@/lib/knockout-enrich";
+import { fetchOpenFootballMatches } from "@/lib/openfootball-data";
 import { computeGroupStandings } from "@/lib/group-standings";
+import { LIVE_MATCH_STATUSES, normalizeApiMatchStatus } from "@/lib/match-status";
 import {
   addDaysToDayKey,
   isOnLocalDay,
@@ -9,13 +16,13 @@ import {
   todayKey,
   tournamentKickoffIso,
 } from "@/lib/match-timezone";
-import teamIsoMap from "@/data/team-iso-map.json";
 import teamSeed from "@/data/team-seed.json";
 import wc2026Groups from "@/data/wc2026-groups.json";
 import type { BracketRound, MatchInfo, MatchStage, TeamInfo } from "@/lib/types";
+import { buildTeamInfo } from "@/lib/team-info";
+import { filterOfficialGroupMatches } from "@/lib/wc2026-groups";
 import { ROUND_ORDER } from "@/lib/bracket-constants";
 
-const isoMap = teamIsoMap as Record<string, string>;
 const officialGroups = wc2026Groups as Record<string, string[]>;
 const seedTeams = teamSeed as Array<{
   code: string;
@@ -24,27 +31,6 @@ const seedTeams = teamSeed as Array<{
   confederation: string;
   fifaRank: number;
 }>;
-
-export function getIso2(code: string): string {
-  return isoMap[code] ?? code.toLowerCase().slice(0, 2);
-}
-
-export function buildTeamInfo(
-  code: string,
-  name: string,
-  crest?: string
-): TeamInfo {
-  const seed = seedTeams.find((t) => t.code === code);
-  return {
-    code,
-    name: name || seed?.name || code,
-    crest,
-    iso2: getIso2(code),
-    capital: seed?.capital,
-    confederation: seed?.confederation,
-    fifaRank: seed?.fifaRank,
-  };
-}
 
 function mapKnockoutRound(stage: string): BracketRound {
   const s = stage.toUpperCase();
@@ -69,13 +55,6 @@ function isKnockoutStage(stage: MatchStage): stage is BracketRound {
   return stage !== "GROUP";
 }
 
-type FootballDataScoreSide = {
-  home?: number | null;
-  away?: number | null;
-  homeTeam?: number | null;
-  awayTeam?: number | null;
-};
-
 interface FootballDataMatch {
   id: number;
   utcDate: string;
@@ -85,67 +64,14 @@ interface FootballDataMatch {
   homeTeam: { id: number | null; name: string | null; shortName?: string | null; tla?: string | null; crest?: string | null };
   awayTeam: { id: number | null; name: string | null; shortName?: string | null; tla?: string | null; crest?: string | null };
   score: {
-    fullTime?: FootballDataScoreSide | null;
-    regularTime?: FootballDataScoreSide | null;
-    duration?: string | null;
+    fullTime: { home: number | null; away: number | null };
     winner?: string | null;
   };
   venue?: string | null;
 }
 
-function readScoreSide(side: FootballDataScoreSide | null | undefined): {
-  home: number | null;
-  away: number | null;
-} {
-  if (!side) return { home: null, away: null };
-  return {
-    home: side.home ?? side.homeTeam ?? null,
-    away: side.away ?? side.awayTeam ?? null,
-  };
-}
-
-function resolveDisplayScores(score: FootballDataMatch["score"]): {
-  home: number | null;
-  away: number | null;
-} {
-  const fullTime = readScoreSide(score.fullTime);
-  const regularTime = readScoreSide(score.regularTime);
-  const duration = score.duration ?? "REGULAR";
-
-  if (
-    (duration === "PENALTY_SHOOTOUT" || duration === "EXTRA_TIME") &&
-    regularTime.home !== null &&
-    regularTime.away !== null
-  ) {
-    return regularTime;
-  }
-
-  return fullTime;
-}
-
-function resolveWinnerCode(
-  winner: string | null | undefined,
-  homeCode: string,
-  awayCode: string
-): string | undefined {
-  if (!winner || winner === "DRAW") return undefined;
-  if (winner === "HOME_TEAM") return homeCode;
-  if (winner === "AWAY_TEAM") return awayCode;
-  return winner;
-}
-
 function toStatus(status: string): MatchInfo["status"] {
-  const map: Record<string, MatchInfo["status"]> = {
-    SCHEDULED: "SCHEDULED",
-    TIMED: "SCHEDULED",
-    LIVE: "LIVE",
-    IN_PLAY: "IN_PLAY",
-    PAUSED: "PAUSED",
-    FINISHED: "FINISHED",
-    POSTPONED: "POSTPONED",
-    CANCELLED: "CANCELLED",
-  };
-  return map[status] ?? "SCHEDULED";
+  return normalizeApiMatchStatus(status);
 }
 
 function parseApiMatch(m: FootballDataMatch): MatchInfo {
@@ -154,7 +80,6 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
   const stage = mapStage(m.stage);
   const rawVenue = m.venue?.trim() || "";
   const resolved = resolveStadium(rawVenue);
-  const { home, away } = resolveDisplayScores(m.score);
   return {
     id: m.id,
     round: isKnockoutStage(stage) ? stage : "R32",
@@ -162,17 +87,17 @@ function parseApiMatch(m: FootballDataMatch): MatchInfo {
     group: m.group ?? undefined,
     homeTeam: buildTeamInfo(homeCode, m.homeTeam.name ?? "TBD", m.homeTeam.crest ?? undefined),
     awayTeam: buildTeamInfo(awayCode, m.awayTeam.name ?? "TBD", m.awayTeam.crest ?? undefined),
-    homeScore: home,
-    awayScore: away,
+    homeScore: m.score.fullTime.home,
+    awayScore: m.score.fullTime.away,
     status: toStatus(m.status),
     utcDate: m.utcDate,
     venue: resolved?.venue ?? rawVenue,
     city: resolved?.city,
-    winnerCode: resolveWinnerCode(m.score.winner, homeCode, awayCode),
+    winnerCode: m.score.winner ?? undefined,
   };
 }
 
-const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
+const LIVE_STATUSES = LIVE_MATCH_STATUSES;
 
 function sortMatches(a: MatchInfo, b: MatchInfo): number {
   return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
@@ -358,21 +283,56 @@ function generateSeedBracket(): MatchInfo[] {
   return matches;
 }
 
+export type MatchDataSource = "api" | "openfootball" | "seed";
+
+function buildTournamentPayload(
+  all: MatchInfo[],
+  source: MatchDataSource
+): {
+  matches: MatchInfo[];
+  groupMatches: MatchInfo[];
+  todayMatches: MatchInfo[];
+  upcomingMatches: MatchInfo[];
+  source: MatchDataSource;
+} {
+  const groupMatches = filterOfficialGroupMatches(all.filter((m) => m.stage === "GROUP"));
+  const standings = computeGroupStandings(groupMatches);
+  const knockoutRaw = all.filter((m) => isKnockoutStage(m.stage));
+  const knockout = enrichKnockoutBracket(
+    mergeKnockoutWithFixtures(
+      knockoutRaw.length > 0 ? knockoutRaw : generateBracketFromFixtures()
+    ),
+    groupMatches,
+    standings
+  );
+
+  return {
+    matches: knockout,
+    groupMatches,
+    todayMatches: selectTodayMatches(all),
+    upcomingMatches: selectUpcomingMatches(all),
+    source,
+  };
+}
+
 export async function fetchMatches(): Promise<{
   matches: MatchInfo[];
   groupMatches: MatchInfo[];
   todayMatches: MatchInfo[];
   upcomingMatches: MatchInfo[];
-  source: "api" | "seed";
+  source: MatchDataSource;
 }> {
-  const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+  const apiKey = process.env.FOOTBALL_DATA_API_KEY?.trim();
 
   if (apiKey) {
     try {
-      const res = await fetch("https://api.football-data.org/v4/competitions/WC/matches?season=2026", {
-        headers: { "X-Auth-Token": apiKey },
-        next: { revalidate: 120 },
-      });
+      const res = await fetch(
+        "https://api.football-data.org/v4/competitions/WC/matches?season=2026",
+        {
+          headers: { "X-Auth-Token": apiKey },
+          ...freshUpstreamFetch,
+        }
+      );
 
       if (res.ok) {
         const data = (await res.json()) as { matches: FootballDataMatch[] };
@@ -382,41 +342,33 @@ export async function fetchMatches(): Promise<{
         });
 
         if (all.length > 0) {
-          const groupMatches = all.filter((m) => m.stage === "GROUP");
-          const standings = computeGroupStandings(groupMatches);
-          const knockoutRaw = all.filter((m) => isKnockoutStage(m.stage));
-          const knockout = enrichKnockoutBracket(
-            knockoutRaw.length > 0 ? knockoutRaw : generateBracketFromFixtures(),
-            groupMatches,
-            standings
-          );
-          const todayMatches = selectTodayMatches(all);
-          const upcomingMatches = selectUpcomingMatches(all);
-
-          return {
-            matches: knockout,
-            groupMatches,
-            todayMatches,
-            upcomingMatches,
-            source: "api",
-          };
+          return buildTournamentPayload(all, "api");
         }
       }
     } catch {
-      // fall through to seed
+      // fall through to openfootball
     }
+  }
+
+  try {
+    const openFootball = await fetchOpenFootballMatches();
+    if (openFootball.length > 0) {
+      const enriched = await enrichMatchVenues(openFootball, { useGrok: false });
+      return buildTournamentPayload(enriched, "openfootball");
+    }
+  } catch {
+    // fall through to seed
   }
 
   const groupMatches = generateSeedGroupMatches();
   const standings = computeGroupStandings(groupMatches);
   const knockoutMatches = enrichKnockoutBracket(
-    generateBracketFromFixtures(),
+    mergeKnockoutWithFixtures(generateBracketFromFixtures()),
     groupMatches,
     standings
   );
-  const allMatches = [...groupMatches, ...knockoutMatches];
-  const todayMatches = selectTodayMatches(allMatches);
-  const upcomingMatches = selectUpcomingMatches(allMatches);
+  const todayMatches = selectTodayMatches(groupMatches);
+  const upcomingMatches = selectUpcomingMatches(groupMatches);
 
   return {
     matches: knockoutMatches,

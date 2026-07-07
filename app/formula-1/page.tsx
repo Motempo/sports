@@ -6,6 +6,8 @@ const sport = getSportBySlug("formula-1")!;
 
 export const metadata: Metadata = buildSportMetadata(sport);
 
+export const dynamic = "force-dynamic";
+
 export default function FormulaOnePage() {
   return <FormulaOnePageContent />;
 }

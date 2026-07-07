@@ -24,7 +24,9 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
   const [detail, setDetail] = useState<FunFact | null>(null);
 
   const loadItems = useCallback(async (newOffset: number) => {
-    const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`);
+    const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`, {
+      cache: "no-store",
+    });
     const data = (await res.json()) as { items: FunFact[] };
     setItems(data.items);
   }, [sportSlug]);
@@ -46,7 +48,9 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
     setDetail(fact);
     setDetailLoading(true);
     try {
-      const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(fact.id)}`);
+      const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(fact.id)}`, {
+        cache: "no-store",
+      });
       if (res.ok) {
         const data = (await res.json()) as FunFact;
         setDetail(data);
@@ -136,11 +140,21 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
                 alt=""
                 width={560}
                 height={315}
-                className="w-full rounded-xl object-cover"
+                className="mx-auto max-h-48 w-auto rounded-xl object-contain"
                 unoptimized
               />
             )}
             <p className="text-[15px] leading-relaxed">{detail.detail}</p>
+            {detail.wikipediaTitle && (
+              <a
+                href={`https://en.wikipedia.org/wiki/${encodeURIComponent(detail.wikipediaTitle.replace(/ /g, "_"))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-[15px] text-link hover:underline"
+              >
+                Read more on Wikipedia →
+              </a>
+            )}
             {detail.xProfileUrl && (
               <a
                 href={detail.xProfileUrl}

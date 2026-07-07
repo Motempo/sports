@@ -13,10 +13,13 @@ type FixtureDef = {
   away: SlotDef;
   venue: string;
   city: string;
+  utcDate: string;
 };
 
 const fixtures = knockoutFixtures as Record<string, FixtureDef>;
 const isoMap = teamIsoMap as Record<string, string>;
+
+const LIVE_STATUSES = new Set<MatchInfo["status"]>(["LIVE", "IN_PLAY", "PAUSED"]);
 
 function slotTeam(code: string, name: string): TeamInfo {
   return {
@@ -40,14 +43,9 @@ function roundFromFifaMatch(fifaMatch: number): BracketRound {
 }
 
 export function generateBracketFromFixtures(): MatchInfo[] {
-  const baseDate = new Date("2026-06-28T18:00:00Z");
-
   return Object.entries(fixtures)
     .map(([id, fixture]) => {
       const round = roundFromFifaMatch(fixture.fifaMatch);
-      const dayOffset = Math.max(0, fixture.fifaMatch - 73);
-      const utcDate = new Date(baseDate);
-      utcDate.setDate(utcDate.getDate() + Math.floor(dayOffset / 2));
 
       return {
         id: Number(id),
@@ -58,7 +56,7 @@ export function generateBracketFromFixtures(): MatchInfo[] {
         homeScore: null,
         awayScore: null,
         status: "SCHEDULED" as const,
-        utcDate: utcDate.toISOString(),
+        utcDate: fixture.utcDate,
         venue: fixture.venue,
         city: fixture.city,
       };
@@ -138,8 +136,12 @@ function applyFixtureMetadata(match: MatchInfo, fixture: FixtureDef): MatchInfo 
   const resolved = resolveStadium(match.venue);
   const venue = resolved?.venue ?? fixture.venue;
   const city = resolved?.city ?? fixture.city;
+  const utcDate =
+    match.status === "FINISHED" || LIVE_STATUSES.has(match.status)
+      ? match.utcDate
+      : fixture.utcDate;
 
-  return { ...match, homeTeam, awayTeam, venue, city };
+  return { ...match, homeTeam, awayTeam, venue, city, utcDate };
 }
 
 function resolveKnownTeams(

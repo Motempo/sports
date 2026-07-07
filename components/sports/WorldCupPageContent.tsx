@@ -11,6 +11,8 @@ import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
 import { GroupStageStatus } from "@/components/tournament/GroupStageStatus";
 import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
+import { TournamentAwardsPanel } from "@/components/tournament/TournamentAwardsPanel";
+import { TournamentRecordsPanel } from "@/components/tournament/TournamentRecordsPanel";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
 import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
@@ -21,6 +23,8 @@ import {
   getWhatsNextLine,
   showGroupStandingsPrimary,
 } from "@/lib/tournament-phase";
+import { fetchTournamentAwards } from "@/lib/tournament-awards";
+import { computeTournamentRecords } from "@/lib/tournament-records";
 
 export const revalidate = 120;
 
@@ -33,6 +37,11 @@ export async function WorldCupPageContent() {
   const thirdPlace = computeThirdPlaceTracker(standings);
   const whatsNext = getWhatsNextLine(phase);
   const scheduleMatches = standingsPrimary ? groupMatches : undefined;
+  const allMatches = [...groupMatches, ...matches];
+  const awards = await fetchTournamentAwards(allMatches, {
+    apiKey: process.env.FOOTBALL_DATA_API_KEY,
+  });
+  const records = computeTournamentRecords(allMatches);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -96,6 +105,9 @@ export async function WorldCupPageContent() {
               </div>
             </section>
 
+            <TournamentAwardsPanel awards={awards} source={source} />
+            <TournamentRecordsPanel records={records} />
+
             <section className="border-b border-border">
               <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
                 <RulesPrimer phase={phase} />
@@ -122,6 +134,9 @@ export async function WorldCupPageContent() {
                 <BracketTree grouped={grouped} />
               </div>
             </section>
+
+            <TournamentAwardsPanel awards={awards} source={source} />
+            <TournamentRecordsPanel records={records} />
 
             <WorldCupMidAd />
 

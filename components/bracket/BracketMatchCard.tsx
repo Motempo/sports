@@ -13,7 +13,6 @@ interface BracketMatchCardProps {
   match: MatchInfo;
   detailLevel: BracketDetailLevel;
   cardWidth?: number;
-  fifa?: number;
   highlight?: "final" | "bronze";
 }
 
@@ -122,7 +121,6 @@ export function BracketMatchCard({
   match,
   detailLevel,
   cardWidth,
-  fifa,
   highlight,
 }: BracketMatchCardProps) {
   const live = isMatchLive(match.status);
@@ -165,18 +163,15 @@ export function BracketMatchCard({
   return (
     <div
       className={cn(
-        "relative h-full w-full overflow-hidden rounded-xl border bg-background shadow-sm transition-shadow",
+        "relative h-full w-full rounded-xl border bg-background shadow-sm transition-shadow",
         highlight === "final"
           ? "border-foreground/25 ring-1 ring-foreground/10"
           : "border-border",
         live && detailLevel <= 1 && "ring-1 ring-link/60",
+        fullAnalysis ? "overflow-visible" : "overflow-hidden",
         detailLevel === 0 ? "px-1.5 py-1" : fullAnalysis ? "px-3 py-3" : expanded ? "px-2.5 py-2.5" : "px-2 py-1.5"
       )}
     >
-      {fifa && detailLevel >= 2 && (
-        <p className={cn("mb-1 font-bold tabular-nums text-muted", metaText)}>M{fifa}</p>
-      )}
-
       {usePathwayBars ? (
         <div className="flex items-stretch gap-1">
           <div className="min-w-0 flex-1">

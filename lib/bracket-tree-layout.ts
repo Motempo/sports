@@ -9,6 +9,8 @@ export const BRACKET_CARD_GAP_PX = 20;
 export const BRACKET_COL_WIDTH_PX = 148;
 export const BRACKET_CARD_INSET_PX = 10;
 export const R32_ROW_SPAN = 2;
+/** Vertical scale for match card slots — keeps flags, venue, and analysis inside the box. */
+export const BRACKET_CARD_HEIGHT_SCALE = 1.1;
 
 export type BracketDetailLevel = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -87,7 +89,7 @@ const MIN_COL_WIDTH: Record<BracketDetailLevel, number> = {
 };
 
 function minUnitPxForLevel(level: BracketDetailLevel): number {
-  const h = MIN_CARD_HEIGHT[level];
+  const h = MIN_CARD_HEIGHT[level] * BRACKET_CARD_HEIGHT_SCALE;
   return Math.ceil((h + BRACKET_CARD_GAP_PX) / R32_ROW_SPAN);
 }
 
@@ -118,8 +120,14 @@ export function resolveBracketDimensions(
 
   unitPx = Math.max(unitPx, minUnitPxForLevel(detailLevel));
   colWidthPx = Math.max(colWidthPx, MIN_COL_WIDTH[detailLevel]);
+  unitPx = Math.round(unitPx * BRACKET_CARD_HEIGHT_SCALE);
 
   return { unitPx, colWidthPx };
+}
+
+/** Pixel height of a match card slot (R32 row span minus gap). */
+export function getBracketSlotHeight(unitPx: number): number {
+  return R32_ROW_SPAN * unitPx - BRACKET_CARD_GAP_PX;
 }
 
 /** Card width always fits its column slot — columns grow with detail level. */
@@ -137,8 +145,8 @@ export function bracketCardLeftOffset(slotWidth: number, cardWidth: number): num
 
 export function getEstimatedCardHeight(level: BracketDetailLevel, unitPx: number): number {
   return Math.min(
-    R32_ROW_SPAN * unitPx - BRACKET_CARD_GAP_PX,
-    MIN_CARD_HEIGHT[level] + 8
+    getBracketSlotHeight(unitPx),
+    Math.round(MIN_CARD_HEIGHT[level] * BRACKET_CARD_HEIGHT_SCALE) + 8
   );
 }
 
@@ -241,7 +249,7 @@ export function nodeTopPx(slot: number, unitPx: number): number {
 }
 
 export function cardCenterY(slot: number, unitPx: number): number {
-  const cardH = R32_ROW_SPAN * unitPx - BRACKET_CARD_GAP_PX;
+  const cardH = getBracketSlotHeight(unitPx);
   return nodeTopPx(slot, unitPx) + cardH / 2;
 }
 

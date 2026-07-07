@@ -7,7 +7,6 @@ import type { BracketDetailLevel, BracketLayoutBase } from "@/lib/bracket-tree-l
 import type { BracketRound, MatchInfo } from "@/lib/types";
 import { organizePathwayBracket } from "@/lib/knockout-bracket-layout";
 import {
-  BRACKET_CARD_GAP_PX,
   BRACKET_CARD_INSET_PX,
   bracketCardLeftOffset,
   bracketConnectors,
@@ -17,9 +16,9 @@ import {
   DEFAULT_BRACKET_LAYOUT_BASE,
   getBracketCardDisplayWidth,
   getBracketDetailLevelSmoothFromZoom,
+  getBracketSlotHeight,
   nodeLeftPx,
   nodeTopPx,
-  R32_ROW_SPAN,
   slotForRound,
 } from "@/lib/bracket-tree-layout";
 import { BracketMatchCard } from "./BracketMatchCard";
@@ -455,7 +454,7 @@ export function BracketZoomView({ grouped }: BracketZoomViewProps) {
           {geometry.nodes.map((node) => {
             const isFinal = node.col === 4 && node.slot === 7;
             const isBronze = node.col === 4 && node.slot === 12;
-            const slotH = geometry.unitPx * R32_ROW_SPAN - BRACKET_CARD_GAP_PX;
+            const slotH = getBracketSlotHeight(geometry.unitPx);
 
             return (
               <div
@@ -476,7 +475,6 @@ export function BracketZoomView({ grouped }: BracketZoomViewProps) {
                   match={node.match}
                   detailLevel={detailLevel}
                   cardWidth={cardWidth}
-                  fifa={node.fifa}
                   highlight={isFinal ? "final" : isBronze ? "bronze" : undefined}
                 />
               </div>

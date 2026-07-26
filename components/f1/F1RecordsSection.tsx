@@ -94,7 +94,7 @@ export function F1RecordsSection({ records, season }: F1RecordsSectionProps) {
     <section className="border-t border-border">
       <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
         <div className="mb-5">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Records</h2>
+          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season &amp; All-Time Records</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             The stats commentators reach for on air — wins, points hauls, title gaps, and winning
             streaks — with all-time Formula 1 marks alongside what&apos;s happened in {season}.

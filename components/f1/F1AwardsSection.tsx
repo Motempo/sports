@@ -107,10 +107,10 @@ export function F1AwardsSection({ awards }: F1AwardsSectionProps) {
     <section className="border-t border-border bg-surface/30">
       <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
         <div className="mb-5">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Awards</h2>
+          <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Stats</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
-            Live progress toward the Drivers&apos; and Constructors&apos; Championships, race wins,
-            and team victories — contenders and win chances update as the season unfolds.
+            Live progress in the Drivers&apos; and Constructors&apos; Championships, race wins, and
+            team victories — contenders and title chances update as the season unfolds.
           </p>
         </div>
 

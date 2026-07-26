@@ -3,7 +3,6 @@ import { getF1Guide } from "@/lib/f1-guide";
 import {
   buildSeasonRailSteps,
   getActiveRailStep,
-  getCurrentOrNextGrandPrix,
 } from "@/lib/f1-phase";
 import type { F1GrandPrix, F1SeasonPhase } from "@/lib/f1-types";
 
@@ -17,18 +16,12 @@ export function SeasonRail({ phase, calendar, season }: SeasonRailProps) {
   const steps = buildSeasonRailSteps(calendar);
   const active = getActiveRailStep(calendar, phase);
   const guide = getF1Guide(phase);
-  const nextGp = getCurrentOrNextGrandPrix(calendar);
 
   return (
     <section className="border-b border-border bg-surface/40">
       <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4">
         <div className="mb-4">
-          {nextGp && (
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-link sm:text-[12px]">
-              {nextGp.country} · {nextGp.circuit}
-            </p>
-          )}
-          <h1 className="mt-1 text-[24px] font-extrabold leading-tight tracking-tight sm:text-[30px]">
+          <h1 className="text-[24px] font-extrabold leading-tight tracking-tight sm:text-[30px]">
             <span className="bg-gradient-to-r from-[#E10600] via-[#FF8700] to-[#E10600] bg-clip-text text-transparent">
               Formula 1 {season}
             </span>

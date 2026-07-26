@@ -8,11 +8,12 @@ import {
   selectWeekendSessions,
   type F1SessionDayGroup,
 } from "@/lib/f1-session-schedule";
-import type { F1SessionInfo } from "@/lib/f1-types";
+import type { F1GrandPrix, F1SessionInfo } from "@/lib/f1-types";
 
 interface WeekendSessionsByDayProps {
   sessions: F1SessionInfo[];
   source: "api" | "seed";
+  nextGp?: F1GrandPrix | null;
 }
 
 function DayColumn({ group }: { group: F1SessionDayGroup }) {
@@ -38,7 +39,30 @@ function DayColumn({ group }: { group: F1SessionDayGroup }) {
   );
 }
 
-export function WeekendSessionsByDay({ sessions, source }: WeekendSessionsByDayProps) {
+function BreakMessage({ nextGp }: { nextGp?: F1GrandPrix | null }) {
+  const nextLine =
+    nextGp && (nextGp.status === "upcoming" || nextGp.status === "current")
+      ? ` Next up: ${nextGp.name} on ${new Date(`${nextGp.date}T12:00:00Z`).toLocaleDateString(undefined, { month: "short", day: "numeric" })}.`
+      : "";
+
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-surface/40 px-4 py-5">
+      <p className="text-[14px] font-semibold text-foreground sm:text-[15px]">
+        Teams are taking a break
+      </p>
+      <p className="mt-1 text-[13px] leading-relaxed text-muted sm:text-[14px]">
+        Nothing on the schedule this weekend — the paddock is between race meetings.
+        {nextLine}
+      </p>
+    </div>
+  );
+}
+
+export function WeekendSessionsByDay({
+  sessions,
+  source,
+  nextGp = null,
+}: WeekendSessionsByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
   const timeZone = useMemo(
@@ -52,18 +76,23 @@ export function WeekendSessionsByDay({ sessions, source }: WeekendSessionsByDayP
     return groupSessionsByLocalDay(selected, now, timeZone);
   }, [sessions, timeZone]);
 
+  const hasSessionsToShow = dayGroups.some((group) => group.sessions.length > 0);
+
   useEffect(() => {
     setVisibleRows(1);
   }, [dayGroups.length]);
 
-  if (sessions.length === 0) {
+  if (!hasSessionsToShow) {
     return (
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">This Weekend</h2>
-          <p className="mt-2 text-[13px] text-muted sm:text-[14px]">
-            Session times will appear when the next race weekend approaches.
-          </p>
+          <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-[18px] font-extrabold sm:text-[20px]">This Weekend</h2>
+            <p className="text-[11px] text-muted sm:text-[12px]">
+              {source === "api" ? "Live data" : "Preview data"} · Your timezone
+            </p>
+          </div>
+          <BreakMessage nextGp={nextGp} />
         </div>
       </section>
     );
@@ -88,7 +117,7 @@ export function WeekendSessionsByDay({ sessions, source }: WeekendSessionsByDayP
         </div>
 
         <div className="space-y-4">
-          {visible.map((row, rowIndex) => (
+          {visible.map((row) => (
             <div
               key={row.map((g) => g.dayKey).join("-")}
               className="grid gap-4"

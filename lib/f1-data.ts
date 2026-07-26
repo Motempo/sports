@@ -9,7 +9,7 @@ import type {
   F1StandingRow,
   F1TitleFightInsight,
 } from "@/lib/f1-types";
-import { countRacesRemaining } from "@/lib/f1-phase";
+import { countRacesRemaining, getActiveGrandPrix } from "@/lib/f1-phase";
 import { uncachedFetch } from "@/lib/fetch-options";
 import seedData from "@/data/f1-season-seed.json";
 
@@ -416,7 +416,9 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
       }
     }
 
+    const activeWeekend = getActiveGrandPrix(calendar, now);
     const targetRound =
+      activeWeekend?.round ??
       calendar.find((g) => g.status === "current")?.round ??
       calendar.find((g) => g.status === "upcoming")?.round ??
       standingsRound;

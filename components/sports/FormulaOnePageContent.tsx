@@ -68,7 +68,7 @@ export async function FormulaOnePageContent() {
   );
 
   const weekendSection = (
-    <WeekendSessionsByDay sessions={data.sessions} source={data.source} />
+    <WeekendSessionsByDay sessions={data.sessions} source={data.source} nextGp={nextGp} />
   );
 
   const calendarSection = (

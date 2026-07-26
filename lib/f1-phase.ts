@@ -41,15 +41,16 @@ export function getCurrentOrNextGrandPrix(
   calendar: F1GrandPrix[],
   now = new Date()
 ): F1GrandPrix | null {
+  const active = getActiveGrandPrix(calendar, now);
+  if (active) return active;
+
   const sorted = [...calendar]
     .filter((gp) => gp.status !== "cancelled")
     .sort((a, b) => a.round - b.round);
 
   for (const gp of sorted) {
     if (gp.status === "upcoming" || gp.status === "current") {
-      const start = weekendStart(gp);
-      const end = weekendEnd(gp);
-      if (now <= end) return gp;
+      if (now <= weekendEnd(gp)) return gp;
     }
   }
 
@@ -125,7 +126,9 @@ export function getWhatsNextLine(
     case "ACTIVE":
       return `Next race: ${nextGp.name} — ${formatGpDate(nextGp.date)}.`;
     case "RACE_WEEKEND":
-      return `This weekend: ${nextGp.name} at ${nextGp.circuit}.`;
+      return nextGp.status === "completed"
+        ? `${nextGp.name} weekend wrapping up at ${nextGp.circuit}.`
+        : `This weekend: ${nextGp.name} at ${nextGp.circuit}.`;
     case "COMPLETE":
       return null;
   }

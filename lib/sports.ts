@@ -4,7 +4,7 @@ const SITE_URL = "https://sports.motempo.com";
 const SITE_NAME = "Sports by Motempo";
 
 /** Change this to switch which sport loads at sports.motempo.com */
-export const CURRENT_SPORT_SLUG = "world-cup";
+export const CURRENT_SPORT_SLUG = "formula-1";
 
 export interface SportConfig {
   id: string;
@@ -17,6 +17,23 @@ export interface SportConfig {
 }
 
 export const SPORTS: SportConfig[] = [
+  {
+    id: "formula-1",
+    slug: "formula-1",
+    label: "Formula 1",
+    available: true,
+    title: "Formula 1 2026 — Standings, Race Calendar & News",
+    description:
+      "Track the Formula 1 2026 season with driver and constructor standings, race calendar, this weekend's sessions, news, and fun facts. Family-friendly F1 companion.",
+    keywords: [
+      "Formula 1 2026",
+      "F1 standings",
+      "F1 schedule",
+      "F1 race calendar",
+      "Grand Prix",
+      "F1 news",
+    ],
+  },
   {
     id: "world-cup",
     slug: "world-cup",
@@ -33,23 +50,6 @@ export const SPORTS: SportConfig[] = [
       "World Cup schedule",
       "soccer",
       "football",
-    ],
-  },
-  {
-    id: "formula-1",
-    slug: "formula-1",
-    label: "Formula 1",
-    available: true,
-    title: "Formula 1 2026 — Standings, Race Calendar & News",
-    description:
-      "Track the Formula 1 2026 season with driver and constructor standings, race calendar, this weekend's sessions, news, and fun facts. Family-friendly F1 companion.",
-    keywords: [
-      "Formula 1 2026",
-      "F1 standings",
-      "F1 schedule",
-      "F1 race calendar",
-      "Grand Prix",
-      "F1 news",
     ],
   },
 ];

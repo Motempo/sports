@@ -9,22 +9,22 @@ const FULL_GUIDE: F1GuideSection[] = [
   {
     title: "Who's racing",
     body:
-      "Twenty drivers across ten teams compete every weekend. Each team builds its own car and picks two drivers — teamwork and strategy matter as much as raw speed.",
+      "Twenty-two drivers across eleven teams compete every weekend — Cadillac joined as the 11th constructor in 2026. Each team runs two cars; teamwork and strategy matter as much as raw speed.",
   },
   {
     title: "Race weekend",
     body:
-      "Friday and Saturday are practice and qualifying. Qualifying sets the starting grid for Sunday's race. On sprint weekends, there's also a shorter sprint race on Saturday.",
+      "A standard weekend has three practices, then qualifying (Q1–Q3) to set Sunday's grid, then the Grand Prix. On six sprint weekends there's only one practice: sprint qualifying and the sprint come first, then separate qualifying for Sunday's race.",
   },
   {
     title: "Points",
     body:
-      "The top ten finishers score points: 25 for a win, down to 1 point for tenth. There are two championships — Drivers (individual) and Constructors (teams).",
+      "The top ten in the Grand Prix score 25–18–15–12–10–8–6–4–2–1. Sprint races award 8 down to 1 for the top eight. Points count toward both championships — Drivers (individual) and Constructors (teams).",
   },
   {
     title: "Quick glossary",
     body:
-      "DNF means a driver Did Not Finish. A Safety Car slows the field after a crash. DRS is a speed boost on straights to help overtaking.",
+      "DNF means Did Not Finish. A Safety Car slows the field after an incident. DRS is gone in 2026 — Overtake Mode gives a chasing car extra electric boost when within one second, and active aero flattens the wings on straights.",
   },
 ];
 

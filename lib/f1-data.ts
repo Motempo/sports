@@ -185,15 +185,31 @@ function parseDriverStandings(data: unknown): F1StandingRow[] {
       position: string;
       points: string;
       wins: string;
-      Driver: { driverId: string; code: string; givenName: string; familyName: string };
+      Driver: {
+        driverId: string;
+        code: string;
+        givenName: string;
+        familyName: string;
+        permanentNumber?: string;
+        dateOfBirth?: string;
+        nationality?: string;
+      };
       Constructors: Array<{ constructorId: string; name: string }>;
     };
     const c = r.Constructors[0]!;
+    const permanentNumber = r.Driver.permanentNumber
+      ? parseInt(r.Driver.permanentNumber, 10)
+      : undefined;
     return {
       position: parseInt(r.position, 10),
       driverId: r.Driver.driverId,
       driverCode: r.Driver.code,
       driverName: `${r.Driver.givenName} ${r.Driver.familyName}`,
+      givenName: r.Driver.givenName,
+      familyName: r.Driver.familyName,
+      permanentNumber: Number.isFinite(permanentNumber) ? permanentNumber : undefined,
+      dateOfBirth: r.Driver.dateOfBirth,
+      nationality: r.Driver.nationality,
       constructorId: c.constructorId,
       constructorName: c.name,
       points: parseFloat(r.points),
@@ -212,12 +228,13 @@ function parseConstructorStandings(data: unknown): F1ConstructorStandingRow[] {
       position: string;
       points: string;
       wins: string;
-      Constructor: { constructorId: string; name: string };
+      Constructor: { constructorId: string; name: string; nationality?: string };
     };
     return {
       position: parseInt(r.position, 10),
       constructorId: r.Constructor.constructorId,
       constructorName: r.Constructor.name,
+      nationality: r.Constructor.nationality,
       points: parseFloat(r.points),
       wins: parseInt(r.wins, 10),
     };

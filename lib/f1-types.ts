@@ -30,6 +30,11 @@ export interface F1StandingRow {
   driverId?: string;
   driverCode?: string;
   driverName: string;
+  givenName?: string;
+  familyName?: string;
+  permanentNumber?: number;
+  dateOfBirth?: string;
+  nationality?: string;
   constructorId: string;
   constructorName: string;
   points: number;
@@ -40,6 +45,7 @@ export interface F1ConstructorStandingRow {
   position: number;
   constructorId: string;
   constructorName: string;
+  nationality?: string;
   points: number;
   wins: number;
 }

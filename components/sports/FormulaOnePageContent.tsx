@@ -1,6 +1,8 @@
 import { ChampionshipStandings } from "@/components/f1/ChampionshipStandings";
 import { F1AwardsSection } from "@/components/f1/F1AwardsSection";
+import { F1DriverProfilesSection } from "@/components/f1/F1DriverProfilesSection";
 import { F1RecordsSection } from "@/components/f1/F1RecordsSection";
+import { F1TeamProfilesSection } from "@/components/f1/F1TeamProfilesSection";
 import { HowF1Works } from "@/components/f1/HowF1Works";
 import { LastRaceHighlight, SeasonCalendar } from "@/components/f1/SeasonCalendar";
 import { SeasonRail } from "@/components/f1/SeasonRail";
@@ -17,6 +19,7 @@ import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
 import { buildF1Awards } from "@/lib/f1-awards";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
+import { buildDriverProfiles, buildTeamProfiles } from "@/lib/f1-profiles";
 import { buildF1Records } from "@/lib/f1-records";
 import {
   detectSeasonPhase,
@@ -36,6 +39,8 @@ export async function FormulaOnePageContent() {
   const titleFight = computeTitleFightInsight(data.driverStandings, data.calendar);
   const awards = buildF1Awards(data);
   const records = buildF1Records(data);
+  const driverProfiles = buildDriverProfiles(data);
+  const teamProfiles = buildTeamProfiles(data);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -136,6 +141,8 @@ export async function FormulaOnePageContent() {
 
         <F1AwardsSection awards={awards} />
         <F1RecordsSection records={records} season={data.season} />
+        <F1DriverProfilesSection drivers={driverProfiles} season={data.season} />
+        <F1TeamProfilesSection teams={teamProfiles} season={data.season} />
       </main>
 
       <SiteFooter />

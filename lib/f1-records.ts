@@ -32,7 +32,9 @@ function record(
 }
 
 function completedRaces(calendar: F1GrandPrix[]): F1GrandPrix[] {
-  return calendar.filter((gp) => gp.status === "completed" && gp.winner);
+  return calendar
+    .filter((gp) => gp.status === "completed" && gp.winner)
+    .sort((a, b) => a.round - b.round);
 }
 
 function longestWinStreak(calendar: F1GrandPrix[]): {
@@ -48,8 +50,12 @@ function longestWinStreak(calendar: F1GrandPrix[]): {
   let curLen = 1;
 
   for (let i = 1; i < races.length; i++) {
-    const winner = races[i]!.winner!;
-    if (winner === curDriver) {
+    const prev = races[i - 1]!;
+    const race = races[i]!;
+    const winner = race.winner!;
+    const consecutiveRounds = race.round === prev.round + 1;
+
+    if (consecutiveRounds && winner === curDriver) {
       curLen += 1;
     } else {
       curDriver = winner;
@@ -64,8 +70,22 @@ function longestWinStreak(calendar: F1GrandPrix[]): {
   return { driver: bestDriver, length: bestLen };
 }
 
-function uniqueWinners(calendar: F1GrandPrix[]): number {
-  return new Set(completedRaces(calendar).map((gp) => gp.winner).filter(Boolean)).size;
+function uniqueWinners(calendar: F1GrandPrix[], drivers: F1StandingRow[]): number {
+  const fromCalendar = new Set(
+    completedRaces(calendar)
+      .map((gp) => gp.winner)
+      .filter(Boolean)
+  ).size;
+  if (fromCalendar > 0) return fromCalendar;
+  return drivers.filter((d) => d.wins > 0).length;
+}
+
+function uniqueWinnerNames(calendar: F1GrandPrix[], drivers: F1StandingRow[]): string[] {
+  const fromCalendar = completedRaces(calendar)
+    .map((gp) => gp.winner!)
+    .filter((v, i, arr) => arr.indexOf(v) === i);
+  if (fromCalendar.length > 0) return fromCalendar;
+  return drivers.filter((d) => d.wins > 0).map((d) => d.driverName);
 }
 
 function findDriver(
@@ -73,7 +93,11 @@ function findDriver(
   name: string
 ): F1StandingRow | undefined {
   return standings.find(
-    (d) => d.driverName === name || d.driverCode === name || d.driverName.includes(name)
+    (d) =>
+      d.driverName === name ||
+      d.driverCode === name ||
+      d.driverName.includes(name) ||
+      name.includes(d.driverName)
   );
 }
 
@@ -88,11 +112,13 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
     (a, b) => b.wins - a.wins || b.points - a.points
   )[0];
   const streak = longestWinStreak(data.calendar);
-  const winnersCount = uniqueWinners(data.calendar);
+  const winnerNames = uniqueWinnerNames(data.calendar, drivers);
+  const winnersCount = uniqueWinners(data.calendar, drivers);
   const racesDone = data.calendar.filter((gp) => gp.status === "completed").length;
   const gap =
     drivers.length >= 2 ? Math.round((drivers[0]!.points - drivers[1]!.points) * 10) / 10 : null;
   const streakDriver = streak ? findDriver(drivers, streak.driver) : undefined;
+  const hamiltonCareerWins = 106;
 
   return [
     record({
@@ -102,9 +128,9 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
       description:
         "Most Grand Prix victories by one driver in a single championship season.",
       allTime: {
-        value: "13 wins",
-        holder: "Michael Schumacher / Sebastian Vettel",
-        context: "2004 · 2013",
+        value: "19 wins",
+        holder: "Max Verstappen",
+        context: "2023",
       },
       season: winsLeader
         ? {
@@ -114,8 +140,13 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
             context: `${seasonLabel} season`,
           }
         : { value: "—", holder: "No races yet", context: seasonLabel },
-      highlightSeason: winsLeader && winsLeader.wins >= 10 ? "leading" : winsLeader && winsLeader.wins > 0 ? "leading" : null,
-      commentary: `Schumacher (2004) and Vettel (2013) share the single-season wins record at thirteen. ${
+      highlightSeason:
+        winsLeader && winsLeader.wins >= 19
+          ? "all-time"
+          : winsLeader && winsLeader.wins > 0
+            ? "leading"
+            : null,
+      commentary: `Verstappen's nineteen wins in 2023 set the single-season bar. ${
         winsLeader && winsLeader.wins > 0
           ? `${winsLeader.driverName} leads ${seasonLabel} with ${winsLeader.wins} — every Sunday victory keeps that mark in the conversation.`
           : `No ${seasonLabel} wins on the board yet.`
@@ -141,7 +172,12 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
             context: `${seasonLabel} live total`,
           }
         : { value: "—", holder: "Season not started", context: seasonLabel },
-      highlightSeason: leader && leader.points >= 400 ? "leading" : leader ? "leading" : null,
+      highlightSeason:
+        leader && leader.points >= 575
+          ? "all-time"
+          : leader
+            ? "leading"
+            : null,
       commentary: `Verstappen's 575 in 2023 is the modern-era Everest. ${
         leader
           ? `${leader.driverName} sits on ${leader.points} after ${racesDone} race${racesDone === 1 ? "" : "s"} — the running total every studio chart tracks.`
@@ -156,10 +192,10 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
       description:
         "Most race victories by a constructor in a single season — either car counting.",
       allTime: {
-        value: "19 wins",
-        holder: "Mercedes",
-        constructorId: "mercedes",
-        context: "2016",
+        value: "21 wins",
+        holder: "Red Bull Racing",
+        constructorId: "red_bull",
+        context: "2023",
       },
       season: constructorWinsLeader
         ? {
@@ -170,8 +206,12 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
           }
         : { value: "—", holder: "No wins yet", context: seasonLabel },
       highlightSeason:
-        constructorWinsLeader && constructorWinsLeader.wins > 0 ? "leading" : null,
-      commentary: `Mercedes' nineteen wins in 2016 still define constructor dominance. ${
+        constructorWinsLeader && constructorWinsLeader.wins >= 21
+          ? "all-time"
+          : constructorWinsLeader && constructorWinsLeader.wins > 0
+            ? "leading"
+            : null,
+      commentary: `Red Bull's twenty-one wins in 2023 define constructor dominance. ${
         constructorWinsLeader && constructorWinsLeader.wins > 0
           ? `${constructorWinsLeader.constructorName} leads ${seasonLabel} with ${constructorWinsLeader.wins} race win${constructorWinsLeader.wins === 1 ? "" : "s"}.`
           : `No constructor has taken a ${seasonLabel} win yet.`
@@ -185,10 +225,10 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
       description:
         "Highest points haul by a team in one season — the benchmark for factory dominance.",
       allTime: {
-        value: "765 pts",
-        holder: "Mercedes",
-        constructorId: "mercedes",
-        context: "2016",
+        value: "860 pts",
+        holder: "Red Bull Racing",
+        constructorId: "red_bull",
+        context: "2023",
       },
       season: constructorLeader
         ? {
@@ -198,8 +238,13 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
             context: `${seasonLabel} live total`,
           }
         : { value: "—", holder: "Season not started", context: seasonLabel },
-      highlightSeason: constructorLeader ? "leading" : null,
-      commentary: `Mercedes' 765 in 2016 remains the constructors' points mountain. ${
+      highlightSeason:
+        constructorLeader && constructorLeader.points >= 860
+          ? "all-time"
+          : constructorLeader
+            ? "leading"
+            : null,
+      commentary: `Red Bull's 860 in 2023 remains the constructors' points mountain. ${
         constructorLeader
           ? `${constructorLeader.constructorName} leads ${seasonLabel} on ${constructorLeader.points}.`
           : "Constructor tallies build every double-points finish."
@@ -213,17 +258,17 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
       description:
         "Most Grand Prix victories by one driver across their career — the all-time wins chart.",
       allTime: {
-        value: "105 wins",
+        value: `${hamiltonCareerWins} wins`,
         holder: "Lewis Hamilton",
         context: "2007–present",
       },
       season: {
-        value: "105 wins",
+        value: `${hamiltonCareerWins} wins`,
         holder: "Lewis Hamilton",
         context: "Record still stands",
       },
       highlightSeason: null,
-      commentary: `Hamilton's 105 victories are the number every modern ace is measured against — Schumacher's 91 sat for years before being overhauled. No one in ${seasonLabel} is threatening the all-time mark yet, but a deep title run keeps the conversation alive. Studio panels always ask: who gets there next?`,
+      commentary: `Hamilton's ${hamiltonCareerWins} victories are the number every modern ace is measured against — Schumacher's 91 sat for years before being overhauled. No one in ${seasonLabel} is threatening the all-time mark yet, but a deep title run keeps the conversation alive. Studio panels always ask: who gets there next?`,
     }),
 
     record({
@@ -245,7 +290,12 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
             context: `${seasonLabel} best streak`,
           }
         : { value: "—", holder: "No streak yet", context: seasonLabel },
-      highlightSeason: streak && streak.length >= 3 ? "leading" : streak ? "leading" : null,
+      highlightSeason:
+        streak && streak.length >= 10
+          ? "all-time"
+          : streak && streak.length >= 2
+            ? "leading"
+            : null,
       commentary: `Verstappen's ten-win streak in 2023 rewrote the modern consecutive-wins chart. ${
         streak
           ? `${streak.driver}'s ${streak.length}-race run is ${seasonLabel}'s longest streak so far.`
@@ -289,23 +339,20 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
         "How many different drivers have won a Grand Prix this season — a measure of how open the field is.",
       allTime: {
         value: "11 winners",
-        holder: "2012 season",
+        holder: "1982 season",
         context: "Most in a single season",
       },
       season: {
-        value: winnersCount === 0 ? "0" : `${winnersCount} winner${winnersCount === 1 ? "" : "s"}`,
+        value:
+          winnersCount === 0 ? "0" : `${winnersCount} winner${winnersCount === 1 ? "" : "s"}`,
         holder:
           winnersCount > 0
-            ? completedRaces(data.calendar)
-                .map((gp) => gp.winner)
-                .filter((v, i, arr) => arr.indexOf(v) === i)
-                .slice(0, 4)
-                .join(", ") + (winnersCount > 4 ? "…" : "")
+            ? winnerNames.slice(0, 4).join(", ") + (winnersCount > 4 ? "…" : "")
             : "None yet",
         context: `${seasonLabel} · ${racesDone} races`,
       },
       highlightSeason: winnersCount > 0 ? "leading" : null,
-      commentary: `2012's eleven different winners remains the gold standard for an open season. ${
+      commentary: `1982's eleven different winners remains the gold standard for an open season. ${
         winnersCount > 0
           ? `${seasonLabel} has ${winnersCount} so far from ${racesDone} completed races — ${winnersCount >= 5 ? "proper variety." : "still room for more names on the winners' list."}`
           : "The winners' club opens at the first chequered flag."
@@ -340,16 +387,16 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
         "Number of Grands Prix on the championship calendar — the modern era keeps expanding.",
       allTime: {
         value: "24 races",
-        holder: "2024 season",
-        context: "Longest F1 calendar",
+        holder: "2024 & 2025",
+        context: "Longest F1 calendars",
       },
       season: {
         value: `${data.calendar.length} races`,
         holder: `${racesDone} completed`,
         context: `${seasonLabel} calendar`,
       },
-      highlightSeason: data.calendar.length >= 22 ? "leading" : null,
-      commentary: `Twenty-four rounds in 2024 set the calendar length bar. ${seasonLabel} is scheduled for ${data.calendar.length} with ${racesDone} already done — every extra flyaway weekend tests cars, crews, and title maths. Commentators track fatigue as carefully as points.`,
+      highlightSeason: data.calendar.length >= 24 ? "all-time" : null,
+      commentary: `Twenty-four rounds in 2024 and 2025 set the calendar length bar. ${seasonLabel} is scheduled for ${data.calendar.length} with ${racesDone} already done — every extra flyaway weekend tests cars, crews, and title maths. Commentators track fatigue as carefully as points.`,
     }),
   ];
 }

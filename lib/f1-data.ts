@@ -240,6 +240,33 @@ function parseRaceResults(data: unknown): F1RaceResult[] {
   }));
 }
 
+/** P1 finishers for every completed round — calendar endpoint does not include Results. */
+async function fetchSeasonWinners(
+  season: number
+): Promise<Map<number, { name: string; code?: string }>> {
+  const winners = new Map<number, { name: string; code?: string }>();
+  try {
+    const res = await fetch(
+      `${JOLPICA_BASE}/${season}/results/1.json?limit=100`,
+      uncachedFetch
+    );
+    if (!res.ok) return winners;
+
+    const data = (await res.json()) as { MRData: { RaceTable: { Races?: JolpicaRace[] } } };
+    for (const race of data.MRData.RaceTable.Races ?? []) {
+      const win = race.Results?.[0];
+      if (!win) continue;
+      winners.set(parseInt(race.round, 10), {
+        name: `${win.Driver.givenName} ${win.Driver.familyName}`,
+        code: win.Driver.code,
+      });
+    }
+  } catch {
+    // winners are optional enrichment for records / calendar badges
+  }
+  return winners;
+}
+
 interface OpenF1Session {
   session_key: number;
   session_name: string;
@@ -381,10 +408,11 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
   const season = getSeasonYear();
 
   try {
-    const [calRes, dsRes, csRes] = await Promise.all([
+    const [calRes, dsRes, csRes, seasonWinners] = await Promise.all([
       fetch(`${JOLPICA_BASE}/${season}.json`, uncachedFetch),
       fetch(`${JOLPICA_BASE}/${season}/driverStandings.json`, uncachedFetch),
       fetch(`${JOLPICA_BASE}/${season}/constructorStandings.json`, uncachedFetch),
+      fetchSeasonWinners(season),
     ]);
 
     if (!calRes.ok) throw new Error("calendar fetch failed");
@@ -404,7 +432,11 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
       );
     }
 
-    const calendar = races.map((r) => parseGrandPrix(r, standingsRound, now));
+    const calendar = races.map((r) => {
+      const gp = parseGrandPrix(r, standingsRound, now);
+      const win = seasonWinners.get(gp.round);
+      return win ? { ...gp, winner: win.name, winnerCode: win.code } : gp;
+    });
     const driverStandings = dsData ? parseDriverStandings(dsData) : [];
     const constructorStandings = csData ? parseConstructorStandings(csData) : [];
 

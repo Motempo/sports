@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { AdProvider } from "@/components/ads/AdProvider";
 import { CookieNotice } from "@/components/legal/CookieNotice";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@motempo/feedback/ui";
 import { themeInitScript } from "@/lib/theme";
 import { getCurrentSport, SITE_NAME, SITE_URL } from "@/lib/sports";
 import "./globals.css";

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, PlusCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { BugReportDialog } from "@/components/feedback/BugReportDialog";
+import { BugReportDialog } from "@motempo/feedback/ui";
 import { CURRENT_SPORT_SLUG, SPORTS } from "@/lib/sports";
 import { cn } from "@/lib/utils";
 
@@ -114,6 +114,7 @@ export function SportSelector({ activeSportSlug }: SportSelectorProps) {
         onOpenChange={setSuggestOpen}
         mode="sport-request"
         currentSportSlug={activeSlug}
+        sportOptions={SPORTS.map((s) => ({ slug: s.slug, label: s.label }))}
       />
     </>
   );

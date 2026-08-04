@@ -52,6 +52,26 @@ export const SPORTS: SportConfig[] = [
       "football",
     ],
   },
+  {
+    id: "la-liga",
+    slug: "la-liga",
+    label: "La Liga",
+    available: true,
+    title: "La Liga — Table, Fixtures, Records & News",
+    description:
+      "Track La Liga with the live league table, Champions League and relegation zones, fixtures and results, season and all-time records, news, and fun facts.",
+    keywords: [
+      "La Liga",
+      "La Liga table",
+      "Spanish football",
+      "Primera División",
+      "La Liga standings",
+      "La Liga fixtures",
+      "La Liga records",
+      "soccer",
+      "football",
+    ],
+  },
 ];
 
 export function getSportBySlug(slug: string): SportConfig | undefined {

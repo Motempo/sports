@@ -15,7 +15,7 @@ import {
   computeLeagueStandings,
   computeRelegationRace,
   computeTitleRace,
-} from "@/lib/league-standings";
+} from "@/lib/la-liga-standings";
 import { normalizeApiMatchStatus, inferMatchStatusFromKickoff } from "@/lib/match-status";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 
@@ -249,7 +249,7 @@ function buildPayload(
     upcomingMatches: selectUpcoming(sorted),
     source,
     phase,
-    titleRace: computeTitleRace(standings, "La Liga"),
+    titleRace: computeTitleRace(standings),
     relegationRace: computeRelegationRace(standings),
   };
 }

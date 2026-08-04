@@ -1,4 +1,4 @@
-import type { MatchInfo, TeamInfo } from "@/lib/types";
+import type { MatchInfo } from "@/lib/types";
 import type { MatchDataSource } from "@/lib/football-data";
 import type {
   LeagueStandings,

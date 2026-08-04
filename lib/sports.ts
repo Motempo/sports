@@ -75,9 +75,9 @@ export const SPORTS: SportConfig[] = [
     slug: "la-liga",
     label: "La Liga",
     available: true,
-    title: "La Liga — Table, Fixtures & News",
+    title: "La Liga — Table, Fixtures, Records & News",
     description:
-      "Track La Liga with the live league table, Champions League and relegation zones, fixtures and results, news, and fun facts from Spain's top flight.",
+      "Track La Liga with the live league table, Champions League and relegation zones, fixtures and results, season and all-time records, news, and fun facts.",
     keywords: [
       "La Liga",
       "La Liga table",
@@ -85,6 +85,7 @@ export const SPORTS: SportConfig[] = [
       "Primera División",
       "La Liga standings",
       "La Liga fixtures",
+      "La Liga records",
       "soccer",
       "football",
     ],

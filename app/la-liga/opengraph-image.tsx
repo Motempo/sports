@@ -24,7 +24,7 @@ export default async function Image() {
         <div style={{ fontSize: 28, marginTop: 8, color: "#71767b" }}>by Motempo</div>
         <div style={{ fontSize: 22, marginTop: 16, color: "#EE334E" }}>La Liga</div>
         <div style={{ fontSize: 18, marginTop: 8, color: "#71767b" }}>
-          Table · Fixtures · News
+          Table · Fixtures · Records · News
         </div>
       </div>
     ),

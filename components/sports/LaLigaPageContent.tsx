@@ -5,14 +5,16 @@ import {
   LaLigaStandingsAd,
 } from "@/components/ads/LaLigaAdPlacements";
 import { HowLaLigaWorks } from "@/components/laliga/HowLaLigaWorks";
+import { LaLigaRecordsSection } from "@/components/laliga/LaLigaRecordsSection";
 import { LaLigaSeasonRail } from "@/components/laliga/LaLigaSeasonRail";
-import { LeagueTable } from "@/components/premier-league/LeagueTable";
-import { RaceTracker } from "@/components/premier-league/RaceTracker";
+import { LeagueTable } from "@/components/laliga/LeagueTable";
+import { RaceTracker } from "@/components/laliga/RaceTracker";
 import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
 import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
+import { buildLaLigaRecords } from "@/lib/la-liga-records";
 import { formatMatchDataSource } from "@/lib/match-data-source";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
@@ -23,6 +25,7 @@ export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const featuredMatch = selectFeaturedMatch(data.matches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);
+  const records = buildLaLigaRecords(data);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -79,6 +82,7 @@ export async function LaLigaPageContent() {
           <HowLaLigaWorks phase={data.phase} />
         </SportHowItWorksSection>
       }
+      records={<LaLigaRecordsSection records={records} seasonLabel={data.seasonLabel} />}
     />
   );
 }

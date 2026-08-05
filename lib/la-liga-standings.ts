@@ -147,6 +147,19 @@ export function computeTitleRace(standings: LeagueStandings): LeagueRaceInsight 
 
   const remaining = Math.max(0, MATCHES_PER_TEAM - leader.played);
   const gap = leader.points - challenger.points;
+  const seasonNotStarted = standings.rows.every((r) => r.played === 0);
+
+  if (seasonNotStarted) {
+    return {
+      kind: "title",
+      title: "Title race",
+      message:
+        "The contestants are yet to be seen — kick a ball first, then we'll talk about leading.",
+      leaderLabel: "TBD",
+      chaseLabel: "TBD",
+      remaining: MATCHES_PER_TEAM,
+    };
+  }
 
   if (remaining === 0) {
     return {
@@ -179,6 +192,19 @@ export function computeRelegationRace(standings: LeagueStandings): LeagueRaceIns
   const safety = standings.rows[17]!;
   const bottom = standings.rows[standings.rows.length - 1]!;
   const remaining = Math.max(0, MATCHES_PER_TEAM - safety.played);
+  const seasonNotStarted = standings.rows.every((r) => r.played === 0);
+
+  if (seasonNotStarted) {
+    return {
+      kind: "relegation",
+      title: "Relegation battle",
+      message:
+        "The contestants are yet to be seen — nobody's packing for Segunda until the whistle blows.",
+      leaderLabel: "TBD",
+      chaseLabel: "TBD",
+      remaining: MATCHES_PER_TEAM,
+    };
+  }
 
   if (remaining === 0) {
     const relegated = standings.rows
@@ -204,3 +230,4 @@ export function computeRelegationRace(standings: LeagueStandings): LeagueRaceIns
     remaining,
   };
 }
+

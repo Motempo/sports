@@ -11,7 +11,7 @@ export interface TeamInfo {
   fifaRank?: number;
 }
 
-export type MatchStage = BracketRound | "GROUP";
+export type MatchStage = BracketRound | "GROUP" | "LEAGUE";
 
 export interface MatchInfo {
   id: number;

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "laliga-fact-1",
+    "title": "Three points became standard",
+    "summary": "La Liga switched to three points for a win in 1995–96.",
+    "category": "Rules",
+    "emoji": "3️⃣",
+    "wikipediaTitle": "La Liga",
+    "detail": "Like most European leagues, Spain awards three points for a win and one for a draw. The change from two points for a win encouraged more attacking football late in seasons.",
+    "sourceHandle": "LaLigaEN"
+  },
+  {
+    "id": "laliga-fact-2",
+    "title": "El Clásico",
+    "summary": "Real Madrid vs Barcelona is Spanish football's biggest rivalry.",
+    "category": "Rivalries",
+    "emoji": "🔥",
+    "wikipediaTitle": "El Clásico",
+    "detail": "El Clásico matches draw huge global audiences. The fixture is often decisive in title races and carries political and cultural weight beyond the league table.",
+    "sourceHandle": "sidlowe"
+  },
+  {
+    "id": "laliga-fact-3",
+    "title": "20 clubs, 38 matchdays",
+    "summary": "Every side plays every other side home and away each season.",
+    "category": "Format",
+    "emoji": "📅",
+    "wikipediaTitle": "La Liga",
+    "detail": "La Liga's Primera División is a double round-robin among 20 clubs. The bottom three are typically relegated to the Segunda División.",
+    "sourceHandle": "LaLiga"
+  },
+  {
+    "id": "laliga-fact-4",
+    "title": "Pichichi Trophy",
+    "summary": "Spain's golden boot is named after Athletic legend Rafael Moreno.",
+    "category": "Awards",
+    "emoji": "⚽",
+    "wikipediaTitle": "Pichichi Trophy",
+    "detail": "The Pichichi Trophy is awarded by Marca to La Liga's top scorer each season. Separately, the Zamora Trophy honors the keeper with the best goals-conceded ratio.",
+    "sourceHandle": "Marca"
+  },
+  {
+    "id": "laliga-fact-5",
+    "title": "Athletic Club policy",
+    "summary": "Athletic Bilbao fields only players with Basque ties.",
+    "category": "Clubs",
+    "emoji": "🦁",
+    "wikipediaTitle": "Athletic Club",
+    "detail": "Athletic Club's cantera philosophy means it signs players with Basque heritage or academy paths. The club has never been relegated from Spain's top flight.",
+    "sourceHandle": "GuillemBalague"
+  },
+  {
+    "id": "laliga-fact-6",
+    "title": "Messi's scoring machine",
+    "summary": "Lionel Messi scored 474 La Liga goals for Barcelona.",
+    "category": "Records",
+    "emoji": "🐐",
+    "wikipediaTitle": "List of La Liga top scorers",
+    "detail": "Messi is La Liga's all-time top scorer. Cristiano Ronaldo sits second after his Real Madrid years, making the pair one of football's greatest scoring duels.",
+    "sourceHandle": "ESPNFC"
+  },
+  {
+    "id": "laliga-fact-7",
+    "title": "Europe from the table",
+    "summary": "Top-four clubs usually enter the Champions League.",
+    "category": "Europe",
+    "emoji": "🌟",
+    "wikipediaTitle": "UEFA coefficient",
+    "detail": "Spain's UEFA coefficient typically gives four Champions League spots. Europa and Conference places often fill via fifth and sixth, with cup winners able to reshuffle the list.",
+    "sourceHandle": "TifoFootball_"
+  },
+  {
+    "id": "laliga-fact-8",
+    "title": "Real Madrid's title haul",
+    "summary": "Real Madrid have won more La Liga titles than any other club.",
+    "category": "History",
+    "emoji": "🏆",
+    "wikipediaTitle": "List of Spanish football champions",
+    "detail": "Los Blancos lead the all-time championships list, with Barcelona close behind. Atlético Madrid are the most successful of the remaining clubs.",
+    "sourceHandle": "LaLigaEN"
+  },
+  {
+    "id": "laliga-fact-9",
+    "title": "VAR arrived in 2018",
+    "summary": "Video assistant referees were introduced for major calls.",
+    "category": "Rules",
+    "emoji": "📺",
+    "wikipediaTitle": "Video assistant referee",
+    "detail": "La Liga adopted VAR to review goals, penalties, red cards, and mistaken identity. Decisions still start with the on-field referee.",
+    "sourceHandle": "BBCSport"
+  },
+  {
+    "id": "laliga-fact-10",
+    "title": "Derbi Madrileño",
+    "summary": "Real Madrid vs Atlético is the capital derby.",
+    "category": "Rivalries",
+    "emoji": "⚔️",
+    "wikipediaTitle": "Madrid Derby",
+    "detail": "The Derbi Madrileño pits city neighbors from opposite sides of Madrid's football culture — European glamour versus Atlético's grit.",
+    "sourceHandle": "AS_Comunica"
+  }
+]

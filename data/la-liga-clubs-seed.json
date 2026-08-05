@@ -1,0 +1,22 @@
+[
+  { "code": "RMA", "name": "Real Madrid", "shortName": "Real Madrid", "crest": "https://crests.football-data.org/86.png" },
+  { "code": "FCB", "name": "FC Barcelona", "shortName": "Barcelona", "crest": "https://crests.football-data.org/81.png" },
+  { "code": "ATL", "name": "Club Atlético de Madrid", "shortName": "Atlético", "crest": "https://crests.football-data.org/78.png" },
+  { "code": "ATH", "name": "Athletic Club", "shortName": "Athletic", "crest": "https://crests.football-data.org/77.png" },
+  { "code": "VIL", "name": "Villarreal CF", "shortName": "Villarreal", "crest": "https://crests.football-data.org/94.png" },
+  { "code": "RSO", "name": "Real Sociedad de Fútbol", "shortName": "Real Sociedad", "crest": "https://crests.football-data.org/92.png" },
+  { "code": "BET", "name": "Real Betis Balompié", "shortName": "Betis", "crest": "https://crests.football-data.org/90.png" },
+  { "code": "SEV", "name": "Sevilla FC", "shortName": "Sevilla", "crest": "https://crests.football-data.org/559.png" },
+  { "code": "VAL", "name": "Valencia CF", "shortName": "Valencia", "crest": "https://crests.football-data.org/95.png" },
+  { "code": "OSA", "name": "CA Osasuna", "shortName": "Osasuna", "crest": "https://crests.football-data.org/79.png" },
+  { "code": "CEL", "name": "RC Celta de Vigo", "shortName": "Celta", "crest": "https://crests.football-data.org/558.png" },
+  { "code": "MLL", "name": "RCD Mallorca", "shortName": "Mallorca", "crest": "https://crests.football-data.org/89.png" },
+  { "code": "GIR", "name": "Girona FC", "shortName": "Girona", "crest": "https://crests.football-data.org/298.png" },
+  { "code": "RAY", "name": "Rayo Vallecano de Madrid", "shortName": "Rayo", "crest": "https://crests.football-data.org/87.png" },
+  { "code": "GET", "name": "Getafe CF", "shortName": "Getafe", "crest": "https://crests.football-data.org/82.png" },
+  { "code": "ESP", "name": "RCD Espanyol de Barcelona", "shortName": "Espanyol", "crest": "https://crests.football-data.org/80.png" },
+  { "code": "ALA", "name": "Deportivo Alavés", "shortName": "Alavés", "crest": "https://crests.football-data.org/263.png" },
+  { "code": "LPA", "name": "UD Las Palmas", "shortName": "Las Palmas", "crest": "https://crests.football-data.org/275.png" },
+  { "code": "LEG", "name": "CD Leganés", "shortName": "Leganés", "crest": "https://crests.football-data.org/745.png" },
+  { "code": "VLL", "name": "Real Valladolid CF", "shortName": "Valladolid", "crest": "https://crests.football-data.org/250.png" }
+]

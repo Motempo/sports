@@ -1,5 +1,6 @@
 import worldCupSources from "@/data/sources/world-cup.json";
 import formulaOneSources from "@/data/sources/formula-1.json";
+import laLigaSources from "@/data/sources/la-liga.json";
 
 export type SourceReliability = "highest" | "high" | "medium";
 
@@ -40,6 +41,7 @@ export interface ResolvedSportSource extends SportSourceEntry {
 const CONFIGS: Record<string, SportSourceConfig> = {
   "world-cup": worldCupSources as SportSourceConfig,
   "formula-1": formulaOneSources as SportSourceConfig,
+  "la-liga": laLigaSources as SportSourceConfig,
 };
 
 export function getSportSourceConfig(sportSlug: string): SportSourceConfig | undefined {
@@ -188,6 +190,24 @@ export function matchOutletToHandle(sportSlug: string, outletName: string): stri
       mercedes: "MercedesAMGF1",
       "red bull": "redbullracing",
       mclaren: "McLarenF1",
+    },
+    "la-liga": {
+      bbc: "BBCSport",
+      "bbc sport": "BBCSport",
+      espn: "ESPNFC",
+      "espn fc": "ESPNFC",
+      goal: "goal",
+      "sky sports": "SkySports",
+      athletic: "TheAthleticFC",
+      "the athletic": "TheAthleticFC",
+      marca: "Marca",
+      as: "AS_Comunica",
+      "diario as": "AS_Comunica",
+      "la liga": "LaLigaEN",
+      laliga: "LaLigaEN",
+      "real madrid": "realmadrid",
+      barcelona: "FCBarcelona",
+      atletico: "Atleti",
     },
   };
 

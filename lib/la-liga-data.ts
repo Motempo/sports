@@ -311,6 +311,37 @@ function seedSeasonKey(now = new Date()): string {
   return seasonCandidates(now)[1] ?? "2025-26";
 }
 
+/** Circle-method pairings so each preview matchday has unique fixtures. */
+function roundRobinPairings(
+  teams: ReturnType<typeof laLigaSeedTeams>,
+  matchday: number
+): Array<[ReturnType<typeof laLigaSeedTeams>[number], ReturnType<typeof laLigaSeedTeams>[number]]> {
+  const n = teams.length;
+  if (n < 2 || n % 2 !== 0) return [];
+
+  // Rotate everyone except the first club around the circle.
+  const order = [...teams];
+  const rotations = ((matchday - 1) % (n - 1) + (n - 1)) % (n - 1);
+  for (let r = 0; r < rotations; r++) {
+    const fixed = order[0]!;
+    const rest = order.slice(1);
+    rest.unshift(rest.pop()!);
+    order.splice(0, order.length, fixed, ...rest);
+  }
+
+  const pairs: Array<[typeof teams[number], typeof teams[number]]> = [];
+  for (let i = 0; i < n / 2; i++) {
+    const home = order[i]!;
+    const away = order[n - 1 - i]!;
+    // Alternate home/away by matchday so clubs don't always host.
+    if (matchday % 2 === 0) pairs.push([away, home]);
+    else pairs.push([home, away]);
+  }
+  return pairs;
+}
+
+const SEED_KICKOFFS = ["14:00", "16:15", "18:30", "21:00"] as const;
+
 function generateSeedMatches(seasonKey: string): MatchInfo[] {
   const startYear = seasonStartYear(seasonKey);
   const teams = laLigaSeedTeams();
@@ -318,10 +349,9 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
   let id = 900_000;
 
   for (let md = 1; md <= 3; md++) {
-    for (let i = 0; i < 10; i++) {
-      const home = teams[i]!;
-      const away = teams[19 - i]!;
-      const date = `${startYear}-08-${String(15 + md).padStart(2, "0")}`;
+    const pairs = roundRobinPairings(teams, md);
+    const date = `${startYear}-08-${String(15 + md).padStart(2, "0")}`;
+    pairs.forEach(([home, away], i) => {
       matches.push({
         id: id++,
         round: "R32",
@@ -332,10 +362,10 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
         homeScore: null,
         awayScore: null,
         status: "SCHEDULED",
-        utcDate: parseSpainKickoffIso(date, i % 2 === 0 ? "17:00" : "21:00"),
+        utcDate: parseSpainKickoffIso(date, SEED_KICKOFFS[i % SEED_KICKOFFS.length]!),
         venue: "",
       });
-    }
+    });
   }
 
   return matches;

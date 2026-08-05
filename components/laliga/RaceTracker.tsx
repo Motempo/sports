@@ -10,6 +10,7 @@ function RaceCard({ insight }: { insight: LeagueRaceInsight }) {
     insight.kind === "title"
       ? "border-[#EE334E]/35 bg-[#EE334E]/5"
       : "border-rose-500/35 bg-rose-500/5";
+  const preSeason = insight.leaderLabel === "TBD";
 
   return (
     <div className={`rounded-2xl border bg-background p-3 sm:p-4 ${accent}`}>
@@ -18,16 +19,29 @@ function RaceCard({ insight }: { insight: LeagueRaceInsight }) {
         {insight.message}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-foreground">
-          {insight.leaderLabel}
-        </span>
-        <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted">
-          {insight.chaseLabel}
-        </span>
-        {insight.remaining > 0 && (
-          <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted">
-            {insight.remaining} left
-          </span>
+        {preSeason ? (
+          <>
+            <span className="rounded-full border border-dashed border-border px-2.5 py-1 text-[11px] text-muted">
+              Contestants TBD
+            </span>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted">
+              {insight.remaining} matchdays to go
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-foreground">
+              {insight.leaderLabel}
+            </span>
+            <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted">
+              {insight.chaseLabel}
+            </span>
+            {insight.remaining > 0 && (
+              <span className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted">
+                {insight.remaining} left
+              </span>
+            )}
+          </>
         )}
       </div>
     </div>

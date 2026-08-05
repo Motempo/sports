@@ -5,6 +5,7 @@ import {
   LaLigaStandingsAd,
 } from "@/components/ads/LaLigaAdPlacements";
 import { HowLaLigaWorks } from "@/components/laliga/HowLaLigaWorks";
+import { LaLigaAwardsSection } from "@/components/laliga/LaLigaAwardsSection";
 import { LaLigaRecordsSection } from "@/components/laliga/LaLigaRecordsSection";
 import { LaLigaSeasonRail } from "@/components/laliga/LaLigaSeasonRail";
 import { LeagueTable } from "@/components/laliga/LeagueTable";
@@ -13,6 +14,7 @@ import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
 import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
+import { buildLaLigaAwards } from "@/lib/la-liga-awards";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
 import { buildLaLigaRecords } from "@/lib/la-liga-records";
 import { formatMatchDataSource } from "@/lib/match-data-source";
@@ -25,6 +27,7 @@ export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const featuredMatch = selectFeaturedMatch(data.matches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);
+  const awards = await buildLaLigaAwards(data);
   const records = buildLaLigaRecords(data);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -82,6 +85,7 @@ export async function LaLigaPageContent() {
           <HowLaLigaWorks phase={data.phase} />
         </SportHowItWorksSection>
       }
+      awards={<LaLigaAwardsSection awards={awards} />}
       records={<LaLigaRecordsSection records={records} seasonLabel={data.seasonLabel} />}
     />
   );

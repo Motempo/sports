@@ -468,5 +468,170 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
           : "The goals-per-game chart fills after Matchday 1."
       }`,
     }),
+
+    record({
+      id: "most-titles",
+      name: "Most League Titles",
+      emoji: "👑",
+      description:
+        "Most Primera División championships won by a club — the all-time kings of Spain.",
+      allTime: {
+        value: "36 titles",
+        holder: "Real Madrid",
+        teamCode: "RMA",
+        context: "All-time leaders",
+      },
+      season: leader
+        ? {
+            value: "Chasing history",
+            holder: leader.team.shortName ?? leader.team.name,
+            teamCode: leader.team.code,
+            context: `${seasonLabel} table leaders`,
+          }
+        : { value: "—", holder: "Season not started", context: seasonLabel },
+      highlightSeason: leader && leader.points > 0 ? "leading" : null,
+      commentary: `Real Madrid lead the all-time title chart, with Barcelona close behind and Atlético the next most successful. ${
+        leader && leader.points > 0
+          ? `${leader.team.name} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
+          : "The next champion will be decided across 38 matchdays."
+      }`,
+    }),
+
+    record({
+      id: "all-time-scorer",
+      name: "All-Time Top Scorer",
+      emoji: "🐐",
+      description:
+        "Most La Liga goals by one player across their career — the number every forward is measured against.",
+      allTime: {
+        value: "474 goals",
+        holder: "Lionel Messi",
+        teamCode: "FCB",
+        context: "2004–2021 · Barcelona",
+      },
+      season: {
+        value: "474 goals",
+        holder: "Lionel Messi",
+        teamCode: "FCB",
+        context: "Record still stands",
+      },
+      highlightSeason: null,
+      commentary:
+        "Messi's 474 remains the Everest of Spanish league scoring. Cristiano Ronaldo's 311 for Real Madrid is second — every modern Pichichi chase still gets compared to those two eras.",
+    }),
+
+    record({
+      id: "unbeaten-season",
+      name: "Unbeaten Season",
+      emoji: "✨",
+      description:
+        "A full La Liga campaign without a single defeat — the rarest club achievement.",
+      allTime: {
+        value: "38 unbeaten",
+        holder: "Barcelona",
+        teamCode: "FCB",
+        context: "2017/18 · 28W 10D",
+      },
+      season: (() => {
+        const unbeaten = rows
+          .filter((r) => r.played > 0 && r.lost === 0)
+          .sort((a, b) => b.points - a.points)[0];
+        return unbeaten
+          ? {
+              value: `${unbeaten.played} unbeaten`,
+              holder: unbeaten.team.shortName ?? unbeaten.team.name,
+              teamCode: unbeaten.team.code,
+              context: `${seasonLabel} · ${unbeaten.won}W ${unbeaten.drawn}D`,
+            }
+          : { value: "—", holder: "No unbeaten clubs", context: seasonLabel };
+      })(),
+      highlightSeason: rows.some((r) => r.played > 0 && r.lost === 0) ? "leading" : null,
+      commentary: `Barcelona's perfect defensive campaign in 2017/18 is the modern unbeaten benchmark. ${
+        rows.some((r) => r.played > 0 && r.lost === 0)
+          ? "At least one club is still without a loss this season — the clock starts ticking with every away trip."
+          : "No side is unbeaten yet — or the season hasn't kicked off."
+      }`,
+    }),
+
+    record({
+      id: "consecutive-titles",
+      name: "Consecutive Titles",
+      emoji: "🔁",
+      description:
+        "Longest run of back-to-back La Liga championships by one club.",
+      allTime: {
+        value: "4 in a row",
+        holder: "Real Madrid",
+        teamCode: "RMA",
+        context: "1986–1990",
+      },
+      season: {
+        value: "4 in a row",
+        holder: "Real Madrid",
+        teamCode: "RMA",
+        context: "Record still stands",
+      },
+      highlightSeason: null,
+      commentary:
+        "Madrid's four-peat from 1986–90 remains the modern consecutive-title mark. Barcelona and others have strung doubles and triples, but four straight is still the bar commentators invoke.",
+    }),
+
+    record({
+      id: "season-goals-total",
+      name: "Goals This Season",
+      emoji: "🥅",
+      description:
+        "Total goals scored across the whole league this season — the running pulse of Spanish football.",
+      allTime: {
+        value: "1,000+ goals",
+        holder: "Several high-scoring seasons",
+        context: "Modern 20-club era",
+      },
+      season: {
+        value: `${goals} goals`,
+        holder: `${finished.length} finished match${finished.length === 1 ? "" : "es"}`,
+        context: `${seasonLabel} running total`,
+      },
+      highlightSeason: goals > 0 ? "leading" : null,
+      commentary: `Studio panels chart the league-wide goal tally every weekend. ${
+        goals > 0
+          ? `${seasonLabel} sits on ${goals} from ${finished.length} completed fixtures.`
+          : "The scoreboard opens with Matchday 1."
+      }`,
+    }),
+
+    record({
+      id: "best-goal-difference",
+      name: "Best Goal Difference",
+      emoji: "📐",
+      description:
+        "Largest goal difference by a club this season — dominance measured in margins.",
+      allTime: {
+        value: "+89 GD",
+        holder: "Real Madrid",
+        teamCode: "RMA",
+        context: "2011/12",
+      },
+      season: (() => {
+        const best = [...rows].sort((a, b) => b.goalDifference - a.goalDifference)[0];
+        return best
+          ? {
+              value: `${best.goalDifference > 0 ? "+" : ""}${best.goalDifference} GD`,
+              holder: best.team.shortName ?? best.team.name,
+              teamCode: best.team.code,
+              context: `${seasonLabel} · ${best.goalsFor}–${best.goalsAgainst}`,
+            }
+          : { value: "—", holder: "Season not started", context: seasonLabel };
+      })(),
+      highlightSeason:
+        rows[0] && rows.some((r) => r.played > 0)
+          ? "leading"
+          : null,
+      commentary: `Madrid's +89 in 2011/12 still defines goal-difference dominance. ${
+        rows.some((r) => r.played > 0)
+          ? `The ${seasonLabel} chart is led by whoever is both scoring freely and staying solid at the back.`
+          : "GD starts ticking once the first ball is in the net."
+      }`,
+    }),
   ];
 }

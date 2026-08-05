@@ -6,6 +6,7 @@ import {
 } from "@/components/ads/LaLigaAdPlacements";
 import { Header } from "@/components/Header";
 import { HowLaLigaWorks } from "@/components/laliga/HowLaLigaWorks";
+import { LaLigaAwardsSection } from "@/components/laliga/LaLigaAwardsSection";
 import { LaLigaRecordsSection } from "@/components/laliga/LaLigaRecordsSection";
 import { LaLigaSeasonRail } from "@/components/laliga/LaLigaSeasonRail";
 import { LeagueTable } from "@/components/laliga/LeagueTable";
@@ -14,6 +15,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TournamentAutoRefresh } from "@/components/tournament/TournamentAutoRefresh";
 import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
 import { NewsWidget } from "@/components/widgets/NewsWidget";
+import { buildLaLigaAwards } from "@/lib/la-liga-awards";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
 import {
   getLaLigaWhatsNext,
@@ -28,6 +30,7 @@ export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const standingsPrimary = showLaLigaStandingsPrimary(data.phase);
   const whatsNext = getLaLigaWhatsNext(data.phase, data.standings.matchday);
+  const awards = await buildLaLigaAwards(data);
   const records = buildLaLigaRecords(data);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -110,6 +113,7 @@ export async function LaLigaPageContent() {
           </div>
         </section>
 
+        <LaLigaAwardsSection awards={awards} />
         <LaLigaRecordsSection records={records} seasonLabel={data.seasonLabel} />
       </main>
 

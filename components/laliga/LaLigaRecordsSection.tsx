@@ -97,9 +97,9 @@ export function LaLigaRecordsSection({ records, seasonLabel }: LaLigaRecordsSect
             Season &amp; All-Time Records
           </h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
-            The stats commentators reach for on air — points hauls, goal feasts, win streaks, and
-            title gaps — with all-time La Liga marks alongside what&apos;s happened in{" "}
-            {seasonLabel}.
+            The stats commentators reach for on air — points hauls, goal feasts, win streaks, title
+            gaps, and historic marks — with all-time La Liga records alongside what&apos;s happened
+            in {seasonLabel}.
           </p>
         </div>
 

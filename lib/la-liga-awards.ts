@@ -119,7 +119,83 @@ function buildContenders(
 export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaAward[]> {
   const progressPct = seasonProgress(data);
   const rows = data.standings.rows;
+  const seasonNotStarted = rows.every((r) => r.played === 0);
   const scorers = await fetchLaLigaScorers(8);
+
+  if (seasonNotStarted) {
+    return [
+      {
+        id: "title",
+        name: "La Liga Title",
+        sponsor: "Championship race",
+        emoji: "🏆",
+        description:
+          "Live title chase from the league table — points, then goal difference, decide the champion.",
+        progress: 0,
+        contenders: [],
+        commentary: capForecast(
+          "The contestants are yet to be seen — 20 clubs, blank scorecards, and a whole lot of optimism. Kickoff writes the first chapter.",
+          LALIGA_AWARD_COMMENTARY_MAX_CHARS
+        ),
+      },
+      {
+        id: "pichichi",
+        name: "Pichichi Trophy",
+        sponsor: "Top scorer race",
+        emoji: "⚽",
+        description:
+          "Marca's Pichichi goes to La Liga's top scorer. Live player goals from the season feed.",
+        progress: 0,
+        contenders: [],
+        commentary: capForecast(
+          "The contestants are yet to be seen — no goals, no leaderboard, just strikers sharpening their boots.",
+          LALIGA_AWARD_COMMENTARY_MAX_CHARS
+        ),
+      },
+      {
+        id: "zamora",
+        name: "Zamora Trophy",
+        sponsor: "Best defence race",
+        emoji: "🧤",
+        description:
+          "The Zamora Trophy historically honours the keeper with the best goals-to-games ratio. Here we track the clubs conceding fewest goals.",
+        progress: 0,
+        contenders: [],
+        commentary: capForecast(
+          "The contestants are yet to be seen — every keeper is still on a perfect zero-conceded fantasy run.",
+          LALIGA_AWARD_COMMENTARY_MAX_CHARS
+        ),
+      },
+      {
+        id: "europe",
+        name: "Europe Places",
+        sponsor: "UCL · UEL · UECL",
+        emoji: "🌟",
+        description:
+          "Who's on course for Champions League, Europa League, and Conference League football next season.",
+        progress: 0,
+        contenders: [],
+        commentary: capForecast(
+          "The contestants are yet to be seen — Europe is a destination, not a pre-season participation trophy.",
+          LALIGA_AWARD_COMMENTARY_MAX_CHARS
+        ),
+      },
+      {
+        id: "survival",
+        name: "Survival Race",
+        sponsor: "Relegation battle",
+        emoji: "🛟",
+        description:
+          "The battle to stay in Primera — bottom three go down to Segunda.",
+        progress: 0,
+        contenders: [],
+        commentary: capForecast(
+          "The contestants are yet to be seen — nobody's packing for Segunda until someone actually loses a match.",
+          LALIGA_AWARD_COMMENTARY_MAX_CHARS
+        ),
+      },
+    ];
+  }
 
   const titleEntries = rows.slice(0, 5).map((r) => ({
     label: r.team.shortName ?? r.team.name,

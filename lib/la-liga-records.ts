@@ -144,6 +144,7 @@ function uniqueWinners(matches: MatchInfo[]): { count: number; names: string[] }
 export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
   const { standings, matches, seasonLabel } = data;
   const rows = standings.rows;
+  const seasonNotStarted = rows.every((r) => r.played === 0);
   const leader = rows[0];
   const goalsLeader = [...rows].sort(
     (a, b) => b.goalsFor - a.goalsFor || b.points - a.points
@@ -163,6 +164,12 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
   const avgGoals =
     finished.length > 0 ? Math.round((goals / finished.length) * 100) / 100 : null;
 
+  const awaiting = {
+    value: "—",
+    holder: "Contestants TBD",
+    context: seasonLabel,
+  };
+
   return [
     record({
       id: "most-points-season",
@@ -176,7 +183,9 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "RMA",
         context: "2011/12",
       },
-      season: leader
+      season: seasonNotStarted
+        ? awaiting
+        : leader
         ? {
             value: `${leader.points} pts`,
             holder: leader.team.shortName ?? leader.team.name,
@@ -185,13 +194,15 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
           }
         : { value: "—", holder: "Season not started", context: seasonLabel },
       highlightSeason:
-        leader && leader.points >= 100
+        !seasonNotStarted && leader && leader.points >= 100
           ? "all-time"
-          : leader && leader.points > 0
+          : !seasonNotStarted && leader && leader.points > 0
             ? "leading"
             : null,
       commentary: `Real Madrid's 100-point season in 2011/12 remains the gold standard. ${
-        leader && leader.points > 0
+        seasonNotStarted
+          ? "The contestants are yet to be seen — nobody leads a blank scorecard."
+          : leader && leader.points > 0
           ? `${leader.team.name} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
           : "The points race opens with Matchday 1."
       } Commentators watch every dropped point as title maths.`,
@@ -209,7 +220,9 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "RMA",
         context: "2011/12",
       },
-      season: goalsLeader
+      season: seasonNotStarted
+        ? awaiting
+        : goalsLeader
         ? {
             value: `${goalsLeader.goalsFor} goals`,
             holder: goalsLeader.team.shortName ?? goalsLeader.team.name,
@@ -218,13 +231,15 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
           }
         : { value: "—", holder: "No goals yet", context: seasonLabel },
       highlightSeason:
-        goalsLeader && goalsLeader.goalsFor >= 121
+        !seasonNotStarted && goalsLeader && goalsLeader.goalsFor >= 121
           ? "all-time"
-          : goalsLeader && goalsLeader.goalsFor > 0
+          : !seasonNotStarted && goalsLeader && goalsLeader.goalsFor > 0
             ? "leading"
             : null,
       commentary: `Madrid's 121 in 2011/12 still defines peak La Liga firepower. ${
-        goalsLeader && goalsLeader.goalsFor > 0
+        seasonNotStarted
+          ? "The contestants are yet to be seen — nets are still empty."
+          : goalsLeader && goalsLeader.goalsFor > 0
           ? `${goalsLeader.team.name} lead the ${seasonLabel} scoring charts with ${goalsLeader.goalsFor}.`
           : "Club goal tallies start climbing from the opening whistle."
       }`,
@@ -242,7 +257,9 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "RMA",
         context: "2011/12",
       },
-      season: winsLeader
+      season: seasonNotStarted
+        ? awaiting
+        : winsLeader
         ? {
             value: `${winsLeader.won} win${winsLeader.won === 1 ? "" : "s"}`,
             holder: winsLeader.team.shortName ?? winsLeader.team.name,
@@ -251,13 +268,15 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
           }
         : { value: "—", holder: "No wins yet", context: seasonLabel },
       highlightSeason:
-        winsLeader && winsLeader.won >= 32
+        !seasonNotStarted && winsLeader && winsLeader.won >= 32
           ? "all-time"
-          : winsLeader && winsLeader.won > 0
+          : !seasonNotStarted && winsLeader && winsLeader.won > 0
             ? "leading"
             : null,
       commentary: `Thirty-two wins in 2011/12 is still the single-season bar. ${
-        winsLeader && winsLeader.won > 0
+        seasonNotStarted
+          ? "The contestants are yet to be seen — three points are still a rumour."
+          : winsLeader && winsLeader.won > 0
           ? `${winsLeader.team.name} sit on ${winsLeader.won} for ${seasonLabel}.`
           : "First three points of the season open this chart."
       }`,
@@ -396,7 +415,9 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         context: "Several photo finishes (*GD decided)",
       },
       season:
-        gap !== null && leader && rows[1]
+        seasonNotStarted
+          ? awaiting
+          : gap !== null && leader && rows[1]
           ? {
               value: `${gap} pt${gap === 1 ? "" : "s"}`,
               holder: `${leader.team.shortName ?? leader.team.name} vs ${rows[1].team.shortName ?? rows[1].team.name}`,
@@ -404,9 +425,12 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
               context: `${seasonLabel} live gap`,
             }
           : { value: "—", holder: "Need two clubs", context: seasonLabel },
-      highlightSeason: gap !== null && gap <= 6 ? "leading" : gap !== null ? "leading" : null,
+      highlightSeason:
+        !seasonNotStarted && gap !== null ? "leading" : null,
       commentary: `La Liga title races have often been decided on goal difference. ${
-        gap !== null && leader && rows[1]
+        seasonNotStarted
+          ? "The contestants are yet to be seen — a 0–0 gap is not a photo finish."
+          : gap !== null && leader && rows[1]
           ? `Right now ${leader.team.name} lead ${rows[1].team.name} by ${gap} — ${gap <= 6 ? "one weekend can flip it." : "still a live chase if form shifts."}`
           : "The gap chart fills once two clubs are on the board."
       }`,
@@ -481,7 +505,9 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "RMA",
         context: "All-time leaders",
       },
-      season: leader
+      season: seasonNotStarted
+        ? awaiting
+        : leader
         ? {
             value: "Chasing history",
             holder: leader.team.shortName ?? leader.team.name,
@@ -489,9 +515,11 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
             context: `${seasonLabel} table leaders`,
           }
         : { value: "—", holder: "Season not started", context: seasonLabel },
-      highlightSeason: leader && leader.points > 0 ? "leading" : null,
+      highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
       commentary: `Real Madrid lead the all-time title chart, with Barcelona close behind and Atlético the next most successful. ${
-        leader && leader.points > 0
+        seasonNotStarted
+          ? "The contestants are yet to be seen — history can wait until Matchday 1."
+          : leader && leader.points > 0
           ? `${leader.team.name} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
           : "The next champion will be decided across 38 matchdays."
       }`,
@@ -613,6 +641,7 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         context: "2011/12",
       },
       season: (() => {
+        if (seasonNotStarted) return awaiting;
         const best = [...rows].sort((a, b) => b.goalDifference - a.goalDifference)[0];
         return best
           ? {
@@ -624,11 +653,11 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
           : { value: "—", holder: "Season not started", context: seasonLabel };
       })(),
       highlightSeason:
-        rows[0] && rows.some((r) => r.played > 0)
-          ? "leading"
-          : null,
+        !seasonNotStarted && rows.some((r) => r.played > 0) ? "leading" : null,
       commentary: `Madrid's +89 in 2011/12 still defines goal-difference dominance. ${
-        rows.some((r) => r.played > 0)
+        seasonNotStarted
+          ? "The contestants are yet to be seen — GD starts at zero for everyone."
+          : rows.some((r) => r.played > 0)
           ? `The ${seasonLabel} chart is led by whoever is both scoring freely and staying solid at the back.`
           : "GD starts ticking once the first ball is in the net."
       }`,

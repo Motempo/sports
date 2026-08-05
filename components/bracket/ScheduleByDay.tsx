@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
 import { useColumnsPerRow } from "@/hooks/use-columns-per-row";
 import {
@@ -69,7 +69,9 @@ export function ScheduleByDay({
   title = "Matches",
 }: ScheduleByDayProps) {
   const columnsPerRow = useColumnsPerRow();
-  const [visibleRows, setVisibleRows] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(1);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const timeZone = useMemo(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone,
     []
@@ -87,12 +89,37 @@ export function ScheduleByDay({
   }, [scheduleMatches, groupMatches, todayMatches, upcomingMatches, timeZone]);
 
   useEffect(() => {
-    setVisibleRows(1);
-  }, [dayGroups.length, timeZone]);
+    setVisibleCount(Math.max(columnsPerRow, 1));
+  }, [dayGroups.length, columnsPerRow, timeZone]);
 
-  const visibleCount = Math.min(visibleRows * columnsPerRow, dayGroups.length);
+  const loadMore = useCallback(() => {
+    setVisibleCount((count) => Math.min(count + columnsPerRow, dayGroups.length));
+  }, [columnsPerRow, dayGroups.length]);
+
   const visibleGroups = dayGroups.slice(0, visibleCount);
   const hasMore = visibleCount < dayGroups.length;
+
+  useEffect(() => {
+    const root = scrollerRef.current;
+    const target = loadMoreRef.current;
+    if (!root || !target || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          loadMore();
+        }
+      },
+      {
+        root,
+        rootMargin: "0px 160px 0px 0px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore, visibleCount]);
 
   if (dayGroups.length === 0) {
     return (
@@ -117,31 +144,40 @@ export function ScheduleByDay({
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
             {formatMatchDataSource(source)} · Times in your local timezone
+            {dayGroups.length > columnsPerRow ? " · Scroll for more days" : ""}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start md:gap-5 xl:grid-cols-3">
+        <div
+          ref={scrollerRef}
+          role="region"
+          aria-label={`${title} by day`}
+          className="scrollbar-hide -mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-3 pb-1 touch-pan-x sm:-mx-0 sm:px-0"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           {visibleGroups.map((group) => (
-            <DayColumn
+            <div
               key={group.dayKey}
-              group={group}
-              groupMatches={groupMatches}
-              standings={standings}
-            />
-          ))}
-        </div>
-
-        {hasMore && (
-          <div className="mt-5 flex justify-center">
-            <button
-              type="button"
-              onClick={() => setVisibleRows((rows) => rows + 1)}
-              className="min-h-[44px] rounded-xl border border-border bg-background px-5 text-[15px] font-medium text-link transition-colors hover:bg-surface active:bg-surface"
+              className="w-[min(100%,20rem)] shrink-0 snap-start sm:w-[22rem]"
             >
-              Show more games
-            </button>
-          </div>
-        )}
+              <DayColumn
+                group={group}
+                groupMatches={groupMatches}
+                standings={standings}
+              />
+            </div>
+          ))}
+
+          {hasMore && (
+            <div
+              ref={loadMoreRef}
+              className="flex w-20 shrink-0 snap-start items-center justify-center"
+              aria-hidden
+            >
+              <span className="text-[11px] font-medium text-muted">More…</span>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

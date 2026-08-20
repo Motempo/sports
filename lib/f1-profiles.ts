@@ -4,7 +4,7 @@ import {
   formatBirthDate,
   nationalityToIso2,
 } from "@/lib/f1-nationality";
-import type { F1SeasonData } from "@/lib/f1-types";
+import type { F1GrandPrixStatus, F1SeasonData } from "@/lib/f1-types";
 
 export interface F1DriverProfile {
   id: string;
@@ -44,6 +44,20 @@ export interface F1TeamProfile {
   wins: number;
   gapToLeader: number;
   drivers: F1TeamDriverLineup[];
+}
+
+export interface F1TrackProfile {
+  id: string;
+  circuitName: string;
+  gpName: string;
+  country: string;
+  countryCode?: string;
+  round: number;
+  date: string;
+  status: F1GrandPrixStatus;
+  isSprintWeekend: boolean;
+  winner?: string;
+  blurb: string;
 }
 
 function splitName(full: string): { givenName: string; familyName: string } {

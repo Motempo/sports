@@ -6,7 +6,7 @@ const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
 /** Commentator-style colour for circuits — character, not betting tips. */
-const CIRCUIT_COLOUR: Record<string, string> = {
+export const CIRCUIT_COLOUR: Record<string, string> = {
   albert_park:
     "Albert Park is a temporary street-park layout — walls close, grip builds through the weekend, and Sunday often rewards whoever kept the car tidy on Friday.",
   shanghai:
@@ -108,6 +108,13 @@ export function resolveCircuitId(circuitId: string | undefined, circuitName: str
   return CIRCUIT_NAME_TO_ID[key] ?? null;
 }
 
+/** Sync circuit colour blurb for profile cards (no network). */
+export function getCircuitColourBlurb(circuitId: string | undefined, circuitName: string): string | null {
+  const id = resolveCircuitId(circuitId, circuitName);
+  if (!id) return null;
+  return CIRCUIT_COLOUR[id] ?? null;
+}
+
 async function fetchCircuitWinners(circuitId: string): Promise<WinnerRow[]> {
   const cached = winnersCache.get(circuitId);
   if (cached && Date.now() < cached.expiresAt) return cached.value;
@@ -193,4 +200,34 @@ export async function getCircuitTrackFact(options: {
     return `${colour} ${wins && wins !== last ? wins : last}`.replace(/\s+/g, " ").trim();
   }
   return parts[0]!.replace(/\s+/g, " ").trim();
+}
+
+/** One card per Grand Prix venue on this season's calendar (MOT-41). */
+export function buildTrackProfiles(
+  data: import("@/lib/f1-types").F1SeasonData
+): import("@/lib/f1-profiles").F1TrackProfile[] {
+  return data.calendar.map((gp) => {
+    const id =
+      resolveCircuitId(gp.circuitId, gp.circuit) ??
+      gp.circuitId ??
+      gp.circuit.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+    const colour = getCircuitColourBlurb(gp.circuitId, gp.circuit);
+    const blurb =
+      colour ??
+      `${gp.circuit} hosts the ${gp.name} — round ${gp.round} on the ${data.season} calendar.`;
+
+    return {
+      id,
+      circuitName: gp.circuit,
+      gpName: gp.name,
+      country: gp.country,
+      countryCode: gp.countryCode,
+      round: gp.round,
+      date: gp.date,
+      status: gp.status,
+      isSprintWeekend: gp.isSprintWeekend,
+      winner: gp.winner,
+      blurb,
+    };
+  });
 }

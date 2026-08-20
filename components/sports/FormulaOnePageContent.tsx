@@ -1,6 +1,7 @@
 import { ChampionshipStandings } from "@/components/f1/ChampionshipStandings";
 import { F1AwardsSection } from "@/components/f1/F1AwardsSection";
 import { F1RecordsSection } from "@/components/f1/F1RecordsSection";
+import { F1TrackProfilesSection } from "@/components/f1/F1TrackProfilesSection";
 import { FormulaOneNextEvent } from "@/components/f1/FormulaOneNextEvent";
 import { HowF1Works } from "@/components/f1/HowF1Works";
 import { SeasonRail } from "@/components/f1/SeasonRail";
@@ -15,7 +16,7 @@ import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
 import { buildF1Awards } from "@/lib/f1-awards";
-import { getCircuitTrackFact } from "@/lib/f1-circuit-facts";
+import { buildTrackProfiles, getCircuitTrackFact } from "@/lib/f1-circuit-facts";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
 import { selectFeaturedF1Event } from "@/lib/f1-session-schedule";
@@ -32,6 +33,7 @@ export async function FormulaOnePageContent() {
   const titleFight = computeTitleFightInsight(data.driverStandings, data.calendar);
   const awards = buildF1Awards(data);
   const records = buildF1Records(data);
+  const tracks = buildTrackProfiles(data);
   const featuredEvent = selectFeaturedF1Event(data.sessions, data.calendar);
   const circuit =
     featuredEvent?.kind === "session" ? featuredEvent.session.circuit : featuredEvent?.gp.circuit;
@@ -97,7 +99,12 @@ export async function FormulaOnePageContent() {
           <HowF1Works phase={phase} />
         </SportHowItWorksSection>
       }
-      awards={<F1AwardsSection awards={awards} />}
+      awards={
+        <>
+          <F1TrackProfilesSection tracks={tracks} season={data.season} />
+          <F1AwardsSection awards={awards} />
+        </>
+      }
       records={<F1RecordsSection records={records} season={data.season} />}
     />
   );

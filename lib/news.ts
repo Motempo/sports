@@ -41,6 +41,7 @@ interface RssItem {
   "media:content"?: unknown;
   "media:thumbnail"?: unknown;
   enclosure?: unknown;
+  guid?: unknown;
 }
 
 function textOf(value: unknown): string {
@@ -213,6 +214,74 @@ function ogCacheSet(url: string, value: NewsMedia) {
   ogCache.set(url, { value, expiresAt: Date.now() + OG_CACHE_TTL_MS });
 }
 
+function canonicalArticleUrl(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    parsed.hash = "";
+    parsed.search = "";
+    parsed.hostname = parsed.hostname.replace(/^www\./, "");
+    parsed.pathname = parsed.pathname.replace(/\/+$/, "") || "/";
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+}
+
+const publisherFeedCache = new Map<string, { items: RssItem[]; expiresAt: number }>();
+
+async function fetchPublisherFeedItems(origin: string): Promise<RssItem[]> {
+  const cached = publisherFeedCache.get(origin);
+  if (cached && Date.now() < cached.expiresAt) return cached.items;
+
+  const paths = ["/feed", "/rss.xml", "/rss", "/feed.xml"];
+  const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+
+  for (const path of paths) {
+    try {
+      const res = await fetch(`${origin}${path}`, {
+        cache: "no-store",
+        headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/xml, text/xml" },
+        signal: AbortSignal.timeout(OG_TIMEOUT_MS),
+        redirect: "follow",
+      });
+      if (!res.ok) continue;
+      const xml = await res.text();
+      if (!/<rss[\s>]|<feed[\s>]/i.test(xml)) continue;
+      const items = feedItems(parser.parse(xml));
+      if (items.length === 0) continue;
+      publisherFeedCache.set(origin, { items, expiresAt: Date.now() + OG_CACHE_TTL_MS });
+      return items;
+    } catch {
+      continue;
+    }
+  }
+
+  publisherFeedCache.set(origin, { items: [], expiresAt: Date.now() + 5 * 60 * 1000 });
+  return [];
+}
+
+async function lookupPublisherFeedMedia(articleUrl: string): Promise<NewsMedia> {
+  if (!isSafeHttpUrl(articleUrl) || isGoogleNewsUrl(articleUrl)) return {};
+  let origin: string;
+  try {
+    origin = new URL(articleUrl).origin;
+  } catch {
+    return {};
+  }
+
+  const target = canonicalArticleUrl(articleUrl);
+  if (!target) return {};
+
+  const items = await fetchPublisherFeedItems(origin);
+  for (const item of items) {
+    const candidates = [linkOf(item.link), textOf(item.guid)];
+    if (candidates.some((candidate) => candidate && canonicalArticleUrl(candidate) === target)) {
+      return extractRssMedia(item);
+    }
+  }
+  return {};
+}
+
 async function scrapeArticleMedia(url: string): Promise<NewsMedia> {
   const cached = ogCacheGet(url);
   if (cached) return cached;
@@ -229,7 +298,6 @@ async function scrapeArticleMedia(url: string): Promise<NewsMedia> {
       redirect: "follow",
     });
     if (!res.ok) {
-      ogCacheSet(url, {});
       return {};
     }
     const html = await res.text();
@@ -237,7 +305,6 @@ async function scrapeArticleMedia(url: string): Promise<NewsMedia> {
     ogCacheSet(url, media);
     return media;
   } catch {
-    ogCacheSet(url, {});
     return {};
   }
 }
@@ -258,9 +325,13 @@ async function enrichNewsItem(item: NewsItem, options: EnrichNewsOptions): Promi
     (!item.imageUrl || (options.includeVideo && !item.videoUrl));
 
   const scraped = needsScrape ? await scrapeArticleMedia(resolvedUrl) : {};
-  const videoUrl = item.videoUrl ?? scraped.videoUrl;
-  const videoKind = item.videoKind ?? scraped.videoKind;
-  let imageUrl = item.imageUrl ?? scraped.imageUrl;
+  const feedMedia =
+    needsScrape && !scraped.imageUrl && !scraped.videoUrl
+      ? await lookupPublisherFeedMedia(resolvedUrl)
+      : {};
+  const videoUrl = item.videoUrl ?? scraped.videoUrl ?? feedMedia.videoUrl;
+  const videoKind = item.videoKind ?? scraped.videoKind ?? feedMedia.videoKind;
+  let imageUrl = item.imageUrl ?? scraped.imageUrl ?? feedMedia.imageUrl;
   if (!imageUrl && videoKind === "youtube" && videoUrl) {
     const id = youtubeVideoId(videoUrl);
     if (id) imageUrl = youtubeThumbnailUrl(id);

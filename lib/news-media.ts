@@ -218,11 +218,17 @@ export function extractRssMedia(item: unknown): NewsMedia {
     if ((width > 0 && width <= 2) || (height > 0 && height <= 2)) continue;
 
     const classified = classifyVideo(url, type);
-    if (classified && (medium === "video" || type?.startsWith("video/") || classified.kind !== "file" || VIDEO_EXT.test(url))) {
+    const isVideoHint =
+      Boolean(classified) &&
+      (medium?.startsWith("video") ||
+        type?.startsWith("video/") ||
+        classified?.kind !== "file" ||
+        VIDEO_EXT.test(url));
+    if (classified && isVideoHint) {
       if (!video || classified.kind !== "file") video = classified;
       continue;
     }
-    if (medium === "image" || type?.startsWith("image/") || IMAGE_EXT.test(url)) {
+    if (medium?.startsWith("image") || type?.startsWith("image/") || IMAGE_EXT.test(url)) {
       considerImage(url, width, images);
     } else if (!type && !medium) {
       const maybeVideo = classifyVideo(url);

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ReportBugLink } from "@/components/feedback/ReportBugLink";
+import { ReportBugLink } from "@motempo/feedback/ui";
 
 export function SiteFooter() {
   return (

@@ -1,6 +1,6 @@
 import laLigaClubsSeed from "@/data/la-liga-clubs-seed.json";
-import type { TeamInfo } from "@/lib/types";
 import type { ClubSeed } from "@/lib/la-liga-types";
+import type { TeamInfo } from "@/lib/types";
 
 const clubs = laLigaClubsSeed as ClubSeed[];
 

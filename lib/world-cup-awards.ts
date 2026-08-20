@@ -42,12 +42,6 @@ function winChances(values: number[]): number[] {
   return weights.map((w) => Math.round((w / total) * 100));
 }
 
-function raceProgress(tournamentPct: number, leader: number, runnerUp: number, scale: number): number {
-  const gap = Math.max(0, leader - runnerUp);
-  const gapPct = Math.min(55, (gap / scale) * 55);
-  return Math.min(98, Math.round(tournamentPct * 0.45 + gapPct));
-}
-
 function buildContenders(
   entries: Array<{
     label: string;
@@ -144,8 +138,6 @@ function goldenBootFromScorers(
     statLabel: s.goals === 1 ? "goal" : "goals",
   }));
   const contenders = buildContenders(entries);
-  const leader = contenders[0]?.stat ?? 0;
-  const second = contenders[1]?.stat ?? 0;
 
   return {
     id: "golden-boot",
@@ -154,7 +146,8 @@ function goldenBootFromScorers(
     emoji: "👟",
     description:
       "Awarded to the tournament's top goalscorer. Tallies are compiled from verified goal events in the live match feed.",
-    progress: raceProgress(tournamentPct, leader, second, 6),
+    // Progress bar is tournament completion, not award-gap tightness (MOT-47).
+    progress: tournamentPct,
     contenders,
     commentary: bootCommentary(contenders, tournamentPct),
   };
@@ -174,7 +167,6 @@ function goldenGloveFromDefense(
     statLabel: row.cleanSheets === 1 ? "clean sheet" : "clean sheets",
   }));
   const contenders = buildContenders(entries);
-  const score = (row: (typeof top)[0]) => row.cleanSheets * 3 - row.goalsConceded * 0.4;
 
   return {
     id: "golden-glove",
@@ -183,7 +175,7 @@ function goldenGloveFromDefense(
     emoji: "🧤",
     description:
       "Proxy for the best goalkeeper: teams ranked by clean sheets and goals conceded from verified match results.",
-    progress: raceProgress(tournamentPct, score(top[0]!), score(top[1] ?? top[0]!), 8),
+    progress: tournamentPct,
     contenders,
     commentary: gloveCommentary(contenders, tournamentPct),
   };
@@ -210,7 +202,7 @@ function goldenBallFromScorers(
     emoji: "⚽",
     description:
       "Awarded to the best player of the tournament — live tracker uses verified goals as a proxy until media voting closes.",
-    progress: raceProgress(tournamentPct, entries[0]?.stat ?? 0, entries[1]?.stat ?? 0, 6),
+    progress: tournamentPct,
     contenders,
     commentary: ballCommentary(contenders, tournamentPct),
   };
@@ -237,12 +229,7 @@ function youngPlayerFromScorers(
     emoji: "🌟",
     description:
       "Awarded to the best player born on or after 1 January 2004 — ranked by goals among eligible scorers with verified birthdays.",
-    progress: raceProgress(
-      tournamentPct,
-      youngScorers[0]?.goals ?? 0,
-      youngScorers[1]?.goals ?? 0,
-      3
-    ),
+    progress: tournamentPct,
     contenders,
     commentary: youngCommentary(contenders, tournamentPct),
   };

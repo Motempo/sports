@@ -101,15 +101,20 @@ interface MediaItem {
 
 function fileScore(fileTitle: string, kind: VenueImageKind, lead: boolean): number {
   const name = fileTitle.toLowerCase();
-  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram|svg_map/.test(name)) return -100;
-  if (name.endsWith(".svg") && kind === "stadium") return -80;
+  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram|svg_map|layout_map/.test(name)) return -100;
+  if (name.endsWith(".svg")) return -90;
 
-  let score = lead ? 12 : 0;
+  let score = lead ? 8 : 0;
   if (/\.jpe?g/.test(name)) score += 18;
-  if (name.endsWith(".png")) score += 8;
+  if (name.endsWith(".png")) score += 4;
+
   if (kind === "circuit") {
-    if (/aerial|from_air|air_|drone/.test(name)) score += 28;
-    if (/circuit|track|grand_prix/.test(name)) score += 10;
+    // Prefer on-track / race-day photographs over aerial diagrams (MOT-49).
+    if (/map|diagram|layout|plan_|svg/.test(name)) score -= 40;
+    if (/aerial|from_air|air_|drone|satellite/.test(name)) score -= 20;
+    if (/motorsport|race_track|grandstand|pit_lane|paddock|turn_|corner/.test(name)) score += 26;
+    if (/f1|formula|grand_prix|gp_|racing/.test(name)) score += 14;
+    if (/circuit|track|zandvoort|suzuka|monza|spa|silverstone/.test(name)) score += 8;
   } else if (/aerial|panorama|stadium|estadio/.test(name)) {
     score += 16;
   }

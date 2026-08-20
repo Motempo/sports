@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { BadgeCheck } from "lucide-react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
-import { FeedAvatar, FeedRow, formatXMeta } from "@/components/ui/FeedRow";
+import { FeedAvatar, FeedRow } from "@/components/ui/FeedRow";
 import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { getFactSourceAvatar } from "@/lib/facts";
@@ -14,32 +14,76 @@ interface FunFactsWidgetProps {
   sportSlug: string;
 }
 
+interface FactsPageResponse {
+  items: FunFact[];
+  nextOffset: number;
+  wrapped?: boolean;
+}
+
+function seenStorageKey(sportSlug: string): string {
+  return `motempo-facts-seen:${sportSlug}`;
+}
+
+function loadSeenIds(sportSlug: string): string[] {
+  try {
+    const raw = localStorage.getItem(seenStorageKey(sportSlug));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSeenIds(sportSlug: string, ids: string[]) {
+  try {
+    localStorage.setItem(seenStorageKey(sportSlug), JSON.stringify(ids));
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
 export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
   const [items, setItems] = useState<FunFact[]>([]);
-  const [offset, setOffset] = useState(0);
+  const [nextOffset, setNextOffset] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selected, setSelected] = useState<FunFact | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<FunFact | null>(null);
 
-  const loadItems = useCallback(async (newOffset: number) => {
-    const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&offset=${newOffset}&limit=3`, {
-      cache: "no-store",
-    });
-    const data = (await res.json()) as { items: FunFact[] };
-    setItems(data.items);
-  }, [sportSlug]);
+  const loadItems = useCallback(
+    async (offset: number | undefined, seen: string[]) => {
+      const params = new URLSearchParams({
+        sport: sportSlug,
+        limit: "3",
+      });
+      if (offset != null) params.set("offset", String(offset));
+      if (seen.length > 0) params.set("exclude", seen.join(","));
+
+      const res = await fetch(`/api/facts?${params.toString()}`, {
+        cache: "no-store",
+      });
+      const data = (await res.json()) as FactsPageResponse;
+      setItems(data.items);
+      setNextOffset(data.nextOffset);
+
+      const newIds = data.items.map((fact) => fact.id);
+      saveSeenIds(sportSlug, data.wrapped ? newIds : [...seen, ...newIds].filter((id, i, all) => all.indexOf(id) === i));
+    },
+    [sportSlug]
+  );
 
   useEffect(() => {
-    loadItems(0).finally(() => setLoading(false));
-  }, [loadItems]);
+    setLoading(true);
+    const seen = loadSeenIds(sportSlug);
+    loadItems(undefined, seen).finally(() => setLoading(false));
+  }, [loadItems, sportSlug]);
 
   const handleShowMore = async () => {
     setLoadingMore(true);
-    const next = offset + 3;
-    await loadItems(next);
-    setOffset(next);
+    const seen = loadSeenIds(sportSlug);
+    await loadItems(nextOffset, seen);
     setLoadingMore(false);
   };
 

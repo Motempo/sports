@@ -4,11 +4,13 @@
   { "code": "BOU", "name": "AFC Bournemouth", "shortName": "Bournemouth", "crest": "https://crests.football-data.org/1044.png" },
   { "code": "BRE", "name": "Brentford", "shortName": "Brentford", "crest": "https://crests.football-data.org/402.png" },
   { "code": "BHA", "name": "Brighton & Hove Albion", "shortName": "Brighton", "crest": "https://crests.football-data.org/397.png" },
-  { "code": "BUR", "name": "Burnley", "shortName": "Burnley", "crest": "https://crests.football-data.org/328.png" },
   { "code": "CHE", "name": "Chelsea", "shortName": "Chelsea", "crest": "https://crests.football-data.org/61.png" },
+  { "code": "COV", "name": "Coventry City", "shortName": "Coventry", "crest": "https://crests.football-data.org/1076.png" },
   { "code": "CRY", "name": "Crystal Palace", "shortName": "Crystal Palace", "crest": "https://crests.football-data.org/354.png" },
   { "code": "EVE", "name": "Everton", "shortName": "Everton", "crest": "https://crests.football-data.org/62.png" },
   { "code": "FUL", "name": "Fulham", "shortName": "Fulham", "crest": "https://crests.football-data.org/63.png" },
+  { "code": "HUL", "name": "Hull City", "shortName": "Hull", "crest": "https://crests.football-data.org/322.png" },
+  { "code": "IPS", "name": "Ipswich Town", "shortName": "Ipswich", "crest": "https://crests.football-data.org/349.png" },
   { "code": "LEE", "name": "Leeds United", "shortName": "Leeds", "crest": "https://crests.football-data.org/341.png" },
   { "code": "LIV", "name": "Liverpool", "shortName": "Liverpool", "crest": "https://crests.football-data.org/64.png" },
   { "code": "MCI", "name": "Manchester City", "shortName": "Man City", "crest": "https://crests.football-data.org/65.png" },
@@ -16,7 +18,5 @@
   { "code": "NEW", "name": "Newcastle United", "shortName": "Newcastle", "crest": "https://crests.football-data.org/67.png" },
   { "code": "NFO", "name": "Nottingham Forest", "shortName": "Nott'm Forest", "crest": "https://crests.football-data.org/351.png" },
   { "code": "SUN", "name": "Sunderland", "shortName": "Sunderland", "crest": "https://crests.football-data.org/71.png" },
-  { "code": "TOT", "name": "Tottenham Hotspur", "shortName": "Spurs", "crest": "https://crests.football-data.org/73.png" },
-  { "code": "WHU", "name": "West Ham United", "shortName": "West Ham", "crest": "https://crests.football-data.org/563.png" },
-  { "code": "WOL", "name": "Wolverhampton Wanderers", "shortName": "Wolves", "crest": "https://crests.football-data.org/76.png" }
+  { "code": "TOT", "name": "Tottenham Hotspur", "shortName": "Spurs", "crest": "https://crests.football-data.org/73.png" }
 ]

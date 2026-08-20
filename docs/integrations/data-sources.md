@@ -16,9 +16,11 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - No auth; public-domain fixtures/results
 - Club leagues (primary for PL + La Liga): GitHub raw
   `https://raw.githubusercontent.com/openfootball/football.json/master/{season}/{en.1|es.1}.json`
+  and, when JSON is missing, football.db text:
+  `england/{season}/1-premierleague.txt`, `espana/{season}/1-liga.txt`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
-- Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`
-- Cascade for club leagues: **current-season openfootball → football-data.org (same season only) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
+- Cascade for club leagues: **current-season openfootball (JSON → league .txt) → football-data.org (same season only) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1

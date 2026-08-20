@@ -13,6 +13,7 @@ import {
   resolveClubCode,
 } from "@/lib/league-standings";
 import { normalizeApiMatchStatus, inferMatchStatusFromKickoff } from "@/lib/match-status";
+import { parseOpenFootballLeagueTxt } from "@/lib/openfootball-league-txt";
 import { detectPremierLeaguePhase } from "@/lib/premier-league-phase";
 import type { PremierLeagueSeasonData } from "@/lib/premier-league-types";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
@@ -24,8 +25,10 @@ const clubs = plClubsSeed as Array<{
   crest: string;
 }>;
 
-const OPENFOOTBALL_BASE =
+const OPENFOOTBALL_JSON_BASE =
   "https://raw.githubusercontent.com/openfootball/football.json/master";
+const OPENFOOTBALL_ENGLAND_TXT =
+  "https://raw.githubusercontent.com/openfootball/england/master";
 
 interface FootballDataTeam {
   id?: number;
@@ -310,10 +313,10 @@ async function fetchFootballDataMatches(): Promise<{
   }
 }
 
-async function fetchOpenFootballSeason(
+async function fetchOpenFootballJsonSeason(
   seasonKey: string
 ): Promise<MatchInfo[] | null> {
-  const url = `${OPENFOOTBALL_BASE}/${seasonKey}/en.1.json`;
+  const url = `${OPENFOOTBALL_JSON_BASE}/${seasonKey}/en.1.json`;
   try {
     const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
     if (!res.ok) return null;
@@ -325,6 +328,33 @@ async function fetchOpenFootballSeason(
   } catch {
     return null;
   }
+}
+
+async function fetchOpenFootballTxtSeason(
+  seasonKey: string
+): Promise<MatchInfo[] | null> {
+  const url = `${OPENFOOTBALL_ENGLAND_TXT}/${seasonKey}/1-premierleague.txt`;
+  try {
+    const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
+    if (!res.ok) return null;
+    const text = await res.text();
+    const rows = parseOpenFootballLeagueTxt(text);
+    const matches = rows
+      .map(parseOpenFootballMatch)
+      .filter((m): m is MatchInfo => m != null);
+    return matches.length > 0 ? matches : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchOpenFootballSeason(
+  seasonKey: string
+): Promise<MatchInfo[] | null> {
+  return (
+    (await fetchOpenFootballJsonSeason(seasonKey)) ??
+    (await fetchOpenFootballTxtSeason(seasonKey))
+  );
 }
 
 function seedSeasonKey(now = new Date()): string {
@@ -364,7 +394,8 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * Premier League season payload.
- * Prefer openfootball for the *current* season; then football-data.org; then seed.
+ * Prefer openfootball for the *current* season (JSON, then england .txt);
+ * then football-data.org; then seed.
  * Do not fall back to last season's openfootball file — that kept the page on 25/26
  * after 26/27 had started while the mirror lagged.
  */

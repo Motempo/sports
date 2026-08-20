@@ -11,13 +11,16 @@ import { isMatchLive } from "@/lib/match-status";
 import { formatMatchVenueLine } from "@/lib/match-venue";
 import type { MatchInfo } from "@/lib/types";
 
-interface WorldCupNextEventProps {
+interface FeaturedMatchCardProps {
   match: MatchInfo | null;
-  groupMatches: MatchInfo[];
-  standings: GroupStandings[];
+  groupMatches?: MatchInfo[];
+  standings?: GroupStandings[];
 }
 
 function matchKicker(match: MatchInfo): string {
+  if (match.stage === "LEAGUE") {
+    return match.group?.trim() || "League match";
+  }
   if (match.stage === "GROUP" && match.group) {
     return match.group.replace("GROUP_", "Group ");
   }
@@ -48,14 +51,16 @@ function formatWhen(match: MatchInfo): string {
 
 function describeMatch(
   match: MatchInfo,
-  standings: GroupStandings[],
-  groupMatches: MatchInfo[]
+  standings?: GroupStandings[],
+  groupMatches?: MatchInfo[]
 ): string {
-  const stakes = getMatchStakes(match, standings, groupMatches);
-  const forecast = getMatchForecast(match);
-  if (stakes && forecast) return `${stakes} ${forecast}`;
-  if (stakes) return stakes;
-  if (forecast) return forecast;
+  if (match.stage !== "LEAGUE" && standings) {
+    const stakes = getMatchStakes(match, standings, groupMatches);
+    const forecast = getMatchForecast(match);
+    if (stakes && forecast) return `${stakes} ${forecast}`;
+    if (stakes) return stakes;
+    if (forecast) return forecast;
+  }
 
   const venue = formatMatchVenueLine(match);
   const home = teamLabel(match.homeTeam);
@@ -72,11 +77,11 @@ function headingFor(match: MatchInfo): string {
   return "Next match";
 }
 
-export function WorldCupNextEvent({
+export function FeaturedMatchCard({
   match,
   groupMatches,
   standings,
-}: WorldCupNextEventProps) {
+}: FeaturedMatchCardProps) {
   if (!match) return null;
 
   const live = isMatchLive(match.status);

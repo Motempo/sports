@@ -102,16 +102,19 @@ UI shells: `components/sports/{WorldCup,FormulaOne,PremierLeague,LaLiga}PageCont
 
 ## Cross-sport page shell (standard sections)
 
+Every sport page renders through `SportPageShell` in this order:
+
 1. Header + sport selector  
-2. Season / tournament rail  
+2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
-4. Standings or schedule (phase-dependent order)  
-5. Race / title trackers where applicable  
+4. Featured next event card (live first, else next match/session)  
+5. News + Fun facts  
 6. Mid-content ad  
-7. How it works primer  
-8. Awards / records (when implemented)  
-9. News + Fun facts  
-10. Footer + feedback  
+7. Standings, league table, or knockout bracket (one table)  
+8. Matches / weekend sessions  
+9. How it works primer  
+10. Awards / records when implemented  
+11. Footer + feedback  
 
 Phase modules: `*-phase.ts`. Guides: `*-guide.ts`.
 

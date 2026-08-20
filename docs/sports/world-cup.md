@@ -6,7 +6,7 @@
 
 ## Product intent
 
-Track FIFA World Cup 2026 (USA · Canada · Mexico): knockout tree above the fold historically; evolved to phase-aware layout with group standings, third-place trackers, schedule, awards, records, news, fun facts.
+Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-user shell: next match, news/facts, then standings or knockout, then the schedule.
 
 ## Data
 
@@ -21,13 +21,14 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico): knockout tree above the fol
 
 | Section | Components / notes |
 |---------|-------------------|
-| Rail | `TournamentRail` |
-| Groups / standings | Group grids + third-place tracker, annex C |
-| Knockout | `BracketTree` — Final-centered genealogical tree |
+| Rail | `TournamentRail` (compact) |
+| Next event | `FeaturedMatchCard` |
+| Widgets | News + Fun facts (`sportSlug="world-cup"`) |
+| Groups / standings | Group grids + third-place tracker (group stage) |
+| Knockout | `BracketTree` during knockouts |
 | Schedule | `ScheduleByDay` + watch links |
 | Primer | `RulesPrimer` / tournament guide |
 | Awards / records | `world-cup-awards.ts`, `world-cup-records.ts` |
-| Widgets | News + Fun facts (`sportSlug="world-cup"`) |
 
 ## Requirements highlights
 

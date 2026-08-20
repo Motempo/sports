@@ -14,8 +14,8 @@ interface SportPageShellProps {
   table: ReactNode;
   matches: ReactNode;
   howItWorks: ReactNode;
-  awards: ReactNode;
-  records: ReactNode;
+  awards?: ReactNode;
+  records?: ReactNode;
 }
 
 /** Shared returning-user layout used by every sport page. */

@@ -16,6 +16,7 @@ export interface F1SessionInfo {
   round: number;
   gpName: string;
   circuit: string;
+  circuitId?: string;
   country: string;
   countryCode?: string;
   sessionType: F1SessionType;
@@ -54,6 +55,7 @@ export interface F1GrandPrix {
   round: number;
   name: string;
   circuit: string;
+  circuitId?: string;
   country: string;
   countryCode?: string;
   date: string;

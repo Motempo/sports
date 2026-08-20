@@ -18,6 +18,7 @@ interface FormulaOneNextEventProps {
   driverStandings?: F1StandingRow[];
   constructorStandings?: F1ConstructorStandingRow[];
   venueImage?: VenueImage | null;
+  trackFact?: string | null;
 }
 
 function headingFor(event: FeaturedF1Event): string {
@@ -74,6 +75,7 @@ export function FormulaOneNextEvent({
   driverStandings,
   constructorStandings,
   venueImage,
+  trackFact,
 }: FormulaOneNextEventProps) {
   if (!event) return null;
 
@@ -111,6 +113,7 @@ export function FormulaOneNextEvent({
         titleFight,
         driverStandings,
         constructorStandings,
+        trackFact,
       })}
       watch={
         complete ? null : (

@@ -15,6 +15,7 @@ import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
 import { buildF1Awards } from "@/lib/f1-awards";
+import { getCircuitTrackFact } from "@/lib/f1-circuit-facts";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
 import { selectFeaturedF1Event } from "@/lib/f1-session-schedule";
@@ -34,11 +35,16 @@ export async function FormulaOnePageContent() {
   const featuredEvent = selectFeaturedF1Event(data.sessions, data.calendar);
   const circuit =
     featuredEvent?.kind === "session" ? featuredEvent.session.circuit : featuredEvent?.gp.circuit;
+  const circuitId =
+    featuredEvent?.kind === "session"
+      ? featuredEvent.session.circuitId
+      : featuredEvent?.gp.circuitId;
   const country =
     featuredEvent?.kind === "session" ? featuredEvent.session.country : featuredEvent?.gp.country;
-  const venueImage = circuit
-    ? await resolveVenueImage({ kind: "circuit", name: circuit, hint: country })
-    : null;
+  const [venueImage, trackFact] = await Promise.all([
+    circuit ? resolveVenueImage({ kind: "circuit", name: circuit, hint: country }) : null,
+    circuit ? getCircuitTrackFact({ circuitId, circuitName: circuit }) : null,
+  ]);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -56,6 +62,7 @@ export async function FormulaOnePageContent() {
           driverStandings={data.driverStandings}
           constructorStandings={data.constructorStandings}
           venueImage={venueImage}
+          trackFact={trackFact}
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="formula-1" />}

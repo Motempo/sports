@@ -82,6 +82,7 @@ Every sport page should provide:
 - FR-N1: News from curated RSS / Google News per sport (`data/sources/{slug}.json`).
 - FR-N2: Fun facts from static JSON + optional Wikipedia enrichment.
 - FR-N3: Pagination default: offset/limit with `limit` default 3.
+- FR-N4: News cards and the story modal show the post image when the feed or publisher page provides one, and play an embedded video when the post includes one (YouTube, Vimeo, or a direct video file).
 
 ### 6.3 Feedback
 

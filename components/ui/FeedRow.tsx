@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Play } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
 interface FeedRowProps {
@@ -12,6 +12,8 @@ interface FeedRowProps {
   verified?: boolean;
   content: string;
   meta?: string;
+  mediaUrl?: string;
+  mediaIsVideo?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -23,10 +25,17 @@ export function FeedRow({
   verified,
   content,
   meta,
+  mediaUrl,
+  mediaIsVideo,
   onClick,
   className,
 }: FeedRowProps) {
   const Wrapper = onClick ? "button" : "div";
+  const [mediaFailed, setMediaFailed] = useState(false);
+
+  useEffect(() => {
+    setMediaFailed(false);
+  }, [mediaUrl]);
 
   return (
     <Wrapper
@@ -57,6 +66,24 @@ export function FeedRow({
           <p className="mt-1 break-words text-[12px] text-muted sm:text-[13px]">{meta}</p>
         )}
       </div>
+      {mediaUrl && !mediaFailed && (
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-border sm:h-[4.5rem] sm:w-[4.5rem]">
+          <Image
+            src={mediaUrl}
+            alt=""
+            width={72}
+            height={72}
+            className="h-full w-full object-cover"
+            unoptimized
+            onError={() => setMediaFailed(true)}
+          />
+          {mediaIsVideo && (
+            <span className="absolute inset-0 flex items-center justify-center bg-black/40">
+              <Play className="h-5 w-5 fill-white text-white" aria-hidden />
+            </span>
+          )}
+        </div>
+      )}
     </Wrapper>
   );
 }

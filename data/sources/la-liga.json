@@ -88,7 +88,7 @@
       "description": "Match reports and Spanish football news.",
       "reliability": "high",
       "category": "Major Media",
-      "rssUrl": "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"
+      "rssUrl": "https://feeds.bbci.co.uk/sport/football/rss.xml"
     },
     {
       "rank": 7,

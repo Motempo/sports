@@ -31,6 +31,8 @@ export interface MatchInfo {
 
 export type BracketRound = "R32" | "R16" | "QF" | "SF" | "FINAL" | "THIRD";
 
+export type NewsVideoKind = "youtube" | "vimeo" | "file";
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -39,6 +41,8 @@ export interface NewsItem {
   publishedAt: string;
   url: string;
   imageUrl?: string;
+  videoUrl?: string;
+  videoKind?: NewsVideoKind;
   xHandle: string;
   xName: string;
   xAvatar: string;

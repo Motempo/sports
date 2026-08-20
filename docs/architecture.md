@@ -46,7 +46,7 @@ flowchart TB
 
 | Route | Methods | Purpose | Auth |
 |-------|---------|---------|------|
-| `/api/news` | GET | Paginated RSS news | Public |
+| `/api/news` | GET | Paginated RSS news (+ image/video enrichment) | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
@@ -90,7 +90,7 @@ Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, ca
 | Club tables | `league-standings.ts` |
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts` |
 | Forecast copy | `match-forecast.ts` |
-| News / facts | `news.ts`, `facts.ts`, `sport-sources.ts` |
+| News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
 | Venues | `match-venue.ts` |
 | Ads | `ads-config.ts`, `ad-consent.ts` |
 | Feedback | `linear-issues.ts`, `feedback-context.ts`, `rate-limit.ts` |

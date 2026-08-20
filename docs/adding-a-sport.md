@@ -27,7 +27,7 @@ Per [`data/sources/README.md`](../data/sources/README.md):
 
 1. Ask Grok to research reliable X/news sources for the sport  
 2. Create `data/sources/{slug}.json` (use `world-cup.json` template)  
-3. Map `rssUrl` for live news without X API  
+3. Map `rssUrl` for live news without X API (prefer feeds that include image/video media tags)
 4. Add `data/fun-facts/{slug}.json`  
 5. Register in `lib/facts.ts` and `lib/sport-sources.ts`  
 6. Confirm `/api/news?sport=` and `/api/facts?sport=`

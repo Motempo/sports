@@ -63,7 +63,7 @@ export function WeekendSessionsByDay({
   sessions,
   source,
   nextGp = null,
-  title = "Matches",
+  title = "This Weekend",
 }: WeekendSessionsByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);

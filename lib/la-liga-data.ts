@@ -308,7 +308,7 @@ async function fetchOpenFootballSeason(
 }
 
 function seedSeasonKey(now = new Date()): string {
-  return seasonCandidates(now)[1] ?? "2025-26";
+  return seasonCandidates(now)[0] ?? "2026-27";
 }
 
 /** Circle-method pairings so each preview matchday has unique fixtures. */
@@ -373,15 +373,16 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * La Liga season payload.
- * Prefer openfootball public JSON (no key); fall back to football-data.org when
- * the key has PD access; then a lightweight seed preview.
+ * Prefer openfootball for the *current* season; then football-data.org; then seed.
+ * Do not fall back to last season's openfootball file when the mirror lags.
  */
 export async function fetchLaLigaSeason(): Promise<LaLigaSeasonData> {
-  for (const seasonKey of seasonCandidates()) {
-    const matches = await fetchOpenFootballSeason(seasonKey);
-    if (matches) {
-      return buildPayload(matches, seasonKey, "openfootball");
-    }
+  const [currentSeason] = seasonCandidates();
+  const currentKey = currentSeason ?? "2026-27";
+
+  const openfootball = await fetchOpenFootballSeason(currentKey);
+  if (openfootball) {
+    return buildPayload(openfootball, currentKey, "openfootball");
   }
 
   const api = await fetchFootballDataMatches();
@@ -389,6 +390,5 @@ export async function fetchLaLigaSeason(): Promise<LaLigaSeasonData> {
     return buildPayload(api.matches, api.seasonKey, "api");
   }
 
-  const seasonKey = seedSeasonKey();
-  return buildPayload(generateSeedMatches(seasonKey), seasonKey, "seed");
+  return buildPayload(generateSeedMatches(currentKey), currentKey, "seed");
 }

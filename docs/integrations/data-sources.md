@@ -45,6 +45,12 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 - Enrichment: Wikipedia REST summary when `wikipediaTitle` set
 - Module: `lib/facts.ts`
 
+## Venue photos
+
+- Next-event card: Wikipedia / Wikimedia Commons
+- F1 uses the circuit (prefer aerial track photos); football uses the match stadium or the home club’s ground
+- Module: `lib/venue-image.ts`
+
 ## Other
 
 | Source | Use |

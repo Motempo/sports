@@ -15,12 +15,14 @@ import { SportPageShell } from "@/components/sports/SportPageShell";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
+import { resolveMatchVenueImage } from "@/lib/venue-image";
 
 export const revalidate = 120;
 
 export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const featuredMatch = selectFeaturedMatch(data.matches);
+  const venueImage = await resolveMatchVenueImage(featuredMatch);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -38,6 +40,7 @@ export async function LaLigaPageContent() {
           leagueStandings={data.standings}
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
+          venueImage={venueImage}
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="la-liga" />}

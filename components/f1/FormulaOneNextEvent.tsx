@@ -8,6 +8,7 @@ import {
   type FeaturedF1Event,
 } from "@/lib/f1-session-schedule";
 import type { F1ConstructorStandingRow, F1StandingRow, F1TitleFightInsight } from "@/lib/f1-types";
+import type { VenueImage } from "@/lib/types";
 import { getSessionWatchLinks } from "@/lib/f1-watch-links";
 import { getFlagUrl } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ interface FormulaOneNextEventProps {
   titleFight?: F1TitleFightInsight | null;
   driverStandings?: F1StandingRow[];
   constructorStandings?: F1ConstructorStandingRow[];
+  venueImage?: VenueImage | null;
 }
 
 function headingFor(event: FeaturedF1Event): string {
@@ -71,6 +73,7 @@ export function FormulaOneNextEvent({
   titleFight,
   driverStandings,
   constructorStandings,
+  venueImage,
 }: FormulaOneNextEventProps) {
   if (!event) return null;
 
@@ -115,6 +118,8 @@ export function FormulaOneNextEvent({
         )
       }
       emblems={<CountryFlag code={countryCode} name={country} />}
+      imageUrl={venueImage?.url}
+      imageAlt={venueImage?.alt ?? location}
     />
   );
 }

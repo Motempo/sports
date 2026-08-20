@@ -9,7 +9,7 @@ import type { GroupStandings } from "@/lib/group-standings";
 import { isMatchLive } from "@/lib/match-status";
 import { formatMatchVenueLine } from "@/lib/match-venue";
 import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
-import type { MatchInfo } from "@/lib/types";
+import type { MatchInfo, VenueImage } from "@/lib/types";
 
 interface FeaturedMatchCardProps {
   match: MatchInfo | null;
@@ -18,6 +18,7 @@ interface FeaturedMatchCardProps {
   leagueStandings?: LeagueStandings;
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
+  venueImage?: VenueImage | null;
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -65,6 +66,7 @@ export function FeaturedMatchCard({
   leagueStandings,
   titleRace,
   relegationRace,
+  venueImage,
 }: FeaturedMatchCardProps) {
   if (!match) return null;
 
@@ -87,6 +89,8 @@ export function FeaturedMatchCard({
         relegationRace,
       })}
       watch={match.status === "CANCELLED" ? null : <MatchWatchLinks match={match} />}
+      imageUrl={venueImage?.url}
+      imageAlt={venueImage?.alt ?? formatMatchVenueLine(match) ?? teamLabel(match.homeTeam)}
       emblems={
         <div className="flex items-center gap-3 sm:gap-4">
           <TeamCard team={match.homeTeam} align="left" />

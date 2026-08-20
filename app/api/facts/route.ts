@@ -20,9 +20,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(enriched, { headers: NO_CACHE_HEADERS });
   }
 
-  const offset = parseInt(searchParams.get("offset") ?? "0", 10);
+  const offsetParam = searchParams.get("offset");
+  const offset =
+    offsetParam == null || offsetParam === "" ? undefined : parseInt(offsetParam, 10);
   const limit = parseInt(searchParams.get("limit") ?? "3", 10);
-  const items = getFactsPage(sport, offset, limit);
+  const exclude = (searchParams.get("exclude") ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const page = getFactsPage(
+    sport,
+    Number.isFinite(offset) ? offset : undefined,
+    limit,
+    exclude
+  );
 
-  return NextResponse.json({ items, sport }, { headers: NO_CACHE_HEADERS });
+  return NextResponse.json({ ...page, sport }, { headers: NO_CACHE_HEADERS });
 }

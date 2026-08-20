@@ -6,7 +6,7 @@ import {
   todayKey,
 } from "@/lib/match-timezone";
 import type { MatchInfo } from "@/lib/types";
-import { LIVE_MATCH_STATUSES } from "@/lib/match-status";
+import { isMatchLive, LIVE_MATCH_STATUSES } from "@/lib/match-status";
 
 export interface MatchDayGroup {
   dayKey: string;
@@ -136,4 +136,31 @@ export function combineScheduleMatches(
   }
 
   return combined.sort(sortMatchesInDay);
+}
+
+/**
+ * Featured match for returning users: live first, then the soonest scheduled
+ * kickoff, then the most recent finished match (tournament complete).
+ */
+export function selectFeaturedMatch(
+  matches: MatchInfo[],
+  now = new Date()
+): MatchInfo | null {
+  const live = matches
+    .filter((match) => isMatchLive(match.status))
+    .sort(sortMatchesInDay);
+  if (live[0]) return live[0];
+
+  const upcoming = matches
+    .filter((match) => {
+      if (match.status !== "SCHEDULED") return false;
+      return new Date(match.utcDate).getTime() >= now.getTime() - 60_000;
+    })
+    .sort(sortMatchesInDay);
+  if (upcoming[0]) return upcoming[0];
+
+  const finished = matches
+    .filter((match) => match.status === "FINISHED")
+    .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime());
+  return finished[0] ?? null;
 }

@@ -64,15 +64,55 @@ export function getAllFacts(sportSlug: string): FunFact[] {
   return getSportFacts(sportSlug);
 }
 
-export function getFactsPage(sportSlug: string, offset: number, limit = 3): FunFact[] {
+const FACTS_ROTATION_MS = 6 * 60 * 60 * 1000;
+
+export function getFactsRotationOffset(factCount: number, now = new Date()): number {
+  if (factCount <= 0) return 0;
+  return Math.floor(now.getTime() / FACTS_ROTATION_MS) % factCount;
+}
+
+export function getFactsPage(
+  sportSlug: string,
+  offset: number | undefined,
+  limit = 3,
+  exclude: string[] = []
+): { items: FunFact[]; nextOffset: number; wrapped: boolean } {
   const facts = getSportFacts(sportSlug);
-  if (facts.length === 0) return [];
-  const start = offset % facts.length;
-  const result: FunFact[] = [];
-  for (let i = 0; i < limit; i++) {
-    result.push(facts[(start + i) % facts.length]);
+  if (facts.length === 0) {
+    return { items: [], nextOffset: 0, wrapped: false };
   }
-  return result;
+
+  const start = ((offset ?? getFactsRotationOffset(facts.length)) % facts.length + facts.length) % facts.length;
+  const excludeSet = new Set(exclude);
+  const items: FunFact[] = [];
+  let lastIndex = start;
+  const target = Math.min(limit, facts.length);
+
+  for (let i = 0; i < facts.length && items.length < target; i++) {
+    const idx = (start + i) % facts.length;
+    const fact = facts[idx]!;
+    if (excludeSet.has(fact.id)) continue;
+    items.push(fact);
+    lastIndex = idx;
+  }
+
+  let wrapped = false;
+  if (items.length < target) {
+    wrapped = true;
+    for (let i = 0; i < facts.length && items.length < target; i++) {
+      const idx = (start + i) % facts.length;
+      const fact = facts[idx]!;
+      if (items.some((item) => item.id === fact.id)) continue;
+      items.push(fact);
+      lastIndex = idx;
+    }
+  }
+
+  return {
+    items,
+    nextOffset: (lastIndex + 1) % facts.length,
+    wrapped,
+  };
 }
 
 export function getFactById(sportSlug: string, id: string): FunFact | undefined {

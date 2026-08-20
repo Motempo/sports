@@ -129,6 +129,7 @@ See `.env.example`. Summary:
 |----------|------|
 | `FOOTBALL_DATA_API_KEY` | WC / PL / PD + scorers |
 | `F1_SEASON` | Override F1 year |
+| `APIXAPI_KEY` | Optional ApiTwitter key for live X news (`APITWITTER_API_KEY` alias) |
 | `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
 | `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear |

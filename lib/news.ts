@@ -20,6 +20,7 @@ import {
   type ResolvedSportSource,
 } from "@/lib/sport-sources";
 import type { NewsItem } from "@/lib/types";
+import { fetchNewsItemsFromX } from "@/lib/x-news";
 
 const USER_AGENT = "Mozilla/5.0 (compatible; Sports-by-Motempo/1.0; +https://sports.motempo.com)";
 const OG_TIMEOUT_MS = 8000;
@@ -182,6 +183,10 @@ async function fetchSourceFeed(
 }
 
 export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
+  // Prefer live X timelines when APIXAPI is configured (MOT-48).
+  const fromX = await fetchNewsItemsFromX(sportSlug);
+  if (fromX && fromX.length > 0) return fromX;
+
   const sources = getNewsFeedSources(sportSlug);
   const keywordPattern = getNewsKeywordPattern(sportSlug);
   const results = await Promise.all(

@@ -13,7 +13,7 @@ import { GroupStageStatus } from "@/components/tournament/GroupStageStatus";
 import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
-import { WorldCupNextEvent } from "@/components/tournament/WorldCupNextEvent";
+import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
 import { WorldCupAwardsSection } from "@/components/tournament/WorldCupAwardsSection";
 import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsSection";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
@@ -101,7 +101,7 @@ export async function WorldCupPageContent() {
       rail={<TournamentRail phase={phase} knockoutMatches={matches} />}
       headerAd={<WorldCupAdPlacements />}
       nextEvent={
-        <WorldCupNextEvent
+        <FeaturedMatchCard
           match={featuredMatch}
           groupMatches={groupMatches}
           standings={standings}

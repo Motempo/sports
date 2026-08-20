@@ -35,8 +35,9 @@ Per [`data/sources/README.md`](../data/sources/README.md):
 ## 5. UI shell
 
 - [ ] `app/{slug}/page.tsx` + `opengraph-image.tsx`
-- [ ] `components/sports/{Sport}PageContent.tsx` following the standard section order
-- [ ] Sport-specific rail, how-it-works, standings/schedule components
+- [ ] `components/sports/{Sport}PageContent.tsx` using `SportPageShell` (same 8-section order as F1 / World Cup / Premier League / La Liga)
+- [ ] Featured next-event card (`FeaturedMatchCard` or F1 equivalent)
+- [ ] Sport-specific rail (compact: title + chips + one intro line), how-it-works, standings/schedule
 - [ ] Awards + records sections when content exists
 - [ ] `components/ads/{Sport}AdPlacements.tsx`
 - [ ] Add `/{slug}` (+ trailing slash) to `middleware.ts` `config.matcher` (last-viewed sport cookie)

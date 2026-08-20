@@ -71,19 +71,7 @@ export function PremierLeagueRail({ phase, seasonLabel }: PremierLeagueRailProps
           </div>
         </div>
 
-        <div className="mt-3 space-y-3 rounded-2xl border border-border/60 bg-background/50 px-3 py-3 sm:px-4 sm:py-4">
-          <p className="text-[13px] font-medium leading-snug text-foreground sm:text-[14px]">
-            {guide.intro}
-          </p>
-          <div className="space-y-2.5">
-            {guide.sections.map((section) => (
-              <p key={section.title} className="text-[12px] leading-relaxed text-muted sm:text-[13px]">
-                <span className="font-semibold text-foreground">{section.title}. </span>
-                {section.body}
-              </p>
-            ))}
-          </div>
-        </div>
+        <p className="mt-3 text-[13px] leading-snug text-muted sm:text-[14px]">{guide.intro}</p>
       </div>
     </section>
   );

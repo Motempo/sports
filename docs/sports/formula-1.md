@@ -30,10 +30,8 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | Env | `F1_SEASON` (defaults to calendar year) |
 | Key libs | `lib/f1-data.ts`, `f1-phase.ts`, `f1-guide.ts`, `f1-awards.ts`, `f1-records.ts`, `f1-types.ts` |
 
-## Phase-dependent layout
+## Returning-user layout
 
-- Pre-season / off-week: calendar + primer first  
-- Race weekend: standings + This Weekend first  
-- Season complete: final standings + champion callout  
+Shared `SportPageShell` order (same as World Cup / Premier League / La Liga): compact rail → next event → news/facts → championship standings → matches (weekend sessions) → How F1 Works → awards → records.
 
 Do **not** overload `MatchInfo` for F1 — use F1-specific types.

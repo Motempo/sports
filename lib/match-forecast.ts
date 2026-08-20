@@ -337,7 +337,7 @@ function upcomingForecast(match: MatchInfo): string {
 }
 
 export function getMatchForecast(match: MatchInfo): string | null {
-  if (match.stage === "GROUP") return null;
+  if (match.stage === "GROUP" || match.stage === "LEAGUE") return null;
 
   const homePlaceholder = isPlaceholderTeam(match.homeTeam.code, match.homeTeam.name);
   const awayPlaceholder = isPlaceholderTeam(match.awayTeam.code, match.awayTeam.name);

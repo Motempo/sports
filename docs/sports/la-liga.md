@@ -20,6 +20,7 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 
 ## UI
 
+- Shared `SportPageShell` + featured next-match card
 - `LaLigaSeasonRail`, reuses PL `LeagueTable` + `RaceTracker`
 - `HowLaLigaWorks`, news/facts, ads, OG image
 

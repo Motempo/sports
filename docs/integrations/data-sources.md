@@ -53,7 +53,7 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 
 ## Venue photos
 
-- Next-event card: Wikipedia / Wikimedia Commons (circuits prefer on-track race photos over aerial maps)
+- Next-event card: Wikipedia / Wikimedia Commons (F1 circuits prefer schematic layout maps like the official site; stadiums prefer photographs)
 - F1 uses the circuit (prefer aerial track photos); football uses the match stadium or the home club’s ground
 - Module: `lib/venue-image.ts`
 

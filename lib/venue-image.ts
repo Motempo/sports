@@ -101,22 +101,37 @@ interface MediaItem {
 
 function fileScore(fileTitle: string, kind: VenueImageKind, lead: boolean): number {
   const name = fileTitle.toLowerCase();
-  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram|svg_map|layout_map/.test(name)) return -100;
-  if (name.endsWith(".svg")) return -90;
+  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram/.test(name)) return -100;
 
-  let score = lead ? 8 : 0;
-  if (/\.jpe?g/.test(name)) score += 18;
-  if (name.endsWith(".png")) score += 4;
+  let score = lead ? 10 : 0;
 
   if (kind === "circuit") {
-    // Prefer on-track / race-day photographs over aerial diagrams (MOT-49).
-    if (/map|diagram|layout|plan_|svg/.test(name)) score -= 40;
-    if (/aerial|from_air|air_|drone|satellite/.test(name)) score -= 20;
-    if (/motorsport|race_track|grandstand|pit_lane|paddock|turn_|corner/.test(name)) score += 26;
-    if (/f1|formula|grand_prix|gp_|racing/.test(name)) score += 14;
-    if (/circuit|track|zandvoort|suzuka|monza|spa|silverstone/.test(name)) score += 8;
-  } else if (/aerial|panorama|stadium|estadio/.test(name)) {
-    score += 16;
+    // MOT-49: prefer official-style track schematics / layout maps, not race photography.
+    const isHistoricalLayout = /19(4|5|6|7|8|9)\d|vs_19|compared|evolution/.test(name);
+    const isSchematic =
+      /circuit\.(png|svg)$/.test(name) ||
+      (/circuit|track|layout|map|diagram|schematic|plan/.test(name) &&
+        (name.endsWith(".svg") || name.endsWith(".png")));
+
+    if (isHistoricalLayout) score -= 35;
+    if (isSchematic) score += 50;
+    if (name.endsWith(".svg") && /circuit|track|layout|map/.test(name) && !isHistoricalLayout) {
+      score += 20;
+    }
+    if (lead && isSchematic) score += 15;
+
+    // Demote photos of cars / crowds / aerial scenery.
+    if (/motorsport|race_track|grandstand|pit_lane|paddock|start_|dtm_|bestanddeelnr/.test(name)) {
+      score -= 30;
+    }
+    if (/aerial|from_air|air_|drone|satellite/.test(name)) score -= 25;
+    if (/\.jpe?g/.test(name) && !isSchematic) score -= 10;
+    if (/circuit|track|zandvoort|suzuka|monza|spa|silverstone/.test(name)) score += 6;
+  } else {
+    if (name.endsWith(".svg")) return -80;
+    if (/\.jpe?g/.test(name)) score += 18;
+    if (name.endsWith(".png")) score += 8;
+    if (/aerial|panorama|stadium|estadio/.test(name)) score += 16;
   }
   return score;
 }
@@ -163,9 +178,16 @@ async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<st
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  for (const { item } of ranked.slice(0, 6)) {
+  for (const { item } of ranked.slice(0, 8)) {
+    // Circuit schematics are often SVG — use rendered thumbnails.
+    if (kind === "circuit" && item.title) {
+      const original = await fileOriginalUrl(item.title);
+      if (original) return original;
+    }
     const fromSet = bestSrcsetUrl(item);
-    if (fromSet && !fromSet.toLowerCase().includes(".svg")) return fromSet;
+    if (fromSet) {
+      if (kind === "circuit" || !fromSet.toLowerCase().includes(".svg")) return fromSet;
+    }
     if (item.title) {
       const original = await fileOriginalUrl(item.title);
       if (original) return original;
@@ -177,7 +199,12 @@ async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<st
 function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[] {
   const trimmed = name.trim();
   if (kind === "circuit") {
-    return [`${trimmed} Grand Prix circuit`, `${trimmed} racing circuit`, trimmed];
+    return [
+      `${trimmed} circuit map`,
+      `${trimmed} Grand Prix circuit layout`,
+      `${trimmed} racing circuit`,
+      trimmed,
+    ];
   }
   const stadiumish = /stadium|estadio|arena|ground|park|field/i.test(trimmed);
   const queries = stadiumish ? [trimmed] : [`${trimmed} football stadium`, `${trimmed} stadium`];

@@ -1,0 +1,39 @@
+---
+description: Motempo Sports backend context — where BRDs and architecture docs live
+alwaysApply: true
+---
+
+# Sports backend workspace
+
+You are working on **Motempo Sports** (`sports.motempo.com`, repo Motempo/sports).
+
+## Read docs first
+
+Authoritative product + architecture docs live in **`docs/`**. Before inventing requirements, open the relevant file:
+
+| Need | File |
+|------|------|
+| Product BRD / constraints | `docs/BRD.md` |
+| Architecture, APIs, env, data cascade | `docs/architecture.md` |
+| Onboard a sport | `docs/adding-a-sport.md` |
+| Per-sport specs | `docs/sports/{world-cup,formula-1,premier-league,la-liga}.md` |
+| Data / Linear / ads | `docs/integrations/` |
+| Index | `docs/README.md` |
+
+Original Cursor plans (external): `~/.cursor/plans/world_cup_tracker_app_*.plan.md`, `formula_one_page_*.plan.md`, `sports_site_ads_*.plan.md`, `motempo_ops_loop_*.plan.md`.
+
+## Hard constraints (do not violate)
+
+- **$0/month experiment:** free APIs + seed fallbacks; no Redis/DB/auth on the public sports app unless explicitly requested
+- **Family-friendly:** no betting/odds widgets; ads stay behind kill switches and off bracket/match cards
+- **Cascade:** live API → open mirror → local seed; never expose API keys to the client
+- **Registry:** `lib/sports.ts` is the sports source of truth (`CURRENT_SPORT_SLUG` = homepage)
+
+## Backend patterns
+
+- Prefer Server Components in `components/sports/*PageContent.tsx` for sports data (not new REST unless needed)
+- BFF only for news/facts/feedback under `app/api/`
+- Club leagues: `stage: "LEAGUE"`, matchday in `group`; reuse `lib/league-standings.ts` + `match-schedule.ts`
+- Homepage `/` redirects via `middleware.ts` using essential cookie `motempo-sports-last-sport` (see `lib/last-sport.ts`); falls back to `CURRENT_SPORT_SLUG`
+- When requirements change, **update `docs/` in the same change**
+- New sport routes: add the slug to `middleware.ts` `config.matcher` so last-viewed recall works

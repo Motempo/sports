@@ -1,15 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/formula-1",
-        permanent: true,
-      },
-    ];
-  },
+  // Homepage routing is handled by middleware (last-viewed sport cookie → fallback CURRENT_SPORT_SLUG).
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "flagcdn.com" },

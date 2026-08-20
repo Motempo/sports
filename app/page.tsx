@@ -1,6 +1,10 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { CURRENT_SPORT_SLUG } from "@/lib/sports";
+import { LAST_SPORT_COOKIE, resolveHomeSportSlug } from "@/lib/last-sport";
 
-export default function RootPage() {
-  redirect(`/${CURRENT_SPORT_SLUG}`);
+/** Fallback if middleware does not run; prefer remembered sport cookie. */
+export default async function RootPage() {
+  const jar = await cookies();
+  const target = resolveHomeSportSlug(jar.get(LAST_SPORT_COOKIE)?.value);
+  redirect(`/${target}`);
 }

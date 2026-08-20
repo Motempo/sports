@@ -7,6 +7,7 @@ import {
   combineScheduleMatches,
   groupMatchesByLocalDay,
   selectScheduleMatches,
+  selectSeasonTailMatches,
   type MatchDayGroup,
 } from "@/lib/match-schedule";
 import type { GroupStandings } from "@/lib/group-standings";
@@ -23,6 +24,8 @@ interface ScheduleByDayProps {
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
   title?: string;
+  /** When the forward window is empty, show the final stretch of finished matches. */
+  showSeasonTailWhenEmpty?: boolean;
 }
 
 function DayColumn({
@@ -67,6 +70,7 @@ export function ScheduleByDay({
   groupMatches,
   standings,
   title = "Matches",
+  showSeasonTailWhenEmpty = false,
 }: ScheduleByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
@@ -83,8 +87,22 @@ export function ScheduleByDay({
         ? groupMatches
         : combineScheduleMatches(todayMatches, upcomingMatches));
     const filtered = selectScheduleMatches(raw, now, timeZone);
-    return groupMatchesByLocalDay(filtered, now, timeZone);
-  }, [scheduleMatches, groupMatches, todayMatches, upcomingMatches, timeZone]);
+    if (filtered.length > 0) {
+      return groupMatchesByLocalDay(filtered, now, timeZone);
+    }
+    if (!showSeasonTailWhenEmpty) {
+      return groupMatchesByLocalDay(filtered, now, timeZone);
+    }
+    const tail = selectSeasonTailMatches(raw);
+    return groupMatchesByLocalDay(tail, now, timeZone, { includePastDays: true });
+  }, [
+    scheduleMatches,
+    groupMatches,
+    todayMatches,
+    upcomingMatches,
+    timeZone,
+    showSeasonTailWhenEmpty,
+  ]);
 
   useEffect(() => {
     setVisibleRows(1);

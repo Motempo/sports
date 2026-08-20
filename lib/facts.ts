@@ -1,5 +1,7 @@
 import worldCupFacts from "@/data/fun-facts/world-cup.json";
 import formulaOneFacts from "@/data/fun-facts/formula-1.json";
+import premierLeagueFacts from "@/data/fun-facts/premier-league.json";
+import laLigaFacts from "@/data/fun-facts/la-liga.json";
 import {
   getFactSourceHandles,
   getSourceByHandle,
@@ -24,6 +26,8 @@ interface FunFactSeed {
 const FACTS_BY_SPORT: Record<string, FunFactSeed[]> = {
   "world-cup": worldCupFacts as FunFactSeed[],
   "formula-1": formulaOneFacts as FunFactSeed[],
+  "premier-league": premierLeagueFacts as FunFactSeed[],
+  "la-liga": laLigaFacts as FunFactSeed[],
 };
 
 function buildFactsForSport(sportSlug: string): FunFact[] {
@@ -31,7 +35,16 @@ function buildFactsForSport(sportSlug: string): FunFact[] {
   const handles = getFactSourceHandles(sportSlug);
 
   return seeds.map((fact) => {
-    const handle = fact.sourceHandle ?? handles[0] ?? (sportSlug === "formula-1" ? "F1" : "FIFAWorldCup");
+    const handle =
+      fact.sourceHandle ??
+      handles[0] ??
+      (sportSlug === "formula-1"
+        ? "F1"
+        : sportSlug === "premier-league"
+          ? "premierleague"
+          : sportSlug === "la-liga"
+            ? "LaLigaEN"
+            : "FIFAWorldCup");
     const source = getSourceByHandle(sportSlug, handle);
     return {
       ...fact,

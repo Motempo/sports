@@ -79,6 +79,26 @@ export function selectScheduleMatches(
     .sort(sortMatchesInDay);
 }
 
+/**
+ * Final stretch of a finished season — last `dayWindow` calendar days that had
+ * fixtures, used when nothing remains in the forward schedule horizon.
+ */
+export function selectSeasonTailMatches(
+  matches: MatchInfo[],
+  dayWindow = 21
+): MatchInfo[] {
+  const finished = matches
+    .filter((m) => m.status === "FINISHED")
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime());
+
+  if (finished.length === 0) return [];
+
+  const lastKick = new Date(finished[finished.length - 1]!.utcDate).getTime();
+  const cutoff = lastKick - dayWindow * 24 * 60 * 60 * 1000;
+
+  return finished.filter((m) => new Date(m.utcDate).getTime() >= cutoff);
+}
+
 function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
   return new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime();
 }
@@ -86,7 +106,8 @@ function sortMatchesInDay(a: MatchInfo, b: MatchInfo): number {
 export function groupMatchesByLocalDay(
   matches: MatchInfo[],
   now = new Date(),
-  timeZone?: string
+  timeZone?: string,
+  options?: { includePastDays?: boolean }
 ): MatchDayGroup[] {
   const tz = resolveScheduleTimeZone(timeZone);
   const today = todayKey(now, tz);
@@ -94,7 +115,7 @@ export function groupMatchesByLocalDay(
 
   for (const match of matches) {
     const key = localDayKeyFromUtc(match.utcDate, tz);
-    if (key < today) continue;
+    if (!options?.includePastDays && key < today) continue;
 
     const list = buckets.get(key) ?? [];
     list.push(match);
@@ -110,7 +131,7 @@ export function groupMatchesByLocalDay(
       matches: [...dayMatches].sort(sortMatchesInDay),
     }));
 
-  if (groups.length > 0 && groups[0]!.dayKey > today) {
+  if (!options?.includePastDays && groups.length > 0 && groups[0]!.dayKey > today) {
     groups.unshift({
       dayKey: today,
       dayStart: dayKeyToLocalDate(today),

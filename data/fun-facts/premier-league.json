@@ -1,0 +1,122 @@
+[
+  {
+    "id": "pl-fact-1",
+    "title": "Founded in 1992",
+    "summary": "The Premier League broke away from the Football League First Division to form its own competition.",
+    "category": "History",
+    "emoji": "📅",
+    "wikipediaTitle": "Premier League",
+    "detail": "The FA Premier League began in 1992 with 22 clubs (later 20). It became the most-watched domestic football league in the world, built on a new domestic TV deal.",
+    "sourceHandle": "premierleague"
+  },
+  {
+    "id": "pl-fact-2",
+    "title": "38-match season",
+    "summary": "Each of the 20 clubs plays every other club home and away — 380 fixtures in total.",
+    "category": "Format",
+    "emoji": "📅",
+    "wikipediaTitle": "Premier League",
+    "detail": "Unlike World Cup knockouts, the Premier League is a pure double round-robin. Points decide the champion, European places, and the three relegated clubs.",
+    "sourceHandle": "premierleague"
+  },
+  {
+    "id": "pl-fact-3",
+    "title": "Three points for a win",
+    "summary": "England adopted three points for a win in 1981; the Premier League kept the rule from day one.",
+    "category": "Rules",
+    "emoji": "3️⃣",
+    "wikipediaTitle": "Three points for a win",
+    "detail": "A win is worth three points, a draw one, and a loss zero. Goal difference then goals scored break ties before any play-off scenarios.",
+    "sourceHandle": "BBCSport"
+  },
+  {
+    "id": "pl-fact-4",
+    "title": "Relegation and promotion",
+    "summary": "The bottom three drop to the Championship; three clubs come up each summer.",
+    "category": "Format",
+    "emoji": "⬇️",
+    "wikipediaTitle": "English football league system",
+    "detail": "Promotion keeps the league competitive across eras. Newly promoted clubs often fight for survival while established big six sides chase Europe.",
+    "sourceHandle": "SkySportsPL"
+  },
+  {
+    "id": "pl-fact-5",
+    "title": "European places",
+    "summary": "Top-four clubs usually qualify for the Champions League; cups can reshuffle Europa and Conference slots.",
+    "category": "Europe",
+    "emoji": "🇪🇺",
+    "wikipediaTitle": "UEFA coefficient",
+    "detail": "England's strong UEFA coefficient has added Champions League spots in some seasons. Domestic cups (FA Cup, League Cup) also feed European berths.",
+    "sourceHandle": "UEFA"
+  },
+  {
+    "id": "pl-fact-6",
+    "title": "Invincibles",
+    "summary": "Arsenal went unbeaten across the entire 2003–04 Premier League season.",
+    "category": "Records",
+    "emoji": "🥇",
+    "wikipediaTitle": "The Invincibles (football)",
+    "detail": "Arsène Wenger's Arsenal side finished 26–12–0. No Premier League club has matched a full unbeaten title season since.",
+    "sourceHandle": "Arsenal"
+  },
+  {
+    "id": "pl-fact-7",
+    "title": "100-point City",
+    "summary": "Manchester City set the points record with 100 in 2017–18.",
+    "category": "Records",
+    "emoji": "💯",
+    "wikipediaTitle": "2017–18 Manchester City F.C. season",
+    "detail": "Pep Guardiola's City won 32 matches and scored 106 goals that season, rewriting the modern points standard for a 38-game campaign.",
+    "sourceHandle": "ManCity"
+  },
+  {
+    "id": "pl-fact-8",
+    "title": "Golden Boot tradition",
+    "summary": "The season's top scorer wins the Golden Boot — often shared when tallies finish level.",
+    "category": "Awards",
+    "emoji": "⚽",
+    "wikipediaTitle": "Premier League Golden Boot",
+    "detail": "Icons from Shearer and Henry to Salah and Haaland have topped the charts. Assists have a parallel award: the Playmaker.",
+    "sourceHandle": "ESPNFC"
+  },
+  {
+    "id": "pl-fact-9",
+    "title": "Boxing Day football",
+    "summary": "A packed festive fixture list is a Premier League tradition rarely matched abroad.",
+    "category": "Culture",
+    "emoji": "🎄",
+    "wikipediaTitle": "Boxing Day",
+    "detail": "Clubs often play on Boxing Day and again days later, turning December into one of the season's toughest scheduling stretches.",
+    "sourceHandle": "TheAthleticFC"
+  },
+  {
+    "id": "pl-fact-10",
+    "title": "Global audience",
+    "summary": "Matches are broadcast in more than 200 territories worldwide.",
+    "category": "Media",
+    "emoji": "🌍",
+    "wikipediaTitle": "Premier League",
+    "detail": "Morning kickoffs in England are prime time across Asia and late nights in the Americas — a key reason the league became a global sports product.",
+    "sourceHandle": "SkySports"
+  },
+  {
+    "id": "pl-fact-11",
+    "title": "VAR era",
+    "summary": "Video Assistant Referee reviews arrived in the Premier League in 2019–20.",
+    "category": "Rules",
+    "emoji": "📹",
+    "wikipediaTitle": "Video assistant referee",
+    "detail": "VAR checks goals, penalties, direct red cards, and mistaken identity. Offside technology and semi-automated systems continue to evolve the process.",
+    "sourceHandle": "PGMOL"
+  },
+  {
+    "id": "pl-fact-12",
+    "title": "Anfield noise",
+    "summary": "Liverpool's Anfield is famous for \"You'll Never Walk Alone\" before big nights.",
+    "category": "Culture",
+    "emoji": "🏟️",
+    "wikipediaTitle": "Anfield",
+    "detail": "Atmosphere is part of the Premier League product. Historic grounds and modern stadiums alike shape how title races feel on television and in person.",
+    "sourceHandle": "LFC"
+  }
+]

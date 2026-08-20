@@ -204,7 +204,7 @@ function parseOpenFootballMatch(raw: OpenFootballMatch): MatchInfo | null {
 
   const roundLabel = raw.round ?? "Matchday 1";
   const stage = mapStage(roundLabel);
-  const round = stage === "GROUP" ? "R32" : stage;
+  const round: BracketRound = stage === "GROUP" || stage === "LEAGUE" ? "R32" : stage;
   const homeTeam = parseSlotTeam(raw.team1);
   const awayTeam = parseSlotTeam(raw.team2);
   const utcDate = parseKickoff(raw.date, raw.time);

@@ -52,7 +52,7 @@ function mapStage(stage: string): MatchStage {
 }
 
 function isKnockoutStage(stage: MatchStage): stage is BracketRound {
-  return stage !== "GROUP";
+  return stage !== "GROUP" && stage !== "LEAGUE";
 }
 
 interface FootballDataMatch {

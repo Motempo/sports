@@ -49,7 +49,8 @@ export function MatchScheduleRow({
 
   const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate);
   const groupLabel = formatGroupLabel(match.group);
-  const roundLabel = match.stage !== "GROUP" ? getRoundLabel(match.round) : null;
+  const roundLabel =
+    match.stage !== "GROUP" && match.stage !== "LEAGUE" ? getRoundLabel(match.round) : null;
   const matchday = showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
   const stakes =
     showContext && standings ? getMatchStakes(match, standings, groupMatches) : null;

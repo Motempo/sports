@@ -52,6 +52,43 @@ export const SPORTS: SportConfig[] = [
       "football",
     ],
   },
+  {
+    id: "premier-league",
+    slug: "premier-league",
+    label: "Premier League",
+    available: true,
+    title: "Premier League — Table, Fixtures & News",
+    description:
+      "Track the Premier League with the full league table, European and relegation zones, fixtures and results, season races, news, and fun facts.",
+    keywords: [
+      "Premier League",
+      "Premier League table",
+      "Premier League standings",
+      "Premier League fixtures",
+      "EPL scores",
+      "English football",
+      "soccer",
+    ],
+  },
+  {
+    id: "la-liga",
+    slug: "la-liga",
+    label: "La Liga",
+    available: true,
+    title: "La Liga — Table, Fixtures & News",
+    description:
+      "Track La Liga with the live league table, Champions League and relegation zones, fixtures and results, news, and fun facts from Spain's top flight.",
+    keywords: [
+      "La Liga",
+      "La Liga table",
+      "Spanish football",
+      "Primera División",
+      "La Liga standings",
+      "La Liga fixtures",
+      "soccer",
+      "football",
+    ],
+  },
 ];
 
 export function getSportBySlug(slug: string): SportConfig | undefined {

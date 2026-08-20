@@ -1,0 +1,278 @@
+{
+  "sportSlug": "premier-league",
+  "newsKeywordPattern": "premier league|epl|arsenal|chelsea|liverpool|manchester|tottenham|newcastle|football|soccer",
+  "newsHandles": [
+    "premierleague",
+    "BBCSport",
+    "SkySportsPL",
+    "ESPNFC",
+    "TheAthleticFC",
+    "goal",
+    "SkySports",
+    "FabrizioRomano",
+    "HenryWinter",
+    "PhilMcNulty",
+    "MelissaReddy",
+    "David_Ornstein",
+    "JamesPearceLFC",
+    "MigSFernandez",
+    "CBSSportsGolazo"
+  ],
+  "factHandles": [
+    "premierleague",
+    "BBCSport",
+    "SkySportsPL",
+    "TheAthleticFC",
+    "ESPNFC",
+    "HenryWinter",
+    "PhilMcNulty",
+    "MelissaReddy",
+    "FabrizioRomano",
+    "Arsenal",
+    "LFC",
+    "ManCity",
+    "ManUtd",
+    "ChelseaFC",
+    "SpursOfficial"
+  ],
+  "sources": [
+    {
+      "rank": 1,
+      "handle": "premierleague",
+      "name": "Premier League",
+      "type": "official",
+      "description": "Official Premier League account for fixtures, table updates, and announcements.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 2,
+      "handle": "BBCSport",
+      "name": "BBC Sport",
+      "type": "media",
+      "description": "Match reports, live scores, and Premier League analysis.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "http://feeds.bbci.co.uk/sport/football/rss.xml"
+    },
+    {
+      "rank": 3,
+      "handle": "SkySportsPL",
+      "name": "Sky Sports Premier League",
+      "type": "media",
+      "description": "Dedicated Premier League coverage, transfer news, and Saturday Scoreline.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 4,
+      "handle": "SkySports",
+      "name": "Sky Sports",
+      "type": "media",
+      "description": "Broad football coverage including Premier League fixtures and breaking news.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 5,
+      "handle": "ESPNFC",
+      "name": "ESPN FC",
+      "type": "media",
+      "description": "Premier League news, ratings, and feature coverage for a global audience.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 6,
+      "handle": "TheAthleticFC",
+      "name": "The Athletic Football",
+      "type": "media",
+      "description": "In-depth Premier League reporting and tactical analysis.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 7,
+      "handle": "goal",
+      "name": "GOAL",
+      "type": "media",
+      "description": "Transfer rumors, match coverage, and Premier League highlights.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 8,
+      "handle": "FabrizioRomano",
+      "name": "Fabrizio Romano",
+      "type": "journalist",
+      "description": "Transfer specialist covering Premier League club business.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 9,
+      "handle": "HenryWinter",
+      "name": "Henry Winter",
+      "type": "journalist",
+      "description": "Long-time English football writer with Premier League insight.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 10,
+      "handle": "PhilMcNulty",
+      "name": "Phil McNulty",
+      "type": "journalist",
+      "description": "BBC chief football writer covering the Premier League and England.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 11,
+      "handle": "MelissaReddy",
+      "name": "Melissa Reddy",
+      "type": "journalist",
+      "description": "Premier League reporter with club-by-club access.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 12,
+      "handle": "David_Ornstein",
+      "name": "David Ornstein",
+      "type": "journalist",
+      "description": "The Athletic transfer and Premier League correspondent.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 13,
+      "handle": "JamesPearceLFC",
+      "name": "James Pearce",
+      "type": "journalist",
+      "description": "Liverpool and Premier League reporter.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 14,
+      "handle": "MigSFernandez",
+      "name": "Miguel Delaney",
+      "type": "journalist",
+      "description": "Chief football writer covering Premier League politics and title races.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 15,
+      "handle": "CBSSportsGolazo",
+      "name": "CBS Sports Golazo",
+      "type": "media",
+      "description": "US Premier League studio show and weekend coverage.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 16,
+      "handle": "Arsenal",
+      "name": "Arsenal",
+      "type": "team",
+      "description": "Official Arsenal club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 17,
+      "handle": "LFC",
+      "name": "Liverpool FC",
+      "type": "team",
+      "description": "Official Liverpool club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 18,
+      "handle": "ManCity",
+      "name": "Manchester City",
+      "type": "team",
+      "description": "Official Manchester City club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 19,
+      "handle": "ManUtd",
+      "name": "Manchester United",
+      "type": "team",
+      "description": "Official Manchester United club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 20,
+      "handle": "ChelseaFC",
+      "name": "Chelsea",
+      "type": "team",
+      "description": "Official Chelsea club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 21,
+      "handle": "SpursOfficial",
+      "name": "Tottenham Hotspur",
+      "type": "team",
+      "description": "Official Tottenham Hotspur club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 22,
+      "handle": "UEFA",
+      "name": "UEFA",
+      "type": "official",
+      "description": "European football governing body — Champions League and coefficient context.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 23,
+      "handle": "PGMOL",
+      "name": "PGMOL",
+      "type": "official",
+      "description": "Professional Game Match Officials — refereeing and VAR updates.",
+      "reliability": "high",
+      "category": "Official"
+    }
+  ],
+  "supplementalFeeds": [
+    {
+      "id": "google-news-pl",
+      "name": "Google News",
+      "handle": "premierleague",
+      "rssUrl": "https://news.google.com/rss/search?q=Premier+League+OR+EPL&hl=en-GB&gl=GB&ceid=GB:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-romano",
+      "name": "Fabrizio Romano",
+      "handle": "FabrizioRomano",
+      "rssUrl": "https://news.google.com/rss/search?q=Fabrizio+Romano+Premier+League&hl=en-GB&gl=GB&ceid=GB:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-ornstein",
+      "name": "David Ornstein",
+      "handle": "David_Ornstein",
+      "rssUrl": "https://news.google.com/rss/search?q=David+Ornstein+Premier+League&hl=en-GB&gl=GB&ceid=GB:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-mcnulty",
+      "name": "Phil McNulty",
+      "handle": "PhilMcNulty",
+      "rssUrl": "https://news.google.com/rss/search?q=Phil+McNulty+Premier+League&hl=en-GB&gl=GB&ceid=GB:en",
+      "googleNews": true
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 export const LEGAL_ENTITY = "Motempo";
 export const SITE_LEGAL_NAME = "Sports by Motempo";
 export const SITE_URL = "https://sports.motempo.com";
-export const LEGAL_LAST_UPDATED = "June 14, 2026";
+export const LEGAL_LAST_UPDATED = "August 4, 2026";
 export const PRIVACY_EMAIL = "privacy@motempo.com";
 export const LEGAL_EMAIL = "legal@motempo.com";
 
@@ -27,7 +27,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     paragraphs: ["We may collect the following categories of information:"],
     bullets: [
       "Usage and device data — browser type, pages viewed, approximate location (from IP address), and referral source. Our host (Vercel) and any analytics or advertising partners we enable may process standard server and cookie data.",
-      "Preferences — theme choice (light/dark) stored in your browser’s local storage.",
+      "Preferences — theme choice (light/dark) stored in your browser’s local storage; last-viewed sport stored in an essential cookie so we can open that sport on your next visit to the homepage.",
       "Cookie notice choice — whether you accepted cookies and, if applicable, advertising cookies, stored in local storage.",
       "Feedback you submit — text, optional screenshot or attachment, page URL, and browser metadata needed to investigate reports. Feedback is sent to our issue tracker (Linear).",
       "We do not knowingly collect payment information or government ID on this site.",
@@ -64,7 +64,7 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     id: "cookies",
     title: "Cookies and similar technologies",
     paragraphs: [
-      "We use essential cookies and local storage for basic functionality (theme, cookie-banner state). With your consent, advertising partners may use additional cookies or similar technologies to serve and measure contextual ads.",
+      "We use essential cookies and local storage for basic functionality (theme, last-viewed sport, cookie-banner state). With your consent, advertising partners may use additional cookies or similar technologies to serve and measure contextual ads.",
       "You can accept or decline advertising cookies in our cookie banner. You can also control cookies through your browser settings. Blocking essential storage may affect how the site works.",
     ],
   },

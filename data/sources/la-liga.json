@@ -1,0 +1,234 @@
+{
+  "sportSlug": "la-liga",
+  "newsKeywordPattern": "la liga|laliga|primera|real madrid|barcelona|atlético|atletico|sevilla|villarreal|athletic|betis|spanish football|spain football",
+  "newsHandles": [
+    "LaLiga",
+    "LaLigaEN",
+    "sidlowe",
+    "GuillemBalague",
+    "ESPNFC",
+    "BBCSport",
+    "SkySports",
+    "goal",
+    "TheAthleticFC",
+    "FabrizioRomano",
+    "Marca",
+    "AS_Comunica",
+    "realmadrid",
+    "FCBarcelona",
+    "Atleti",
+    "Marcotti",
+    "LaurensJulien",
+    "PhilMcNulty"
+  ],
+  "factHandles": [
+    "LaLiga",
+    "LaLigaEN",
+    "sidlowe",
+    "GuillemBalague",
+    "TifoFootball_",
+    "ESPNFC",
+    "BBCSport",
+    "Marca",
+    "AS_Comunica",
+    "FabrizioRomano",
+    "Marcotti"
+  ],
+  "sources": [
+    {
+      "rank": 1,
+      "handle": "LaLiga",
+      "name": "LaLiga",
+      "type": "official",
+      "description": "Official La Liga account for fixtures, results, and league announcements.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 2,
+      "handle": "LaLigaEN",
+      "name": "LaLiga English",
+      "type": "official",
+      "description": "Official English-language La Liga updates and highlights.",
+      "reliability": "highest",
+      "category": "Official"
+    },
+    {
+      "rank": 3,
+      "handle": "sidlowe",
+      "name": "Sid Lowe",
+      "type": "journalist",
+      "description": "Guardian Spanish football correspondent and long-time La Liga voice.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 4,
+      "handle": "GuillemBalague",
+      "name": "Guillem Balagué",
+      "type": "journalist",
+      "description": "Spanish football expert with deep La Liga access and analysis.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 5,
+      "handle": "ESPNFC",
+      "name": "ESPN FC",
+      "type": "media",
+      "description": "Global football coverage with regular La Liga reporting.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 6,
+      "handle": "BBCSport",
+      "name": "BBC Sport",
+      "type": "media",
+      "description": "Match reports and Spanish football news.",
+      "reliability": "high",
+      "category": "Major Media",
+      "rssUrl": "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"
+    },
+    {
+      "rank": 7,
+      "handle": "SkySports",
+      "name": "Sky Sports",
+      "type": "media",
+      "description": "Transfer news and La Liga match coverage.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 8,
+      "handle": "goal",
+      "name": "GOAL",
+      "type": "media",
+      "description": "Breaking football news including Spain's top flight.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 9,
+      "handle": "TheAthleticFC",
+      "name": "The Athletic FC",
+      "type": "media",
+      "description": "In-depth Spanish football features and tactical analysis.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 10,
+      "handle": "FabrizioRomano",
+      "name": "Fabrizio Romano",
+      "type": "journalist",
+      "description": "Transfer insider covering La Liga clubs extensively.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 11,
+      "handle": "Marca",
+      "name": "MARCA",
+      "type": "media",
+      "description": "Leading Spanish sports daily with heavy La Liga focus.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 12,
+      "handle": "AS_Comunica",
+      "name": "Diario AS",
+      "type": "media",
+      "description": "Spanish sports newspaper covering league news and clubs.",
+      "reliability": "high",
+      "category": "Major Media"
+    },
+    {
+      "rank": 13,
+      "handle": "realmadrid",
+      "name": "Real Madrid",
+      "type": "team",
+      "description": "Official Real Madrid club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 14,
+      "handle": "FCBarcelona",
+      "name": "FC Barcelona",
+      "type": "team",
+      "description": "Official FC Barcelona club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 15,
+      "handle": "Atleti",
+      "name": "Atlético de Madrid",
+      "type": "team",
+      "description": "Official Atlético de Madrid club account.",
+      "reliability": "high",
+      "category": "Clubs"
+    },
+    {
+      "rank": 16,
+      "handle": "Marcotti",
+      "name": "Gabriele Marcotti",
+      "type": "journalist",
+      "description": "European football columnist with frequent La Liga insights.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 17,
+      "handle": "LaurensJulien",
+      "name": "Julien Laurens",
+      "type": "journalist",
+      "description": "European football journalist covering Spain and major leagues.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 18,
+      "handle": "PhilMcNulty",
+      "name": "Phil McNulty",
+      "type": "journalist",
+      "description": "BBC football correspondent with European coverage.",
+      "reliability": "high",
+      "category": "Journalists & Analysts"
+    },
+    {
+      "rank": 19,
+      "handle": "TifoFootball_",
+      "name": "Tifo Football",
+      "type": "analysis",
+      "description": "Tactical explainers and visual analysis of Spanish football.",
+      "reliability": "high",
+      "category": "Analysis"
+    }
+  ],
+  "supplementalFeeds": [
+    {
+      "id": "google-news-laliga",
+      "name": "Google News",
+      "handle": "LaLigaEN",
+      "rssUrl": "https://news.google.com/rss/search?q=La+Liga+OR+Laliga+Spanish+football&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-sidlowe",
+      "name": "Sid Lowe",
+      "handle": "sidlowe",
+      "rssUrl": "https://news.google.com/rss/search?q=Sid+Lowe+La+Liga&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    },
+    {
+      "id": "gn-balague",
+      "name": "Guillem Balagué",
+      "handle": "GuillemBalague",
+      "rssUrl": "https://news.google.com/rss/search?q=Guillem+Balague+La+Liga&hl=en-US&gl=US&ceid=US:en",
+      "googleNews": true
+    }
+  ]
+}

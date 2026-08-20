@@ -43,12 +43,6 @@ function winChances(values: number[]): number[] {
   return weights.map((w) => Math.round((w / total) * 100));
 }
 
-function raceProgress(seasonPct: number, leader: number, runnerUp: number, scale: number): number {
-  const gap = Math.max(0, leader - runnerUp);
-  const gapPct = Math.min(55, (gap / scale) * 55);
-  return Math.min(98, Math.round(seasonPct * 0.45 + gapPct));
-}
-
 function buildContenders(
   entries: Array<{
     label: string;
@@ -148,7 +142,8 @@ function driversChampionship(drivers: F1StandingRow[], seasonPct: number): F1Awa
     emoji: "🏆",
     description:
       "Awarded to the driver with the most points across the season. A win is 25 points; consistency across every Grand Prix decides the title.",
-    progress: raceProgress(seasonPct, entries[0]?.stat ?? 0, entries[1]?.stat ?? 0, 50),
+    // Progress bar is season completion, not title-gap tightness (MOT-47).
+    progress: seasonPct,
     contenders,
     commentary: driversCommentary(contenders, seasonPct),
   };
@@ -173,7 +168,7 @@ function constructorsChampionship(
     emoji: "🏁",
     description:
       "Awarded to the team with the most combined points from both cars. Reliability and double-points finishes win this one.",
-    progress: raceProgress(seasonPct, entries[0]?.stat ?? 0, entries[1]?.stat ?? 0, 80),
+    progress: seasonPct,
     contenders,
     commentary: constructorsCommentary(contenders, seasonPct),
   };
@@ -196,7 +191,7 @@ function raceWinsAward(drivers: F1StandingRow[], seasonPct: number): F1Award {
     emoji: "🥇",
     description:
       "The driver who takes the most Grand Prix victories this season — the chequered-flag leaderboard.",
-    progress: raceProgress(seasonPct, entries[0]?.stat ?? 0, entries[1]?.stat ?? 0, 4),
+    progress: seasonPct,
     contenders,
     commentary: winsCommentary(contenders, seasonPct),
   };
@@ -222,7 +217,7 @@ function constructorWinsAward(
     emoji: "🏎️",
     description:
       "Most Grand Prix wins by a constructor this season — either car counting when it takes the flag.",
-    progress: raceProgress(seasonPct, entries[0]?.stat ?? 0, entries[1]?.stat ?? 0, 4),
+    progress: seasonPct,
     contenders,
     commentary: constructorWinsCommentary(contenders, seasonPct),
   };

@@ -48,12 +48,6 @@ function seasonProgress(data: LaLigaSeasonData): number {
   return Math.min(100, Math.round((played / MATCHES_PER_TEAM) * 100));
 }
 
-function raceProgress(seasonPct: number, leader: number, runnerUp: number, scale: number): number {
-  const gap = Math.max(0, leader - runnerUp);
-  const gapPct = Math.min(55, (gap / scale) * 55);
-  return Math.min(98, Math.round(seasonPct * 0.45 + gapPct));
-}
-
 async function fetchLaLigaScorers(limit = 8): Promise<
   Array<{ playerName: string; teamCode: string; teamName: string; crest?: string; goals: number }>
 > {
@@ -206,12 +200,6 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     statLabel: "pts",
   }));
   const titleContenders = buildContenders(titleEntries);
-  const titleProgress = raceProgress(
-    progressPct,
-    titleContenders[0]?.stat ?? 0,
-    titleContenders[1]?.stat ?? 0,
-    12
-  );
 
   const pichichiEntries =
     scorers.length > 0
@@ -235,12 +223,6 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
             statLabel: "club goals",
           }));
   const pichichiContenders = buildContenders(pichichiEntries);
-  const pichichiProgress = raceProgress(
-    progressPct,
-    pichichiContenders[0]?.stat ?? 0,
-    pichichiContenders[1]?.stat ?? 0,
-    8
-  );
 
   const zamoraSorted = [...rows]
     .filter((r) => r.played > 0)
@@ -261,12 +243,6 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     stat: zamoraSorted[i]?.goalsAgainst ?? c.stat,
     statLabel: "conceded",
   }));
-  const zamoraProgress = raceProgress(
-    progressPct,
-    zamoraSorted[0] ? 50 - zamoraSorted[0].goalsAgainst : 0,
-    zamoraSorted[1] ? 50 - zamoraSorted[1].goalsAgainst : 0,
-    10
-  );
 
   const europeEntries = rows.slice(0, 6).map((r) => ({
     label: r.team.shortName ?? r.team.name,
@@ -303,7 +279,8 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       emoji: "🏆",
       description:
         "Live title chase from the league table — points, then goal difference, decide the champion.",
-      progress: titleProgress,
+      // Progress bar is season completion, not title-gap tightness (MOT-47).
+      progress: progressPct,
       contenders: titleContenders,
       commentary: capForecast(
         !t1
@@ -323,7 +300,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
         scorers.length > 0
           ? "Marca's Pichichi goes to La Liga's top scorer. Live player goals from the season feed."
           : "Marca's Pichichi goes to La Liga's top scorer. Showing club goals until individual scorers are available.",
-      progress: pichichiProgress,
+      progress: progressPct,
       contenders: pichichiContenders,
       commentary: capForecast(
         !p1
@@ -341,7 +318,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       emoji: "🧤",
       description:
         "The Zamora Trophy historically honours the keeper with the best goals-to-games ratio. Here we track the clubs conceding fewest goals.",
-      progress: Math.max(progressPct, zamoraProgress),
+      progress: progressPct,
       contenders: zamoraContenders,
       commentary: capForecast(
         !z1

@@ -29,6 +29,7 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | Seed | `data/f1-season-seed.json`, constructor colors, profile meta |
 | Env | `F1_SEASON` (defaults to calendar year) |
 | Key libs | `lib/f1-data.ts`, `f1-phase.ts`, `f1-guide.ts`, `f1-awards.ts`, `f1-records.ts`, `f1-types.ts` |
+| Awards progress | Bar = completed Grands Prix / calendar length (not title-gap tightness). Same rule on WC / La Liga awards. |
 
 ## Returning-user layout
 

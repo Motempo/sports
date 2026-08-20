@@ -11,10 +11,9 @@ import {
   FormulaOneMidAd,
   FormulaOneStandingsAd,
 } from "@/components/ads/FormulaOneAdPlacements";
-import { Header } from "@/components/Header";
-import { SiteFooter } from "@/components/SiteFooter";
-import { FunFactsWidget } from "@/components/widgets/FunFactsWidget";
-import { NewsWidget } from "@/components/widgets/NewsWidget";
+import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
+import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
+import { SportPageShell } from "@/components/sports/SportPageShell";
 import { buildF1Awards } from "@/lib/f1-awards";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
@@ -38,33 +37,16 @@ export async function FormulaOnePageContent() {
   });
 
   return (
-    <div className="min-h-dvh">
-      <Header activeSportSlug="formula-1" />
-
-      <main className="text-[15px] leading-relaxed sm:text-base">
-        <SeasonRail phase={phase} calendar={data.calendar} season={data.season} />
-
-        <FormulaOneAdPlacements />
-
-        <FormulaOneNextEvent event={featuredEvent} titleFight={titleFight} />
-
+    <SportPageShell
+      activeSportSlug="formula-1"
+      rail={<SeasonRail phase={phase} calendar={data.calendar} season={data.season} />}
+      headerAd={<FormulaOneAdPlacements />}
+      nextEvent={<FormulaOneNextEvent event={featuredEvent} titleFight={titleFight} />}
+      newsAndFacts={<NewsAndFactsSection sportSlug="formula-1" />}
+      midAd={<FormulaOneMidAd />}
+      table={
         <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
-            <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 lg:grid-cols-2">
-              <div className="h-full">
-                <NewsWidget sportSlug="formula-1" />
-              </div>
-              <div className="h-full">
-                <FunFactsWidget sportSlug="formula-1" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <FormulaOneMidAd />
-
-        <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
             <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-[18px] font-extrabold sm:text-[20px]">Championship Standings</h2>
               <p className="text-[11px] text-muted sm:text-[12px]">
@@ -83,20 +65,17 @@ export async function FormulaOnePageContent() {
             </div>
           </div>
         </section>
-
+      }
+      matches={
         <WeekendSessionsByDay sessions={data.sessions} source={data.source} nextGp={nextGp} />
-
-        <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
-            <HowF1Works phase={phase} />
-          </div>
-        </section>
-
-        <F1AwardsSection awards={awards} />
-        <F1RecordsSection records={records} season={data.season} />
-      </main>
-
-      <SiteFooter />
-    </div>
+      }
+      howItWorks={
+        <SportHowItWorksSection>
+          <HowF1Works phase={phase} />
+        </SportHowItWorksSection>
+      }
+      awards={<F1AwardsSection awards={awards} />}
+      records={<F1RecordsSection records={records} season={data.season} />}
+    />
   );
 }

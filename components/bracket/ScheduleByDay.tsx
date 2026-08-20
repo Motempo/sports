@@ -130,7 +130,7 @@ export function ScheduleByDay({
 
   return (
     <section className="border-b border-border">
-      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-6">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">

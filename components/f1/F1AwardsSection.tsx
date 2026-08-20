@@ -105,7 +105,7 @@ export function F1AwardsSection({ awards }: F1AwardsSectionProps) {
 
   return (
     <section className="border-t border-border bg-surface/30">
-      <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
         <div className="mb-5">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Stats</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">

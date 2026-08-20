@@ -4,17 +4,21 @@ import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamCard } from "@/components/bracket/TeamCard";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { getRoundLabel } from "@/lib/bracket-constants";
+import { featuredMatchParagraphs } from "@/lib/featured-match-copy";
 import type { GroupStandings } from "@/lib/group-standings";
-import { getMatchForecast } from "@/lib/match-forecast";
-import { getMatchStakes } from "@/lib/match-context";
 import { isMatchLive } from "@/lib/match-status";
 import { formatMatchVenueLine } from "@/lib/match-venue";
-import type { MatchInfo } from "@/lib/types";
+import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
+import type { MatchInfo, VenueImage } from "@/lib/types";
 
 interface FeaturedMatchCardProps {
   match: MatchInfo | null;
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
+  leagueStandings?: LeagueStandings;
+  titleRace?: PremierLeagueRaceInsight | null;
+  relegationRace?: PremierLeagueRaceInsight | null;
+  venueImage?: VenueImage | null;
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -49,28 +53,6 @@ function formatWhen(match: MatchInfo): string {
   });
 }
 
-function describeMatch(
-  match: MatchInfo,
-  standings?: GroupStandings[],
-  groupMatches?: MatchInfo[]
-): string {
-  if (match.stage !== "LEAGUE" && standings) {
-    const stakes = getMatchStakes(match, standings, groupMatches);
-    const forecast = getMatchForecast(match);
-    if (stakes && forecast) return `${stakes} ${forecast}`;
-    if (stakes) return stakes;
-    if (forecast) return forecast;
-  }
-
-  const venue = formatMatchVenueLine(match);
-  const home = teamLabel(match.homeTeam);
-  const away = teamLabel(match.awayTeam);
-  if (match.status === "FINISHED") {
-    return `${home} ${match.homeScore ?? "–"}–${match.awayScore ?? "–"} ${away}${venue ? ` at ${venue}` : ""}.`;
-  }
-  return `${home} face ${away}${venue ? ` at ${venue}` : ""}.`;
-}
-
 function headingFor(match: MatchInfo): string {
   if (isMatchLive(match.status)) return "Next match";
   if (match.status === "FINISHED") return "Last match";
@@ -81,6 +63,10 @@ export function FeaturedMatchCard({
   match,
   groupMatches,
   standings,
+  leagueStandings,
+  titleRace,
+  relegationRace,
+  venueImage,
 }: FeaturedMatchCardProps) {
   if (!match) return null;
 
@@ -95,8 +81,16 @@ export function FeaturedMatchCard({
       title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}
       whenLabel={formatWhen(match)}
       location={formatMatchVenueLine(match)}
-      description={describeMatch(match, standings, groupMatches)}
+      paragraphs={featuredMatchParagraphs(match, {
+        groupStandings: standings,
+        groupMatches,
+        leagueStandings,
+        titleRace,
+        relegationRace,
+      })}
       watch={match.status === "CANCELLED" ? null : <MatchWatchLinks match={match} />}
+      imageUrl={venueImage?.url}
+      imageAlt={venueImage?.alt ?? formatMatchVenueLine(match) ?? teamLabel(match.homeTeam)}
       emblems={
         <div className="flex items-center gap-3 sm:gap-4">
           <TeamCard team={match.homeTeam} align="left" />

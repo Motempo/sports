@@ -76,12 +76,14 @@ Every sport page should provide:
 - FR-D2: Never expose API keys to the browser.
 - FR-D3: Accept free-tier score delay; do not promise real-time betting-grade feeds.
 - FR-D4: Club leagues use `stage: "LEAGUE"` and encode matchday in `group` (shared `MatchInfo`).
+- FR-D5: The featured next-event card uses three short paragraphs — event description, form-book prediction, and how the result affects the athletes. Copy is deterministic from standings/schedule (no betting odds, no invented expert quotes).
 
 ### 6.2 News & facts
 
 - FR-N1: News from curated RSS / Google News per sport (`data/sources/{slug}.json`).
 - FR-N2: Fun facts from static JSON + optional Wikipedia enrichment.
 - FR-N3: Pagination default: offset/limit with `limit` default 3.
+- FR-N4: News cards and the story modal show the post image when the feed or publisher page provides one, and play an embedded video when the post includes one (YouTube, Vimeo, or a direct video file).
 
 ### 6.3 Feedback
 

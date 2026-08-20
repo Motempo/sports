@@ -46,7 +46,7 @@ flowchart TB
 
 | Route | Methods | Purpose | Auth |
 |-------|---------|---------|------|
-| `/api/news` | GET | Paginated RSS news | Public |
+| `/api/news` | GET | Paginated RSS news (+ image/video enrichment) | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
@@ -89,8 +89,9 @@ Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, ca
 | La Liga | `la-liga-*.ts` |
 | Club tables | `league-standings.ts` |
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts` |
-| Forecast copy | `match-forecast.ts` |
-| News / facts | `news.ts`, `facts.ts`, `sport-sources.ts` |
+| Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
+| News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
+| Venue photos | `venue-image.ts` |
 | Venues | `match-venue.ts` |
 | Ads | `ads-config.ts`, `ad-consent.ts` |
 | Feedback | `linear-issues.ts`, `feedback-context.ts`, `rate-limit.ts` |
@@ -107,11 +108,11 @@ Every sport page renders through `SportPageShell` in this order:
 1. Header + sport selector  
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
-4. Featured next event card (live first, else next match/session)  
-5. News + Fun facts  
-6. Mid-content ad  
-7. Standings, league table, or knockout bracket (one table)  
-8. Matches / weekend sessions  
+4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit/stadium photo (half-width on large screens, below the text on narrow screens)  
+5. Matches / weekend sessions  
+6. News + Fun facts  
+7. Mid-content ad  
+8. Standings, league table, or knockout bracket (one table)  
 9. How it works primer  
 10. Awards / records when implemented  
 11. Footer + feedback  

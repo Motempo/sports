@@ -4,16 +4,20 @@ import Image from "next/image";
 import { SessionWatchLinks } from "@/components/f1/SessionWatchLinks";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import {
-  describeFeaturedF1Event,
+  featuredF1EventParagraphs,
   type FeaturedF1Event,
 } from "@/lib/f1-session-schedule";
-import type { F1TitleFightInsight } from "@/lib/f1-types";
+import type { F1ConstructorStandingRow, F1StandingRow, F1TitleFightInsight } from "@/lib/f1-types";
+import type { VenueImage } from "@/lib/types";
 import { getSessionWatchLinks } from "@/lib/f1-watch-links";
 import { getFlagUrl } from "@/lib/utils";
 
 interface FormulaOneNextEventProps {
   event: FeaturedF1Event | null;
   titleFight?: F1TitleFightInsight | null;
+  driverStandings?: F1StandingRow[];
+  constructorStandings?: F1ConstructorStandingRow[];
+  venueImage?: VenueImage | null;
 }
 
 function headingFor(event: FeaturedF1Event): string {
@@ -64,7 +68,13 @@ function CountryFlag({ code, name }: { code?: string; name: string }) {
   );
 }
 
-export function FormulaOneNextEvent({ event, titleFight }: FormulaOneNextEventProps) {
+export function FormulaOneNextEvent({
+  event,
+  titleFight,
+  driverStandings,
+  constructorStandings,
+  venueImage,
+}: FormulaOneNextEventProps) {
   if (!event) return null;
 
   const live = event.kind === "session" && event.status === "live";
@@ -97,13 +107,19 @@ export function FormulaOneNextEvent({ event, titleFight }: FormulaOneNextEventPr
       title={title}
       whenLabel={formatWhen(utcDate, live, complete)}
       location={location}
-      description={describeFeaturedF1Event(event, titleFight)}
+      paragraphs={featuredF1EventParagraphs(event, {
+        titleFight,
+        driverStandings,
+        constructorStandings,
+      })}
       watch={
         complete ? null : (
           <SessionWatchLinks links={getSessionWatchLinks(watchQuery.name, watchQuery.circuit)} />
         )
       }
       emblems={<CountryFlag code={countryCode} name={country} />}
+      imageUrl={venueImage?.url}
+      imageAlt={venueImage?.alt ?? location}
     />
   );
 }

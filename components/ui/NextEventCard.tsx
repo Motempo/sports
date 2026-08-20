@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface NextEventCardProps {
@@ -9,8 +10,10 @@ interface NextEventCardProps {
   kicker?: string | null;
   whenLabel: string;
   location?: string | null;
-  description: string;
+  paragraphs: string[];
   watch?: ReactNode;
+  imageUrl?: string | null;
+  imageAlt?: string;
   className?: string;
 }
 
@@ -22,8 +25,10 @@ export function NextEventCard({
   kicker,
   whenLabel,
   location,
-  description,
+  paragraphs,
   watch,
+  imageUrl,
+  imageAlt = "",
   className,
 }: NextEventCardProps) {
   return (
@@ -41,29 +46,57 @@ export function NextEventCard({
 
         <div
           className={cn(
-            "rounded-2xl border border-border bg-background px-4 py-5 shadow-sm sm:px-6 sm:py-6",
+            "overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
             live && "ring-1 ring-link/40",
             className
           )}
         >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
-            <div className="flex shrink-0 justify-center sm:pt-1">{emblems}</div>
-            <div className="min-w-0 flex-1 text-center sm:text-left">
-              {kicker && (
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px]">
-                  {kicker}
-                </p>
+          <div
+            className={cn(
+              "flex flex-col",
+              imageUrl && "lg:flex-row lg:items-stretch"
+            )}
+          >
+            <div
+              className={cn(
+                "flex min-w-0 flex-1 flex-col gap-4 px-4 py-5 sm:flex-row sm:items-start sm:gap-6 sm:px-6 sm:py-6",
+                imageUrl && "lg:w-1/2 lg:flex-none"
               )}
-              <p className="mt-1 text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
-              <p className="mt-1 text-[13px] text-muted sm:text-[14px]">
-                {whenLabel}
-                {location ? ` · ${location}` : ""}
-              </p>
-              <p className="mt-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
-                {description}
-              </p>
-              {watch && <div className="mt-3 flex justify-center sm:justify-start">{watch}</div>}
+            >
+              <div className="flex shrink-0 justify-center sm:pt-1">{emblems}</div>
+              <div className="min-w-0 flex-1 text-center sm:text-left">
+                {kicker && (
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px]">
+                    {kicker}
+                  </p>
+                )}
+                <p className="mt-1 text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
+                <p className="mt-1 text-[13px] text-muted sm:text-[14px]">
+                  {whenLabel}
+                  {location ? ` · ${location}` : ""}
+                </p>
+                {paragraphs.length > 0 && (
+                  <div className="mt-3 space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
+                    {paragraphs.map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                  </div>
+                )}
+                {watch && <div className="mt-3 flex justify-center sm:justify-start">{watch}</div>}
+              </div>
             </div>
+            {imageUrl && (
+              <div className="relative aspect-[16/10] w-full bg-surface lg:aspect-auto lg:w-1/2 lg:min-h-[20rem]">
+                <Image
+                  src={imageUrl}
+                  alt={imageAlt}
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

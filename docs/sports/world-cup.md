@@ -6,7 +6,7 @@
 
 ## Product intent
 
-Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-user shell: next match, news/facts, then standings or knockout, then the schedule.
+Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-user shell: next match, schedule, news/facts, then standings or knockout.
 
 ## Data
 
@@ -23,10 +23,10 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 |---------|-------------------|
 | Rail | `TournamentRail` (compact) |
 | Next event | `FeaturedMatchCard` |
+| Schedule | `ScheduleByDay` + watch links |
 | Widgets | News + Fun facts (`sportSlug="world-cup"`) |
 | Groups / standings | Group grids + third-place tracker (group stage) |
 | Knockout | `BracketTree` during knockouts |
-| Schedule | `ScheduleByDay` + watch links |
 | Primer | `RulesPrimer` / tournament guide |
 | Awards / records | `world-cup-awards.ts`, `world-cup-records.ts` |
 
@@ -34,5 +34,6 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 
 - Zoom-dependent bracket card detail (flags → score/time → venue → commentary)
 - Deterministic forecast copy from FIFA rank / confederation / rivalry (`match-forecast.ts`) — not ML
+- Next-match card body is three paragraphs: event description, form-book prediction, player impact (`featured-match-copy.ts`)
 - Venue enrichment prefers seed/API over Grok by default
 - Family-friendly; no official FIFA logo assets

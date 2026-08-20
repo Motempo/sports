@@ -72,7 +72,7 @@
       "description": "Comprehensive F1 reporting and live race coverage.",
       "reliability": "high",
       "category": "Major Media",
-      "rssUrl": "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/formula1/rss.xml"
+      "rssUrl": "https://feeds.bbci.co.uk/sport/formula1/rss.xml"
     },
     {
       "rank": 4,
@@ -81,7 +81,8 @@
       "type": "media",
       "description": "In-depth F1 analysis, interviews, and race weekend coverage.",
       "reliability": "high",
-      "category": "Major Media"
+      "category": "Major Media",
+      "rssUrl": "https://www.skysports.com/rss/12433"
     },
     {
       "rank": 5,
@@ -90,7 +91,8 @@
       "type": "media",
       "description": "Breaking F1 news, technical analysis, and paddock reporting.",
       "reliability": "high",
-      "category": "Major Media"
+      "category": "Major Media",
+      "rssUrl": "https://www.autosport.com/rss/f1/news/"
     },
     {
       "rank": 6,
@@ -99,7 +101,8 @@
       "type": "media",
       "description": "Modern F1 journalism with strong technical and strategic focus.",
       "reliability": "high",
-      "category": "Major Media"
+      "category": "Major Media",
+      "rssUrl": "https://the-race.com/feed/"
     },
     {
       "rank": 7,

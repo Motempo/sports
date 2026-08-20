@@ -11,7 +11,7 @@ Each sport has its own source config in this folder (`{sport-slug}.json`).
 
 1. Ask **Grok** to research the most reliable and interesting X/news sources for that sport (official accounts, major media, respected journalists, national teams, and engaging analysts).
 2. Create `{sport-slug}.json` using `world-cup.json` as a template.
-3. Map `rssUrl` where the outlet publishes RSS (required for live news without a paid X API).
+3. Map `rssUrl` where the outlet publishes RSS (required for live news without a paid X API). Prefer feeds that include `media:thumbnail`, `media:content`, or image `enclosure` tags so cards can show photos without scraping.
 4. Add `data/fun-facts/{sport-slug}.json` for historical seed facts.
 5. Wire the sport slug through `/api/news?sport=` and `/api/facts?sport=`.
 

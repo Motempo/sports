@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import { BadgeCheck } from "lucide-react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
 import { FeedAvatar, FeedRow, formatXMeta } from "@/components/ui/FeedRow";
 import { FeedWidget, ShowMoreButton } from "@/components/ui/FeedWidget";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { NewsPostMedia } from "@/components/widgets/NewsPostMedia";
 import type { NewsItem } from "@/lib/types";
 
 function formatNewsPreview(item: NewsItem): string {
@@ -104,6 +104,8 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
               verified={item.verified}
               content={formatNewsPreview(item)}
               meta={formatXMeta(item.xHandle, item.publishedAt)}
+              mediaUrl={item.imageUrl}
+              mediaIsVideo={Boolean(item.videoUrl)}
               onClick={() => openDetail(item)}
             />
           ))
@@ -118,12 +120,7 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
         }}
         title={detail?.title ?? "News"}
       >
-        {detailLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        ) : detail ? (
+        {detail ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <FeedAvatar src={detail.xAvatar} alt={detail.xName} fallback={detail.xName[0]} />
@@ -140,17 +137,19 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
                 </p>
               </div>
             </div>
-            {detail.imageUrl && (
-              <Image
-                src={detail.imageUrl}
-                alt=""
-                width={560}
-                height={315}
-                className="w-full rounded-xl object-cover"
-                unoptimized
-              />
+            <NewsPostMedia
+              imageUrl={detail.imageUrl}
+              videoUrl={detail.videoUrl}
+              videoKind={detail.videoKind}
+            />
+            {detailLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+            ) : (
+              <p className="text-[15px] leading-relaxed">{detail.summary}</p>
             )}
-            <p className="text-[15px] leading-relaxed">{detail.summary}</p>
             <div className="flex flex-wrap gap-3">
               <a
                 href={detail.url}
@@ -169,6 +168,11 @@ export function NewsWidget({ sportSlug }: NewsWidgetProps) {
                 View @{detail.xHandle} on X →
               </a>
             </div>
+          </div>
+        ) : detailLoading ? (
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
           </div>
         ) : null}
       </ExpandableModal>

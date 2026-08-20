@@ -19,6 +19,7 @@ import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsS
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
+import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { computeGroupStandings, computeThirdPlaceTracker } from "@/lib/group-standings";
 import { buildWorldCupAwards } from "@/lib/world-cup-awards";
 import { buildWorldCupRecords } from "@/lib/world-cup-records";
@@ -44,6 +45,7 @@ export async function WorldCupPageContent() {
   });
   const allMatches = [...groupMatches, ...matches];
   const featuredMatch = selectFeaturedMatch(allMatches);
+  const venueImage = await resolveMatchVenueImage(featuredMatch);
   const goalStats = await fetchTournamentGoalStats(allMatches);
   const awards = await buildWorldCupAwards(allMatches, goalStats);
   const records = buildWorldCupRecords(allMatches, goalStats);
@@ -105,6 +107,7 @@ export async function WorldCupPageContent() {
           match={featuredMatch}
           groupMatches={groupMatches}
           standings={standings}
+          venueImage={venueImage}
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="world-cup" />}

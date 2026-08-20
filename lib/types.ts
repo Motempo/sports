@@ -11,6 +11,8 @@ export interface TeamInfo {
   fifaRank?: number;
 }
 
+export type BracketRound = "R32" | "R16" | "QF" | "SF" | "FINAL" | "THIRD";
+
 export type MatchStage = BracketRound | "GROUP" | "LEAGUE";
 
 export interface MatchInfo {
@@ -29,7 +31,12 @@ export interface MatchInfo {
   winnerCode?: string;
 }
 
-export type BracketRound = "R32" | "R16" | "QF" | "SF" | "FINAL" | "THIRD";
+export interface VenueImage {
+  url: string;
+  alt: string;
+}
+
+export type NewsVideoKind = "youtube" | "vimeo" | "file";
 
 export interface NewsItem {
   id: string;
@@ -39,6 +46,8 @@ export interface NewsItem {
   publishedAt: string;
   url: string;
   imageUrl?: string;
+  videoUrl?: string;
+  videoKind?: NewsVideoKind;
   xHandle: string;
   xName: string;
   xAvatar: string;

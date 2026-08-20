@@ -53,7 +53,7 @@
       "description": "Match reports, live scores, and Premier League analysis.",
       "reliability": "high",
       "category": "Major Media",
-      "rssUrl": "http://feeds.bbci.co.uk/sport/football/rss.xml"
+      "rssUrl": "https://feeds.bbci.co.uk/sport/football/rss.xml"
     },
     {
       "rank": 3,

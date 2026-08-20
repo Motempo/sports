@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchNewsItems } from "@/lib/news";
+import { enrichNewsItems, fetchNewsItems } from "@/lib/news";
 import { CURRENT_SPORT_SLUG } from "@/lib/sports";
 
 export const dynamic = "force-dynamic";
@@ -17,13 +17,14 @@ export async function GET(request: NextRequest) {
     if (!item) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
-    return NextResponse.json(item, { headers: NO_CACHE_HEADERS });
+    const [enriched] = await enrichNewsItems([item], { includeVideo: true });
+    return NextResponse.json(enriched, { headers: NO_CACHE_HEADERS });
   }
 
   const offset = parseInt(searchParams.get("offset") ?? "0", 10);
   const limit = parseInt(searchParams.get("limit") ?? "3", 10);
   const all = await fetchNewsItems(sport);
-  const items = all.slice(offset, offset + limit);
+  const items = await enrichNewsItems(all.slice(offset, offset + limit));
 
   return NextResponse.json({ items, total: all.length, sport }, { headers: NO_CACHE_HEADERS });
 }

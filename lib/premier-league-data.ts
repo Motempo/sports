@@ -378,7 +378,9 @@ export async function fetchPremierLeagueSeason(): Promise<PremierLeagueSeasonDat
   }
 
   const api = await fetchFootballDataMatches();
-  if (api) {
+  // Only use football-data when it is already on the current season — otherwise
+  // a lagging free-tier default would keep the page on last year.
+  if (api && api.seasonKey === currentKey) {
     return buildPayload(api.matches, api.seasonKey, "api");
   }
 

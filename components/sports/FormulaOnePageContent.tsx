@@ -41,7 +41,14 @@ export async function FormulaOnePageContent() {
       activeSportSlug="formula-1"
       rail={<SeasonRail phase={phase} calendar={data.calendar} season={data.season} />}
       headerAd={<FormulaOneAdPlacements />}
-      nextEvent={<FormulaOneNextEvent event={featuredEvent} titleFight={titleFight} />}
+      nextEvent={
+        <FormulaOneNextEvent
+          event={featuredEvent}
+          titleFight={titleFight}
+          driverStandings={data.driverStandings}
+          constructorStandings={data.constructorStandings}
+        />
+      }
       newsAndFacts={<NewsAndFactsSection sportSlug="formula-1" />}
       midAd={<FormulaOneMidAd />}
       table={

@@ -38,7 +38,14 @@ export async function PremierLeaguePageContent() {
       autoRefresh
       rail={<PremierLeagueRail phase={data.phase} seasonLabel={data.seasonLabel} />}
       headerAd={<PremierLeagueAdPlacements />}
-      nextEvent={<FeaturedMatchCard match={featuredMatch} />}
+      nextEvent={
+        <FeaturedMatchCard
+          match={featuredMatch}
+          leagueStandings={data.standings}
+          titleRace={data.titleRace}
+          relegationRace={data.relegationRace}
+        />
+      }
       newsAndFacts={<NewsAndFactsSection sportSlug="premier-league" />}
       midAd={<PremierLeagueMidAd />}
       table={

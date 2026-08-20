@@ -9,7 +9,7 @@ interface NextEventCardProps {
   kicker?: string | null;
   whenLabel: string;
   location?: string | null;
-  description: string;
+  paragraphs: string[];
   watch?: ReactNode;
   className?: string;
 }
@@ -22,7 +22,7 @@ export function NextEventCard({
   kicker,
   whenLabel,
   location,
-  description,
+  paragraphs,
   watch,
   className,
 }: NextEventCardProps) {
@@ -59,9 +59,13 @@ export function NextEventCard({
                 {whenLabel}
                 {location ? ` · ${location}` : ""}
               </p>
-              <p className="mt-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
-                {description}
-              </p>
+              {paragraphs.length > 0 && (
+                <div className="mt-3 space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
+                  {paragraphs.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
               {watch && <div className="mt-3 flex justify-center sm:justify-start">{watch}</div>}
             </div>
           </div>

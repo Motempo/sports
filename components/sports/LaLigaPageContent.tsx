@@ -32,7 +32,14 @@ export async function LaLigaPageContent() {
       autoRefresh
       rail={<LaLigaSeasonRail phase={data.phase} seasonLabel={data.seasonLabel} />}
       headerAd={<LaLigaAdPlacements />}
-      nextEvent={<FeaturedMatchCard match={featuredMatch} />}
+      nextEvent={
+        <FeaturedMatchCard
+          match={featuredMatch}
+          leagueStandings={data.standings}
+          titleRace={data.titleRace}
+          relegationRace={data.relegationRace}
+        />
+      }
       newsAndFacts={<NewsAndFactsSection sportSlug="la-liga" />}
       midAd={<LaLigaMidAd />}
       table={

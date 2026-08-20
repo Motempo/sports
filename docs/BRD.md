@@ -76,6 +76,7 @@ Every sport page should provide:
 - FR-D2: Never expose API keys to the browser.
 - FR-D3: Accept free-tier score delay; do not promise real-time betting-grade feeds.
 - FR-D4: Club leagues use `stage: "LEAGUE"` and encode matchday in `group` (shared `MatchInfo`).
+- FR-D5: The featured next-event card uses three short paragraphs — event description, form-book prediction, and how the result affects the athletes. Copy is deterministic from standings/schedule (no betting odds, no invented expert quotes).
 
 ### 6.2 News & facts
 

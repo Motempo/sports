@@ -25,7 +25,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 
 ## UI
 
-- Shared `SportPageShell` + featured next-match card
+- Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + records sections
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`

@@ -6,11 +6,14 @@ import {
   todayKey,
 } from "@/lib/match-timezone";
 import { getCurrentOrNextGrandPrix } from "@/lib/f1-phase";
+import { nextEventParagraphs, type NextEventBrief } from "@/lib/next-event-copy";
 import type {
+  F1ConstructorStandingRow,
   F1GrandPrix,
   F1SessionInfo,
   F1SessionStatus,
   F1SessionType,
+  F1StandingRow,
   F1TitleFightInsight,
 } from "@/lib/f1-types";
 
@@ -188,31 +191,133 @@ const SESSION_COPY: Record<F1SessionType, string> = {
   race: " Championship points: 25 for the winner, then 18–15–12–10–8–6–4–2–1.",
 };
 
-export function describeFeaturedF1Event(
-  event: FeaturedF1Event,
-  titleFight?: F1TitleFightInsight | null
-): string {
-  const fight = titleFight?.message ? ` ${titleFight.message}` : "";
+function lastName(full: string): string {
+  return full.trim().split(/\s+/).pop() || full;
+}
 
+function sprintLine(isSprint: boolean): string {
+  return isSprint
+    ? " Sprint weekend: one practice, then sprint qualifying and the sprint before Sunday's race."
+    : " Standard weekend: practice, qualifying, then the Grand Prix.";
+}
+
+function f1Description(event: FeaturedF1Event): string {
   if (event.kind === "session") {
     const session = event.session;
     const sessionLine = SESSION_COPY[session.sessionType] ?? "";
-    const sprint = session.isSprintWeekend
-      ? " Sprint weekend: one practice, then sprint qualifying and the sprint before Sunday's race."
-      : " Standard weekend: practice, qualifying, then the Grand Prix.";
     if (event.status === "live") {
       return `${session.sessionLabel} is live at ${session.circuit}.${sessionLine}`;
     }
-    return `${session.sessionLabel} is next at ${session.circuit}.${sessionLine}${sprint}${fight}`.trim();
+    return `${session.sessionLabel} is next at ${session.circuit}.${sessionLine}${sprintLine(session.isSprintWeekend)}`.trim();
   }
 
   const gp = event.gp;
-  const sprint = gp.isSprintWeekend
-    ? " It's a sprint weekend — extra points on Saturday."
-    : " Practice, qualifying, then the race on Sunday.";
   if (event.status === "complete") {
     const winner = gp.winner ? ` ${gp.winner} won the finale.` : "";
     return `The season is over. Last race: ${gp.name} at ${gp.circuit}.${winner}`;
   }
-  return `Next up: ${gp.name} at ${gp.circuit}.${sprint}${fight}`.trim();
+  return `Next up: ${gp.name} at ${gp.circuit}.${sprintLine(gp.isSprintWeekend)}`.trim();
+}
+
+function sessionPrediction(sessionType: F1SessionType, circuit: string): string {
+  switch (sessionType) {
+    case "practice":
+      return `Paddock read: FP times bounce around with fuel and engine modes. Experts mark long-run pace and tyre wear at ${circuit}, not the top of the timesheet.`;
+    case "sprint_qualifying":
+      return `Paddock read: this grid is a one-shot sprint shootout. A Q1 mistake here is hard to undo — there is no second qualifying later in the day.`;
+    case "qualifying":
+      return `Paddock read: grid is everything at ${circuit}. Experts will watch who finds a lap in Q3 and who gets caught in traffic — Sunday's race is often won on Saturday.`;
+    case "sprint":
+      return `Paddock read: sprint points are small (8 down to 1) but they nibble at a championship gap before the Grand Prix. Expect a cleaner start than the race, then a tyre-management fight.`;
+    case "race":
+      return `Paddock read: race day is pit windows, tyre cliffs, and who can pass at ${circuit}. The form book starts with the championship leaders, then whoever looked after their rubber on Friday.`;
+  }
+}
+
+function f1Prediction(
+  event: FeaturedF1Event,
+  drivers?: F1StandingRow[],
+  constructors?: F1ConstructorStandingRow[]
+): string {
+  const leader = drivers?.[0];
+  const challenger = drivers?.[1];
+  const team = constructors?.[0];
+  const table =
+    leader && challenger
+      ? ` ${lastName(leader.driverName)} leads on ${leader.points} pts, ${lastName(challenger.driverName)} is ${leader.points - challenger.points} back.`
+      : "";
+  const constructorBit = team ? ` ${team.constructorName} sit top of the constructors.` : "";
+
+  if (event.kind === "session") {
+    return `${sessionPrediction(event.session.sessionType, event.session.circuit)}${table}${constructorBit}`.trim();
+  }
+  if (event.status === "complete") {
+    return `The championship table is the final word.${table}${constructorBit}`.trim();
+  }
+  return `Paddock read: the title fight sets the tone for ${event.gp.name}.${table}${constructorBit} Practice and qualifying still decide who can actually cash that in on Sunday.`.trim();
+}
+
+function f1Impact(
+  event: FeaturedF1Event,
+  titleFight?: F1TitleFightInsight | null,
+  drivers?: F1StandingRow[]
+): string {
+  const fight = titleFight?.message?.trim();
+  const leader = drivers?.[0];
+  const challenger = drivers?.[1];
+  const fallback =
+    !fight && leader && challenger
+      ? `${lastName(challenger.driverName)} trails ${lastName(leader.driverName)} by ${leader.points - challenger.points} pts.`
+      : "";
+  const championship = fight || fallback;
+
+  if (event.kind === "session") {
+    const session = event.session;
+    const sprintCost = session.isSprintWeekend
+      ? " On a sprint weekend this is the only practice session — a reliability niggle here costs a driver their Friday setup work."
+      : " A messy session rarely ends the weekend, but it can leave a driver chasing the setup all Saturday.";
+    switch (session.sessionType) {
+      case "practice":
+        return `${championship ? `${championship} ` : ""}Drivers use this hour to build a car they can trust.${sprintCost}`.trim();
+      case "sprint_qualifying":
+      case "qualifying":
+        return `${championship ? `${championship} ` : ""}Grid position is career-real: a front-row start eases the title maths; a Q1 exit dumps a driver into traffic and damage risk.`.trim();
+      case "sprint":
+        return `${championship ? `${championship} ` : ""}Sprint points are small, but they still move a driver up the table before Sunday — and a crash here can take them out of the Grand Prix.`.trim();
+      case "race":
+        return `${championship ? `${championship} ` : ""}A 25-point haul is a full swing in the title maths. Constructors' points pay the team that built the car — double finishes stretch a lead, DNFs haunt a winter.`.trim();
+    }
+  }
+
+  if (event.status === "complete") {
+    return championship
+      ? `${championship} The winter is for recovery, contract talks, and who comes back hungrier.`
+      : `The winter is for recovery, contract talks, and who comes back hungrier.`;
+  }
+
+  return championship
+    ? `${championship} What happens this weekend feeds straight into that gap — every starter is driving for their championship, their seat, or both.`
+    : `What happens this weekend feeds the championship — every starter is driving for points, their seat, or both.`;
+}
+
+export function featuredF1EventBrief(
+  event: FeaturedF1Event,
+  options?: {
+    titleFight?: F1TitleFightInsight | null;
+    driverStandings?: F1StandingRow[];
+    constructorStandings?: F1ConstructorStandingRow[];
+  }
+): NextEventBrief {
+  return {
+    description: f1Description(event),
+    prediction: f1Prediction(event, options?.driverStandings, options?.constructorStandings),
+    impact: f1Impact(event, options?.titleFight, options?.driverStandings),
+  };
+}
+
+export function featuredF1EventParagraphs(
+  event: FeaturedF1Event,
+  options?: Parameters<typeof featuredF1EventBrief>[1]
+): string[] {
+  return nextEventParagraphs(featuredF1EventBrief(event, options));
 }

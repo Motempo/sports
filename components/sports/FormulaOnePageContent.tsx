@@ -18,6 +18,7 @@ import { buildF1Awards } from "@/lib/f1-awards";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
 import { selectFeaturedF1Event } from "@/lib/f1-session-schedule";
+import { resolveVenueImage } from "@/lib/venue-image";
 import {
   detectSeasonPhase,
   getCurrentOrNextGrandPrix,
@@ -31,6 +32,13 @@ export async function FormulaOnePageContent() {
   const awards = buildF1Awards(data);
   const records = buildF1Records(data);
   const featuredEvent = selectFeaturedF1Event(data.sessions, data.calendar);
+  const circuit =
+    featuredEvent?.kind === "session" ? featuredEvent.session.circuit : featuredEvent?.gp.circuit;
+  const country =
+    featuredEvent?.kind === "session" ? featuredEvent.session.country : featuredEvent?.gp.country;
+  const venueImage = circuit
+    ? await resolveVenueImage({ kind: "circuit", name: circuit, hint: country })
+    : null;
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -41,7 +49,15 @@ export async function FormulaOnePageContent() {
       activeSportSlug="formula-1"
       rail={<SeasonRail phase={phase} calendar={data.calendar} season={data.season} />}
       headerAd={<FormulaOneAdPlacements />}
-      nextEvent={<FormulaOneNextEvent event={featuredEvent} titleFight={titleFight} />}
+      nextEvent={
+        <FormulaOneNextEvent
+          event={featuredEvent}
+          titleFight={titleFight}
+          driverStandings={data.driverStandings}
+          constructorStandings={data.constructorStandings}
+          venueImage={venueImage}
+        />
+      }
       newsAndFacts={<NewsAndFactsSection sportSlug="formula-1" />}
       midAd={<FormulaOneMidAd />}
       table={

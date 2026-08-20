@@ -34,5 +34,6 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 
 - Zoom-dependent bracket card detail (flags → score/time → venue → commentary)
 - Deterministic forecast copy from FIFA rank / confederation / rivalry (`match-forecast.ts`) — not ML
+- Next-match card body is three paragraphs: event description, form-book prediction, player impact (`featured-match-copy.ts`)
 - Venue enrichment prefers seed/API over Grok by default
 - Family-friendly; no official FIFA logo assets

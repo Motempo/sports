@@ -38,19 +38,19 @@ function DriverTable({ rows }: { rows: F1StandingRow[] }) {
         <div
           key={row.driverId ?? row.driverName}
           className={cn(
-            "grid grid-cols-[2rem_1fr_3.5rem_2.5rem] items-center gap-2 px-3 py-2.5 sm:grid-cols-[2.5rem_1fr_4rem_3rem] sm:px-4",
+            "grid grid-cols-[2rem_1fr_3.5rem_2.5rem] items-center gap-2 px-3 py-2 sm:grid-cols-[2.5rem_1fr_4rem_3rem] sm:px-4",
             index > 0 && "border-t border-border"
           )}
         >
           <span className="text-[13px] font-bold text-muted">{row.position}</span>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <ConstructorDot constructorId={row.constructorId} />
-              <span className="truncate text-[14px] font-semibold sm:text-[15px]">
-                {row.driverCode ?? row.driverName.split(" ").pop()}
-              </span>
-            </div>
-            <p className="truncate text-[11px] text-muted sm:text-[12px]">{row.constructorName}</p>
+          <div className="flex min-w-0 items-center gap-2">
+            <ConstructorDot constructorId={row.constructorId} />
+            <span className="shrink-0 text-[14px] font-semibold sm:text-[15px]">
+              {row.driverCode ?? row.driverName.split(" ").pop()}
+            </span>
+            <span className="min-w-0 truncate text-[11px] text-muted sm:text-[12px]">
+              {row.constructorName}
+            </span>
           </div>
           <span className="text-right text-[13px] font-bold tabular-nums sm:text-[14px]">
             {row.points}
@@ -83,7 +83,7 @@ function ConstructorTable({ rows }: { rows: F1ConstructorStandingRow[] }) {
         <div
           key={row.constructorId}
           className={cn(
-            "grid grid-cols-[2rem_1fr_3.5rem_2.5rem] items-center gap-2 px-3 py-2.5 sm:grid-cols-[2.5rem_1fr_4rem_3rem] sm:px-4",
+            "grid grid-cols-[2rem_1fr_3.5rem_2.5rem] items-center gap-2 px-3 py-2 sm:grid-cols-[2.5rem_1fr_4rem_3rem] sm:px-4",
             index > 0 && "border-t border-border"
           )}
         >

@@ -41,10 +41,10 @@ export function SportPageShell({
         {rail}
         {headerAd}
         {nextEvent}
+        {matches}
         {newsAndFacts}
         {midAd}
         {table}
-        {matches}
         {howItWorks}
         {awards}
         {records}

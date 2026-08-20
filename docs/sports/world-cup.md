@@ -6,7 +6,7 @@
 
 ## Product intent
 
-Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-user shell: next match, news/facts, then standings or knockout, then the schedule.
+Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-user shell: next match, schedule, news/facts, then standings or knockout.
 
 ## Data
 
@@ -23,10 +23,10 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 |---------|-------------------|
 | Rail | `TournamentRail` (compact) |
 | Next event | `FeaturedMatchCard` |
+| Schedule | `ScheduleByDay` + watch links |
 | Widgets | News + Fun facts (`sportSlug="world-cup"`) |
 | Groups / standings | Group grids + third-place tracker (group stage) |
 | Knockout | `BracketTree` during knockouts |
-| Schedule | `ScheduleByDay` + watch links |
 | Primer | `RulesPrimer` / tournament guide |
 | Awards / records | `world-cup-awards.ts`, `world-cup-records.ts` |
 

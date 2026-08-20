@@ -109,10 +109,10 @@ Every sport page renders through `SportPageShell` in this order:
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
 4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit/stadium photo (half-width on large screens, below the text on narrow screens)  
-5. News + Fun facts  
-6. Mid-content ad  
-7. Standings, league table, or knockout bracket (one table)  
-8. Matches / weekend sessions  
+5. Matches / weekend sessions  
+6. News + Fun facts  
+7. Mid-content ad  
+8. Standings, league table, or knockout bracket (one table)  
 9. How it works primer  
 10. Awards / records when implemented  
 11. Footer + feedback  

@@ -18,8 +18,8 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
   `https://raw.githubusercontent.com/openfootball/football.json/master/{season}/{en.1|es.1}.json`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`
-- Cascade for club leagues: **openfootball → football-data.org → seed**
-- Season files lag the calendar; we try current then previous `yy-yy` keys
+- Cascade for club leagues: **current-season openfootball → football-data.org (same season only) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1
 

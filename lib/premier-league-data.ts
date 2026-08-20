@@ -328,7 +328,7 @@ async function fetchOpenFootballSeason(
 }
 
 function seedSeasonKey(now = new Date()): string {
-  return seasonCandidates(now)[1] ?? "2025-26";
+  return seasonCandidates(now)[0] ?? "2026-27";
 }
 
 function generateSeedMatches(seasonKey: string): MatchInfo[] {
@@ -364,22 +364,25 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * Premier League season payload.
- * Prefer openfootball public JSON (no key); fall back to football-data.org when
- * the key has PL access; then a lightweight seed preview.
+ * Prefer openfootball for the *current* season; then football-data.org; then seed.
+ * Do not fall back to last season's openfootball file — that kept the page on 25/26
+ * after 26/27 had started while the mirror lagged.
  */
 export async function fetchPremierLeagueSeason(): Promise<PremierLeagueSeasonData> {
-  for (const seasonKey of seasonCandidates()) {
-    const matches = await fetchOpenFootballSeason(seasonKey);
-    if (matches) {
-      return buildPayload(matches, seasonKey, "openfootball");
-    }
+  const [currentSeason] = seasonCandidates();
+  const currentKey = currentSeason ?? "2026-27";
+
+  const openfootball = await fetchOpenFootballSeason(currentKey);
+  if (openfootball) {
+    return buildPayload(openfootball, currentKey, "openfootball");
   }
 
   const api = await fetchFootballDataMatches();
-  if (api) {
+  // Only use football-data when it is already on the current season — otherwise
+  // a lagging free-tier default would keep the page on last year.
+  if (api && api.seasonKey === currentKey) {
     return buildPayload(api.matches, api.seasonKey, "api");
   }
 
-  const seasonKey = seedSeasonKey();
-  return buildPayload(generateSeedMatches(seasonKey), seasonKey, "seed");
+  return buildPayload(generateSeedMatches(currentKey), currentKey, "seed");
 }

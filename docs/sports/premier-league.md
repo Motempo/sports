@@ -10,16 +10,16 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 
 ## Decisions (from questionnaire)
 
-- Track **whatever football-data returns as current** (auto season), with openfootball fallback when free football-data tier lacks PL
+- Always show the **calendar current** season (`2026/27` from August 2026); never stay on last year’s fixtures because a mirror lagged
 - Full shell in nav next to F1 / World Cup
 
 ## Data
 
 | Layer | Detail |
 |-------|--------|
-| Primary | openfootball `en.1.json` via GitHub raw (`football.json`) — no API key |
-| Fallback | football-data `PL` (+ scorers for Golden Boot when key has access) |
-| Seed | `data/pl-clubs-seed.json` + short matchday grid |
+| Primary | openfootball `en.1.json` for the **current** season (`2026-27`, …) |
+| Fallback | football-data `PL` only when that API is already on the same season (+ scorers for Golden Boot when key has access) |
+| Seed | `data/pl-clubs-seed.json` + short matchday grid for the current season when mirrors lag |
 | Standings | `lib/league-standings.ts` — zones 1–4 CL, 5 EL, 6 ECL, 18–20 relegated |
 | Key libs | `lib/premier-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
 

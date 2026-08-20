@@ -12,9 +12,9 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 
 | Layer | Detail |
 |-------|--------|
-| Primary | openfootball `es.1.json` via GitHub raw (`football.json`) — no API key |
-| Fallback | football-data `PD` when the key has access |
-| Seed | `data/la-liga-clubs-seed.json` + `lib/la-liga-clubs.ts` |
+| Primary | openfootball `es.1.json` for the **current** season |
+| Fallback | football-data `PD` only when that API is already on the same season |
+| Seed | `data/la-liga-clubs-seed.json` + current-season preview grid when mirrors lag |
 | Standings | Reuses `lib/league-standings.ts` + PL zone helper |
 | Key libs | `la-liga-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
 

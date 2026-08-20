@@ -201,22 +201,27 @@ function sprintLine(isSprint: boolean): string {
     : " Standard weekend: practice, qualifying, then the Grand Prix.";
 }
 
-function f1Description(event: FeaturedF1Event): string {
+function f1Description(event: FeaturedF1Event, trackFact?: string | null): string {
+  const fact = trackFact?.trim();
+  const withFact = (base: string) => (fact ? `${base} ${fact}` : base);
+
   if (event.kind === "session") {
     const session = event.session;
     const sessionLine = SESSION_COPY[session.sessionType] ?? "";
     if (event.status === "live") {
-      return `${session.sessionLabel} is live at ${session.circuit}.${sessionLine}`;
+      return withFact(`${session.sessionLabel} is live at ${session.circuit}.${sessionLine}`);
     }
-    return `${session.sessionLabel} is next at ${session.circuit}.${sessionLine}${sprintLine(session.isSprintWeekend)}`.trim();
+    return withFact(
+      `${session.sessionLabel} is next at ${session.circuit}.${sessionLine}${sprintLine(session.isSprintWeekend)}`.trim()
+    );
   }
 
   const gp = event.gp;
   if (event.status === "complete") {
     const winner = gp.winner ? ` ${gp.winner} won the finale.` : "";
-    return `The season is over. Last race: ${gp.name} at ${gp.circuit}.${winner}`;
+    return withFact(`The season is over. Last race: ${gp.name} at ${gp.circuit}.${winner}`);
   }
-  return `Next up: ${gp.name} at ${gp.circuit}.${sprintLine(gp.isSprintWeekend)}`.trim();
+  return withFact(`Next up: ${gp.name} at ${gp.circuit}.${sprintLine(gp.isSprintWeekend)}`.trim());
 }
 
 function sessionPrediction(sessionType: F1SessionType, circuit: string): string {
@@ -306,10 +311,11 @@ export function featuredF1EventBrief(
     titleFight?: F1TitleFightInsight | null;
     driverStandings?: F1StandingRow[];
     constructorStandings?: F1ConstructorStandingRow[];
+    trackFact?: string | null;
   }
 ): NextEventBrief {
   return {
-    description: f1Description(event),
+    description: f1Description(event, options?.trackFact),
     prediction: f1Prediction(event, options?.driverStandings, options?.constructorStandings),
     impact: f1Impact(event, options?.titleFight, options?.driverStandings),
   };

@@ -25,9 +25,10 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 
 | Source | Use |
 |--------|-----|
-| Jolpica Ergast | Calendar, standings, results |
+| Jolpica Ergast | Calendar, standings, results, circuit win history for next-event copy |
 | OpenF1 | Session start times merge |
 | Seed JSON | Offline / preview |
+| Curated circuit colour | `lib/f1-circuit-facts.ts` — commentator-style track notes (MOT-50) |
 
 Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 

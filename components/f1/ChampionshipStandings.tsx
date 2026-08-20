@@ -45,10 +45,10 @@ function DriverTable({ rows }: { rows: F1StandingRow[] }) {
           <span className="text-[13px] font-bold text-muted">{row.position}</span>
           <div className="flex min-w-0 items-center gap-2">
             <ConstructorDot constructorId={row.constructorId} />
-            <span className="shrink-0 text-[14px] font-semibold sm:text-[15px]">
-              {row.driverCode ?? row.driverName.split(" ").pop()}
+            <span className="min-w-0 truncate text-[14px] font-semibold sm:text-[15px]">
+              {row.driverName}
             </span>
-            <span className="min-w-0 truncate text-[11px] text-muted sm:text-[12px]">
+            <span className="max-w-[42%] shrink-0 truncate text-[11px] text-muted sm:text-[12px]">
               {row.constructorName}
             </span>
           </div>

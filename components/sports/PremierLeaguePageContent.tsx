@@ -47,6 +47,7 @@ export async function PremierLeaguePageContent() {
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
           venueImage={venueImage}
+          timeZone="Europe/London"
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="premier-league" />}

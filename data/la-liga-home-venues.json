@@ -1,0 +1,22 @@
+[
+  { "code": "RMA", "venue": "Estadio Santiago Bernabéu", "city": "Madrid" },
+  { "code": "FCB", "venue": "Estadi Olímpic Lluís Companys", "city": "Barcelona" },
+  { "code": "ATL", "venue": "Estadio Cívitas Metropolitano", "city": "Madrid" },
+  { "code": "ATH", "venue": "San Mamés", "city": "Bilbao" },
+  { "code": "VIL", "venue": "Estadio de la Cerámica", "city": "Villarreal" },
+  { "code": "RSO", "venue": "Reale Arena", "city": "San Sebastián" },
+  { "code": "BET", "venue": "Estadio Benito Villamarín", "city": "Seville" },
+  { "code": "SEV", "venue": "Estadio Ramón Sánchez-Pizjuán", "city": "Seville" },
+  { "code": "VAL", "venue": "Estadio de Mestalla", "city": "Valencia" },
+  { "code": "OSA", "venue": "Estadio El Sadar", "city": "Pamplona" },
+  { "code": "CEL", "venue": "Estadio Abanca Balaídos", "city": "Vigo" },
+  { "code": "RAY", "venue": "Estadio de Vallecas", "city": "Madrid" },
+  { "code": "GET", "venue": "Coliseum", "city": "Getafe" },
+  { "code": "ESP", "venue": "RCDE Stadium", "city": "Barcelona" },
+  { "code": "ALA", "venue": "Estadio de Mendizorroza", "city": "Vitoria-Gasteiz" },
+  { "code": "ELC", "venue": "Estadio Martínez Valero", "city": "Elche" },
+  { "code": "LEV", "venue": "Estadi Ciutat de València", "city": "Valencia" },
+  { "code": "MAL", "venue": "Estadio La Rosaleda", "city": "Málaga" },
+  { "code": "RAC", "venue": "Campos de Sport de El Sardinero", "city": "Santander" },
+  { "code": "DEP", "venue": "Estadio Abanca-Riazor", "city": "A Coruña" }
+]

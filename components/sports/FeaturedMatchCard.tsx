@@ -19,6 +19,8 @@ interface FeaturedMatchCardProps {
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
   venueImage?: VenueImage | null;
+  /** IANA timezone for kickoff display (e.g. Europe/London for PL). */
+  timeZone?: string;
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -35,19 +37,19 @@ function teamLabel(team: MatchInfo["homeTeam"]): string {
   return team.name?.trim() || team.code;
 }
 
-function formatWhen(match: MatchInfo): string {
-  if (isMatchLive(match.status)) return "Live now";
-  if (match.status === "FINISHED") {
-    return new Date(match.utcDate).toLocaleDateString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
-  }
-  return new Date(match.utcDate).toLocaleString(undefined, {
+function formatWhen(match: MatchInfo, timeZone?: string): string {
+  const opts: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
     day: "numeric",
+    timeZone,
+  };
+  if (isMatchLive(match.status)) return "Live now";
+  if (match.status === "FINISHED") {
+    return new Date(match.utcDate).toLocaleDateString(undefined, opts);
+  }
+  return new Date(match.utcDate).toLocaleString(undefined, {
+    ...opts,
     hour: "numeric",
     minute: "2-digit",
   });
@@ -67,6 +69,7 @@ export function FeaturedMatchCard({
   titleRace,
   relegationRace,
   venueImage,
+  timeZone,
 }: FeaturedMatchCardProps) {
   if (!match) return null;
 
@@ -79,7 +82,7 @@ export function FeaturedMatchCard({
       live={live}
       kicker={matchKicker(match)}
       title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}
-      whenLabel={formatWhen(match)}
+      whenLabel={formatWhen(match, timeZone)}
       location={formatMatchVenueLine(match)}
       paragraphs={featuredMatchParagraphs(match, {
         groupStandings: standings,
@@ -92,7 +95,7 @@ export function FeaturedMatchCard({
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? formatMatchVenueLine(match) ?? teamLabel(match.homeTeam)}
       emblems={
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           <TeamCard team={match.homeTeam} align="left" />
           <span className="text-[13px] font-extrabold tabular-nums text-muted sm:text-[15px]">
             {played && match.homeScore !== null && match.awayScore !== null

@@ -61,7 +61,7 @@ export function TeamCard({
         >
           {displayName}
         </p>
-        {!compact && !isPlaceholder && (
+        {!compact && !isPlaceholder && (team.confederation || team.fifaRank) && (
           <p className="text-[11px] text-muted">
             {team.confederation}
             {team.fifaRank ? ` · FIFA #${team.fifaRank}` : ""}

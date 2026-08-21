@@ -18,6 +18,7 @@ import {
 } from "@/lib/la-liga-standings";
 import { normalizeApiMatchStatus, inferMatchStatusFromKickoff } from "@/lib/match-status";
 import { parseOpenFootballLeagueTxt } from "@/lib/openfootball-league-txt";
+import { applyLaLigaHomeVenues } from "@/lib/club-home-venues";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 
 const OPENFOOTBALL_JSON_BASE =
@@ -239,7 +240,7 @@ function buildPayload(
   source: MatchDataSource
 ): LaLigaSeasonData {
   const seasonLabel = formatSeasonLabel(seasonKey);
-  const sorted = [...matches].sort(sortMatches);
+  const sorted = applyLaLigaHomeVenues([...matches].sort(sortMatches));
   const standings = computeLeagueStandings(sorted, seasonLabel, laLigaSeedTeams());
   const phase = detectLaLigaPhase(sorted);
 

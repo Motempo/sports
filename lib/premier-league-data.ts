@@ -14,6 +14,7 @@ import {
 } from "@/lib/league-standings";
 import { normalizeApiMatchStatus, inferMatchStatusFromKickoff } from "@/lib/match-status";
 import { parseOpenFootballLeagueTxt } from "@/lib/openfootball-league-txt";
+import { applyPremierLeagueHomeVenues } from "@/lib/club-home-venues";
 import { detectPremierLeaguePhase } from "@/lib/premier-league-phase";
 import type { PremierLeagueSeasonData } from "@/lib/premier-league-types";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
@@ -258,7 +259,7 @@ function buildPayload(
   source: MatchDataSource
 ): PremierLeagueSeasonData {
   const seasonLabel = formatSeasonLabel(seasonKey);
-  const sorted = [...matches].sort(sortMatches);
+  const sorted = applyPremierLeagueHomeVenues([...matches].sort(sortMatches));
   const standings = computeLeagueStandings(sorted, seasonLabel);
   const phase = detectPremierLeaguePhase(sorted);
 

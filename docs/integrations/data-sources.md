@@ -57,7 +57,8 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 
 - Next-event card: Wikipedia / Wikimedia Commons (F1 circuits prefer schematic layout maps like the official site; stadiums prefer photographs)
 - F1 uses the circuit (prefer aerial track photos); football uses the match stadium or the home club’s ground
-- Module: `lib/venue-image.ts`
+- Club home grounds: `data/pl-home-venues.json`, `data/la-liga-home-venues.json` fill empty openfootball venues for the featured card
+- Module: `lib/venue-image.ts`, `lib/club-home-venues.ts`
 
 ## Other
 

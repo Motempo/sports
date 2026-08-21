@@ -53,46 +53,47 @@ export function NextEventCard({
         >
           <div
             className={cn(
-              "flex flex-col",
-              imageUrl && "lg:flex-row lg:items-stretch"
+              "grid grid-cols-1",
+              imageUrl && "lg:grid-cols-2 lg:items-stretch"
             )}
           >
-            <div
-              className={cn(
-                "flex min-w-0 flex-1 flex-col gap-4 px-4 py-5 sm:flex-row sm:items-start sm:gap-6 sm:px-6 sm:py-6",
-                imageUrl && "lg:w-1/2 lg:flex-none"
+            <div className="flex min-w-0 flex-col gap-3 px-4 py-5 text-left sm:gap-3.5 sm:px-6 sm:py-6">
+              {kicker && (
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px]">
+                  {kicker}
+                </p>
               )}
-            >
-              <div className="flex shrink-0 justify-center sm:pt-1">{emblems}</div>
-              <div className="min-w-0 flex-1 text-center sm:text-left">
-                {kicker && (
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px]">
-                    {kicker}
+
+              <div className="min-w-0">{emblems}</div>
+
+              <div className="min-w-0">
+                <p className="text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
+                <p className="mt-1.5 text-[13px] text-muted sm:text-[14px]">{whenLabel}</p>
+                {location && (
+                  <p className="mt-1 text-[13px] font-medium text-foreground/80 sm:text-[14px]">
+                    {location}
                   </p>
                 )}
-                <p className="mt-1 text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
-                <p className="mt-1 text-[13px] text-muted sm:text-[14px]">
-                  {whenLabel}
-                  {location ? ` · ${location}` : ""}
-                </p>
-                {paragraphs.length > 0 && (
-                  <div className="mt-3 space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
-                    {paragraphs.map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
-                  </div>
-                )}
-                {watch && <div className="mt-3 flex justify-center sm:justify-start">{watch}</div>}
               </div>
+
+              {paragraphs.length > 0 && (
+                <div className="space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
+                  {paragraphs.map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
+              )}
+              {watch && <div className="pt-0.5">{watch}</div>}
             </div>
+
             {imageUrl && (
-              <div className="relative aspect-[16/10] w-full bg-surface lg:aspect-auto lg:w-1/2 lg:min-h-[20rem]">
+              <div className="relative isolate min-h-[12.5rem] w-full overflow-hidden bg-surface sm:min-h-[16rem] lg:min-h-0 lg:h-full">
                 <Image
                   src={imageUrl}
                   alt={imageAlt}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
+                  className="object-cover object-center"
                   unoptimized
                 />
               </div>

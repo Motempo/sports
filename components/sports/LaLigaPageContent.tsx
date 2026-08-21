@@ -47,6 +47,7 @@ export async function LaLigaPageContent() {
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
           venueImage={venueImage}
+          timeZone="Europe/Madrid"
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="la-liga" />}

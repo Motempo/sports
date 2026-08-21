@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { SessionWatchLinks } from "@/components/f1/SessionWatchLinks";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import {
   featuredF1EventParagraphs,
@@ -9,7 +8,6 @@ import {
 } from "@/lib/f1-session-schedule";
 import type { F1ConstructorStandingRow, F1StandingRow, F1TitleFightInsight } from "@/lib/f1-types";
 import type { VenueImage } from "@/lib/types";
-import { getSessionWatchLinks } from "@/lib/f1-watch-links";
 import { getFlagUrl } from "@/lib/utils";
 
 interface FormulaOneNextEventProps {
@@ -96,10 +94,6 @@ export function FormulaOneNextEvent({
     event.kind === "session"
       ? `${event.session.circuit}, ${event.session.country}`
       : `${event.gp.circuit}, ${event.gp.country}`;
-  const watchQuery =
-    event.kind === "session"
-      ? { name: event.session.gpName, circuit: event.session.circuit }
-      : { name: event.gp.name, circuit: event.gp.circuit };
 
   return (
     <NextEventCard
@@ -115,11 +109,6 @@ export function FormulaOneNextEvent({
         constructorStandings,
         trackFact,
       })}
-      watch={
-        complete ? null : (
-          <SessionWatchLinks links={getSessionWatchLinks(watchQuery.name, watchQuery.circuit)} />
-        )
-      }
       emblems={<CountryFlag code={countryCode} name={country} />}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? location}

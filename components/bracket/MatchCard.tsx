@@ -10,7 +10,6 @@ import {
   isPlaceholderTeam,
 } from "@/lib/match-context";
 import { getMatchForecast } from "@/lib/match-forecast";
-import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
 import { formatMatchVenueLine } from "@/lib/match-venue";
 import { isMatchLive, isMatchPlayed } from "@/lib/match-status";
@@ -186,11 +185,6 @@ export function MatchCard({
           <p className="text-[12px] leading-snug text-foreground/80 sm:text-[13px]">{forecast}</p>
         )}
         {venueLine && <p className="break-words">{venueLine}</p>}
-        {match.status !== "CANCELLED" && (
-          <div className="flex justify-center pt-0.5">
-            <MatchWatchLinks match={match} compact />
-          </div>
-        )}
         <p>{dateStr}</p>
       </div>
     </div>

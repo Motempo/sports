@@ -11,7 +11,6 @@ interface NextEventCardProps {
   whenLabel: string;
   location?: string | null;
   paragraphs: string[];
-  watch?: ReactNode;
   imageUrl?: string | null;
   imageAlt?: string;
   className?: string;
@@ -26,7 +25,6 @@ export function NextEventCard({
   whenLabel,
   location,
   paragraphs,
-  watch,
   imageUrl,
   imageAlt = "",
   className,
@@ -83,7 +81,6 @@ export function NextEventCard({
                   ))}
                 </div>
               )}
-              {watch && <div className="pt-0.5">{watch}</div>}
             </div>
 
             {imageUrl && (

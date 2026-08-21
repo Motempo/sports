@@ -41,7 +41,8 @@ export const adProvider: AdProviderName =
       ? "adsense"
       : "none";
 
-export const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() ?? "";
+export const adsenseClientId =
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-8086154575408312";
 
 export const nitroSiteId = process.env.NEXT_PUBLIC_NITRO_SITE_ID?.trim() ?? "";
 

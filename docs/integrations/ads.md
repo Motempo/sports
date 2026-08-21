@@ -31,6 +31,8 @@ Max ~2–3 units mobile, ~3–4 desktop (plan guidance).
 ## Networks
 
 1. **Google AdSense** — primary launch path  
+   - Site verification / loader script is always in `app/layout.tsx` `<head>` (`ca-pub-8086154575408312`, overridable via `NEXT_PUBLIC_ADSENSE_CLIENT`)  
+   - Ad units still only render when placements are live and the visitor accepts ad cookies  
 2. **NitroPay** — optional sports-friendly A/B  
 3. Future: Mediavine Journey / Raptive when traffic thresholds hit  
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AdProvider } from "@/components/ads/AdProvider";
 import { CookieNotice } from "@/components/legal/CookieNotice";
 import { Toaster } from "@/components/ui/toaster";
+import { adsenseClientId } from "@/lib/ads-config";
 import { themeInitScript } from "@/lib/theme";
 import { getCurrentSport, SITE_NAME, SITE_URL } from "@/lib/sports";
 import "./globals.css";
@@ -66,6 +67,12 @@ export default function RootLayout({
               });
             `,
           }}
+        />
+        {/* Google AdSense site verification + loader (ca-pub-8086154575408312) */}
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+          crossOrigin="anonymous"
         />
       </head>
       <body className="min-h-dvh antialiased">

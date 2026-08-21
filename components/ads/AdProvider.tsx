@@ -20,7 +20,6 @@ import {
   adsEnabled,
   adsPlacementsLive,
   adProvider,
-  adsenseClientId,
   isAdsStackConfigured,
   nitroSiteId,
 } from "@/lib/ads-config";
@@ -87,7 +86,6 @@ export function AdProvider({ children }: { children: ReactNode }) {
     [acceptAll, acceptEssentialOnly, adsAllowed, consent]
   );
 
-  const showAdsenseScript = adsAllowed && adProvider === "adsense" && adsenseClientId;
   const showNitroScript = adsAllowed && adProvider === "nitro" && nitroSiteId;
 
   return (
@@ -105,15 +103,6 @@ export function AdProvider({ children }: { children: ReactNode }) {
             });
           `}
         </Script>
-      )}
-      {showAdsenseScript && (
-        <Script
-          id="adsense-loader"
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
       )}
       {showNitroScript && (
         <Script

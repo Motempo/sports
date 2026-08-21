@@ -1,19 +1,23 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
-import { useColumnsPerRow } from "@/hooks/use-columns-per-row";
 import {
   combineScheduleMatches,
+  countDayGroupMatches,
   groupMatchesByLocalDay,
   selectScheduleMatches,
   selectSeasonTailMatches,
+  sliceDayGroupsByMatchCount,
   type MatchDayGroup,
 } from "@/lib/match-schedule";
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchDataSource } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
 import type { MatchInfo } from "@/lib/types";
+
+const INITIAL_VISIBLE_MATCHES = 2;
+const LOAD_MORE_MATCHES = 5;
 
 interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
@@ -26,6 +30,10 @@ interface ScheduleByDayProps {
   title?: string;
   /** When the forward window is empty, show the final stretch of finished matches. */
   showSeasonTailWhenEmpty?: boolean;
+  /** How many fixtures to show before the first Load more click. */
+  initialVisibleMatches?: number;
+  /** How many additional fixtures each Load more click reveals. */
+  loadMoreMatches?: number;
 }
 
 function DayColumn({
@@ -71,11 +79,10 @@ export function ScheduleByDay({
   standings,
   title = "Matches",
   showSeasonTailWhenEmpty = false,
+  initialVisibleMatches = INITIAL_VISIBLE_MATCHES,
+  loadMoreMatches = LOAD_MORE_MATCHES,
 }: ScheduleByDayProps) {
-  const columnsPerRow = useColumnsPerRow();
-  const [visibleCount, setVisibleCount] = useState(1);
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [visibleMatchCount, setVisibleMatchCount] = useState(initialVisibleMatches);
   const timeZone = useMemo(
     () => Intl.DateTimeFormat().resolvedOptions().timeZone,
     []
@@ -106,40 +113,25 @@ export function ScheduleByDay({
     showSeasonTailWhenEmpty,
   ]);
 
+  const totalMatches = useMemo(() => countDayGroupMatches(dayGroups), [dayGroups]);
+
   useEffect(() => {
-    setVisibleCount(Math.max(columnsPerRow, 1));
-  }, [dayGroups.length, columnsPerRow, timeZone]);
+    setVisibleMatchCount(initialVisibleMatches);
+  }, [dayGroups, initialVisibleMatches, timeZone]);
 
   const loadMore = useCallback(() => {
-    setVisibleCount((count) => Math.min(count + columnsPerRow, dayGroups.length));
-  }, [columnsPerRow, dayGroups.length]);
-
-  const visibleGroups = dayGroups.slice(0, visibleCount);
-  const hasMore = visibleCount < dayGroups.length;
-
-  useEffect(() => {
-    const root = scrollerRef.current;
-    const target = loadMoreRef.current;
-    if (!root || !target || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          loadMore();
-        }
-      },
-      {
-        root,
-        rootMargin: "0px 160px 0px 0px",
-        threshold: 0,
-      }
+    setVisibleMatchCount((count) =>
+      Math.min(count + loadMoreMatches, Math.max(totalMatches, count))
     );
+  }, [loadMoreMatches, totalMatches]);
 
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, [hasMore, loadMore, visibleCount]);
+  const visibleGroups = useMemo(
+    () => sliceDayGroupsByMatchCount(dayGroups, visibleMatchCount),
+    [dayGroups, visibleMatchCount]
+  );
+  const hasMore = visibleMatchCount < totalMatches;
 
-  if (dayGroups.length === 0) {
+  if (dayGroups.length === 0 || totalMatches === 0) {
     return (
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
@@ -162,12 +154,11 @@ export function ScheduleByDay({
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
             {formatMatchDataSource(source)} · Times in your local timezone
-            {dayGroups.length > columnsPerRow ? " · Scroll for more days" : ""}
+            {hasMore ? " · Load more for later fixtures" : ""}
           </p>
         </div>
 
         <div
-          ref={scrollerRef}
           role="region"
           aria-label={`${title} by day`}
           className="scrollbar-hide -mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-3 pb-1 touch-pan-x sm:-mx-0 sm:px-0"
@@ -185,17 +176,19 @@ export function ScheduleByDay({
               />
             </div>
           ))}
-
-          {hasMore && (
-            <div
-              ref={loadMoreRef}
-              className="flex w-20 shrink-0 snap-start items-center justify-center"
-              aria-hidden
-            >
-              <span className="text-[11px] font-medium text-muted">More…</span>
-            </div>
-          )}
         </div>
+
+        {hasMore && (
+          <div className="mt-4 flex justify-center">
+            <button
+              type="button"
+              onClick={loadMore}
+              className="rounded-2xl border border-border bg-background px-4 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-surface sm:text-[14px]"
+            >
+              Load more
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
 import { cn } from "@/lib/utils";
 import { formatLocalMatchTime } from "@/lib/match-schedule";
@@ -121,12 +120,6 @@ export function MatchScheduleRow({
           {display}
         </div>
       </div>
-
-      {match.status !== "CANCELLED" && (
-        <div className="mt-2 pl-[calc(3.25rem+0.75rem)] sm:pl-[calc(4rem+0.75rem)]">
-          <MatchWatchLinks match={match} />
-        </div>
-      )}
     </div>
   );
 }

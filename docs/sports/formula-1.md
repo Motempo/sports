@@ -18,7 +18,6 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | ScheduleByDay | Weekend sessions (FP/Quali/Sprint/Race) |
 | Knockout bracket | Season calendar |
 | RulesPrimer | How F1 Works |
-| Match watch links | Session watch links |
 
 ## Data
 

@@ -23,7 +23,7 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 |---------|-------------------|
 | Rail | `TournamentRail` (compact) |
 | Next event | `FeaturedMatchCard` |
-| Schedule | `ScheduleByDay` + watch links |
+| Schedule | `ScheduleByDay` |
 | Widgets | News + Fun facts (`sportSlug="world-cup"`) |
 | Groups / standings | Group grids + third-place tracker (group stage) |
 | Knockout | `BracketTree` during knockouts |

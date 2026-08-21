@@ -1,6 +1,5 @@
 "use client";
 
-import { MatchWatchLinks } from "@/components/bracket/MatchWatchLinks";
 import { TeamCard } from "@/components/bracket/TeamCard";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { getRoundLabel } from "@/lib/bracket-constants";
@@ -91,7 +90,6 @@ export function FeaturedMatchCard({
         titleRace,
         relegationRace,
       })}
-      watch={match.status === "CANCELLED" ? null : <MatchWatchLinks match={match} />}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? formatMatchVenueLine(match) ?? teamLabel(match.homeTeam)}
       emblems={

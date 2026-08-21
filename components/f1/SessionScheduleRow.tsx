@@ -1,15 +1,12 @@
 "use client";
 
-import { SessionWatchLinks } from "@/components/f1/SessionWatchLinks";
 import { cn } from "@/lib/utils";
 import { formatLocalSessionTime } from "@/lib/f1-session-schedule";
-import { getSessionWatchLinks } from "@/lib/f1-watch-links";
 import type { F1SessionInfo } from "@/lib/f1-types";
 
 interface SessionScheduleRowProps {
   session: F1SessionInfo;
   showDivider?: boolean;
-  showWatch?: boolean;
 }
 
 const SESSION_TYPE_COLORS: Record<string, string> = {
@@ -23,12 +20,10 @@ const SESSION_TYPE_COLORS: Record<string, string> = {
 export function SessionScheduleRow({
   session,
   showDivider,
-  showWatch = true,
 }: SessionScheduleRowProps) {
   const isLive = session.status === "live";
   const finished = session.status === "finished";
   const timeLabel = isLive ? "Live" : formatLocalSessionTime(session.utcDate);
-  const watchLinks = getSessionWatchLinks(session.gpName, session.circuit);
 
   return (
     <div className={cn("px-3 py-3 sm:px-4", showDivider && "border-t border-border")}>
@@ -42,7 +37,7 @@ export function SessionScheduleRow({
           ) : (
             <span
               className={cn(
-                "text-[13px] font-medium tabular-nums sm:text-[14px]",
+                "text-[13px] font-semibold tabular-nums sm:text-[14px]",
                 finished ? "text-muted" : "text-foreground"
               )}
             >
@@ -65,9 +60,6 @@ export function SessionScheduleRow({
           </p>
           {session.isSprintWeekend && session.sessionType === "sprint" && (
             <p className="mt-1 text-[11px] text-amber-500">Sprint weekend</p>
-          )}
-          {showWatch && (session.sessionType === "race" || session.sessionType === "qualifying") && (
-            <SessionWatchLinks links={watchLinks} className="mt-2" compact />
           )}
         </div>
       </div>

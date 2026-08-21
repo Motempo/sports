@@ -159,6 +159,36 @@ export function combineScheduleMatches(
   return combined.sort(sortMatchesInDay);
 }
 
+/** Total fixtures across day columns (empty “today” placeholders do not count). */
+export function countDayGroupMatches(groups: MatchDayGroup[]): number {
+  return groups.reduce((total, group) => total + group.matches.length, 0);
+}
+
+/**
+ * Keep day columns in order, but only the first `limit` fixtures overall.
+ * Empty placeholder days are dropped so the first visible slots are real games.
+ */
+export function sliceDayGroupsByMatchCount(
+  groups: MatchDayGroup[],
+  limit: number
+): MatchDayGroup[] {
+  if (limit <= 0) return [];
+
+  const result: MatchDayGroup[] = [];
+  let remaining = limit;
+
+  for (const group of groups) {
+    if (remaining <= 0) break;
+    if (group.matches.length === 0) continue;
+
+    const matches = group.matches.slice(0, remaining);
+    result.push({ ...group, matches });
+    remaining -= matches.length;
+  }
+
+  return result;
+}
+
 /**
  * Featured match for returning users: live first, then the soonest scheduled
  * kickoff, then the most recent finished match (tournament complete).

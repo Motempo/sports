@@ -29,6 +29,18 @@ export interface AdSlotConfig {
 
 const truthy = (value: string | undefined): boolean => value?.trim().toLowerCase() === "true";
 
+/** Official AdSense publisher id for Motempo (site verification + ad units). */
+export const ADSENSE_PUBLISHER_ID = "ca-pub-8086154575408312";
+
+function normalizeAdsenseClient(raw: string | undefined): string {
+  const id = raw?.trim() ?? "";
+  if (!id) return ADSENSE_PUBLISHER_ID;
+  if (id.startsWith("ca-")) return id;
+  // Env sometimes stores pub-XXXX without the required ca- prefix.
+  if (id.startsWith("pub-")) return `ca-${id}`;
+  return id;
+}
+
 export const adsEnabled = truthy(process.env.NEXT_PUBLIC_ADS_ENABLED);
 
 /** Set true in env once AdSense authorizes the site and slots are configured. */
@@ -41,8 +53,9 @@ export const adProvider: AdProviderName =
       ? "adsense"
       : "none";
 
-export const adsenseClientId =
-  process.env.NEXT_PUBLIC_ADSENSE_CLIENT?.trim() || "ca-pub-8086154575408312";
+export const adsenseClientId = normalizeAdsenseClient(
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT
+);
 
 export const nitroSiteId = process.env.NEXT_PUBLIC_NITRO_SITE_ID?.trim() ?? "";
 

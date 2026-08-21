@@ -17,9 +17,9 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 
 | Layer | Detail |
 |-------|--------|
-| Primary | openfootball `en.1.json` for the **current** season (`2026-27`, …) |
+| Primary | openfootball `en.1.json`, else `england/{season}/1-premierleague.txt` for the **current** season (`2026-27`, …) |
 | Fallback | football-data `PL` only when that API is already on the same season (+ scorers for Golden Boot when key has access) |
-| Seed | `data/pl-clubs-seed.json` + short matchday grid for the current season when mirrors lag |
+| Seed | `data/pl-clubs-seed.json` (2026/27 clubs) + short matchday grid when mirrors lag |
 | Standings | `lib/league-standings.ts` — zones 1–4 CL, 5 EL, 6 ECL, 18–20 relegated |
 | Key libs | `lib/premier-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
 

@@ -17,10 +17,13 @@ import {
   computeTitleRace,
 } from "@/lib/la-liga-standings";
 import { normalizeApiMatchStatus, inferMatchStatusFromKickoff } from "@/lib/match-status";
+import { parseOpenFootballLeagueTxt } from "@/lib/openfootball-league-txt";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 
-const OPENFOOTBALL_BASE =
+const OPENFOOTBALL_JSON_BASE =
   "https://raw.githubusercontent.com/openfootball/football.json/master";
+const OPENFOOTBALL_SPAIN_TXT =
+  "https://raw.githubusercontent.com/openfootball/espana/master";
 
 interface FootballDataTeam {
   id?: number;
@@ -290,10 +293,10 @@ async function fetchFootballDataMatches(): Promise<{
   }
 }
 
-async function fetchOpenFootballSeason(
+async function fetchOpenFootballJsonSeason(
   seasonKey: string
 ): Promise<MatchInfo[] | null> {
-  const url = `${OPENFOOTBALL_BASE}/${seasonKey}/es.1.json`;
+  const url = `${OPENFOOTBALL_JSON_BASE}/${seasonKey}/es.1.json`;
   try {
     const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
     if (!res.ok) return null;
@@ -305,6 +308,33 @@ async function fetchOpenFootballSeason(
   } catch {
     return null;
   }
+}
+
+async function fetchOpenFootballTxtSeason(
+  seasonKey: string
+): Promise<MatchInfo[] | null> {
+  const url = `${OPENFOOTBALL_SPAIN_TXT}/${seasonKey}/1-liga.txt`;
+  try {
+    const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
+    if (!res.ok) return null;
+    const text = await res.text();
+    const rows = parseOpenFootballLeagueTxt(text);
+    const matches = rows
+      .map(parseOpenFootballMatch)
+      .filter((m): m is MatchInfo => m != null);
+    return matches.length > 0 ? matches : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchOpenFootballSeason(
+  seasonKey: string
+): Promise<MatchInfo[] | null> {
+  return (
+    (await fetchOpenFootballJsonSeason(seasonKey)) ??
+    (await fetchOpenFootballTxtSeason(seasonKey))
+  );
 }
 
 function seedSeasonKey(now = new Date()): string {
@@ -373,7 +403,8 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * La Liga season payload.
- * Prefer openfootball for the *current* season; then football-data.org; then seed.
+ * Prefer openfootball for the *current* season (JSON, then espana .txt);
+ * then football-data.org; then seed.
  * Do not fall back to last season's openfootball file when the mirror lags.
  */
 export async function fetchLaLigaSeason(): Promise<LaLigaSeasonData> {

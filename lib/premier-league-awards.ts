@@ -18,7 +18,15 @@ export interface PremierLeagueAward {
   name: string;
   emoji: string;
   description: string;
+  progress: number;
   contenders: PremierLeagueAwardContender[];
+}
+
+const MATCHES_PER_TEAM = 38;
+
+function seasonProgress(standings: LeagueStandings): number {
+  const played = Math.max(0, ...standings.rows.map((row) => row.played));
+  return Math.min(100, Math.round((played / MATCHES_PER_TEAM) * 100));
 }
 
 interface FootballDataScorer {
@@ -88,6 +96,7 @@ export async function buildPremierLeagueAwards(
   _matches: MatchInfo[]
 ): Promise<PremierLeagueAward[]> {
   const awards: PremierLeagueAward[] = [];
+  const progress = seasonProgress(standings);
 
   const scorers = await fetchPremierLeagueScorers();
   if (scorers && scorers.length > 0) {
@@ -96,6 +105,7 @@ export async function buildPremierLeagueAwards(
       name: "Golden Boot",
       emoji: "⚽",
       description: "Leading Premier League scorers this season.",
+      progress,
       contenders: scorers.slice(0, 4),
     });
   }
@@ -105,6 +115,7 @@ export async function buildPremierLeagueAwards(
     name: "Points race",
     emoji: "🏆",
     description: "Clubs stacking the most points across 38 matchdays.",
+    progress,
     contenders: topBy(standings, (r) => r.points, "pts"),
   });
 
@@ -113,6 +124,7 @@ export async function buildPremierLeagueAwards(
     name: "Top attack",
     emoji: "🔥",
     description: "Highest goals scored — the league's most prolific attacks.",
+    progress,
     contenders: topBy(standings, (r) => r.goalsFor, "GF"),
   });
 
@@ -121,6 +133,7 @@ export async function buildPremierLeagueAwards(
     name: "Best defence",
     emoji: "🧱",
     description: "Fewest goals conceded. Same table maths, opposite end.",
+    progress,
     contenders: [...standings.rows]
       .filter((r) => r.played > 0)
       .sort((a, b) => a.goalsAgainst - b.goalsAgainst || a.position - b.position)

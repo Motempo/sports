@@ -69,8 +69,8 @@ prefer live API → community / open mirror → local seed
 | Sport | Primary | Fallback | Seed |
 |-------|---------|----------|------|
 | World Cup | football-data `WC` | openfootball worldcup JSON | `data/wc2026-*.json`, `team-seed.json` |
-| Premier League | openfootball `en.1.json` (football.json) | football-data `PL` | `data/pl-clubs-seed.json` (+ 3-MD grid) |
-| La Liga | openfootball `es.1.json` (football.json) | football-data `PD` | `data/la-liga-clubs-seed.json` |
+| Premier League | football-data `PL` (current season) | ESPN scoreboard JSON scrape | openfootball `en.1.json` / `.txt` | `data/pl-clubs-seed.json` |
+| La Liga | football-data `PD` (current season) | ESPN scoreboard JSON scrape | openfootball `es.1.json` / `.txt` | `data/la-liga-clubs-seed.json` |
 | Formula 1 | Jolpica Ergast | OpenF1 sessions | `data/f1-season-seed.json` |
 
 Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, cache-bust URLs). No Redis / product Data Cache.

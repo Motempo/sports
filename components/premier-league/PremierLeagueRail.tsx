@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SeasonProgressRailScroller } from "@/components/ui/SeasonProgressRailScroller";
 import { getPremierLeagueGuide } from "@/lib/premier-league-guide";
 import {
   buildPremierLeagueRailSteps,
@@ -34,41 +35,40 @@ export function PremierLeagueRail({ phase, seasonLabel }: PremierLeagueRailProps
           <h2 className="shrink-0 text-[12px] font-semibold text-muted sm:text-[13px]">
             Stages of the season
           </h2>
-          <div className="scrollbar-hide min-w-0 flex-1 overflow-x-auto">
-            <div className="flex gap-1 pb-1">
-              {steps.map((step) => {
-                const isActive = step.id === active;
-                const stepIndex = steps.findIndex((s) => s.id === step.id);
-                const activeIndex = steps.findIndex((s) => s.id === active);
-                const isPast = stepIndex < activeIndex;
+          <SeasonProgressRailScroller activeStepId={active}>
+            {steps.map((step) => {
+              const isActive = step.id === active;
+              const stepIndex = steps.findIndex((s) => s.id === step.id);
+              const activeIndex = steps.findIndex((s) => s.id === active);
+              const isPast = stepIndex < activeIndex;
 
-                return (
-                  <div
-                    key={step.id}
+              return (
+                <div
+                  key={step.id}
+                  data-rail-active={isActive ? "true" : undefined}
+                  className={cn(
+                    "flex shrink-0 flex-col items-center gap-1 rounded-full px-3 py-1.5 text-center sm:px-4",
+                    isActive && "bg-[#37003C]/20 text-foreground dark:bg-[#00FF85]/15",
+                    !isActive && !isPast && "text-muted",
+                    isPast && "text-muted/70"
+                  )}
+                >
+                  <span
                     className={cn(
-                      "flex shrink-0 flex-col items-center gap-1 rounded-full px-3 py-1.5 text-center sm:px-4",
-                      isActive && "bg-[#37003C]/20 text-foreground dark:bg-[#00FF85]/15",
-                      !isActive && !isPast && "text-muted",
-                      isPast && "text-muted/70"
+                      "flex h-2 w-2 rounded-full",
+                      isActive && "bg-[#00FF85]",
+                      isPast && "bg-[#00FF85]/50",
+                      !isActive && !isPast && "bg-border"
                     )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-2 w-2 rounded-full",
-                        isActive && "bg-[#00FF85]",
-                        isPast && "bg-[#00FF85]/50",
-                        !isActive && !isPast && "bg-border"
-                      )}
-                    />
-                    <span className="text-[11px] font-semibold sm:text-[12px]">
-                      <span className="sm:hidden">{step.shortLabel}</span>
-                      <span className="hidden sm:inline">{step.label}</span>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                  />
+                  <span className="text-[11px] font-semibold sm:text-[12px]">
+                    <span className="sm:hidden">{step.shortLabel}</span>
+                    <span className="hidden sm:inline">{step.label}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </SeasonProgressRailScroller>
         </div>
 
         <p className="mt-3 text-[13px] leading-snug text-muted sm:text-[14px]">{guide.intro}</p>

@@ -109,7 +109,8 @@ function findDriver(
 }
 
 function driverDateOfBirth(driver: F1StandingRow): string | undefined {
-  return driver.dateOfBirth ?? F1_DRIVER_META[driver.driverId]?.dateOfBirth;
+  const meta = driver.driverId ? F1_DRIVER_META[driver.driverId] : undefined;
+  return driver.dateOfBirth ?? meta?.dateOfBirth;
 }
 
 function resolveWinnerBirthDate(

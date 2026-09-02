@@ -64,20 +64,46 @@ export function trackProfileKey(track: F1TrackProfile): string {
   return `${track.round}-${track.id}`;
 }
 
-/** Current weekend first, else next upcoming, else most recent completed race. */
+const TRACK_WEEKEND_MS = 4 * 24 * 60 * 60 * 1000;
+
+function trackWeekendEnd(track: F1TrackProfile): Date {
+  const raceDate = new Date(`${track.date}T12:00:00Z`);
+  return new Date(raceDate.getTime() + 24 * 60 * 60 * 1000);
+}
+
+function trackWeekendStart(track: F1TrackProfile): Date {
+  const raceDate = new Date(`${track.date}T12:00:00Z`);
+  return new Date(raceDate.getTime() - TRACK_WEEKEND_MS);
+}
+
+/** Current weekend first, else next calendar stop, else most recent completed race. */
 export function selectActiveTrackProfile(
-  tracks: F1TrackProfile[]
+  tracks: F1TrackProfile[],
+  now = new Date()
 ): F1TrackProfile | undefined {
   if (tracks.length === 0) return undefined;
 
-  const current = tracks.find((track) => track.status === "current");
+  const sorted = [...tracks]
+    .filter((track) => track.status !== "cancelled")
+    .sort((a, b) => a.round - b.round);
+
+  for (const track of sorted) {
+    const start = trackWeekendStart(track);
+    const end = trackWeekendEnd(track);
+    if (now >= start && now <= end) return track;
+  }
+
+  const current = sorted.find((track) => track.status === "current");
   if (current) return current;
 
-  const upcoming = tracks.find((track) => track.status === "upcoming");
-  if (upcoming) return upcoming;
+  for (const track of sorted) {
+    if (track.status === "upcoming" || track.status === "current") {
+      if (now <= trackWeekendEnd(track)) return track;
+    }
+  }
 
-  const lastCompleted = [...tracks].reverse().find((track) => track.status === "completed");
-  return lastCompleted ?? tracks[0];
+  const lastCompleted = [...sorted].reverse().find((track) => track.status === "completed");
+  return lastCompleted ?? sorted[0];
 }
 
 function splitName(full: string): { givenName: string; familyName: string } {

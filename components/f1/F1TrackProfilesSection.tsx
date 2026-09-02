@@ -13,6 +13,7 @@ import { getFlagUrl } from "@/lib/utils";
 interface F1TrackProfilesSectionProps {
   tracks: F1TrackProfile[];
   season: number;
+  activeTrackRound?: number;
 }
 
 function trackStatusLabel(status: F1GrandPrixStatus): string {
@@ -101,10 +102,17 @@ function TrackProfileCard({
   );
 }
 
-export function F1TrackProfilesSection({ tracks, season }: F1TrackProfilesSectionProps) {
+export function F1TrackProfilesSection({
+  tracks,
+  season,
+  activeTrackRound,
+}: F1TrackProfilesSectionProps) {
   if (tracks.length === 0) return null;
 
-  const activeTrack = selectActiveTrackProfile(tracks);
+  const activeTrack =
+    (activeTrackRound != null
+      ? tracks.find((track) => track.round === activeTrackRound)
+      : undefined) ?? selectActiveTrackProfile(tracks);
   const activeTrackId = activeTrack ? trackProfileKey(activeTrack) : undefined;
 
   return (

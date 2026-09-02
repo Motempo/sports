@@ -1,5 +1,9 @@
 import "server-only";
 
+import fs from "node:fs";
+import path from "node:path";
+
+import curatedAerials from "@/data/venue-aerial-images.json";
 import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo, VenueImage } from "@/lib/types";
 
@@ -12,6 +16,48 @@ const FETCH_TIMEOUT_MS = 8000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const cache = new Map<string, { value: VenueImage | null; expiresAt: number }>();
+
+type CuratedVenueImage = { url: string; alt: string };
+
+/** Wikipedia page titles that reliably host aerial photography for each circuit. */
+const CIRCUIT_WIKI_PAGES: Record<string, string> = {
+  "albert park grand prix circuit": "Albert Park Circuit",
+  "shanghai international circuit": "Shanghai International Circuit",
+  "suzuka circuit": "Suzuka International Racing Course",
+  "miami international autodrome": "Miami International Autodrome",
+  "circuit gilles villeneuve": "Circuit Gilles Villeneuve",
+  "circuit de monaco": "Circuit de Monaco",
+  "circuit de barcelona-catalunya": "Circuit de Barcelona-Catalunya",
+  "red bull ring": "Red Bull Ring",
+  "silverstone circuit": "Silverstone Circuit",
+  "circuit de spa-francorchamps": "Circuit de Spa-Francorchamps",
+  hungaroring: "Hungaroring",
+  "circuit park zandvoort": "Circuit Zandvoort",
+  "autodromo nazionale di monza": "Monza Circuit",
+  madring: "IFEMA Madrid",
+  "baku city circuit": "Baku City Circuit",
+  "marina bay street circuit": "Marina Bay Street Circuit",
+  "circuit of the americas": "Circuit of the Americas",
+  "autódromo hermanos rodríguez": "Autódromo Hermanos Rodríguez",
+  "autodromo hermanos rodriguez": "Autódromo Hermanos Rodríguez",
+  "autódromo josé carlos pace": "Autódromo José Carlos Pace",
+  "autodromo jose carlos pace": "Autódromo José Carlos Pace",
+  "las vegas strip street circuit": "Las Vegas Strip Circuit",
+  "losail international circuit": "Losail International Circuit",
+  "yas marina circuit": "Yas Marina Circuit",
+};
+
+function normalizeVenueKey(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+function venueSlug(name: string): string {
+  return normalizeVenueKey(name)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 function cacheGet(key: string): VenueImage | null | undefined {
   const hit = cache.get(key);
@@ -65,7 +111,9 @@ interface WikiSummary {
 
 async function wikipediaSummary(title: string): Promise<WikiSummary | null> {
   const encoded = encodeURIComponent(title.replace(/ /g, "_"));
-  const data = (await wikiJson(`https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`)) as WikiSummary | null;
+  const data = (await wikiJson(
+    `https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`
+  )) as WikiSummary | null;
   if (!data?.title || data.type === "disambiguation") return null;
   return data;
 }
@@ -101,38 +149,41 @@ interface MediaItem {
 
 function fileScore(fileTitle: string, kind: VenueImageKind, lead: boolean): number {
   const name = fileTitle.toLowerCase();
-  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram/.test(name)) return -100;
+  if (/logo|wordmark|coat_of_arms|flag|icon|pictogram|seal/.test(name)) return -100;
 
-  let score = lead ? 10 : 0;
+  let score = lead ? 8 : 0;
+
+  const isAerial =
+    /aerial|from_air|from.the.air|from_the_air|air_view|airview|drone|satellite|overview|bird.?s.?eye|helicopter|oblique|panorama|skysat|planetlabs|google.?earth/.test(
+      name
+    );
+  const isSchematic =
+    /circuit\.(png|svg)$/.test(name) ||
+    (/circuit|track|layout|map|diagram|schematic|plan/.test(name) &&
+      (name.endsWith(".svg") || name.endsWith(".png")));
+  const isGroundLevel =
+    /startfinish|start_finish|epingle|salut-gilles|grandstand|pit_lane|paddock|tunnel|tribune/.test(name);
+
+  if (isAerial) score += 70;
+  if (/skysat|satellite/.test(name)) score += 25;
+  if (isGroundLevel && !isAerial) score -= 45;
+  if (/\.jpe?g/.test(name)) score += 12;
+  if (name.endsWith(".png") && !isSchematic) score += 6;
 
   if (kind === "circuit") {
-    // MOT-49: prefer official-style track schematics / layout maps, not race photography.
-    const isHistoricalLayout = /19(4|5|6|7|8|9)\d|vs_19|compared|evolution/.test(name);
-    const isSchematic =
-      /circuit\.(png|svg)$/.test(name) ||
-      (/circuit|track|layout|map|diagram|schematic|plan/.test(name) &&
-        (name.endsWith(".svg") || name.endsWith(".png")));
-
-    if (isHistoricalLayout) score -= 35;
-    if (isSchematic) score += 50;
-    if (name.endsWith(".svg") && /circuit|track|layout|map/.test(name) && !isHistoricalLayout) {
-      score += 20;
+    if (isSchematic) score -= 55;
+    if (/grandstand|pit_lane|paddock|start_|motorsport|race_track|crowd|podium/.test(name)) {
+      score -= 25;
     }
-    if (lead && isSchematic) score += 15;
-
-    // Demote photos of cars / crowds / aerial scenery.
-    if (/motorsport|race_track|grandstand|pit_lane|paddock|start_|dtm_|bestanddeelnr/.test(name)) {
-      score -= 30;
+    if (/circuit|track|speedway|raceway|autodrom|autodrome|ring|zandvoort|monza|silverstone|spa/.test(name)) {
+      score += 8;
     }
-    if (/aerial|from_air|air_|drone|satellite/.test(name)) score -= 25;
-    if (/\.jpe?g/.test(name) && !isSchematic) score -= 10;
-    if (/circuit|track|zandvoort|suzuka|monza|spa|silverstone/.test(name)) score += 6;
   } else {
     if (name.endsWith(".svg")) return -80;
-    if (/\.jpe?g/.test(name)) score += 18;
-    if (name.endsWith(".png")) score += 8;
-    if (/aerial|panorama|stadium|estadio/.test(name)) score += 16;
+    if (/stadium|estadio|arena|ground|park|field|coliseum/.test(name)) score += 10;
+    if (/interior|locker|tunnel|stand_seats|pitch_close|dressing/.test(name)) score -= 30;
   }
+
   return score;
 }
 
@@ -166,7 +217,7 @@ async function fileOriginalUrl(fileTitle: string): Promise<string | null> {
   return stripTracking(info.thumburl || info.url || "");
 }
 
-async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<string | null> {
+async function pickAerialPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<string | null> {
   const encoded = encodeURIComponent(wikiTitle.replace(/ /g, "_"));
   const media = (await wikiJson(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encoded}`)) as {
     items?: MediaItem[];
@@ -178,42 +229,84 @@ async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<st
     .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score);
 
-  for (const { item } of ranked.slice(0, 8)) {
-    // Circuit schematics are often SVG — use rendered thumbnails.
-    if (kind === "circuit" && item.title) {
-      const original = await fileOriginalUrl(item.title);
-      if (original) return original;
-    }
-    const fromSet = bestSrcsetUrl(item);
-    if (fromSet) {
-      if (kind === "circuit" || !fromSet.toLowerCase().includes(".svg")) return fromSet;
-    }
+  for (const { item } of ranked.slice(0, 10)) {
     if (item.title) {
       const original = await fileOriginalUrl(item.title);
-      if (original) return original;
+      if (original && !original.toLowerCase().endsWith(".svg")) return original;
     }
+    const fromSet = bestSrcsetUrl(item);
+    if (fromSet && !fromSet.toLowerCase().includes(".svg")) return fromSet;
   }
   return null;
 }
 
-function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[] {
+function searchQueries(kind: VenueImageKind, name: string, hint?: string): string[] {
   const trimmed = name.trim();
   if (kind === "circuit") {
-    return [
-      `${trimmed} circuit map`,
-      `${trimmed} Grand Prix circuit layout`,
+    const wikiPage = CIRCUIT_WIKI_PAGES[normalizeVenueKey(trimmed)];
+    const queries = [
+      wikiPage,
+      `${trimmed} aerial view`,
+      `${trimmed} circuit aerial`,
       `${trimmed} racing circuit`,
       trimmed,
-    ];
+    ].filter(Boolean) as string[];
+    return queries;
   }
+
   const stadiumish = /stadium|estadio|arena|ground|park|field/i.test(trimmed);
-  const queries = stadiumish ? [trimmed] : [`${trimmed} football stadium`, `${trimmed} stadium`];
-  if (hint?.trim()) queries.unshift(`${trimmed} ${hint.trim()} stadium`);
+  const queries = stadiumish
+    ? [`${trimmed} aerial view`, trimmed]
+    : [`${trimmed} football stadium aerial`, `${trimmed} stadium aerial`, `${trimmed} stadium`];
+  if (hint?.trim()) queries.unshift(`${trimmed} ${hint.trim()} stadium aerial`);
   return queries;
 }
 
+function curatedImage(kind: VenueImageKind, name: string): VenueImage | null {
+  const key = normalizeVenueKey(name);
+  const bucket = kind === "circuit" ? curatedAerials.circuit : curatedAerials.stadium;
+  const hit = bucket[key as keyof typeof bucket] as CuratedVenueImage | null | undefined;
+  if (!hit?.url) return null;
+  return { url: hit.url, alt: hit.alt || `${name} aerial view` };
+}
+
+function localGeneratedImage(kind: VenueImageKind, name: string): VenueImage | null {
+  const slug = venueSlug(name);
+  const relPath = `/venues/aerial/${kind}/${slug}.webp`;
+  const absPath = path.join(process.cwd(), "public", relPath.slice(1));
+  if (!fs.existsSync(absPath)) return null;
+  return { url: relPath, alt: `${name} aerial view` };
+}
+
+async function resolveFromWikipedia(input: {
+  kind: VenueImageKind;
+  name: string;
+  hint?: string;
+}): Promise<VenueImage | null> {
+  const name = input.name.trim();
+  let wikiTitle: string | null = CIRCUIT_WIKI_PAGES[normalizeVenueKey(name)] ?? null;
+
+  if (!wikiTitle) {
+    const direct = await wikipediaSummary(name);
+    if (direct?.title) wikiTitle = direct.title;
+  }
+
+  if (!wikiTitle) {
+    for (const query of searchQueries(input.kind, name, input.hint)) {
+      wikiTitle = await wikipediaSearch(query);
+      if (wikiTitle) break;
+    }
+  }
+
+  if (!wikiTitle) return null;
+
+  const url = await pickAerialPhotoUrl(wikiTitle, input.kind);
+  return url ? { url, alt: `${wikiTitle} aerial view` } : null;
+}
+
 /**
- * Photograph of a race circuit or football stadium from Wikipedia / Wikimedia Commons.
+ * 45°-style aerial photograph of a race circuit or football stadium.
+ * Cascade: curated Wikimedia → local generated asset → live Wikipedia search.
  */
 export async function resolveVenueImage(input: {
   kind: VenueImageKind;
@@ -223,31 +316,26 @@ export async function resolveVenueImage(input: {
   const name = input.name.trim();
   if (!name || name.toUpperCase() === "TBD") return null;
 
-  const cacheKey = `${input.kind}:${name.toLowerCase()}:${(input.hint ?? "").toLowerCase()}`;
+  const cacheKey = `${input.kind}:${normalizeVenueKey(name)}:${(input.hint ?? "").toLowerCase()}`;
   const cached = cacheGet(cacheKey);
   if (cached !== undefined) return cached;
 
   try {
-    let wikiTitle: string | null = null;
-    const direct = await wikipediaSummary(name);
-    if (direct?.title) wikiTitle = direct.title;
-
-    if (!wikiTitle) {
-      for (const query of searchQuery(input.kind, name, input.hint)) {
-        wikiTitle = await wikipediaSearch(query);
-        if (wikiTitle) break;
-      }
+    const curated = curatedImage(input.kind, name);
+    if (curated) {
+      cacheSet(cacheKey, curated);
+      return curated;
     }
 
-    if (!wikiTitle) {
-      cacheSet(cacheKey, null);
-      return null;
+    const generated = localGeneratedImage(input.kind, name);
+    if (generated) {
+      cacheSet(cacheKey, generated);
+      return generated;
     }
 
-    const url = (await pickPhotoUrl(wikiTitle, input.kind)) ?? null;
-    const value = url ? { url, alt: wikiTitle } : null;
-    cacheSet(cacheKey, value);
-    return value;
+    const wiki = await resolveFromWikipedia(input);
+    cacheSet(cacheKey, wiki);
+    return wiki;
   } catch {
     cacheSet(cacheKey, null);
     return null;

@@ -1,0 +1,58 @@
+{
+  "circuit": {
+    "albert park grand prix circuit": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Melbourne_Grand_Prix_Circuit%2C_March_22%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Albert Park Circuit aerial view"
+    },
+    "shanghai international circuit": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Shanghai_International_Circuit%2C_April_7%2C_2018_SkySat_%28rotated%29.jpg",
+      "alt": "Shanghai International Circuit aerial view"
+    },
+    "suzuka circuit": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Suzuka_International_Racing_Course%2C_July_10%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Suzuka International Racing Course aerial view"
+    },
+    "circuit gilles villeneuve": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Circuit_Gilles-Villeneuve%2C_May_29%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Circuit Gilles Villeneuve aerial view"
+    },
+    "autodromo nazionale di monza": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Monza_aerial_photo.jpg",
+      "alt": "Autodromo Nazionale Monza aerial view"
+    },
+    "silverstone circuit": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Silverstone_Circuit%2C_July_2%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Silverstone Circuit aerial view"
+    },
+    "circuit de spa-francorchamps": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/7/77/Circuit_de_Spa-Francorchamps%2C_April_22%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Circuit de Spa-Francorchamps aerial view"
+    },
+    "red bull ring": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/98/Red-Bull-Ring-constrution-area-2010-07-04.JPG",
+      "alt": "Red Bull Ring aerial view"
+    },
+    "hungaroring": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Hungaroring%2C_April_28%2C_2018_SkySat_%28cropped%29.jpg",
+      "alt": "Hungaroring aerial view"
+    },
+    "circuit park zandvoort": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Circuit_Park_Zandvoort_from_air_2016-08-24.jpg",
+      "alt": "Circuit Zandvoort aerial view"
+    }
+  },
+  "stadium": {
+    "portman road": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Portman_Road_aerial_%28cropped%29.jpg",
+      "alt": "Portman Road aerial view"
+    },
+    "anfield": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/Panorama_of_Anfield_with_new_main_stand_%2829676137824%29.jpg",
+      "alt": "Anfield aerial view"
+    },
+    "emirates stadium": {
+      "url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Emirates_Stadium_%28Aerial%29.jpg",
+      "alt": "Emirates Stadium aerial view"
+    }
+  }
+}

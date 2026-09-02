@@ -34,6 +34,6 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 
 Shared `SportPageShell` order (same as World Cup / Premier League / La Liga): compact rail → next event → **This Weekend** (session schedule — never labeled “Matches”) → news/facts → championship standings → How F1 Works → **Track Profiles** carousel → awards → records.
 
-The next-session card uses three paragraphs (`featuredF1EventParagraphs`): what the session is (with commentator-style track colour plus Jolpica win history via `getCircuitTrackFact`), a paddock/form-book read from the standings, and how the result hits the drivers. No betting odds and no invented expert quotes. On large screens a Wikipedia **circuit schematic / layout map** (official-style track diagram) fills the right half of the card; on narrow screens it sits under the text.
+The next-session card uses three paragraphs (`featuredF1EventParagraphs`): what the session is (with commentator-style track colour plus Jolpica win history via `getCircuitTrackFact`), a paddock/form-book read from the standings, and how the result hits the drivers. No betting odds and no invented expert quotes. On large screens an **aerial circuit photograph** (satellite / oblique overhead from Wikimedia or a generated fallback) fills the right half of the card; on narrow screens it sits under the text.
 
 Do **not** overload `MatchInfo` for F1 — use F1-specific types.

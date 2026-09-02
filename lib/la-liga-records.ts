@@ -141,7 +141,15 @@ function uniqueWinners(matches: MatchInfo[]): { count: number; names: string[] }
 /**
  * Season & all-time La Liga records — same shape as F1 / World Cup records cards.
  */
-export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
+export function buildLaLigaRecords(
+  data: LaLigaSeasonData,
+  topScorer?: {
+    playerName: string;
+    teamCode: string;
+    teamName: string;
+    goals: number;
+  } | null
+): LaLigaRecord[] {
   const { standings, matches, seasonLabel } = data;
   const rows = standings.rows;
   const seasonNotStarted = rows.every((r) => r.played === 0);
@@ -537,15 +545,28 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "FCB",
         context: "2004–2021 · Barcelona",
       },
-      season: {
-        value: "474 goals",
-        holder: "Lionel Messi",
-        teamCode: "FCB",
-        context: "Record still stands",
-      },
-      highlightSeason: null,
+      season:
+        topScorer && topScorer.goals > 0
+          ? {
+              value: `${topScorer.goals} goal${topScorer.goals === 1 ? "" : "s"}`,
+              holder: topScorer.playerName,
+              teamCode: topScorer.teamCode,
+              context: `${seasonLabel} Pichichi leader`,
+            }
+          : seasonNotStarted
+            ? awaiting
+            : {
+                value: "—",
+                holder: "Waiting on scorer data",
+                context: seasonLabel,
+              },
+      highlightSeason: topScorer && topScorer.goals > 0 ? "leading" : null,
       commentary:
-        "Messi's 474 remains the Everest of Spanish league scoring. Cristiano Ronaldo's 311 for Real Madrid is second — every modern Pichichi chase still gets compared to those two eras.",
+        `Messi's 474 remains the Everest of Spanish league scoring. Cristiano Ronaldo's 311 for Real Madrid is second — every modern Pichichi chase still gets compared to those two eras. ${
+          topScorer && topScorer.goals > 0
+            ? `${topScorer.playerName} leads ${seasonLabel} on ${topScorer.goals} league goal${topScorer.goals === 1 ? "" : "s"}.`
+            : "Individual scoring data fills in once the season gets going."
+        }`,
     }),
 
     record({
@@ -593,15 +614,24 @@ export function buildLaLigaRecords(data: LaLigaSeasonData): LaLigaRecord[] {
         teamCode: "RMA",
         context: "1986–1990",
       },
-      season: {
-        value: "4 in a row",
-        holder: "Real Madrid",
-        teamCode: "RMA",
-        context: "Record still stands",
-      },
-      highlightSeason: null,
+      season: seasonNotStarted
+        ? awaiting
+        : leader
+          ? {
+              value: `${leader.points} pts`,
+              holder: leader.team.shortName ?? leader.team.name,
+              teamCode: leader.team.code,
+              context: `${seasonLabel} title race`,
+            }
+          : { value: "—", holder: "Season not started", context: seasonLabel },
+      highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
       commentary:
-        "Madrid's four-peat from 1986–90 remains the modern consecutive-title mark. Barcelona and others have strung doubles and triples, but four straight is still the bar commentators invoke.",
+        "Madrid's four-peat from 1986–90 remains the modern consecutive-title mark. Barcelona and others have strung doubles and triples, but four straight is still the bar commentators invoke. " +
+        (seasonNotStarted
+          ? "The next title chase starts at Matchday 1."
+          : leader && leader.points > 0
+            ? `${leader.team.name} currently lead ${seasonLabel} — every point is another step in this season's title fight.`
+            : "The next champion will be decided across 38 matchdays."),
     }),
 
     record({

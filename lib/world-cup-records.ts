@@ -387,14 +387,24 @@ export function buildWorldCupRecords(
         teamCode: "GER",
         context: "2002–2014",
       },
-      tournament2026: {
-        value: "16 goals",
-        holder: "Miroslav Klose",
-        teamCode: "GER",
-        context: "Record still stands",
-      },
-      highlight2026: null,
-      commentary: `Klose's sixteen across four tournaments is the number every centre-forward chases — Müller, Ronaldo, and Mbappé have all been measured against it. No one at 2026 has threatened the all-time mark yet, but a deep run with six or seven goals puts a player in the conversation. Studio panels always ask: is the expanded format a chance for a modern striker to finally overhaul the chart?`,
+      tournament2026: leader
+        ? {
+            value: `${leader.goals} goal${leader.goals === 1 ? "" : "s"}`,
+            holder: leader.playerName,
+            teamCode: leader.teamCode,
+            context: "WC 2026 Golden Boot leader",
+          }
+        : {
+            value: "—",
+            holder: "No goals yet",
+            context: "WC 2026",
+          },
+      highlight2026: leader && leader.goals > 0 ? "leading" : null,
+      commentary: `Klose's sixteen across four tournaments is the number every centre-forward chases — Müller, Ronaldo, and Mbappé have all been measured against it. ${
+        leader
+          ? `${leader.playerName} leads 2026 on ${leader.goals} verified goal${leader.goals === 1 ? "" : "s"} so far.`
+          : "No one at 2026 has threatened the all-time mark yet."
+      } Studio panels always ask: is the expanded format a chance for a modern striker to finally overhaul the chart?`,
     }),
 
     record({

@@ -1,4 +1,5 @@
 import { capForecast } from "@/lib/match-forecast";
+import { F1_DRIVER_META } from "@/data/f1-profile-meta";
 import type { F1GrandPrix, F1SeasonData, F1StandingRow } from "@/lib/f1-types";
 
 export const F1_RECORD_COMMENTARY_MAX_CHARS = 300;
@@ -90,8 +91,14 @@ function uniqueWinnerNames(calendar: F1GrandPrix[], drivers: F1StandingRow[]): s
 
 function findDriver(
   standings: F1StandingRow[],
-  name: string
+  name: string,
+  winnerCode?: string
 ): F1StandingRow | undefined {
+  if (winnerCode) {
+    const byCode = standings.find((driver) => driver.driverCode === winnerCode);
+    if (byCode) return byCode;
+  }
+
   return standings.find(
     (d) =>
       d.driverName === name ||
@@ -99,6 +106,87 @@ function findDriver(
       d.driverName.includes(name) ||
       name.includes(d.driverName)
   );
+}
+
+function driverDateOfBirth(driver: F1StandingRow): string | undefined {
+  const meta = driver.driverId ? F1_DRIVER_META[driver.driverId] : undefined;
+  return driver.dateOfBirth ?? meta?.dateOfBirth;
+}
+
+function resolveWinnerBirthDate(
+  standings: F1StandingRow[],
+  winner: string,
+  winnerCode?: string
+): { dateOfBirth: string; constructorId?: string } | null {
+  const driver = findDriver(standings, winner, winnerCode);
+  if (!driver) return null;
+  const dateOfBirth = driverDateOfBirth(driver);
+  if (!dateOfBirth) return null;
+  return { dateOfBirth, constructorId: driver.constructorId };
+}
+
+function ageAtDate(
+  dateOfBirth: string,
+  at: Date
+): { years: number; days: number; totalDays: number } | null {
+  const dob = new Date(`${dateOfBirth}T00:00:00Z`);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  let years = at.getUTCFullYear() - dob.getUTCFullYear();
+  const monthDiff = at.getUTCMonth() - dob.getUTCMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && at.getUTCDate() < dob.getUTCDate())) {
+    years -= 1;
+  }
+
+  const birthdayThisYear = new Date(
+    Date.UTC(at.getUTCFullYear(), dob.getUTCMonth(), dob.getUTCDate())
+  );
+  if (birthdayThisYear > at) {
+    birthdayThisYear.setUTCFullYear(at.getUTCFullYear() - 1);
+  }
+  const days = Math.floor((at.getTime() - birthdayThisYear.getTime()) / 86400000);
+  const totalDays = Math.floor((at.getTime() - dob.getTime()) / 86400000);
+  if (totalDays < 0) return null;
+
+  return { years, days, totalDays };
+}
+
+function formatAgeYearsDays(years: number, days: number): string {
+  return days > 0 ? `${years}y ${days}d` : `${years} years`;
+}
+
+function youngestSeasonWinner(
+  calendar: F1GrandPrix[],
+  drivers: F1StandingRow[]
+): {
+  name: string;
+  years: number;
+  days: number;
+  totalDays: number;
+  constructorId?: string;
+} | null {
+  let youngest: ReturnType<typeof youngestSeasonWinner> = null;
+
+  for (const gp of completedRaces(calendar)) {
+    const winner = gp.winner;
+    if (!winner) continue;
+    const profile = resolveWinnerBirthDate(drivers, winner, gp.winnerCode);
+    if (!profile) continue;
+    const raceDate = new Date(gp.utcDate || `${gp.date}T12:00:00Z`);
+    const age = ageAtDate(profile.dateOfBirth, raceDate);
+    if (!age) continue;
+    if (!youngest || age.totalDays < youngest.totalDays) {
+      youngest = {
+        name: winner,
+        years: age.years,
+        days: age.days,
+        totalDays: age.totalDays,
+        constructorId: profile.constructorId,
+      };
+    }
+  }
+
+  return youngest;
 }
 
 export function buildF1Records(data: F1SeasonData): F1Record[] {
@@ -118,6 +206,7 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
   const gap =
     drivers.length >= 2 ? Math.round((drivers[0]!.points - drivers[1]!.points) * 10) / 10 : null;
   const streakDriver = streak ? findDriver(drivers, streak.driver) : undefined;
+  const youngestWinner = youngestSeasonWinner(data.calendar, drivers);
   const hamiltonCareerWins = 106;
 
   return [
@@ -262,13 +351,22 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
         holder: "Lewis Hamilton",
         context: "2007–present",
       },
-      season: {
-        value: `${hamiltonCareerWins} wins`,
-        holder: "Lewis Hamilton",
-        context: "Record still stands",
-      },
-      highlightSeason: null,
-      commentary: `Hamilton's ${hamiltonCareerWins} victories are the number every modern ace is measured against — Schumacher's 91 sat for years before being overhauled. No one in ${seasonLabel} is threatening the all-time mark yet, but a deep title run keeps the conversation alive. Studio panels always ask: who gets there next?`,
+      season: winsLeader
+        ? {
+            value: `${winsLeader.wins} win${winsLeader.wins === 1 ? "" : "s"}`,
+            holder: winsLeader.driverName,
+            constructorId: winsLeader.constructorId,
+            context: `${seasonLabel} season leader`,
+          }
+        : racesDone === 0
+          ? { value: "—", holder: "No races yet", context: seasonLabel }
+          : { value: "0 wins", holder: "No winner yet", context: seasonLabel },
+      highlightSeason: winsLeader && winsLeader.wins > 0 ? "leading" : null,
+      commentary: `Hamilton's ${hamiltonCareerWins} victories are the number every modern ace is measured against — Schumacher's 91 sat for years before being overhauled. ${
+        winsLeader && winsLeader.wins > 0
+          ? `${winsLeader.driverName} leads ${seasonLabel} with ${winsLeader.wins} race win${winsLeader.wins === 1 ? "" : "s"} so far.`
+          : `No ${seasonLabel} wins on the board yet.`
+      } Studio panels always ask: who gets there next?`,
     }),
 
     record({
@@ -370,13 +468,26 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
         holder: "Max Verstappen",
         context: "Spanish GP, 2016",
       },
-      season: {
-        value: "18y 228d",
-        holder: "Max Verstappen",
-        context: "Record still stands",
-      },
-      highlightSeason: null,
-      commentary: `Verstappen's Spanish GP win at eighteen remains the youngest victory in F1 history — every teenage podium still gets the comparison. ${seasonLabel}'s winners will be measured against that fearlessness. Commentators frame it as no memory of past failures — just pure attack.`,
+      season: youngestWinner
+        ? {
+            value: formatAgeYearsDays(youngestWinner.years, youngestWinner.days),
+            holder: youngestWinner.name,
+            constructorId: youngestWinner.constructorId,
+            context: `${seasonLabel} youngest winner`,
+          }
+        : racesDone === 0
+          ? { value: "—", holder: "No races yet", context: seasonLabel }
+          : {
+              value: "—",
+              holder: "Waiting on winner ages",
+              context: seasonLabel,
+            },
+      highlightSeason: youngestWinner ? "leading" : null,
+      commentary: `Verstappen's Spanish GP win at eighteen remains the youngest victory in F1 history — every teenage podium still gets the comparison. ${
+        youngestWinner
+          ? `${youngestWinner.name} is ${seasonLabel}'s youngest winner so far at ${formatAgeYearsDays(youngestWinner.years, youngestWinner.days)}.`
+          : `${seasonLabel}'s winners will be measured against that fearlessness once the chequered flag falls.`
+      } Commentators frame it as no memory of past failures — just pure attack.`,
     }),
 
     record({

@@ -3,6 +3,7 @@ import { F1AwardsSection } from "@/components/f1/F1AwardsSection";
 import { F1RecordsSection } from "@/components/f1/F1RecordsSection";
 import { F1TrackProfilesSection } from "@/components/f1/F1TrackProfilesSection";
 import { FormulaOneNextEvent } from "@/components/f1/FormulaOneNextEvent";
+import { FormulaOnePreviousRaces } from "@/components/f1/FormulaOnePreviousRaces";
 import { HowF1Works } from "@/components/f1/HowF1Works";
 import { SeasonRail } from "@/components/f1/SeasonRail";
 import { TitleFightTracker } from "@/components/f1/TitleFightTracker";
@@ -19,7 +20,7 @@ import { buildF1Awards } from "@/lib/f1-awards";
 import { buildTrackProfiles, getCircuitTrackFact } from "@/lib/f1-circuit-facts";
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
-import { selectFeaturedF1Event } from "@/lib/f1-session-schedule";
+import { selectFeaturedF1Event, selectPreviousF1Races } from "@/lib/f1-session-schedule";
 import { resolveVenueImage } from "@/lib/venue-image";
 import {
   detectSeasonPhase,
@@ -35,6 +36,12 @@ export async function FormulaOnePageContent() {
   const records = buildF1Records(data);
   const tracks = buildTrackProfiles(data);
   const featuredEvent = selectFeaturedF1Event(data.sessions, data.calendar);
+  const previousRaces = selectPreviousF1Races(data.calendar, {
+    excludeRound:
+      featuredEvent?.kind === "gp" && featuredEvent.status === "complete"
+        ? featuredEvent.gp.round
+        : undefined,
+  });
   const circuit =
     featuredEvent?.kind === "session" ? featuredEvent.session.circuit : featuredEvent?.gp.circuit;
   const circuitId =
@@ -43,9 +50,19 @@ export async function FormulaOnePageContent() {
       : featuredEvent?.gp.circuitId;
   const country =
     featuredEvent?.kind === "session" ? featuredEvent.session.country : featuredEvent?.gp.country;
-  const [venueImage, trackFact] = await Promise.all([
+  const [venueImage, trackFact, previousVenueImages, previousTrackFacts] = await Promise.all([
     circuit ? resolveVenueImage({ kind: "circuit", name: circuit, hint: country }) : null,
     circuit ? getCircuitTrackFact({ circuitId, circuitName: circuit }) : null,
+    Promise.all(
+      previousRaces.map((gp) =>
+        resolveVenueImage({ kind: "circuit", name: gp.circuit, hint: gp.country })
+      )
+    ),
+    Promise.all(
+      previousRaces.map((gp) =>
+        getCircuitTrackFact({ circuitId: gp.circuitId, circuitName: gp.circuit })
+      )
+    ),
   ]);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -65,6 +82,16 @@ export async function FormulaOnePageContent() {
           constructorStandings={data.constructorStandings}
           venueImage={venueImage}
           trackFact={trackFact}
+        />
+      }
+      previousEvent={
+        <FormulaOnePreviousRaces
+          races={previousRaces}
+          venueImages={previousVenueImages}
+          trackFacts={previousTrackFacts}
+          titleFight={titleFight}
+          driverStandings={data.driverStandings}
+          constructorStandings={data.constructorStandings}
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="formula-1" />}

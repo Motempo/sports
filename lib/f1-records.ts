@@ -1,9 +1,8 @@
 import { capForecast } from "@/lib/match-forecast";
+import { F1_DRIVER_META } from "@/data/f1-profile-meta";
 import type { F1GrandPrix, F1SeasonData, F1StandingRow } from "@/lib/f1-types";
 
 export const F1_RECORD_COMMENTARY_MAX_CHARS = 300;
-
-const VERSTAPPEN_YOUNGEST_WIN_AGE = { years: 18, days: 228 };
 
 export interface F1RecordMark {
   value: string;
@@ -92,8 +91,14 @@ function uniqueWinnerNames(calendar: F1GrandPrix[], drivers: F1StandingRow[]): s
 
 function findDriver(
   standings: F1StandingRow[],
-  name: string
+  name: string,
+  winnerCode?: string
 ): F1StandingRow | undefined {
+  if (winnerCode) {
+    const byCode = standings.find((driver) => driver.driverCode === winnerCode);
+    if (byCode) return byCode;
+  }
+
   return standings.find(
     (d) =>
       d.driverName === name ||
@@ -101,6 +106,22 @@ function findDriver(
       d.driverName.includes(name) ||
       name.includes(d.driverName)
   );
+}
+
+function driverDateOfBirth(driver: F1StandingRow): string | undefined {
+  return driver.dateOfBirth ?? F1_DRIVER_META[driver.driverId]?.dateOfBirth;
+}
+
+function resolveWinnerBirthDate(
+  standings: F1StandingRow[],
+  winner: string,
+  winnerCode?: string
+): { dateOfBirth: string; constructorId?: string } | null {
+  const driver = findDriver(standings, winner, winnerCode);
+  if (!driver) return null;
+  const dateOfBirth = driverDateOfBirth(driver);
+  if (!dateOfBirth) return null;
+  return { dateOfBirth, constructorId: driver.constructorId };
 }
 
 function ageAtDate(
@@ -148,10 +169,10 @@ function youngestSeasonWinner(
   for (const gp of completedRaces(calendar)) {
     const winner = gp.winner;
     if (!winner) continue;
-    const driver = findDriver(drivers, winner);
-    if (!driver?.dateOfBirth) continue;
+    const profile = resolveWinnerBirthDate(drivers, winner, gp.winnerCode);
+    if (!profile) continue;
     const raceDate = new Date(gp.utcDate || `${gp.date}T12:00:00Z`);
-    const age = ageAtDate(driver.dateOfBirth, raceDate);
+    const age = ageAtDate(profile.dateOfBirth, raceDate);
     if (!age) continue;
     if (!youngest || age.totalDays < youngest.totalDays) {
       youngest = {
@@ -159,18 +180,12 @@ function youngestSeasonWinner(
         years: age.years,
         days: age.days,
         totalDays: age.totalDays,
-        constructorId: driver.constructorId,
+        constructorId: profile.constructorId,
       };
     }
   }
 
   return youngest;
-}
-
-function isYoungerThanVerstappenRecord(years: number, days: number): boolean {
-  if (years < VERSTAPPEN_YOUNGEST_WIN_AGE.years) return true;
-  if (years > VERSTAPPEN_YOUNGEST_WIN_AGE.years) return false;
-  return days < VERSTAPPEN_YOUNGEST_WIN_AGE.days;
 }
 
 export function buildF1Records(data: F1SeasonData): F1Record[] {
@@ -457,24 +472,16 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
             value: formatAgeYearsDays(youngestWinner.years, youngestWinner.days),
             holder: youngestWinner.name,
             constructorId: youngestWinner.constructorId,
-            context: isYoungerThanVerstappenRecord(youngestWinner.years, youngestWinner.days)
-              ? `${seasonLabel} · new youngest winner`
-              : `${seasonLabel} youngest winner · record still stands`,
+            context: `${seasonLabel} youngest winner`,
           }
         : racesDone === 0
           ? { value: "—", holder: "No races yet", context: seasonLabel }
           : {
               value: "—",
               holder: "Waiting on winner ages",
-              context: `${seasonLabel} · record still stands`,
+              context: seasonLabel,
             },
-      highlightSeason:
-        youngestWinner &&
-        isYoungerThanVerstappenRecord(youngestWinner.years, youngestWinner.days)
-          ? "all-time"
-          : youngestWinner
-            ? "leading"
-            : null,
+      highlightSeason: youngestWinner ? "leading" : null,
       commentary: `Verstappen's Spanish GP win at eighteen remains the youngest victory in F1 history — every teenage podium still gets the comparison. ${
         youngestWinner
           ? `${youngestWinner.name} is ${seasonLabel}'s youngest winner so far at ${formatAgeYearsDays(youngestWinner.years, youngestWinner.days)}.`

@@ -1,4 +1,5 @@
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
+import { SeasonProgressBadge } from "@/components/ui/SeasonProgressBadge";
 import { cn } from "@/lib/utils";
 import type { AwardContender, WorldCupAward } from "@/lib/world-cup-awards";
 import { buildTeamInfo } from "@/lib/team-info";
@@ -31,15 +32,12 @@ function ContenderRow({ contender, leader }: { contender: AwardContender; leader
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}%</p>
       </div>
     </div>
   );
 }
 
 function AwardCard({ award }: { award: WorldCupAward }) {
-  const leader = award.contenders[0];
-
   return (
     <article className="flex h-full flex-col rounded-2xl border border-border bg-background p-4 sm:p-5">
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -54,18 +52,14 @@ function AwardCard({ award }: { award: WorldCupAward }) {
             {award.sponsor}
           </p>
         </div>
-        {leader && (
-          <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChance}% lead
-          </div>
-        )}
+        <SeasonProgressBadge progress={award.progress} scopeLabel="Tournament" />
       </div>
 
       <p className="mb-3 text-[12px] leading-snug text-muted">{award.description}</p>
 
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-[11px] text-muted">
-          <span>Race progress</span>
+          <span>Tournament progress</span>
           <span className="tabular-nums">{award.progress}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-surface">

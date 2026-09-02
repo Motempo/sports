@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SeasonProgressBadge } from "@/components/ui/SeasonProgressBadge";
 import { getConstructorColor } from "@/lib/f1-constructor-colors";
 import type { F1Award, F1AwardContender } from "@/lib/f1-awards";
 
@@ -38,15 +39,12 @@ function ContenderRow({ contender, leader }: { contender: F1AwardContender; lead
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}%</p>
       </div>
     </div>
   );
 }
 
 function AwardCard({ award }: { award: F1Award }) {
-  const leader = award.contenders[0];
-
   return (
     <article className="flex h-full flex-col rounded-2xl border border-border bg-background p-4 sm:p-5">
       <div className="mb-3 flex items-start justify-between gap-3">
@@ -61,11 +59,7 @@ function AwardCard({ award }: { award: F1Award }) {
             {award.sponsor}
           </p>
         </div>
-        {leader && (
-          <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChance}% lead
-          </div>
-        )}
+        <SeasonProgressBadge progress={award.progress} scopeLabel="Season" />
       </div>
 
       <p className="mb-3 text-[12px] leading-snug text-muted">{award.description}</p>
@@ -110,7 +104,7 @@ export function F1AwardsSection({ awards }: F1AwardsSectionProps) {
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Stats</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             Live progress in the Drivers&apos; and Constructors&apos; Championships, race wins, and
-            team victories — contenders and title chances update as the season unfolds.
+            team victories — updated as the season moves toward the final Grand Prix.
           </p>
         </div>
 

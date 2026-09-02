@@ -14,11 +14,12 @@ import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
 import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
+import { PreviousMatchesSection } from "@/components/sports/PreviousMatchesSection";
 import { WorldCupAwardsSection } from "@/components/tournament/WorldCupAwardsSection";
 import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsSection";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
-import { selectFeaturedMatch } from "@/lib/match-schedule";
+import { selectFeaturedMatch, selectPreviousMatches } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { computeGroupStandings, computeThirdPlaceTracker } from "@/lib/group-standings";
 import { buildWorldCupAwards } from "@/lib/world-cup-awards";
@@ -45,7 +46,13 @@ export async function WorldCupPageContent() {
   });
   const allMatches = [...groupMatches, ...matches];
   const featuredMatch = selectFeaturedMatch(allMatches);
-  const venueImage = await resolveMatchVenueImage(featuredMatch);
+  const previousMatches = selectPreviousMatches(allMatches, {
+    excludeMatchId: featuredMatch?.status === "FINISHED" ? featuredMatch.id : undefined,
+  });
+  const [venueImage, previousVenueImages] = await Promise.all([
+    resolveMatchVenueImage(featuredMatch),
+    Promise.all(previousMatches.map((match) => resolveMatchVenueImage(match))),
+  ]);
   const goalStats = await fetchTournamentGoalStats(allMatches);
   const awards = await buildWorldCupAwards(allMatches, goalStats);
   const records = buildWorldCupRecords(allMatches, goalStats);
@@ -108,6 +115,14 @@ export async function WorldCupPageContent() {
           groupMatches={groupMatches}
           standings={standings}
           venueImage={venueImage}
+        />
+      }
+      previousEvent={
+        <PreviousMatchesSection
+          matches={previousMatches}
+          venueImages={previousVenueImages}
+          groupMatches={groupMatches}
+          standings={standings}
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="world-cup" />}

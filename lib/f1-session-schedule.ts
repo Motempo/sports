@@ -327,3 +327,94 @@ export function featuredF1EventParagraphs(
 ): string[] {
   return nextEventParagraphs(featuredF1EventBrief(event, options));
 }
+
+/**
+ * Completed GPs in chronological order (oldest → newest) for the previous-races carousel.
+ */
+export function selectPreviousF1Races(
+  calendar: F1GrandPrix[],
+  options?: { excludeRound?: number; limit?: number }
+): F1GrandPrix[] {
+  const limit = options?.limit ?? 10;
+  const completed = calendar
+    .filter((gp) => gp.status === "completed")
+    .filter((gp) => options?.excludeRound == null || gp.round !== options.excludeRound)
+    .sort((a, b) => a.round - b.round);
+
+  if (completed.length <= limit) return completed;
+  return completed.slice(completed.length - limit);
+}
+
+function previousRaceDescription(gp: F1GrandPrix, trackFact?: string | null): string {
+  const fact = trackFact?.trim();
+  const winnerLine = gp.winner ? ` ${gp.winner} won from lights to flag.` : " The chequered flag is in the books.";
+  const base = `Round ${gp.round}: ${gp.name} at ${gp.circuit}.${winnerLine}`;
+  return fact ? `${base} ${fact}` : base;
+}
+
+function previousRaceHighlights(
+  gp: F1GrandPrix,
+  drivers?: F1StandingRow[],
+  constructors?: F1ConstructorStandingRow[]
+): string {
+  const leader = drivers?.[0];
+  const team = constructors?.[0];
+  const sprint = gp.isSprintWeekend ? " Sprint points were on the table before Sunday — " : " ";
+  const winner = gp.winner ? `${gp.winner} took maximum points` : "The winner banked 25 points";
+  const table =
+    leader && gp.winnerCode && leader.driverCode === gp.winnerCode
+      ? ` — ${lastName(leader.driverName)} extends the championship lead.`
+      : leader && gp.winner
+        ? ` while ${lastName(leader.driverName)} still leads the standings.`
+        : ".";
+  const constructorBit = team ? ` ${team.constructorName} picked up constructors' points from the result.` : "";
+  return `${sprint}${winner}${table}${constructorBit}`.trim();
+}
+
+function previousRaceImpact(
+  gp: F1GrandPrix,
+  titleFight?: F1TitleFightInsight | null,
+  drivers?: F1StandingRow[]
+): string {
+  const fight = titleFight?.message?.trim();
+  const leader = drivers?.[0];
+  const challenger = drivers?.[1];
+  const fallback =
+    !fight && leader && challenger
+      ? `${lastName(challenger.driverName)} trails ${lastName(leader.driverName)} by ${leader.points - challenger.points} pts after ${gp.name}.`
+      : "";
+  const championship = fight || fallback;
+
+  if (championship) {
+    return `${championship} Every point from here reshapes the maths — reliability, race craft, and who survives contact in the pack.`;
+  }
+
+  return `Another round in the books. The table reflects who converted pace into points — and who left empty-handed after a long Sunday.`;
+}
+
+export function previousF1RaceBrief(
+  gp: F1GrandPrix,
+  options?: {
+    titleFight?: F1TitleFightInsight | null;
+    driverStandings?: F1StandingRow[];
+    constructorStandings?: F1ConstructorStandingRow[];
+    trackFact?: string | null;
+  }
+): NextEventBrief {
+  return {
+    description: previousRaceDescription(gp, options?.trackFact),
+    prediction: previousRaceHighlights(
+      gp,
+      options?.driverStandings,
+      options?.constructorStandings
+    ),
+    impact: previousRaceImpact(gp, options?.titleFight, options?.driverStandings),
+  };
+}
+
+export function previousF1RaceParagraphs(
+  gp: F1GrandPrix,
+  options?: Parameters<typeof previousF1RaceBrief>[1]
+): string[] {
+  return nextEventParagraphs(previousF1RaceBrief(gp, options));
+}

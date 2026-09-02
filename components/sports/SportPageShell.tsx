@@ -9,6 +9,7 @@ interface SportPageShellProps {
   rail: ReactNode;
   headerAd?: ReactNode;
   nextEvent: ReactNode;
+  previousEvent?: ReactNode;
   newsAndFacts: ReactNode;
   midAd?: ReactNode;
   table: ReactNode;
@@ -25,6 +26,7 @@ export function SportPageShell({
   rail,
   headerAd,
   nextEvent,
+  previousEvent,
   newsAndFacts,
   midAd,
   table,
@@ -41,6 +43,7 @@ export function SportPageShell({
         {rail}
         {headerAd}
         {nextEvent}
+        {previousEvent}
         {matches}
         {newsAndFacts}
         {midAd}

@@ -11,6 +11,7 @@ import { LaLigaSeasonRail } from "@/components/laliga/LaLigaSeasonRail";
 import { LeagueTable } from "@/components/laliga/LeagueTable";
 import { RaceTracker } from "@/components/laliga/RaceTracker";
 import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
+import { PreviousMatchesSection } from "@/components/sports/PreviousMatchesSection";
 import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
@@ -18,7 +19,7 @@ import { buildLaLigaAwards } from "@/lib/la-liga-awards";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
 import { buildLaLigaRecords } from "@/lib/la-liga-records";
 import { formatMatchDataSource } from "@/lib/match-data-source";
-import { selectFeaturedMatch } from "@/lib/match-schedule";
+import { selectFeaturedMatch, selectPreviousMatches } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 
 export const revalidate = 120;
@@ -26,7 +27,13 @@ export const revalidate = 120;
 export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const featuredMatch = selectFeaturedMatch(data.matches);
-  const venueImage = await resolveMatchVenueImage(featuredMatch);
+  const previousMatches = selectPreviousMatches(data.matches, {
+    excludeMatchId: featuredMatch?.status === "FINISHED" ? featuredMatch.id : undefined,
+  });
+  const [venueImage, previousVenueImages] = await Promise.all([
+    resolveMatchVenueImage(featuredMatch),
+    Promise.all(previousMatches.map((match) => resolveMatchVenueImage(match))),
+  ]);
   const awards = await buildLaLigaAwards(data);
   const records = buildLaLigaRecords(data);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
@@ -47,6 +54,16 @@ export async function LaLigaPageContent() {
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
           venueImage={venueImage}
+          timeZone="Europe/Madrid"
+        />
+      }
+      previousEvent={
+        <PreviousMatchesSection
+          matches={previousMatches}
+          venueImages={previousVenueImages}
+          leagueStandings={data.standings}
+          titleRace={data.titleRace}
+          relegationRace={data.relegationRace}
           timeZone="Europe/Madrid"
         />
       }

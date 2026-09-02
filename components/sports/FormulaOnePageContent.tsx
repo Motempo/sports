@@ -101,7 +101,11 @@ export async function FormulaOnePageContent() {
       }
       awards={
         <>
-          <F1TrackProfilesSection tracks={tracks} season={data.season} />
+          <F1TrackProfilesSection
+            tracks={tracks}
+            season={data.season}
+            activeTrackRound={nextGp?.round}
+          />
           <F1AwardsSection awards={awards} />
         </>
       }

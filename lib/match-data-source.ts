@@ -4,6 +4,8 @@ export function formatMatchDataSource(source: MatchDataSource): string {
   switch (source) {
     case "api":
       return "Live data · football-data.org";
+    case "espn":
+      return "Live feed · ESPN · auto-refresh";
     case "openfootball":
       return "Community feed · auto-refresh";
     case "seed":
@@ -12,5 +14,5 @@ export function formatMatchDataSource(source: MatchDataSource): string {
 }
 
 export function isLiveMatchSource(source: MatchDataSource): boolean {
-  return source === "api" || source === "openfootball";
+  return source === "api" || source === "espn" || source === "openfootball";
 }

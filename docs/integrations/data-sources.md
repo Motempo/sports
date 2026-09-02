@@ -11,6 +11,15 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Free tier: rate limits; PL/PD may require plan access
 - Module: `lib/football-data.ts`, scorers via `lib/fetch-football-scorers.ts`
 
+## ESPN (club leagues — scrape fallback)
+
+- No auth; public JSON scoreboard API
+- Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard`
+- Module: `lib/espn-league-data.ts`
+- Used when `FOOTBALL_DATA_API_KEY` is missing or football-data.org is still on the prior season; fresher than the openfootball mirror for live results
+- Next.js fetch cache: 15 minutes (`revalidate: 900`)
+- Cron: `/api/cron/league-sync` revalidates PL + La Liga pages every 2 hours
+
 ## openfootball
 
 - No auth; public-domain fixtures/results
@@ -20,7 +29,8 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
   `england/{season}/1-premierleague.txt`, `espana/{season}/1-liga.txt`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
-- Cascade for club leagues: **current-season openfootball (JSON → league .txt) → football-data.org (same season only) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Cascade for club leagues: **football-data.org (same season only) → ESPN scoreboard scrape (15‑min cache) → current-season openfootball (JSON → league .txt) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`CRON_SECRET`) to revalidate `/premier-league` and `/la-liga`.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1

@@ -150,7 +150,8 @@ export async function fetchEspnLeagueMatches(
       next: { revalidate: 900 },
       headers: {
         Accept: "application/json",
-        "User-Agent": "MotempoSports/1.0 (+https://sports.motempo.com)",
+        // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
+        "User-Agent": "curl/8.5.0",
       },
     });
     if (!res.ok) return null;

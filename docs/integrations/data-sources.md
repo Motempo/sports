@@ -30,7 +30,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
 - Cascade for club leagues: **football-data.org (same season only) → ESPN scoreboard scrape (15‑min cache) → current-season openfootball (JSON → league .txt) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
-- Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`CRON_SECRET`) to revalidate `/premier-league` and `/la-liga`.
+- Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`vercel.json`) to revalidate `/premier-league` and `/la-liga`. No Cursor agent needed — Cron runs on Vercel. `CRON_SECRET` is optional hardening only.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1

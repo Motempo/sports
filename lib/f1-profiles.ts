@@ -60,6 +60,26 @@ export interface F1TrackProfile {
   blurb: string;
 }
 
+export function trackProfileKey(track: F1TrackProfile): string {
+  return `${track.round}-${track.id}`;
+}
+
+/** Current weekend first, else next upcoming, else most recent completed race. */
+export function selectActiveTrackProfile(
+  tracks: F1TrackProfile[]
+): F1TrackProfile | undefined {
+  if (tracks.length === 0) return undefined;
+
+  const current = tracks.find((track) => track.status === "current");
+  if (current) return current;
+
+  const upcoming = tracks.find((track) => track.status === "upcoming");
+  if (upcoming) return upcoming;
+
+  const lastCompleted = [...tracks].reverse().find((track) => track.status === "completed");
+  return lastCompleted ?? tracks[0];
+}
+
 function splitName(full: string): { givenName: string; familyName: string } {
   const parts = full.trim().split(/\s+/);
   if (parts.length === 1) return { givenName: parts[0]!, familyName: parts[0]! };

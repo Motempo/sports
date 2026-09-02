@@ -15,9 +15,16 @@ interface ProfileCarouselProps {
   label: string;
   children: ReactNode;
   className?: string;
+  /** When set, the matching card is scrolled to the horizontal center on load and resize. */
+  activeCardId?: string;
 }
 
-export function ProfileCarousel({ label, children, className }: ProfileCarouselProps) {
+export function ProfileCarousel({
+  label,
+  children,
+  className,
+  activeCardId,
+}: ProfileCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -30,20 +37,46 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
     setCanNext(el.scrollLeft < maxScroll - 4);
   }, []);
 
+  const centerActiveCard = useCallback(() => {
+    if (!activeCardId) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const active = el.querySelector<HTMLElement>('[data-carousel-active="true"]');
+    if (!active) return;
+
+    const scrollerRect = el.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const relativeLeft = activeRect.left - scrollerRect.left + el.scrollLeft;
+    const scrollLeft = relativeLeft - el.clientWidth / 2 + active.clientWidth / 2;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    el.scrollTo({
+      left: Math.min(maxScroll, Math.max(0, scrollLeft)),
+      behavior: "auto",
+    });
+  }, [activeCardId]);
+
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
 
-    updateEdges();
+    const syncScroll = () => {
+      centerActiveCard();
+      updateEdges();
+    };
+
+    syncScroll();
+    const frame = requestAnimationFrame(syncScroll);
     el.addEventListener("scroll", updateEdges, { passive: true });
-    const ro = new ResizeObserver(updateEdges);
+    const ro = new ResizeObserver(syncScroll);
     ro.observe(el);
 
     return () => {
+      cancelAnimationFrame(frame);
       el.removeEventListener("scroll", updateEdges);
       ro.disconnect();
     };
-  }, [updateEdges, children]);
+  }, [centerActiveCard, updateEdges, children]);
 
   const scrollByPage = useCallback((direction: -1 | 1) => {
     const el = scrollerRef.current;

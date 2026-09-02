@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
-import type { F1TrackProfile } from "@/lib/f1-profiles";
+import {
+  selectActiveTrackProfile,
+  trackProfileKey,
+  type F1TrackProfile,
+} from "@/lib/f1-profiles";
 import type { F1GrandPrixStatus } from "@/lib/f1-types";
 import { getFlagUrl } from "@/lib/utils";
 
@@ -24,7 +28,13 @@ function trackStatusLabel(status: F1GrandPrixStatus): string {
   }
 }
 
-function TrackProfileCard({ track }: { track: F1TrackProfile }) {
+function TrackProfileCard({
+  track,
+  isActive,
+}: {
+  track: F1TrackProfile;
+  isActive: boolean;
+}) {
   const when = new Date(`${track.date}T12:00:00Z`).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -33,6 +43,7 @@ function TrackProfileCard({ track }: { track: F1TrackProfile }) {
   return (
     <article
       data-carousel-card
+      data-carousel-active={isActive ? "true" : undefined}
       className="relative flex w-[min(78vw,260px)] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-background sm:w-[min(42vw,280px)] lg:w-[min(30vw,300px)]"
     >
       <div className="absolute inset-y-0 left-0 w-1.5 bg-[#E10600]" aria-hidden />
@@ -93,6 +104,9 @@ function TrackProfileCard({ track }: { track: F1TrackProfile }) {
 export function F1TrackProfilesSection({ tracks, season }: F1TrackProfilesSectionProps) {
   if (tracks.length === 0) return null;
 
+  const activeTrack = selectActiveTrackProfile(tracks);
+  const activeTrackId = activeTrack ? trackProfileKey(activeTrack) : undefined;
+
   return (
     <section className="border-t border-border bg-surface/30">
       <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
@@ -104,9 +118,13 @@ export function F1TrackProfilesSection({ tracks, season }: F1TrackProfilesSectio
           </p>
         </div>
 
-        <ProfileCarousel label="track profiles">
+        <ProfileCarousel label="track profiles" activeCardId={activeTrackId}>
           {tracks.map((track) => (
-            <TrackProfileCard key={`${track.round}-${track.id}`} track={track} />
+            <TrackProfileCard
+              key={trackProfileKey(track)}
+              track={track}
+              isActive={trackProfileKey(track) === activeTrackId}
+            />
           ))}
         </ProfileCarousel>
       </div>

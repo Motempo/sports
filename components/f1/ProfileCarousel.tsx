@@ -15,12 +15,21 @@ interface ProfileCarouselProps {
   label: string;
   children: ReactNode;
   className?: string;
+  /** When set, the matching card is scrolled to the horizontal center on load and resize. */
+  activeCardId?: string;
 }
 
-export function ProfileCarousel({ label, children, className }: ProfileCarouselProps) {
+export function ProfileCarousel({
+  label,
+  children,
+  className,
+  activeCardId,
+}: ProfileCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
+  const centersActive = Boolean(activeCardId);
 
   const updateEdges = useCallback(() => {
     const el = scrollerRef.current;
@@ -30,20 +39,54 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
     setCanNext(el.scrollLeft < maxScroll - 4);
   }, []);
 
+  const centerActiveCard = useCallback(() => {
+    if (!activeCardId) return;
+    const el = scrollerRef.current;
+    const track = trackRef.current;
+    if (!el || !track) return;
+
+    const sampleCard = track.querySelector<HTMLElement>("[data-carousel-card]");
+    if (sampleCard) {
+      const pad = Math.max(0, el.clientWidth / 2 - sampleCard.offsetWidth / 2);
+      track.style.paddingLeft = `${pad}px`;
+      track.style.paddingRight = `${pad}px`;
+    }
+
+    const active = track.querySelector<HTMLElement>('[data-carousel-active="true"]');
+    if (!active) return;
+
+    const scrollerRect = el.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const relativeLeft = activeRect.left - scrollerRect.left + el.scrollLeft;
+    const scrollLeft = relativeLeft - el.clientWidth / 2 + active.offsetWidth / 2;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    el.scrollTo({
+      left: Math.min(maxScroll, Math.max(0, scrollLeft)),
+      behavior: "auto",
+    });
+  }, [activeCardId]);
+
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
 
-    updateEdges();
+    const syncScroll = () => {
+      centerActiveCard();
+      updateEdges();
+    };
+
+    syncScroll();
+    const frame = requestAnimationFrame(syncScroll);
     el.addEventListener("scroll", updateEdges, { passive: true });
-    const ro = new ResizeObserver(updateEdges);
+    const ro = new ResizeObserver(syncScroll);
     ro.observe(el);
 
     return () => {
+      cancelAnimationFrame(frame);
       el.removeEventListener("scroll", updateEdges);
       ro.disconnect();
     };
-  }, [updateEdges, children]);
+  }, [centerActiveCard, updateEdges, children]);
 
   const scrollByPage = useCallback((direction: -1 | 1) => {
     const el = scrollerRef.current;
@@ -128,12 +171,18 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
         tabIndex={0}
         onKeyDown={onKeyDown}
         className={cn(
-          "scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          "scrollbar-hide overflow-x-auto overscroll-x-contain pb-1",
+          !centersActive && "flex snap-x snap-mandatory gap-4",
           "touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         )}
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        {children}
+        <div
+          ref={trackRef}
+          className={cn("flex gap-4", !centersActive && "contents")}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

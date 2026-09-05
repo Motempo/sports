@@ -283,7 +283,7 @@ function generateSeedBracket(): MatchInfo[] {
   return matches;
 }
 
-export type MatchDataSource = "api" | "openfootball" | "seed";
+export type MatchDataSource = "api" | "espn" | "openfootball" | "seed";
 
 function buildTournamentPayload(
   all: MatchInfo[],

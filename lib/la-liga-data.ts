@@ -1,3 +1,4 @@
+import { fetchEspnLeagueMatches } from "@/lib/espn-league-data";
 import { freshUpstreamFetch, cacheBustUrl } from "@/lib/fetch-options";
 import {
   isTodayMatch,
@@ -404,24 +405,30 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * La Liga season payload.
- * Prefer openfootball for the *current* season (JSON, then espana .txt);
- * then football-data.org; then seed.
+ * Cascade: football-data.org (current season) → ESPN scoreboard scrape →
+ * openfootball (JSON / espana .txt) → seed.
  * Do not fall back to last season's openfootball file when the mirror lags.
  */
 export async function fetchLaLigaSeason(): Promise<LaLigaSeasonData> {
   const [currentSeason] = seasonCandidates();
   const currentKey = currentSeason ?? "2026-27";
 
+  const api = await fetchFootballDataMatches();
+  if (api && api.seasonKey === currentKey) {
+    return buildPayload(api.matches, api.seasonKey, "api");
+  }
+
+  const espn = await fetchEspnLeagueMatches("esp.1", currentKey, {
+    resolveCode: resolveLaLigaClubCode,
+    buildTeam: buildLaLigaClubTeamInfo,
+  });
+  if (espn) {
+    return buildPayload(espn, currentKey, "espn");
+  }
+
   const openfootball = await fetchOpenFootballSeason(currentKey);
   if (openfootball) {
     return buildPayload(openfootball, currentKey, "openfootball");
-  }
-
-  const api = await fetchFootballDataMatches();
-  // Only use football-data when it is already on the current season — otherwise
-  // a lagging free-tier default would keep the page on last year.
-  if (api && api.seasonKey === currentKey) {
-    return buildPayload(api.matches, api.seasonKey, "api");
   }
 
   return buildPayload(generateSeedMatches(currentKey), currentKey, "seed");

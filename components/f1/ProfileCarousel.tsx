@@ -38,18 +38,23 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
       if (!el || centerIndex == null || centerIndex < 0) return;
       const cards = el.querySelectorAll<HTMLElement>("[data-carousel-card]");
       const card = cards[centerIndex];
-      if (!card) return;
+      if (!card || card.offsetWidth < 8) return;
 
-      const scrollerRect = el.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      const relativeLeft = cardRect.left - scrollerRect.left + el.scrollLeft;
-      const scrollLeft = relativeLeft - el.clientWidth / 2 + card.clientWidth / 2;
+      const gap = Number.parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 16;
+      const cardWidth = card.offsetWidth;
+      const target = centerIndex * (cardWidth + gap) - (el.clientWidth - cardWidth) / 2;
       const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+
+      const previousSnap = el.style.scrollSnapType;
+      el.style.scrollSnapType = "none";
       el.scrollTo({
-        left: Math.min(maxScroll, Math.max(0, scrollLeft)),
+        left: Math.min(maxScroll, Math.max(0, target)),
         behavior,
       });
-      updateEdges();
+      requestAnimationFrame(() => {
+        el.style.scrollSnapType = previousSnap;
+        updateEdges();
+      });
     },
     [centerIndex, updateEdges]
   );
@@ -71,12 +76,38 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
 
   useEffect(() => {
     if (centerIndex == null) return;
-    centerCard("auto");
-    const frame = requestAnimationFrame(() => centerCard("auto"));
-    const timeout = window.setTimeout(() => centerCard("auto"), 80);
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    let cancelled = false;
+    let userMoved = false;
+    const markMoved = () => {
+      userMoved = true;
+    };
+
+    const run = () => {
+      if (cancelled || userMoved) return;
+      centerCard("auto");
+    };
+
+    run();
+    const frame = requestAnimationFrame(run);
+    const timeout = window.setTimeout(run, 120);
+    const ro = new ResizeObserver(run);
+    ro.observe(el);
+
+    el.addEventListener("wheel", markMoved, { passive: true, once: true });
+    el.addEventListener("touchstart", markMoved, { passive: true, once: true });
+    el.addEventListener("pointerdown", markMoved, { once: true });
+
     return () => {
+      cancelled = true;
       cancelAnimationFrame(frame);
       window.clearTimeout(timeout);
+      ro.disconnect();
+      el.removeEventListener("wheel", markMoved);
+      el.removeEventListener("touchstart", markMoved);
+      el.removeEventListener("pointerdown", markMoved);
     };
   }, [centerCard, centerIndex, children]);
 

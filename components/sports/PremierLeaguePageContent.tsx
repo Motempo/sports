@@ -45,7 +45,6 @@ export async function PremierLeaguePageContent() {
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
           venueImage={venueImage}
-          timeZone="Europe/London"
         />
       }
       newsAndFacts={<NewsAndFactsSection sportSlug="premier-league" />}
@@ -80,7 +79,6 @@ export async function PremierLeaguePageContent() {
           leagueStandings={data.standings}
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
-          timeZone="Europe/London"
         />
       }
       howItWorks={

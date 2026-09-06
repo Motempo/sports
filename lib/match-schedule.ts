@@ -215,3 +215,21 @@ export function selectFeaturedMatch(
     .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime());
   return finished[0] ?? null;
 }
+
+/**
+ * Finished fixtures in chronological order (oldest → newest) for the previous-events
+ * carousel. Excludes the featured match when it is already shown as the last result.
+ */
+export function selectPreviousMatches(
+  matches: MatchInfo[],
+  options?: { excludeMatchId?: number; limit?: number }
+): MatchInfo[] {
+  const limit = options?.limit ?? 10;
+  const finished = matches
+    .filter((match) => match.status === "FINISHED")
+    .filter((match) => options?.excludeMatchId == null || match.id !== options.excludeMatchId)
+    .sort(sortMatchesInDay);
+
+  if (finished.length <= limit) return finished;
+  return finished.slice(finished.length - limit);
+}

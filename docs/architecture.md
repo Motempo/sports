@@ -109,13 +109,14 @@ Every sport page renders through `SportPageShell` in this order:
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
 4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit/stadium photo (half-width on large screens, below the text on narrow screens)  
-5. Matches / weekend sessions  
-6. News + Fun facts  
-7. Mid-content ad  
-8. Standings, league table, or knockout bracket (one table)  
-9. How it works primer  
-10. Awards / records when implemented  
-11. Footer + feedback  
+5. Previous matches / previous races — swipeable carousel of finished fixtures in chronological order (same card layout, recap copy); opens on the most recent result  
+6. Matches / weekend sessions  
+7. News + Fun facts  
+8. Mid-content ad  
+9. Standings, league table, or knockout bracket (one table)  
+10. How it works primer  
+11. Awards / records when implemented  
+12. Footer + feedback  
 
 Phase modules: `*-phase.ts`. Guides: `*-guide.ts`.
 

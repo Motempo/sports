@@ -5,6 +5,7 @@ import {
   PremierLeagueStandingsAd,
 } from "@/components/ads/PremierLeagueAdPlacements";
 import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
+import { PreviousMatchesSection } from "@/components/sports/PreviousMatchesSection";
 import { NewsAndFactsSection } from "@/components/sports/NewsAndFactsSection";
 import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSection";
 import { SportPageShell } from "@/components/sports/SportPageShell";
@@ -15,7 +16,7 @@ import { PremierLeagueRail } from "@/components/premier-league/PremierLeagueRail
 import { PremierLeagueRecordsSection } from "@/components/premier-league/PremierLeagueRecordsSection";
 import { RaceTracker } from "@/components/premier-league/RaceTracker";
 import { formatMatchDataSource } from "@/lib/match-data-source";
-import { selectFeaturedMatch } from "@/lib/match-schedule";
+import { selectFeaturedMatch, selectPreviousMatches } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { buildPremierLeagueAwards } from "@/lib/premier-league-awards";
 import { fetchPremierLeagueSeason } from "@/lib/premier-league-data";
@@ -28,7 +29,13 @@ export async function PremierLeaguePageContent() {
   const awards = await buildPremierLeagueAwards(data.standings, data.matches);
   const records = buildPremierLeagueRecords(data.matches, data.standings);
   const featuredMatch = selectFeaturedMatch(data.matches);
-  const venueImage = await resolveMatchVenueImage(featuredMatch);
+  const previousMatches = selectPreviousMatches(data.matches, {
+    excludeMatchId: featuredMatch?.status === "FINISHED" ? featuredMatch.id : undefined,
+  });
+  const [venueImage, previousVenueImages] = await Promise.all([
+    resolveMatchVenueImage(featuredMatch),
+    Promise.all(previousMatches.map((match) => resolveMatchVenueImage(match))),
+  ]);
   const lastUpdated = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -47,6 +54,16 @@ export async function PremierLeaguePageContent() {
           titleRace={data.titleRace}
           relegationRace={data.relegationRace}
           venueImage={venueImage}
+          timeZone="Europe/London"
+        />
+      }
+      previousEvent={
+        <PreviousMatchesSection
+          matches={previousMatches}
+          venueImages={previousVenueImages}
+          leagueStandings={data.standings}
+          titleRace={data.titleRace}
+          relegationRace={data.relegationRace}
           timeZone="Europe/London"
         />
       }

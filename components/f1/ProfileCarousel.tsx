@@ -36,17 +36,12 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
     (behavior: ScrollBehavior = "auto") => {
       const el = scrollerRef.current;
       if (!el || centerIndex == null || centerIndex < 0) return;
-      const cards = el.querySelectorAll<HTMLElement>("[data-carousel-card]");
-      const card = cards[centerIndex];
+      const card =
+        el.querySelector<HTMLElement>("[data-carousel-active='true']") ??
+        el.querySelectorAll<HTMLElement>("[data-carousel-card]")[centerIndex];
       if (!card || card.offsetWidth < 8) return;
 
-      const gap =
-        Number.parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 16;
-      const cardWidth = card.offsetWidth;
-      const spacer = el.querySelector<HTMLElement>("[data-carousel-spacer]");
-      const spacerWidth = spacer?.offsetWidth ?? 0;
-      const cardLeft = spacerWidth + (spacer ? gap : 0) + centerIndex * (cardWidth + gap);
-      const target = cardLeft - (el.clientWidth - cardWidth) / 2;
+      const target = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
       const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
 
       const previousSnap = el.style.scrollSnapType;
@@ -200,7 +195,7 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
         tabIndex={0}
         onKeyDown={onKeyDown}
         className={cn(
-          "scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          "scrollbar-hide relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-1",
           "touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         )}
         style={{ WebkitOverflowScrolling: "touch" }}

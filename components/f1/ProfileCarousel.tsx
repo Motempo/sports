@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -15,9 +16,11 @@ interface ProfileCarouselProps {
   label: string;
   children: ReactNode;
   className?: string;
+  /** Zero-based card to sit in the middle of the scroller on load. */
+  centerIndex?: number;
 }
 
-export function ProfileCarousel({ label, children, className }: ProfileCarouselProps) {
+export function ProfileCarousel({ label, children, className, centerIndex }: ProfileCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -29,6 +32,28 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft < maxScroll - 4);
   }, []);
+
+  const centerCard = useCallback(
+    (behavior: ScrollBehavior = "auto") => {
+      const el = scrollerRef.current;
+      if (!el || centerIndex == null || centerIndex < 0) return;
+      const card =
+        el.querySelector<HTMLElement>("[data-carousel-active='true']") ??
+        el.querySelectorAll<HTMLElement>("[data-carousel-card]")[centerIndex];
+      if (!card || card.offsetWidth < 8) return;
+
+      const target = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
+      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+
+      el.style.scrollSnapType = "none";
+      el.scrollTo({
+        left: Math.min(maxScroll, Math.max(0, target)),
+        behavior,
+      });
+      updateEdges();
+    },
+    [centerIndex, updateEdges]
+  );
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -44,6 +69,11 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
       ro.disconnect();
     };
   }, [updateEdges, children]);
+
+  useLayoutEffect(() => {
+    if (centerIndex == null) return;
+    centerCard("auto");
+  }, [centerCard, centerIndex, children]);
 
   const scrollByPage = useCallback((direction: -1 | 1) => {
     const el = scrollerRef.current;
@@ -128,12 +158,29 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
         tabIndex={0}
         onKeyDown={onKeyDown}
         className={cn(
-          "scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          "scrollbar-hide relative flex gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          centerIndex == null ? "snap-x snap-mandatory" : "snap-x snap-proximity",
           "touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         )}
         style={{ WebkitOverflowScrolling: "touch" }}
       >
+        {centerIndex != null ? (
+          <div
+            aria-hidden
+            data-carousel-spacer
+            className="shrink-0"
+            style={{ width: "max(0px, calc(50% - 9.5rem))" }}
+          />
+        ) : null}
         {children}
+        {centerIndex != null ? (
+          <div
+            aria-hidden
+            data-carousel-spacer
+            className="shrink-0"
+            style={{ width: "max(0px, calc(50% - 9.5rem))" }}
+          />
+        ) : null}
       </div>
     </div>
   );

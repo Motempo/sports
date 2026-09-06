@@ -4,11 +4,25 @@ import Image from "next/image";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
 import type { F1TrackProfile } from "@/lib/f1-profiles";
 import type { F1GrandPrixStatus } from "@/lib/f1-types";
-import { getFlagUrl } from "@/lib/utils";
+import { cn, getFlagUrl } from "@/lib/utils";
 
 interface F1TrackProfilesSectionProps {
   tracks: F1TrackProfile[];
   season: number;
+  /** Calendar round to open on (current/next GP). */
+  focusRound?: number;
+}
+
+export function focusTrackProfileIndex(tracks: F1TrackProfile[], focusRound?: number): number {
+  if (focusRound != null) {
+    const match = tracks.findIndex((track) => track.round === focusRound);
+    if (match >= 0) return match;
+  }
+  const current = tracks.findIndex((track) => track.status === "current");
+  if (current >= 0) return current;
+  const upcoming = tracks.findIndex((track) => track.status === "upcoming");
+  if (upcoming >= 0) return upcoming;
+  return Math.max(0, tracks.length - 1);
 }
 
 function trackStatusLabel(status: F1GrandPrixStatus): string {
@@ -24,7 +38,7 @@ function trackStatusLabel(status: F1GrandPrixStatus): string {
   }
 }
 
-function TrackProfileCard({ track }: { track: F1TrackProfile }) {
+function TrackProfileCard({ track, focused }: { track: F1TrackProfile; focused?: boolean }) {
   const when = new Date(`${track.date}T12:00:00Z`).toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -33,7 +47,11 @@ function TrackProfileCard({ track }: { track: F1TrackProfile }) {
   return (
     <article
       data-carousel-card
-      className="relative flex w-[min(78vw,260px)] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border bg-background sm:w-[min(42vw,280px)] lg:w-[min(30vw,300px)]"
+      data-carousel-active={focused ? "true" : undefined}
+      className={cn(
+        "relative flex w-[min(78vw,260px)] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-border bg-background sm:w-[min(42vw,280px)] lg:w-[min(30vw,300px)]",
+        focused && "ring-1 ring-[#E10600]/35"
+      )}
     >
       <div className="absolute inset-y-0 left-0 w-1.5 bg-[#E10600]" aria-hidden />
 
@@ -90,8 +108,10 @@ function TrackProfileCard({ track }: { track: F1TrackProfile }) {
   );
 }
 
-export function F1TrackProfilesSection({ tracks, season }: F1TrackProfilesSectionProps) {
+export function F1TrackProfilesSection({ tracks, season, focusRound }: F1TrackProfilesSectionProps) {
   if (tracks.length === 0) return null;
+
+  const centerIndex = focusTrackProfileIndex(tracks, focusRound);
 
   return (
     <section className="border-t border-border bg-surface/30">
@@ -100,13 +120,18 @@ export function F1TrackProfilesSection({ tracks, season }: F1TrackProfilesSectio
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Track Profiles</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             Every {season} venue at a glance — circuit character, sprint weekends, and who took the
-            flag when the race is done. Swipe or use the arrows to tour the calendar.
+            flag when the race is done. Opens on this weekend&apos;s circuit; swipe or use the
+            arrows to tour the calendar.
           </p>
         </div>
 
-        <ProfileCarousel label="track profiles">
-          {tracks.map((track) => (
-            <TrackProfileCard key={`${track.round}-${track.id}`} track={track} />
+        <ProfileCarousel label="track profiles" centerIndex={centerIndex}>
+          {tracks.map((track, index) => (
+            <TrackProfileCard
+              key={`${track.round}-${track.id}`}
+              track={track}
+              focused={index === centerIndex}
+            />
           ))}
         </ProfileCarousel>
       </div>

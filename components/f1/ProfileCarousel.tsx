@@ -85,7 +85,9 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
 
     let cancelled = false;
     let userMoved = false;
+    const readyAt = Date.now() + 450;
     const markMoved = () => {
+      if (Date.now() < readyAt) return;
       userMoved = true;
     };
 
@@ -97,19 +99,19 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
     run();
     const frame = requestAnimationFrame(run);
     const timeout = window.setTimeout(run, 120);
+    const later = window.setTimeout(run, 400);
     const ro = new ResizeObserver(run);
     ro.observe(el);
 
-    el.addEventListener("wheel", markMoved, { passive: true, once: true });
-    el.addEventListener("touchstart", markMoved, { passive: true, once: true });
-    el.addEventListener("pointerdown", markMoved, { once: true });
+    el.addEventListener("touchstart", markMoved, { passive: true });
+    el.addEventListener("pointerdown", markMoved);
 
     return () => {
       cancelled = true;
       cancelAnimationFrame(frame);
       window.clearTimeout(timeout);
+      window.clearTimeout(later);
       ro.disconnect();
-      el.removeEventListener("wheel", markMoved);
       el.removeEventListener("touchstart", markMoved);
       el.removeEventListener("pointerdown", markMoved);
     };
@@ -207,7 +209,8 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
           <div
             aria-hidden
             data-carousel-spacer
-            className="w-[max(0px,calc(50%-min(39vw,130px)-0.5rem))] shrink-0 sm:w-[max(0px,calc(50%-min(21vw,140px)-0.5rem))] lg:w-[max(0px,calc(50%-min(15vw,150px)-0.5rem))]"
+            className="shrink-0"
+            style={{ width: "max(0px, calc(50% - 9.5rem))" }}
           />
         ) : null}
         {children}
@@ -215,7 +218,8 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
           <div
             aria-hidden
             data-carousel-spacer
-            className="w-[max(0px,calc(50%-min(39vw,130px)-0.5rem))] shrink-0 sm:w-[max(0px,calc(50%-min(21vw,140px)-0.5rem))] lg:w-[max(0px,calc(50%-min(15vw,150px)-0.5rem))]"
+            className="shrink-0"
+            style={{ width: "max(0px, calc(50% - 9.5rem))" }}
           />
         ) : null}
       </div>

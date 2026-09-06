@@ -49,7 +49,7 @@ Motempo Sports is a **multi-sport companion site** for casual fans, parents, and
 | `premier-league` | Premier League | League table | `/premier-league` | Near feature-complete |
 | `la-liga` | La Liga | League table | `/la-liga` | Live; thinner vs PL (awards/records/openfootball gaps) |
 
-**Sport selector:** two groups — Current season and Past season — plus “Suggest a sport” → feedback category `sport-request`. World Cup 2026 sits under Past season.
+**Sport selector:** horizontal calendar-style rail in the header — **Current season** sports (A–Z), then **Last season** sports (A–Z), then Suggest. Last viewed sport is remembered; new visitors land on Formula 1. World Cup 2026 sits under Last season.
 
 ---
 

@@ -34,9 +34,11 @@ flowchart TB
 
 - `CURRENT_SPORT_SLUG` — global default when no last-viewed cookie (`"formula-1"`)
 - `SPORTS[]` — id, slug, label, available, `seasonGroup` (`current` | `past`), SEO fields
-- Helpers: `getSportBySlug`, `getCurrentSport`, `buildSportMetadata`, `getSportSitemapEntries`
+- Helpers: `getSportBySlug`, `getSportsBySeasonGroup` (A–Z by label), `getCurrentSport`, `buildSportMetadata`, `getSportSitemapEntries`
 
 **Homepage recall:** `middleware.ts` + `lib/last-sport.ts` — essential cookie `motempo-sports-last-sport` set on sport page visits; `/` redirects to that slug (fallback `CURRENT_SPORT_SLUG`). Do not add a permanent `next.config` redirect for `/` (it would cache past the cookie).
+
+**Header picker:** `SportSelector` is a horizontally scrollable rail (same UX as the F1 season calendar): Current season chips, then Last season chips, centred on the active sport.
 
 **Shared types:** `lib/types.ts` — `MatchInfo`, `MatchStatus`, `MatchStage` (`BracketRound | "GROUP" | "LEAGUE"`), `NewsItem`, `FunFact`, `BracketData`.
 

@@ -46,6 +46,6 @@ Per [`data/sources/README.md`](../data/sources/README.md):
 
 - [ ] Renders with API key missing (seed path)
 - [ ] Mobile schedule + standings
-- [ ] Sport appears in selector
+- [ ] Sport appears in the header picker (Current season / Last season, A–Z)
 - [ ] News/facts load for slug
 - [ ] Docs: add `docs/sports/{slug}.md` and link from `docs/README.md`

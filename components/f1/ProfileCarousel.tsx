@@ -15,9 +15,11 @@ interface ProfileCarouselProps {
   label: string;
   children: ReactNode;
   className?: string;
+  /** Zero-based card to sit in the middle of the scroller on load. */
+  centerIndex?: number;
 }
 
-export function ProfileCarousel({ label, children, className }: ProfileCarouselProps) {
+export function ProfileCarousel({ label, children, className, centerIndex }: ProfileCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
@@ -29,6 +31,28 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
     setCanPrev(el.scrollLeft > 4);
     setCanNext(el.scrollLeft < maxScroll - 4);
   }, []);
+
+  const centerCard = useCallback(
+    (behavior: ScrollBehavior = "auto") => {
+      const el = scrollerRef.current;
+      if (!el || centerIndex == null || centerIndex < 0) return;
+      const cards = el.querySelectorAll<HTMLElement>("[data-carousel-card]");
+      const card = cards[centerIndex];
+      if (!card) return;
+
+      const scrollerRect = el.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const relativeLeft = cardRect.left - scrollerRect.left + el.scrollLeft;
+      const scrollLeft = relativeLeft - el.clientWidth / 2 + card.clientWidth / 2;
+      const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+      el.scrollTo({
+        left: Math.min(maxScroll, Math.max(0, scrollLeft)),
+        behavior,
+      });
+      updateEdges();
+    },
+    [centerIndex, updateEdges]
+  );
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -44,6 +68,17 @@ export function ProfileCarousel({ label, children, className }: ProfileCarouselP
       ro.disconnect();
     };
   }, [updateEdges, children]);
+
+  useEffect(() => {
+    if (centerIndex == null) return;
+    centerCard("auto");
+    const frame = requestAnimationFrame(() => centerCard("auto"));
+    const timeout = window.setTimeout(() => centerCard("auto"), 80);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+    };
+  }, [centerCard, centerIndex, children]);
 
   const scrollByPage = useCallback((direction: -1 | 1) => {
     const el = scrollerRef.current;

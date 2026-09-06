@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
+import { MatchDetailModal } from "@/components/sports/MatchDetailModal";
 import {
   combineScheduleMatches,
   countDayGroupMatches,
@@ -14,6 +15,7 @@ import {
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchDataSource } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
 import type { MatchInfo } from "@/lib/types";
 
 const INITIAL_VISIBLE_MATCHES = 2;
@@ -34,16 +36,24 @@ interface ScheduleByDayProps {
   initialVisibleMatches?: number;
   /** How many additional fixtures each Load more click reveals. */
   loadMoreMatches?: number;
+  leagueStandings?: LeagueStandings;
+  titleRace?: PremierLeagueRaceInsight | null;
+  relegationRace?: PremierLeagueRaceInsight | null;
+  timeZone?: string;
 }
 
 function DayColumn({
   group,
   groupMatches,
   standings,
+  onSelectMatch,
+  timeZone,
 }: {
   group: MatchDayGroup;
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
+  onSelectMatch?: (match: MatchInfo) => void;
+  timeZone?: string;
 }) {
   return (
     <div className="min-w-0">
@@ -62,6 +72,8 @@ function DayColumn({
               groupMatches={groupMatches}
               standings={standings}
               showContext={!!groupMatches && !!standings}
+              onSelect={onSelectMatch}
+              timeZone={timeZone}
             />
           ))
         )}
@@ -81,11 +93,16 @@ export function ScheduleByDay({
   showSeasonTailWhenEmpty = false,
   initialVisibleMatches = INITIAL_VISIBLE_MATCHES,
   loadMoreMatches = LOAD_MORE_MATCHES,
+  leagueStandings,
+  titleRace,
+  relegationRace,
+  timeZone: timeZoneProp,
 }: ScheduleByDayProps) {
   const [visibleMatchCount, setVisibleMatchCount] = useState(initialVisibleMatches);
+  const [selectedMatch, setSelectedMatch] = useState<MatchInfo | null>(null);
   const timeZone = useMemo(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
-    []
+    () => timeZoneProp ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+    [timeZoneProp]
   );
 
   const dayGroups = useMemo(() => {
@@ -173,6 +190,8 @@ export function ScheduleByDay({
                 group={group}
                 groupMatches={groupMatches}
                 standings={standings}
+                onSelectMatch={setSelectedMatch}
+                timeZone={timeZoneProp}
               />
             </div>
           ))}
@@ -190,6 +209,16 @@ export function ScheduleByDay({
           </div>
         )}
       </div>
+      <MatchDetailModal
+        match={selectedMatch}
+        onClose={() => setSelectedMatch(null)}
+        groupMatches={groupMatches}
+        standings={standings}
+        leagueStandings={leagueStandings}
+        titleRace={titleRace}
+        relegationRace={relegationRace}
+        timeZone={timeZoneProp}
+      />
     </section>
   );
 }

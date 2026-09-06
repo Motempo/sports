@@ -37,7 +37,7 @@ Per [`data/sources/README.md`](../data/sources/README.md):
 - [ ] `app/{slug}/page.tsx` + `opengraph-image.tsx`
 - [ ] `components/sports/{Sport}PageContent.tsx` using `SportPageShell` (same 8-section order as F1 / World Cup / Premier League / La Liga)
 - [ ] Featured next-event card (`FeaturedMatchCard` or F1 equivalent) with three body paragraphs: event description, form-book prediction, athlete/team impact
-- [ ] Sport-specific rail (compact: title + chips + one intro line), how-it-works, standings/schedule
+- [ ] Sport-specific rail (compact: title + chips + one intro line), how-it-works, standings/schedule (finished football matches open the next-match card in a modal)
 - [ ] Awards + records sections when content exists
 - [ ] `components/ads/{Sport}AdPlacements.tsx`
 - [ ] Add `/{slug}` (+ trailing slash) to `middleware.ts` `config.matcher` (last-viewed sport cookie)

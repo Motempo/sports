@@ -20,6 +20,7 @@ interface FeaturedMatchCardProps {
   venueImage?: VenueImage | null;
   /** IANA timezone for kickoff display (e.g. Europe/London for PL). */
   timeZone?: string;
+  chrome?: "section" | "card";
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -69,6 +70,7 @@ export function FeaturedMatchCard({
   relegationRace,
   venueImage,
   timeZone,
+  chrome = "section",
 }: FeaturedMatchCardProps) {
   if (!match) return null;
 
@@ -78,6 +80,7 @@ export function FeaturedMatchCard({
   return (
     <NextEventCard
       heading={headingFor(match)}
+      chrome={chrome}
       live={live}
       kicker={matchKicker(match)}
       title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}

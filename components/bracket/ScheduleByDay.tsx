@@ -47,11 +47,13 @@ function DayColumn({
   groupMatches,
   standings,
   onSelectMatch,
+  timeZone,
 }: {
   group: MatchDayGroup;
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
   onSelectMatch?: (match: MatchInfo) => void;
+  timeZone?: string;
 }) {
   return (
     <div className="min-w-0">
@@ -71,6 +73,7 @@ function DayColumn({
               standings={standings}
               showContext={!!groupMatches && !!standings}
               onSelect={onSelectMatch}
+              timeZone={timeZone}
             />
           ))
         )}
@@ -188,6 +191,7 @@ export function ScheduleByDay({
                 groupMatches={groupMatches}
                 standings={standings}
                 onSelectMatch={setSelectedMatch}
+                timeZone={timeZoneProp}
               />
             </div>
           ))}

@@ -15,10 +15,11 @@ export interface MatchDayGroup {
   matches: MatchInfo[];
 }
 
-export function formatLocalMatchTime(utcDate: string): string {
+export function formatLocalMatchTime(utcDate: string, timeZone?: string): string {
   return new Date(utcDate).toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   });
 }
 

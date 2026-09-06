@@ -18,6 +18,7 @@ interface MatchScheduleRowProps {
   standings?: GroupStandings[];
   showContext?: boolean;
   onSelect?: (match: MatchInfo) => void;
+  timeZone?: string;
 }
 
 function formatGroupLabel(group?: string): string | null {
@@ -43,14 +44,16 @@ export function MatchScheduleRow({
   standings,
   showContext,
   onSelect,
+  timeZone,
 }: MatchScheduleRowProps) {
   const { display, isLive } = formatScore(match.homeScore, match.awayScore, match.status);
   const finished = match.status === "FINISHED";
   const homeWinner = finished && match.winnerCode === match.homeTeam.code;
   const awayWinner = finished && match.winnerCode === match.awayTeam.code;
-  const interactive = finished && !!onSelect;
+  const cancelled = match.status === "CANCELLED" || match.status === "POSTPONED";
+  const interactive = !cancelled && !!onSelect;
 
-  const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate);
+  const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate, timeZone);
   const groupLabel = formatGroupLabel(match.group);
   const roundLabel =
     match.stage !== "GROUP" && match.stage !== "LEAGUE" ? getRoundLabel(match.round) : null;

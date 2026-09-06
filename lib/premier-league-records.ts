@@ -1,5 +1,8 @@
+import { capForecast } from "@/lib/match-forecast";
 import type { LeagueStandingRow, LeagueStandings } from "@/lib/premier-league-types";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
+
+export const PL_RECORD_COMMENTARY_MAX_CHARS = 300;
 
 export interface PremierLeagueRecordMark {
   value: string;
@@ -14,7 +17,19 @@ export interface PremierLeagueRecord {
   name: string;
   emoji: string;
   description: string;
-  mark: PremierLeagueRecordMark;
+  allTime: PremierLeagueRecordMark;
+  season: PremierLeagueRecordMark;
+  highlightSeason: "leading" | "all-time" | null;
+  commentary: string;
+}
+
+function record(
+  partial: Omit<PremierLeagueRecord, "commentary"> & { commentary: string }
+): PremierLeagueRecord {
+  return {
+    ...partial,
+    commentary: capForecast(partial.commentary, PL_RECORD_COMMENTARY_MAX_CHARS),
+  };
 }
 
 function teamLabel(team: TeamInfo): string {
@@ -25,543 +40,618 @@ function vsLabel(match: MatchInfo): string {
   return `${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`;
 }
 
-function winnerOf(match: MatchInfo): TeamInfo | null {
-  if (match.homeScore === null || match.awayScore === null) return null;
-  if (match.homeScore > match.awayScore) return match.homeTeam;
-  if (match.awayScore > match.homeScore) return match.awayTeam;
-  return null;
+function finishedMatches(matches: MatchInfo[]): MatchInfo[] {
+  return matches.filter(
+    (m) => m.status === "FINISHED" && m.homeScore !== null && m.awayScore !== null
+  );
 }
 
-function markFromTeam(
-  row: LeagueStandingRow,
-  value: string,
-  context: string
-): PremierLeagueRecordMark {
-  return {
-    value,
-    holder: row.team.name,
-    teamCode: row.team.code,
-    crest: row.team.crest,
-    context,
-  };
+function totalGoals(matches: MatchInfo[]): number {
+  return finishedMatches(matches).reduce(
+    (sum, m) => sum + (m.homeScore ?? 0) + (m.awayScore ?? 0),
+    0
+  );
 }
 
-function markFromMatch(
-  match: MatchInfo,
-  holderTeam: TeamInfo,
-  value: string,
-  context?: string
-): PremierLeagueRecordMark {
-  return {
-    value,
-    holder: holderTeam.name,
-    teamCode: holderTeam.code,
-    crest: holderTeam.crest,
-    context: context ?? `${vsLabel(match)}${match.group ? ` · ${match.group}` : ""}`,
-  };
-}
-
-function topByStat(
-  rows: LeagueStandingRow[],
-  pick: (row: LeagueStandingRow) => number,
-  opts?: { ascending?: boolean; requirePositive?: boolean }
-): LeagueStandingRow | null {
-  const sorted = [...rows].sort((a, b) => {
-    const av = pick(a);
-    const bv = pick(b);
-    if (opts?.ascending) return av - bv || a.position - b.position;
-    return bv - av || a.position - b.position;
-  });
-  const leader = sorted[0];
-  if (!leader || leader.played === 0) return null;
-  if (opts?.requirePositive && pick(leader) <= 0) return null;
-  return leader;
-}
-
-type SideStats = {
-  team: TeamInfo;
-  played: number;
-  won: number;
-  points: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  cleanSheets: number;
-};
-
-function emptySide(team: TeamInfo): SideStats {
-  return {
-    team,
-    played: 0,
-    won: 0,
-    points: 0,
-    goalsFor: 0,
-    goalsAgainst: 0,
-    cleanSheets: 0,
-  };
-}
-
-function applySideResult(stats: SideStats, gf: number, ga: number) {
-  stats.played += 1;
-  stats.goalsFor += gf;
-  stats.goalsAgainst += ga;
-  if (ga === 0) stats.cleanSheets += 1;
-  if (gf > ga) {
-    stats.won += 1;
-    stats.points += 3;
-  } else if (gf === ga) {
-    stats.points += 1;
-  }
-}
-
-function computeSideStats(matches: MatchInfo[]): {
-  home: Map<string, SideStats>;
-  away: Map<string, SideStats>;
-  cleanSheets: Map<string, { team: TeamInfo; count: number }>;
-} {
-  const home = new Map<string, SideStats>();
-  const away = new Map<string, SideStats>();
-  const cleanSheets = new Map<string, { team: TeamInfo; count: number }>();
-
-  const bumpClean = (team: TeamInfo) => {
-    const cur = cleanSheets.get(team.code) ?? { team, count: 0 };
-    cur.count += 1;
-    cleanSheets.set(team.code, cur);
-  };
-
-  for (const match of matches) {
-    const hs = match.homeScore!;
-    const as = match.awayScore!;
-
-    if (!home.has(match.homeTeam.code)) home.set(match.homeTeam.code, emptySide(match.homeTeam));
-    if (!away.has(match.awayTeam.code)) away.set(match.awayTeam.code, emptySide(match.awayTeam));
-
-    applySideResult(home.get(match.homeTeam.code)!, hs, as);
-    applySideResult(away.get(match.awayTeam.code)!, as, hs);
-
-    if (as === 0) bumpClean(match.homeTeam);
-    if (hs === 0) bumpClean(match.awayTeam);
-  }
-
-  return { home, away, cleanSheets };
-}
-
-function bestSideBy(
-  side: Map<string, SideStats>,
-  pick: (s: SideStats) => number
-): SideStats | null {
-  let best: SideStats | null = null;
-  for (const stats of side.values()) {
-    if (stats.played === 0) continue;
-    if (!best || pick(stats) > pick(best)) best = stats;
-  }
-  return best && pick(best) > 0 ? best : null;
-}
-
-/** Chronological results for streak detection: newest not required — oldest first. */
-function teamResultsChrono(
-  code: string,
-  matches: MatchInfo[]
-): Array<"W" | "D" | "L"> {
-  return matches
-    .filter(
-      (m) =>
-        m.homeTeam.code === code || m.awayTeam.code === code
-    )
-    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
-    .map((match) => {
-      const home = match.homeTeam.code === code;
-      const gf = home ? match.homeScore! : match.awayScore!;
-      const ga = home ? match.awayScore! : match.homeScore!;
-      if (gf > ga) return "W";
-      if (gf < ga) return "L";
-      return "D";
-    });
-}
-
-function longestStreak(
-  results: Array<"W" | "D" | "L">,
-  predicate: (r: "W" | "D" | "L") => boolean
-): number {
-  let best = 0;
-  let cur = 0;
-  for (const r of results) {
-    if (predicate(r)) {
-      cur += 1;
-      best = Math.max(best, cur);
-    } else {
-      cur = 0;
-    }
+function highestScoringMatch(matches: MatchInfo[]): { match: MatchInfo; goals: number } | null {
+  let best: { match: MatchInfo; goals: number } | null = null;
+  for (const m of finishedMatches(matches)) {
+    const goals = m.homeScore! + m.awayScore!;
+    if (!best || goals > best.goals) best = { match: m, goals };
   }
   return best;
 }
 
-function biggestWinOnSide(
-  matches: MatchInfo[],
-  side: "home" | "away"
-): { match: MatchInfo; margin: number; winner: TeamInfo } | null {
-  let best: { match: MatchInfo; margin: number; winner: TeamInfo } | null = null;
+function biggestWin(matches: MatchInfo[]): {
+  match: MatchInfo;
+  margin: number;
+  winner: string;
+  winnerCode: string;
+  scoreline: string;
+} | null {
+  let best: {
+    match: MatchInfo;
+    margin: number;
+    winner: string;
+    winnerCode: string;
+    scoreline: string;
+  } | null = null;
 
-  for (const match of matches) {
-    const hs = match.homeScore!;
-    const as = match.awayScore!;
-    if (hs === as) continue;
-
-    if (side === "home" && hs <= as) continue;
-    if (side === "away" && as <= hs) continue;
-
-    const margin = Math.abs(hs - as);
-    const winner = side === "home" ? match.homeTeam : match.awayTeam;
+  for (const m of finishedMatches(matches)) {
+    const margin = Math.abs(m.homeScore! - m.awayScore!);
+    if (margin === 0) continue;
+    const homeWins = m.homeScore! > m.awayScore!;
+    const winner = homeWins ? m.homeTeam.name : m.awayTeam.name;
+    const winnerCode = homeWins ? m.homeTeam.code : m.awayTeam.code;
+    const scoreline = `${m.homeScore}–${m.awayScore}`;
     if (!best || margin > best.margin) {
-      best = { match, margin, winner };
+      best = { match: m, margin, winner, winnerCode, scoreline };
+    }
+  }
+  return best;
+}
+
+function longestWinStreak(
+  matches: MatchInfo[],
+  rows: LeagueStandingRow[]
+): { team: string; teamCode: string; length: number } | null {
+  let best: { team: string; teamCode: string; length: number } | null = null;
+
+  for (const row of rows) {
+    const code = row.team.code;
+    const teamMatches = finishedMatches(matches)
+      .filter((m) => m.homeTeam.code === code || m.awayTeam.code === code)
+      .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime());
+
+    let cur = 0;
+    let max = 0;
+    for (const m of teamMatches) {
+      const home = m.homeTeam.code === code;
+      const gf = home ? m.homeScore! : m.awayScore!;
+      const ga = home ? m.awayScore! : m.homeScore!;
+      if (gf > ga) {
+        cur += 1;
+        max = Math.max(max, cur);
+      } else {
+        cur = 0;
+      }
+    }
+
+    if (max > 0 && (!best || max > best.length)) {
+      best = {
+        team: row.team.shortName ?? row.team.name,
+        teamCode: code,
+        length: max,
+      };
     }
   }
 
   return best;
 }
 
+function uniqueWinners(matches: MatchInfo[]): { count: number; names: string[] } {
+  const winners = new Map<string, string>();
+  for (const m of finishedMatches(matches)) {
+    if (m.homeScore! === m.awayScore!) continue;
+    const homeWins = m.homeScore! > m.awayScore!;
+    const code = homeWins ? m.homeTeam.code : m.awayTeam.code;
+    const name = homeWins
+      ? m.homeTeam.shortName ?? m.homeTeam.name
+      : m.awayTeam.shortName ?? m.awayTeam.name;
+    winners.set(code, name);
+  }
+  return { count: winners.size, names: [...winners.values()] };
+}
+
+/**
+ * Season & all-time Premier League records — same card shape as World Cup / F1 / La Liga.
+ */
 export function buildPremierLeagueRecords(
   matches: MatchInfo[],
   standings: LeagueStandings
 ): PremierLeagueRecord[] {
-  const finished = matches.filter(
-    (m) => m.status === "FINISHED" && m.homeScore !== null && m.awayScore !== null
-  );
-
-  const records: PremierLeagueRecord[] = [];
+  const seasonLabel = standings.seasonLabel;
   const rows = standings.rows;
+  const seasonNotStarted = rows.every((r) => r.played === 0);
+  const leader = rows[0];
+  const goalsLeader = [...rows].sort(
+    (a, b) => b.goalsFor - a.goalsFor || b.points - a.points
+  )[0];
+  const winsLeader = [...rows].sort((a, b) => b.won - a.won || b.points - a.points)[0];
+  const cleanest = [...rows].sort(
+    (a, b) => a.goalsAgainst - b.goalsAgainst || b.points - a.points
+  )[0];
+  const finished = finishedMatches(matches);
+  const goals = totalGoals(matches);
+  const high = highestScoringMatch(matches);
+  const bigWin = biggestWin(matches);
+  const streak = longestWinStreak(matches, rows);
+  const winners = uniqueWinners(matches);
+  const gap = rows.length >= 2 ? rows[0]!.points - rows[1]!.points : null;
+  const avgGoals =
+    finished.length > 0 ? Math.round((goals / finished.length) * 100) / 100 : null;
 
-  const champion = rows[0];
-  if (champion && champion.played > 0) {
-    records.push({
-      id: "top-of-table",
-      name: "Table leaders",
-      emoji: "👑",
-      description: "Club sitting top of the Premier League.",
-      mark: markFromTeam(
-        champion,
-        `${champion.points} pts`,
-        `${champion.won}W-${champion.drawn}D-${champion.lost}L · GD ${champion.goalDifference >= 0 ? "+" : ""}${champion.goalDifference}`
-      ),
-    });
-  }
+  const awaiting: PremierLeagueRecordMark = {
+    value: "—",
+    holder: "Contestants TBD",
+    context: seasonLabel,
+  };
 
-  let highest: MatchInfo | null = null;
-  let biggestWin: MatchInfo | null = null;
-  let highestDraw: MatchInfo | null = null;
-  let biggestMargin = -1;
-  let highestGoals = -1;
-  let highestDrawGoals = -1;
-  let seasonGoals = 0;
-
-  for (const match of finished) {
-    const total = match.homeScore! + match.awayScore!;
-    seasonGoals += total;
-
-    if (total > highestGoals) {
-      highestGoals = total;
-      highest = match;
-    }
-
-    const margin = Math.abs(match.homeScore! - match.awayScore!);
-    if (margin > biggestMargin) {
-      biggestMargin = margin;
-      biggestWin = match;
-    }
-
-    if (match.homeScore === match.awayScore && total > highestDrawGoals) {
-      highestDrawGoals = total;
-      highestDraw = match;
-    }
-  }
-
-  if (highest) {
-    const holder = winnerOf(highest) ?? highest.homeTeam;
-    records.push({
-      id: "highest-scoring",
-      name: "Highest-scoring match",
-      emoji: "🎯",
-      description: "Most goals in a single Premier League fixture this season.",
-      mark: markFromMatch(
-        highest,
-        holder,
-        `${highest.homeScore}–${highest.awayScore}`,
-        `${vsLabel(highest)} · ${highestGoals} goals`
-      ),
-    });
-  }
-
-  if (biggestWin && biggestMargin > 0) {
-    const winner = winnerOf(biggestWin)!;
-    records.push({
-      id: "biggest-win",
-      name: "Biggest win",
-      emoji: "💥",
-      description: "Largest winning margin so far this season.",
-      mark: markFromMatch(
-        biggestWin,
-        winner,
-        `${biggestWin.homeScore}–${biggestWin.awayScore}`,
-        `${vsLabel(biggestWin)} · margin ${biggestMargin}`
-      ),
-    });
-  }
-
-  const biggestHome = biggestWinOnSide(finished, "home");
-  if (biggestHome) {
-    records.push({
-      id: "biggest-home-win",
-      name: "Biggest home win",
-      emoji: "🏠",
-      description: "Widest home victory this season.",
-      mark: markFromMatch(
-        biggestHome.match,
-        biggestHome.winner,
-        `${biggestHome.match.homeScore}–${biggestHome.match.awayScore}`,
-        `${vsLabel(biggestHome.match)} · margin ${biggestHome.margin}`
-      ),
-    });
-  }
-
-  const biggestAway = biggestWinOnSide(finished, "away");
-  if (biggestAway) {
-    records.push({
-      id: "biggest-away-win",
-      name: "Biggest away win",
-      emoji: "✈️",
-      description: "Widest away victory this season.",
-      mark: markFromMatch(
-        biggestAway.match,
-        biggestAway.winner,
-        `${biggestAway.match.homeScore}–${biggestAway.match.awayScore}`,
-        `${vsLabel(biggestAway.match)} · margin ${biggestAway.margin}`
-      ),
-    });
-  }
-
-  if (highestDraw && highestDrawGoals > 0) {
-    records.push({
-      id: "highest-draw",
-      name: "Highest-scoring draw",
-      emoji: "🤝",
-      description: "The most goals shared in a draw this season.",
-      mark: {
-        value: `${highestDraw.homeScore}–${highestDraw.awayScore}`,
-        holder: vsLabel(highestDraw),
-        teamCode: highestDraw.homeTeam.code,
-        crest: highestDraw.homeTeam.crest,
-        context: highestDraw.group ?? `${highestDrawGoals} goals`,
-      },
-    });
-  }
-
-  const bestAttack = topByStat(rows, (r) => r.goalsFor, { requirePositive: true });
-  if (bestAttack) {
-    records.push({
-      id: "goals-for",
-      name: "Top attack",
-      emoji: "🔥",
-      description: "Most goals scored in the league this season.",
-      mark: markFromTeam(
-        bestAttack,
-        String(bestAttack.goalsFor),
-        `${bestAttack.played} matches · ${bestAttack.won} wins`
-      ),
-    });
-  }
-
-  const bestDefence = topByStat(rows, (r) => r.goalsAgainst, { ascending: true });
-  if (bestDefence) {
-    records.push({
-      id: "goals-against",
-      name: "Best defence",
-      emoji: "🧱",
-      description: "Fewest goals conceded this season.",
-      mark: markFromTeam(
-        bestDefence,
-        String(bestDefence.goalsAgainst),
-        `${bestDefence.played} matches · GD ${bestDefence.goalDifference >= 0 ? "+" : ""}${bestDefence.goalDifference}`
-      ),
-    });
-  }
-
-  const bestGd = topByStat(rows, (r) => r.goalDifference);
-  if (bestGd && bestGd.goalDifference > 0) {
-    records.push({
-      id: "goal-difference",
-      name: "Best goal difference",
+  return [
+    record({
+      id: "most-points-season",
+      name: "Most Points in a Season",
       emoji: "📈",
-      description: "Healthiest goals scored minus conceded.",
-      mark: markFromTeam(
-        bestGd,
-        `${bestGd.goalDifference > 0 ? "+" : ""}${bestGd.goalDifference}`,
-        `${bestGd.goalsFor} scored · ${bestGd.goalsAgainst} conceded`
-      ),
-    });
-  }
+      description:
+        "Highest points total by one club in a single Premier League campaign — the modern title haul.",
+      allTime: {
+        value: "100 pts",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "2017/18",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : leader
+          ? {
+              value: `${leader.points} pts`,
+              holder: leader.team.shortName ?? leader.team.name,
+              teamCode: leader.team.code,
+              crest: leader.team.crest,
+              context: `${seasonLabel} · MD ${standings.matchday}`,
+            }
+          : { value: "—", holder: "Season not started", context: seasonLabel },
+      highlightSeason:
+        !seasonNotStarted && leader && leader.points >= 100
+          ? "all-time"
+          : !seasonNotStarted && leader && leader.points > 0
+            ? "leading"
+            : null,
+      commentary: `Manchester City's 100-point season in 2017/18 remains the gold standard. ${
+        seasonNotStarted
+          ? "The contestants are yet to be seen — nobody leads a blank scorecard."
+          : leader && leader.points > 0
+            ? `${leader.team.name} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
+            : "The points race opens with Matchday 1."
+      } Commentators watch every dropped point as title maths.`,
+    }),
 
-  const mostWins = topByStat(rows, (r) => r.won, { requirePositive: true });
-  if (mostWins) {
-    records.push({
-      id: "most-wins",
-      name: "Most wins",
+    record({
+      id: "most-goals-club-season",
+      name: "Most Goals by a Club",
+      emoji: "⚽",
+      description:
+        "Most league goals scored by one side in a single season — attacking fireworks over 38 games.",
+      allTime: {
+        value: "106 goals",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "2017/18",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : goalsLeader && goalsLeader.goalsFor > 0
+          ? {
+              value: `${goalsLeader.goalsFor} goals`,
+              holder: goalsLeader.team.shortName ?? goalsLeader.team.name,
+              teamCode: goalsLeader.team.code,
+              crest: goalsLeader.team.crest,
+              context: `${seasonLabel} · ${goalsLeader.played} played`,
+            }
+          : { value: "—", holder: "No goals yet", context: seasonLabel },
+      highlightSeason:
+        !seasonNotStarted && goalsLeader && goalsLeader.goalsFor >= 106
+          ? "all-time"
+          : !seasonNotStarted && goalsLeader && goalsLeader.goalsFor > 0
+            ? "leading"
+            : null,
+      commentary: `City's 106 in 2017/18 is the Premier League scoring mountain. ${
+        seasonNotStarted
+          ? "Nobody has a goal on the board until the first ball is kicked."
+          : goalsLeader && goalsLeader.goalsFor > 0
+            ? `${goalsLeader.team.name} lead ${seasonLabel} with ${goalsLeader.goalsFor}.`
+            : "The charts fill after the first weekend."
+      }`,
+    }),
+
+    record({
+      id: "most-wins-season",
+      name: "Most Wins in a Season",
       emoji: "✅",
-      description: "Club with the most victories this season.",
-      mark: markFromTeam(
-        mostWins,
-        String(mostWins.won),
-        `${mostWins.points} pts · ${mostWins.played} played`
-      ),
-    });
-  }
-
-  const mostDraws = topByStat(rows, (r) => r.drawn, { requirePositive: true });
-  if (mostDraws) {
-    records.push({
-      id: "most-draws",
-      name: "Draw specialists",
-      emoji: "⚖️",
-      description: "Most shared points from draws.",
-      mark: markFromTeam(
-        mostDraws,
-        String(mostDraws.drawn),
-        `${mostDraws.points} pts · P${mostDraws.position}`
-      ),
-    });
-  }
-
-  const fewestWins = topByStat(rows, (r) => r.won, { ascending: true });
-  if (fewestWins && fewestWins.played > 0) {
-    records.push({
-      id: "fewest-wins",
-      name: "Fewest wins",
-      emoji: "🧊",
-      description: "Club still searching for victories this season.",
-      mark: markFromTeam(
-        fewestWins,
-        String(fewestWins.won),
-        `${fewestWins.points} pts · P${fewestWins.position}`
-      ),
-    });
-  }
-
-  const { home, away, cleanSheets } = computeSideStats(finished);
-
-  const bestHomePoints = bestSideBy(home, (s) => s.points);
-  if (bestHomePoints) {
-    records.push({
-      id: "home-points",
-      name: "Fortress",
-      emoji: "🏟️",
-      description: "Most points taken at home.",
-      mark: {
-        value: `${bestHomePoints.points} pts`,
-        holder: bestHomePoints.team.name,
-        teamCode: bestHomePoints.team.code,
-        crest: bestHomePoints.team.crest,
-        context: `${bestHomePoints.won} home wins · ${bestHomePoints.played} home games`,
+      description: "Most league victories by one club in a 38-game Premier League season.",
+      allTime: {
+        value: "32 wins",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "2017/18 & 2018/19",
       },
-    });
-  }
+      season: seasonNotStarted
+        ? awaiting
+        : winsLeader && winsLeader.won > 0
+          ? {
+              value: `${winsLeader.won} wins`,
+              holder: winsLeader.team.shortName ?? winsLeader.team.name,
+              teamCode: winsLeader.team.code,
+              crest: winsLeader.team.crest,
+              context: `${seasonLabel} · ${winsLeader.played} played`,
+            }
+          : { value: "—", holder: "No wins yet", context: seasonLabel },
+      highlightSeason:
+        !seasonNotStarted && winsLeader && winsLeader.won >= 32
+          ? "all-time"
+          : !seasonNotStarted && winsLeader && winsLeader.won > 0
+            ? "leading"
+            : null,
+      commentary: `City's 32 wins in back-to-back seasons set the bar. ${
+        seasonNotStarted
+          ? "The win column is empty until Kickoff 1."
+          : winsLeader && winsLeader.won > 0
+            ? `${winsLeader.team.name} have ${winsLeader.won} so far in ${seasonLabel}.`
+            : "Sunday results start the wins race."
+      }`,
+    }),
 
-  const bestAwayPoints = bestSideBy(away, (s) => s.points);
-  if (bestAwayPoints) {
-    records.push({
-      id: "away-points",
-      name: "Road warriors",
-      emoji: "🚌",
-      description: "Most points taken on the road.",
-      mark: {
-        value: `${bestAwayPoints.points} pts`,
-        holder: bestAwayPoints.team.name,
-        teamCode: bestAwayPoints.team.code,
-        crest: bestAwayPoints.team.crest,
-        context: `${bestAwayPoints.won} away wins · ${bestAwayPoints.played} away games`,
-      },
-    });
-  }
-
-  let cleanSheetLeader: { team: TeamInfo; count: number } | null = null;
-  for (const entry of cleanSheets.values()) {
-    if (!cleanSheetLeader || entry.count > cleanSheetLeader.count) {
-      cleanSheetLeader = entry;
-    }
-  }
-  if (cleanSheetLeader && cleanSheetLeader.count > 0) {
-    records.push({
-      id: "clean-sheets",
-      name: "Clean sheets",
-      emoji: "🧤",
-      description: "Most matches without conceding.",
-      mark: {
-        value: String(cleanSheetLeader.count),
-        holder: cleanSheetLeader.team.name,
-        teamCode: cleanSheetLeader.team.code,
-        crest: cleanSheetLeader.team.crest,
-        context: "Shutouts this season",
-      },
-    });
-  }
-
-  let bestWinStreak: { team: TeamInfo; length: number } | null = null;
-  let bestUnbeaten: { team: TeamInfo; length: number } | null = null;
-  for (const row of rows) {
-    const results = teamResultsChrono(row.team.code, finished);
-    const winStreak = longestStreak(results, (r) => r === "W");
-    const unbeaten = longestStreak(results, (r) => r !== "L");
-    if (winStreak > 0 && (!bestWinStreak || winStreak > bestWinStreak.length)) {
-      bestWinStreak = { team: row.team, length: winStreak };
-    }
-    if (unbeaten > 0 && (!bestUnbeaten || unbeaten > bestUnbeaten.length)) {
-      bestUnbeaten = { team: row.team, length: unbeaten };
-    }
-  }
-
-  if (bestWinStreak) {
-    records.push({
+    record({
       id: "win-streak",
-      name: "Longest win streak",
+      name: "Longest Win Streak",
       emoji: "🔁",
-      description: "Most consecutive league wins in a row.",
-      mark: {
-        value: String(bestWinStreak.length),
-        holder: bestWinStreak.team.name,
-        teamCode: bestWinStreak.team.code,
-        crest: bestWinStreak.team.crest,
-        context: "Consecutive victories",
+      description: "Most consecutive Premier League victories in a row — pure momentum.",
+      allTime: {
+        value: "18 in a row",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "Aug–Dec 2017",
       },
-    });
-  }
+      season: streak
+        ? {
+            value: `${streak.length} in a row`,
+            holder: streak.team,
+            teamCode: streak.teamCode,
+            context: `${seasonLabel} best streak`,
+          }
+        : awaiting,
+      highlightSeason: streak && streak.length >= 18 ? "all-time" : streak ? "leading" : null,
+      commentary: `City's 18-game run in 2017 rewrote the consecutive-wins chart. ${
+        streak
+          ? `${streak.team} own ${seasonLabel}'s longest streak at ${streak.length}.`
+          : "Streaks start the first time a side strings two Sundays together."
+      }`,
+    }),
 
-  if (bestUnbeaten && (!bestWinStreak || bestUnbeaten.length > bestWinStreak.length)) {
-    records.push({
-      id: "unbeaten-run",
-      name: "Longest unbeaten run",
-      emoji: "🛡️",
-      description: "Most matches without a league defeat in a row.",
-      mark: {
-        value: String(bestUnbeaten.length),
-        holder: bestUnbeaten.team.name,
-        teamCode: bestUnbeaten.team.code,
-        crest: bestUnbeaten.team.crest,
-        context: "Wins and draws without a loss",
+    record({
+      id: "biggest-win",
+      name: "Biggest Win",
+      emoji: "💥",
+      description: "Largest winning margin in a Premier League match — a true hiding.",
+      allTime: {
+        value: "9–0",
+        holder: "Leicester City",
+        teamCode: "LEI",
+        context: "vs Southampton · 2019",
       },
-    });
-  }
+      season: bigWin
+        ? {
+            value: bigWin.scoreline,
+            holder: bigWin.winner,
+            teamCode: bigWin.winnerCode,
+            context: `${vsLabel(bigWin.match)} · margin ${bigWin.margin}`,
+          }
+        : awaiting,
+      highlightSeason: bigWin && bigWin.margin >= 9 ? "all-time" : bigWin ? "leading" : null,
+      commentary: `Leicester's 9–0 in 2019 (and United's 9–0 vs Ipswich in 1995) sit at the top. ${
+        bigWin
+          ? `${bigWin.winner} have ${seasonLabel}'s biggest win at ${bigWin.scoreline}.`
+          : "The first blowout writes this card."
+      }`,
+    }),
 
-  if (finished.length > 0 && seasonGoals > 0) {
-    const avg = seasonGoals / finished.length;
-    records.push({
+    record({
+      id: "highest-scoring-match",
+      name: "Highest-Scoring Match",
+      emoji: "🎯",
+      description: "Most goals in a single Premier League fixture — both nets rattling.",
+      allTime: {
+        value: "11 goals",
+        holder: "Portsmouth 7–4 Reading",
+        context: "2007/08",
+      },
+      season: high
+        ? {
+            value: `${high.goals} goals`,
+            holder: vsLabel(high.match),
+            teamCode: high.match.homeTeam.code,
+            crest: high.match.homeTeam.crest,
+            context: `${high.match.homeScore}–${high.match.awayScore}`,
+          }
+        : awaiting,
+      highlightSeason: high && high.goals >= 11 ? "all-time" : high ? "leading" : null,
+      commentary: `Portsmouth 7–4 Reading in 2007 remains the 11-goal classic. ${
+        high
+          ? `${vsLabel(high.match)} lead ${seasonLabel} with ${high.goals} goals.`
+          : "The first feast fills this box."
+      }`,
+    }),
+
+    record({
+      id: "fewest-goals-conceded",
+      name: "Best Defence",
+      emoji: "🧱",
+      description: "Fewest goals conceded in a 38-game Premier League season.",
+      allTime: {
+        value: "15 conceded",
+        holder: "Chelsea",
+        teamCode: "CHE",
+        context: "2004/05",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : cleanest && cleanest.played > 0
+          ? {
+              value: `${cleanest.goalsAgainst} conceded`,
+              holder: cleanest.team.shortName ?? cleanest.team.name,
+              teamCode: cleanest.team.code,
+              crest: cleanest.team.crest,
+              context: `${seasonLabel} · ${cleanest.played} played`,
+            }
+          : { value: "—", holder: "No minutes yet", context: seasonLabel },
+      highlightSeason:
+        !seasonNotStarted && cleanest && cleanest.played >= 30 && cleanest.goalsAgainst <= 15
+          ? "all-time"
+          : !seasonNotStarted && cleanest && cleanest.played > 0
+            ? "leading"
+            : null,
+      commentary: `Mourinho's Chelsea leaked just 15 in 2004/05. ${
+        seasonNotStarted
+          ? "Clean sheets are theoretical until Matchday 1."
+          : cleanest && cleanest.played > 0
+            ? `${cleanest.team.name} have conceded ${cleanest.goalsAgainst} in ${seasonLabel}.`
+            : "The defence charts open with the first goal."
+      }`,
+    }),
+
+    record({
+      id: "title-gap",
+      name: "Closest Title Fight",
+      emoji: "🥇",
+      description: "Smallest gap between first and second — drama measured in points and GD.",
+      allTime: {
+        value: "GD only",
+        holder: "City vs United",
+        teamCode: "MCI",
+        context: "Both 89 pts · 2011/12",
+      },
+      season:
+        gap === null || seasonNotStarted
+          ? awaiting
+          : {
+              value: `${gap} pt${gap === 1 ? "" : "s"}`,
+              holder: `${leader?.team.shortName ?? "Leader"} vs ${rows[1]?.team.shortName ?? "2nd"}`,
+              teamCode: leader?.team.code,
+              crest: leader?.team.crest,
+              context: `${seasonLabel} live gap`,
+            },
+      highlightSeason: !seasonNotStarted && gap !== null ? "leading" : null,
+      commentary: `2011/12 ended with City and United on 89 points — Agueroooo. ${
+        seasonNotStarted
+          ? "The gap is theoretical until two clubs have points."
+          : gap !== null
+            ? `Right now the gap is ${gap} point${gap === 1 ? "" : "s"}.`
+            : "The table needs two rows to make a race."
+      }`,
+    }),
+
+    record({
+      id: "different-winners",
+      name: "Different Match Winners",
+      emoji: "🎲",
+      description: "How many different clubs have won a league match this season — how open it is.",
+      allTime: {
+        value: "20 winners",
+        holder: "2010/11 season",
+        context: "Every club won at least once",
+      },
+      season:
+        winners.count > 0
+          ? {
+              value: `${winners.count} winners`,
+              holder: winners.names.slice(0, 3).join(", ") + (winners.names.length > 3 ? "…" : ""),
+              context: `${seasonLabel} · ${finished.length} results`,
+            }
+          : awaiting,
+      highlightSeason: winners.count >= 20 ? "all-time" : winners.count > 0 ? "leading" : null,
+      commentary: `In 2010/11 every Premier League club won at least once. ${
+        winners.count > 0
+          ? `${seasonLabel} has ${winners.count} different winners so far.`
+          : "The first result starts the variety count."
+      }`,
+    }),
+
+    record({
       id: "goals-per-game",
-      name: "Goals per game",
+      name: "Goals per Game",
       emoji: "📊",
-      description: "Average goals across all finished fixtures this season.",
-      mark: {
-        value: avg.toFixed(2),
-        holder: "Premier League",
-        context: `${seasonGoals} goals in ${finished.length} matches`,
+      description: "Average goals across finished Premier League fixtures this season.",
+      allTime: {
+        value: "3.28",
+        holder: "2023/24 season",
+        context: "Highest scoring PL campaign",
       },
-    });
-  }
+      season:
+        avgGoals !== null
+          ? {
+              value: avgGoals.toFixed(2),
+              holder: "Premier League",
+              context: `${goals} goals in ${finished.length} matches`,
+            }
+          : awaiting,
+      highlightSeason: avgGoals !== null && avgGoals >= 3.28 ? "all-time" : avgGoals !== null ? "leading" : null,
+      commentary: `2023/24's 3.28 goals per game is the modern scoring boom. ${
+        avgGoals !== null
+          ? `${seasonLabel} is averaging ${avgGoals} across ${finished.length} results.`
+          : "The rate appears after Matchday 1."
+      }`,
+    }),
 
-  return records;
+    record({
+      id: "most-titles",
+      name: "Most League Titles",
+      emoji: "👑",
+      description: "Most English top-flight championships won by a club — the all-time kings.",
+      allTime: {
+        value: "20 titles",
+        holder: "Manchester United",
+        teamCode: "MUN",
+        context: "All-time leaders",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : leader
+          ? {
+              value: "Chasing history",
+              holder: leader.team.shortName ?? leader.team.name,
+              teamCode: leader.team.code,
+              crest: leader.team.crest,
+              context: `${seasonLabel} table leaders`,
+            }
+          : { value: "—", holder: "Season not started", context: seasonLabel },
+      highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
+      commentary: `Manchester United's 20 titles remain the English mountain. ${
+        seasonNotStarted
+          ? "History can wait until Matchday 1."
+          : leader && leader.points > 0
+            ? `${leader.team.name} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
+            : "The next champion will be decided across 38 matchdays."
+      }`,
+    }),
+
+    record({
+      id: "all-time-scorer",
+      name: "All-Time Top Scorer",
+      emoji: "🐐",
+      description:
+        "Most Premier League goals by one player across their career — the number every forward is measured against.",
+      allTime: {
+        value: "260 goals",
+        holder: "Alan Shearer",
+        teamCode: "NEW",
+        context: "1992–2006",
+      },
+      season: {
+        value: "260 goals",
+        holder: "Alan Shearer",
+        teamCode: "NEW",
+        context: "Record still stands",
+      },
+      highlightSeason: null,
+      commentary:
+        "Shearer's 260 remains the Premier League Everest. Kane left on 213 — every modern Golden Boot chase still gets compared to that Blackburn-and-Newcastle haul.",
+    }),
+
+    record({
+      id: "unbeaten-season",
+      name: "Unbeaten Season",
+      emoji: "✨",
+      description: "A full Premier League campaign without a single defeat — the Invincibles bar.",
+      allTime: {
+        value: "38 unbeaten",
+        holder: "Arsenal",
+        teamCode: "ARS",
+        context: "2003/04 · 26W 12D",
+      },
+      season: (() => {
+        const unbeaten = rows
+          .filter((r) => r.played > 0 && r.lost === 0)
+          .sort((a, b) => b.points - a.points)[0];
+        return unbeaten
+          ? {
+              value: `${unbeaten.played} unbeaten`,
+              holder: unbeaten.team.shortName ?? unbeaten.team.name,
+              teamCode: unbeaten.team.code,
+              crest: unbeaten.team.crest,
+              context: `${seasonLabel} · ${unbeaten.won}W ${unbeaten.drawn}D`,
+            }
+          : { value: "—", holder: "No unbeaten clubs", context: seasonLabel };
+      })(),
+      highlightSeason:
+        rows.some((r) => r.played >= 38 && r.lost === 0)
+          ? "all-time"
+          : rows.some((r) => r.played > 0 && r.lost === 0)
+            ? "leading"
+            : null,
+      commentary: `Wenger's Invincibles in 2003/04 remain unique. ${
+        rows.some((r) => r.played > 0 && r.lost === 0)
+          ? "At least one club is still without a loss this season — the clock starts ticking with every away trip."
+          : "Everyone has a defeat, or the season hasn't started."
+      }`,
+    }),
+
+    record({
+      id: "consecutive-titles",
+      name: "Consecutive Titles",
+      emoji: "📚",
+      description: "Most Premier League titles won in a row — dynasty maths.",
+      allTime: {
+        value: "4 in a row",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "2020/21–2023/24",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : leader
+          ? {
+              value: "Defending / chasing",
+              holder: leader.team.shortName ?? leader.team.name,
+              teamCode: leader.team.code,
+              crest: leader.team.crest,
+              context: `${seasonLabel} table leaders`,
+            }
+          : awaiting,
+      highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
+      commentary: `City's four-in-a-row is the Premier League dynasty record, passing United's threes. ${
+        seasonNotStarted
+          ? "The next chapter opens in August."
+          : leader
+            ? `${leader.team.name} sit top of ${seasonLabel} while that history sits in the studio graphic.`
+            : "38 games decide whether the streak grows or snaps."
+      }`,
+    }),
+
+    record({
+      id: "best-goal-difference",
+      name: "Best Goal Difference",
+      emoji: "📐",
+      description: "Healthiest goals scored minus conceded in a Premier League season.",
+      allTime: {
+        value: "+79",
+        holder: "Manchester City",
+        teamCode: "MCI",
+        context: "2017/18",
+      },
+      season: seasonNotStarted
+        ? awaiting
+        : leader
+          ? {
+              value: `${leader.goalDifference >= 0 ? "+" : ""}${leader.goalDifference}`,
+              holder: leader.team.shortName ?? leader.team.name,
+              teamCode: leader.team.code,
+              crest: leader.team.crest,
+              context: `${leader.goalsFor} for · ${leader.goalsAgainst} against`,
+            }
+          : awaiting,
+      highlightSeason:
+        !seasonNotStarted && leader && leader.goalDifference >= 79
+          ? "all-time"
+          : !seasonNotStarted && leader && leader.played > 0
+            ? "leading"
+            : null,
+      commentary: `City's +79 in 2017/18 is the GD Everest. ${
+        seasonNotStarted
+          ? "Difference is zero-zero until someone scores."
+          : leader
+            ? `${leader.team.name} sit on ${leader.goalDifference >= 0 ? "+" : ""}${leader.goalDifference} in ${seasonLabel}.`
+            : "GD appears with the first goal."
+      }`,
+    }),
+  ];
 }

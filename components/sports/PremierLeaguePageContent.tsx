@@ -21,8 +21,6 @@ import { buildPremierLeagueAwards } from "@/lib/premier-league-awards";
 import { fetchPremierLeagueSeason } from "@/lib/premier-league-data";
 import { buildPremierLeagueRecords } from "@/lib/premier-league-records";
 
-export const revalidate = 120;
-
 export async function PremierLeaguePageContent() {
   const data = await fetchPremierLeagueSeason();
   const awards = await buildPremierLeagueAwards(data.standings, data.matches);

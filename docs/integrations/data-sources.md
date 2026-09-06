@@ -17,8 +17,9 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard`
 - Module: `lib/espn-league-data.ts`
 - Used when `FOOTBALL_DATA_API_KEY` is missing or football-data.org is still on the prior season; fresher than the openfootball mirror for live results
-- Next.js fetch cache: 15 minutes (`revalidate: 900`)
-- Cron: `/api/cron/league-sync` revalidates PL + La Liga pages every 2 hours
+- Next.js fetch: `no-store` so a page open hits ESPN for a fresh table
+- Client `router.refresh()` on mount (and every 3 minutes while the page stays open)
+- Cron: `/api/cron/league-sync` also revalidates PL + La Liga pages every 2 hours
 
 ## openfootball
 
@@ -29,7 +30,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
   `england/{season}/1-premierleague.txt`, `espana/{season}/1-liga.txt`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
-- Cascade for club leagues: **football-data.org (same season only) → ESPN scoreboard scrape (15‑min cache) → current-season openfootball (JSON → league .txt) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Cascade for club leagues: **football-data.org (same season only) → ESPN scoreboard scrape (uncached on page load) → current-season openfootball (JSON → league .txt) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
 - Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`vercel.json`) to revalidate `/premier-league` and `/la-liga`. No Cursor agent needed — Cron runs on Vercel. `CRON_SECRET` is optional hardening only.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 

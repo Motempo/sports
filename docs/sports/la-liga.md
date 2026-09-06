@@ -21,6 +21,7 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
+- League table refetches live ESPN/API data when the page opens
 - `LaLigaSeasonRail`, reuses PL `LeagueTable` + `RaceTracker`
 - `HowLaLigaWorks`, news/facts, ads, OG image
 

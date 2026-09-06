@@ -29,6 +29,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + records sections
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`
+- League table refetches live ESPN/API data when the page opens (`no-store` + `router.refresh` on mount)
 - Ads: `PremierLeagueAdPlacements`
 
 ## Status

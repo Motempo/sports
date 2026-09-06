@@ -21,8 +21,6 @@ import { formatMatchDataSource } from "@/lib/match-data-source";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 
-export const revalidate = 120;
-
 export async function LaLigaPageContent() {
   const data = await fetchLaLigaSeason();
   const featuredMatch = selectFeaturedMatch(data.matches);

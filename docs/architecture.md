@@ -158,7 +158,7 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 | Surface | Policy |
 |---------|--------|
 | Upstream sports fetches | Prefer `no-store` / busted URLs |
-| Sport pages | Often `force-dynamic` / `revalidate = 0` (mixed with content `revalidate = 120`) |
+| Sport pages | `force-dynamic` / `revalidate = 0`; league pages also `fetchCache = force-no-store` |
 | News/facts APIs | `no-store` |
 | In-process | Facts array per sport; Linear IDs; venue Map |
 

@@ -110,6 +110,16 @@ function buildContenders(
 /**
  * Season award races — World Cup Awards-style cards for La Liga.
  */
+export async function fetchLaLigaTopScorer(): Promise<{
+  playerName: string;
+  teamCode: string;
+  teamName: string;
+  goals: number;
+} | null> {
+  const scorers = await fetchLaLigaScorers(1);
+  return scorers[0] ?? null;
+}
+
 export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaAward[]> {
   const progressPct = seasonProgress(data);
   const rows = data.standings.rows;

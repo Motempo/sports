@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FeaturedMatchCard } from "@/components/sports/FeaturedMatchCard";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
 import type { GroupStandings } from "@/lib/group-standings";
+import { isMatchLive } from "@/lib/match-status";
 import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
 import type { MatchInfo, VenueImage } from "@/lib/types";
 
@@ -18,8 +19,10 @@ interface MatchDetailModalProps {
   timeZone?: string;
 }
 
-function teamLabel(team: MatchInfo["homeTeam"]): string {
-  return team.name?.trim() || team.code;
+function headingFor(match: MatchInfo): string {
+  if (isMatchLive(match.status)) return "Next match";
+  if (match.status === "FINISHED") return "Last match";
+  return "Next match";
 }
 
 export function MatchDetailModal({
@@ -60,9 +63,7 @@ export function MatchDetailModal({
     };
   }, [match]);
 
-  const title = match
-    ? `${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`
-    : "Match";
+  const title = match ? headingFor(match) : "Match";
 
   return (
     <ExpandableModal

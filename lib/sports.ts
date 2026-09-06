@@ -11,6 +11,8 @@ export interface SportConfig {
   slug: string;
   label: string;
   available: boolean;
+  /** Current competitions vs tournaments whose edition has finished. */
+  seasonGroup: "current" | "past";
   title: string;
   description: string;
   keywords: string[];
@@ -22,6 +24,7 @@ export const SPORTS: SportConfig[] = [
     slug: "formula-1",
     label: "Formula 1",
     available: true,
+    seasonGroup: "current",
     title: "Formula 1 2026 — Standings, Race Calendar & News",
     description:
       "Track the Formula 1 2026 season with driver and constructor standings, race calendar, this weekend's sessions, news, and fun facts. Family-friendly F1 companion.",
@@ -39,6 +42,7 @@ export const SPORTS: SportConfig[] = [
     slug: "world-cup",
     label: "FIFA World Cup",
     available: true,
+    seasonGroup: "past",
     title: "FIFA World Cup 2026 — Bracket, Standings & News",
     description:
       "Track the FIFA World Cup 2026 with live group standings, knockout bracket, today's matches, news, and fun facts. 48 teams, 12 groups, USA · Canada · Mexico.",
@@ -57,6 +61,7 @@ export const SPORTS: SportConfig[] = [
     slug: "premier-league",
     label: "Premier League",
     available: true,
+    seasonGroup: "current",
     title: "Premier League — Table, Fixtures & News",
     description:
       "Track the Premier League with the full league table, European and relegation zones, fixtures and results, season races, news, and fun facts.",
@@ -75,6 +80,7 @@ export const SPORTS: SportConfig[] = [
     slug: "la-liga",
     label: "La Liga",
     available: true,
+    seasonGroup: "current",
     title: "La Liga — Table, Fixtures, Records & News",
     description:
       "Track La Liga with the live league table, Champions League and relegation zones, fixtures and results, season and all-time records, news, and fun facts.",
@@ -94,6 +100,10 @@ export const SPORTS: SportConfig[] = [
 
 export function getSportBySlug(slug: string): SportConfig | undefined {
   return SPORTS.find((s) => s.slug === slug);
+}
+
+export function getSportsBySeasonGroup(group: "current" | "past"): SportConfig[] {
+  return SPORTS.filter((sport) => sport.seasonGroup === group);
 }
 
 export function getCurrentSport(): SportConfig {

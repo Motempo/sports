@@ -33,7 +33,7 @@ flowchart TB
 **Source of truth:** `lib/sports.ts`
 
 - `CURRENT_SPORT_SLUG` — global default when no last-viewed cookie (`"formula-1"`)
-- `SPORTS[]` — id, slug, label, available, SEO fields
+- `SPORTS[]` — id, slug, label, available, `seasonGroup` (`current` | `past`), SEO fields
 - Helpers: `getSportBySlug`, `getCurrentSport`, `buildSportMetadata`, `getSportSitemapEntries`
 
 **Homepage recall:** `middleware.ts` + `lib/last-sport.ts` — essential cookie `motempo-sports-last-sport` set on sport page visits; `/` redirects to that slug (fallback `CURRENT_SPORT_SLUG`). Do not add a permanent `next.config` redirect for `/` (it would cache past the cookie).

@@ -11,7 +11,7 @@ Mirror an existing sport (prefer Premier League for club leagues, F1 for season 
 
 ## 2. Registry & SEO
 
-- [ ] Add `SportConfig` in `lib/sports.ts` (`available: true` when ready)
+- [ ] Add `SportConfig` in `lib/sports.ts` (`available: true` when ready, `seasonGroup: "current"` or `"past"`)
 - [ ] Update sitemap via existing helpers (automatic if in `SPORTS`)
 
 ## 3. Data layer

@@ -13,8 +13,8 @@ interface NextEventCardProps {
   paragraphs: string[];
   imageUrl?: string | null;
   imageAlt?: string;
-  /** `contain` keeps a full circuit aerial centered; stadium photos stay `cover`. */
-  imageFit?: "cover" | "contain";
+  /** `aerial` crops an oblique circuit photo so the track sits in the centre; stadiums stay `cover`. */
+  imageFit?: "cover" | "aerial";
   className?: string;
 }
 
@@ -94,8 +94,9 @@ export function NextEventCard({
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   className={cn(
-                    "object-center",
-                    imageFit === "contain" ? "object-contain" : "object-cover"
+                    imageFit === "aerial"
+                      ? "object-cover object-[center_72%]"
+                      : "object-cover object-center"
                   )}
                   unoptimized
                 />

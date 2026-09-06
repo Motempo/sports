@@ -40,9 +40,13 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
       const card = cards[centerIndex];
       if (!card || card.offsetWidth < 8) return;
 
-      const gap = Number.parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 16;
+      const gap =
+        Number.parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 16;
       const cardWidth = card.offsetWidth;
-      const target = centerIndex * (cardWidth + gap) - (el.clientWidth - cardWidth) / 2;
+      const spacer = el.querySelector<HTMLElement>("[data-carousel-spacer]");
+      const spacerWidth = spacer?.offsetWidth ?? 0;
+      const cardLeft = spacerWidth + (spacer ? gap : 0) + centerIndex * (cardWidth + gap);
+      const target = cardLeft - (el.clientWidth - cardWidth) / 2;
       const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
 
       const previousSnap = el.style.scrollSnapType;
@@ -199,7 +203,21 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
         )}
         style={{ WebkitOverflowScrolling: "touch" }}
       >
+        {centerIndex != null ? (
+          <div
+            aria-hidden
+            data-carousel-spacer
+            className="w-[max(0px,calc(50%-min(39vw,130px)-0.5rem))] shrink-0 sm:w-[max(0px,calc(50%-min(21vw,140px)-0.5rem))] lg:w-[max(0px,calc(50%-min(15vw,150px)-0.5rem))]"
+          />
+        ) : null}
         {children}
+        {centerIndex != null ? (
+          <div
+            aria-hidden
+            data-carousel-spacer
+            className="w-[max(0px,calc(50%-min(39vw,130px)-0.5rem))] shrink-0 sm:w-[max(0px,calc(50%-min(21vw,140px)-0.5rem))] lg:w-[max(0px,calc(50%-min(15vw,150px)-0.5rem))]"
+          />
+        ) : null}
       </div>
     </div>
   );

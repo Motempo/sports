@@ -18,8 +18,6 @@ interface FeaturedMatchCardProps {
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
   venueImage?: VenueImage | null;
-  /** IANA timezone for kickoff display (e.g. Europe/London for PL). */
-  timeZone?: string;
   chrome?: "section" | "card";
 }
 
@@ -37,12 +35,11 @@ function teamLabel(team: MatchInfo["homeTeam"]): string {
   return team.name?.trim() || team.code;
 }
 
-function formatWhen(match: MatchInfo, timeZone?: string): string {
+function formatWhen(match: MatchInfo): string {
   const opts: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
     day: "numeric",
-    timeZone,
   };
   if (isMatchLive(match.status)) return "Live now";
   if (match.status === "FINISHED") {
@@ -69,7 +66,6 @@ export function FeaturedMatchCard({
   titleRace,
   relegationRace,
   venueImage,
-  timeZone,
   chrome = "section",
 }: FeaturedMatchCardProps) {
   if (!match) return null;
@@ -84,7 +80,7 @@ export function FeaturedMatchCard({
       live={live}
       kicker={matchKicker(match)}
       title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}
-      whenLabel={formatWhen(match, timeZone)}
+      whenLabel={formatWhen(match)}
       location={formatMatchVenueLine(match)}
       paragraphs={featuredMatchParagraphs(match, {
         groupStandings: standings,

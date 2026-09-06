@@ -39,7 +39,6 @@ interface ScheduleByDayProps {
   leagueStandings?: LeagueStandings;
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
-  timeZone?: string;
 }
 
 function DayColumn({
@@ -96,13 +95,13 @@ export function ScheduleByDay({
   leagueStandings,
   titleRace,
   relegationRace,
-  timeZone: timeZoneProp,
 }: ScheduleByDayProps) {
   const [visibleMatchCount, setVisibleMatchCount] = useState(initialVisibleMatches);
   const [selectedMatch, setSelectedMatch] = useState<MatchInfo | null>(null);
+  // Always show kickoffs in the viewer's local timezone (not the league's home country).
   const timeZone = useMemo(
-    () => timeZoneProp ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-    [timeZoneProp]
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
+    []
   );
 
   const dayGroups = useMemo(() => {
@@ -191,7 +190,7 @@ export function ScheduleByDay({
                 groupMatches={groupMatches}
                 standings={standings}
                 onSelectMatch={setSelectedMatch}
-                timeZone={timeZoneProp}
+                timeZone={timeZone}
               />
             </div>
           ))}
@@ -217,7 +216,6 @@ export function ScheduleByDay({
         leagueStandings={leagueStandings}
         titleRace={titleRace}
         relegationRace={relegationRace}
-        timeZone={timeZoneProp}
       />
     </section>
   );

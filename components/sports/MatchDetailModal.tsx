@@ -16,7 +16,6 @@ interface MatchDetailModalProps {
   leagueStandings?: LeagueStandings;
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
-  timeZone?: string;
 }
 
 function headingFor(match: MatchInfo): string {
@@ -33,7 +32,6 @@ export function MatchDetailModal({
   leagueStandings,
   titleRace,
   relegationRace,
-  timeZone,
 }: MatchDetailModalProps) {
   const [venueImage, setVenueImage] = useState<VenueImage | null>(null);
 
@@ -82,7 +80,6 @@ export function MatchDetailModal({
           titleRace={titleRace}
           relegationRace={relegationRace}
           venueImage={venueImage}
-          timeZone={timeZone}
         />
       ) : null}
     </ExpandableModal>

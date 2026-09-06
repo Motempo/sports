@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -44,16 +45,12 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
       const target = card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2;
       const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
 
-      const previousSnap = el.style.scrollSnapType;
       el.style.scrollSnapType = "none";
       el.scrollTo({
         left: Math.min(maxScroll, Math.max(0, target)),
         behavior,
       });
-      requestAnimationFrame(() => {
-        el.style.scrollSnapType = previousSnap;
-        updateEdges();
-      });
+      updateEdges();
     },
     [centerIndex, updateEdges]
   );
@@ -73,43 +70,9 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
     };
   }, [updateEdges, children]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (centerIndex == null) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-
-    let cancelled = false;
-    let userMoved = false;
-    const readyAt = Date.now() + 450;
-    const markMoved = () => {
-      if (Date.now() < readyAt) return;
-      userMoved = true;
-    };
-
-    const run = () => {
-      if (cancelled || userMoved) return;
-      centerCard("auto");
-    };
-
-    run();
-    const frame = requestAnimationFrame(run);
-    const timeout = window.setTimeout(run, 120);
-    const later = window.setTimeout(run, 400);
-    const ro = new ResizeObserver(run);
-    ro.observe(el);
-
-    el.addEventListener("touchstart", markMoved, { passive: true });
-    el.addEventListener("pointerdown", markMoved);
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(frame);
-      window.clearTimeout(timeout);
-      window.clearTimeout(later);
-      ro.disconnect();
-      el.removeEventListener("touchstart", markMoved);
-      el.removeEventListener("pointerdown", markMoved);
-    };
+    centerCard("auto");
   }, [centerCard, centerIndex, children]);
 
   const scrollByPage = useCallback((direction: -1 | 1) => {
@@ -195,7 +158,8 @@ export function ProfileCarousel({ label, children, className, centerIndex }: Pro
         tabIndex={0}
         onKeyDown={onKeyDown}
         className={cn(
-          "scrollbar-hide relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          "scrollbar-hide relative flex gap-4 overflow-x-auto overscroll-x-contain pb-1",
+          centerIndex == null ? "snap-x snap-mandatory" : "snap-x snap-proximity",
           "touch-pan-x focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         )}
         style={{ WebkitOverflowScrolling: "touch" }}

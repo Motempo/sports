@@ -30,6 +30,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`
 - League table refetches live ESPN/API data when the page opens (`no-store` + `router.refresh` on mount)
+- Finished fixtures in Matches open a next-match-style detail modal
 - Ads: `PremierLeagueAdPlacements`
 
 ## Status

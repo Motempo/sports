@@ -48,6 +48,7 @@ flowchart TB
 |-------|---------|---------|------|
 | `/api/news` | GET | Paginated RSS news (+ image/video enrichment) | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
+| `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
 | `/api/feedback/recent` | GET | List recent team issues | **No auth — ops risk** |
@@ -109,7 +110,7 @@ Every sport page renders through `SportPageShell` in this order:
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
 4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit/stadium photo (half-width on large screens, below the text on narrow screens)  
-5. Matches / weekend sessions  
+5. Matches / weekend sessions — finished football fixtures open a modal with the same next-match card (score, copy, stadium photo)  
 6. News + Fun facts  
 7. Mid-content ad  
 8. Standings, league table, or knockout bracket (one table)  

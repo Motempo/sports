@@ -77,6 +77,10 @@ export async function LaLigaPageContent() {
           scheduleMatches={data.matches}
           title="Matches"
           showSeasonTailWhenEmpty
+          leagueStandings={data.standings}
+          titleRace={data.titleRace}
+          relegationRace={data.relegationRace}
+          timeZone="Europe/Madrid"
         />
       }
       howItWorks={

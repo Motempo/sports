@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, PlusCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { BugReportDialog } from "@/components/feedback/BugReportDialog";
+import { SeasonProgressRailScroller } from "@/components/ui/SeasonProgressRailScroller";
 import { CURRENT_SPORT_SLUG, SPORTS, getSportsBySeasonGroup, type SportConfig } from "@/lib/sports";
 import { cn } from "@/lib/utils";
 
@@ -18,144 +18,102 @@ function resolveActiveSlug(pathname: string, propSlug?: string): string {
   return segment && SPORTS.some((s) => s.slug === segment) ? segment : CURRENT_SPORT_SLUG;
 }
 
-function SportOption({
-  sport,
-  activeSlug,
-  onSelect,
-}: {
-  sport: SportConfig;
-  activeSlug: string;
-  onSelect: () => void;
-}) {
+function GroupLabel({ children }: { children: string }) {
   return (
-    <li role="option" aria-selected={sport.slug === activeSlug}>
-      {sport.available ? (
-        <Link
-          href={`/${sport.slug}`}
-          onClick={onSelect}
-          className={cn(
-            "flex w-full items-center px-3 py-2.5 text-left text-[14px] transition-colors",
-            sport.slug === activeSlug
-              ? "bg-surface font-semibold text-foreground"
-              : "text-foreground hover:bg-surface"
-          )}
-        >
-          {sport.label}
-        </Link>
-      ) : (
-        <span className="block cursor-default px-3 py-2.5 text-[13px] text-muted">
-          {sport.label}
-        </span>
-      )}
-    </li>
+    <span
+      className="shrink-0 self-center px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted sm:px-2.5 sm:text-[11px]"
+      aria-hidden
+    >
+      {children}
+    </span>
+  );
+}
+
+function SportChip({ sport, activeSlug }: { sport: SportConfig; activeSlug: string }) {
+  const isActive = sport.slug === activeSlug;
+  const chipClass = cn(
+    "flex shrink-0 flex-col items-center gap-1 rounded-full px-2.5 py-1.5 text-center sm:px-3",
+    isActive && "bg-foreground/10 text-foreground",
+    !isActive && sport.available && "text-muted hover:text-foreground",
+    !sport.available && "cursor-default text-muted/60"
+  );
+
+  const inner = (
+    <>
+      <span
+        className={cn(
+          "flex h-2 w-2 rounded-full",
+          isActive && "bg-foreground",
+          !isActive && sport.available && "bg-border",
+          !sport.available && "bg-border/60"
+        )}
+        aria-hidden
+      />
+      <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">{sport.label}</span>
+    </>
+  );
+
+  if (!sport.available) {
+    return (
+      <span className={chipClass} aria-disabled>
+        {inner}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={`/${sport.slug}`}
+      data-rail-active={isActive ? "true" : undefined}
+      aria-current={isActive ? "page" : undefined}
+      className={chipClass}
+    >
+      {inner}
+    </Link>
   );
 }
 
 export function SportSelector({ activeSportSlug }: SportSelectorProps) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const [suggestOpen, setSuggestOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
   const activeSlug = resolveActiveSlug(pathname, activeSportSlug);
-  const activeSport = SPORTS.find((s) => s.slug === activeSlug) ?? SPORTS[0];
   const currentSports = getSportsBySeasonGroup("current");
   const pastSports = getSportsBySeasonGroup("past");
 
-  useEffect(() => {
-    if (!open) return;
-
-    const handlePointerDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
-
   return (
     <>
-      <div ref={rootRef} className="relative">
-        <button
-          type="button"
-          onClick={() => setOpen((prev) => !prev)}
-          className="touch-target inline-flex min-h-[44px] items-center gap-1 rounded-full px-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-surface active:bg-surface sm:px-3 sm:text-[14px]"
-          aria-expanded={open}
-          aria-haspopup="listbox"
-          aria-label="Select sport"
-        >
-          <span className="max-w-[140px] truncate sm:max-w-none">{activeSport.label}</span>
-          <ChevronDown
-            className={cn("h-4 w-4 shrink-0 text-muted transition-transform", open && "rotate-180")}
-          />
-        </button>
+      <nav className="relative min-w-0 flex-1" aria-label="Choose a sport">
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-5 bg-gradient-to-r from-background to-transparent sm:w-7"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-5 bg-gradient-to-l from-background to-transparent sm:w-7"
+          aria-hidden
+        />
 
-        {open && (
-          <ul
-            role="listbox"
-            aria-label="Sports"
-            className="absolute right-0 top-full z-50 mt-1 min-w-[220px] overflow-hidden rounded-xl border border-border bg-background py-1 shadow-lg"
+        <SeasonProgressRailScroller activeStepId={activeSlug} className="px-1">
+          {currentSports.length > 0 ? <GroupLabel>Current season</GroupLabel> : null}
+          {currentSports.map((sport) => (
+            <SportChip key={sport.id} sport={sport} activeSlug={activeSlug} />
+          ))}
+          {pastSports.length > 0 ? <GroupLabel>Last season</GroupLabel> : null}
+          {pastSports.map((sport) => (
+            <SportChip key={sport.id} sport={sport} activeSlug={activeSlug} />
+          ))}
+          <button
+            type="button"
+            onClick={() => setSuggestOpen(true)}
+            className="flex shrink-0 flex-col items-center gap-1 rounded-full px-2.5 py-1.5 text-muted transition-colors hover:text-foreground sm:px-3"
+            aria-label="Suggest a sport"
           >
-            {currentSports.length > 0 && (
-              <li
-                className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-muted"
-                aria-hidden
-              >
-                Current season
-              </li>
-            )}
-            {currentSports.map((sport) => (
-              <SportOption
-                key={sport.id}
-                sport={sport}
-                activeSlug={activeSlug}
-                onSelect={() => setOpen(false)}
-              />
-            ))}
-            {pastSports.length > 0 && (
-              <li
-                className={cn(
-                  "px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted",
-                  currentSports.length > 0 ? "mt-1 border-t border-border pt-2" : "pt-2"
-                )}
-                aria-hidden
-              >
-                Past season
-              </li>
-            )}
-            {pastSports.map((sport) => (
-              <SportOption
-                key={sport.id}
-                sport={sport}
-                activeSlug={activeSlug}
-                onSelect={() => setOpen(false)}
-              />
-            ))}
-            <li className="mt-1 border-t border-border pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  setSuggestOpen(true);
-                }}
-                className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[14px] text-foreground transition-colors hover:bg-surface"
-              >
-                <PlusCircle className="h-4 w-4 shrink-0 text-link" />
-                Suggest a sport
-              </button>
-            </li>
-          </ul>
-        )}
-      </div>
+            <span className="flex h-2 w-2 items-center justify-center text-[9px] font-bold leading-none" aria-hidden>
+              +
+            </span>
+            <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">Suggest</span>
+          </button>
+        </SeasonProgressRailScroller>
+      </nav>
 
       <BugReportDialog
         open={suggestOpen}

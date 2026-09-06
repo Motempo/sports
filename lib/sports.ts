@@ -103,7 +103,9 @@ export function getSportBySlug(slug: string): SportConfig | undefined {
 }
 
 export function getSportsBySeasonGroup(group: "current" | "past"): SportConfig[] {
-  return SPORTS.filter((sport) => sport.seasonGroup === group);
+  return SPORTS.filter((sport) => sport.seasonGroup === group).sort((a, b) =>
+    a.label.localeCompare(b.label, "en")
+  );
 }
 
 export function getCurrentSport(): SportConfig {

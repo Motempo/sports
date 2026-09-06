@@ -13,6 +13,8 @@ interface NextEventCardProps {
   paragraphs: string[];
   imageUrl?: string | null;
   imageAlt?: string;
+  /** `aerial` crops an oblique circuit photo so the track sits in the centre; stadiums stay `cover`. */
+  imageFit?: "cover" | "aerial";
   className?: string;
 }
 
@@ -27,6 +29,7 @@ export function NextEventCard({
   paragraphs,
   imageUrl,
   imageAlt = "",
+  imageFit = "cover",
   className,
 }: NextEventCardProps) {
   return (
@@ -84,13 +87,17 @@ export function NextEventCard({
             </div>
 
             {imageUrl && (
-              <div className="relative isolate min-h-[12.5rem] w-full overflow-hidden bg-surface sm:min-h-[16rem] lg:min-h-0 lg:h-full">
+              <div className="relative isolate min-h-[14rem] w-full overflow-hidden bg-surface sm:min-h-[18rem] lg:min-h-0 lg:h-full">
                 <Image
                   src={imageUrl}
                   alt={imageAlt}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover object-center"
+                  className={cn(
+                    imageFit === "aerial"
+                      ? "object-cover object-[center_72%]"
+                      : "object-cover object-center"
+                  )}
                   unoptimized
                 />
               </div>

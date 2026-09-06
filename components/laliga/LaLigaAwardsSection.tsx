@@ -41,7 +41,7 @@ function ContenderRow({
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}%</p>
+        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}% chance</p>
       </div>
     </div>
   );
@@ -66,7 +66,7 @@ function AwardCard({ award }: { award: LaLigaAward }) {
         </div>
         {leader && (
           <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChance}% lead
+            {leader.winChance}% chance
           </div>
         )}
       </div>
@@ -75,7 +75,7 @@ function AwardCard({ award }: { award: LaLigaAward }) {
 
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-[11px] text-muted">
-          <span>Race progress</span>
+          <span>Season complete</span>
           <span className="tabular-nums">{award.progress}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-surface">
@@ -115,8 +115,10 @@ export function LaLigaAwardsSection({ awards }: LaLigaAwardsSectionProps) {
         <div className="mb-5">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Awards</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
-            Live progress toward the title, Pichichi, Zamora, Europe places, and survival — the
-            races commentators track every matchday.
+            Live progress toward the title, Pichichi, Zamora, Europe places, and survival. The bar
+            is how much of the season is finished. The percentage beside each name is a snapshot of
+            how today&apos;s numbers split among the names shown — if this race ended now. Not
+            betting odds.
           </p>
         </div>
 

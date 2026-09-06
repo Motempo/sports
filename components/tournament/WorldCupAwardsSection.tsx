@@ -31,7 +31,7 @@ function ContenderRow({ contender, leader }: { contender: AwardContender; leader
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}%</p>
+        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}% chance</p>
       </div>
     </div>
   );
@@ -56,7 +56,7 @@ function AwardCard({ award }: { award: WorldCupAward }) {
         </div>
         {leader && (
           <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChance}% lead
+            {leader.winChance}% chance
           </div>
         )}
       </div>
@@ -65,7 +65,7 @@ function AwardCard({ award }: { award: WorldCupAward }) {
 
       <div className="mb-4">
         <div className="mb-1 flex items-center justify-between text-[11px] text-muted">
-          <span>Race progress</span>
+          <span>Tournament complete</span>
           <span className="tabular-nums">{award.progress}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-surface">
@@ -100,8 +100,10 @@ export function WorldCupAwardsSection({ awards }: WorldCupAwardsSectionProps) {
         <div className="mb-5">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Tournament Awards</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
-            Live progress toward the Golden Boot, Golden Glove, Golden Ball, and Best Young Player
-            — contenders and stats are compiled from verified goal events in the live match feed.
+            Live progress toward the Golden Boot, Golden Glove, Golden Ball, and Best Young Player.
+            The bar is how much of the tournament is finished. The percentage beside each name is
+            a snapshot of how today&apos;s stats split among the names shown — if the award were
+            handed out now. Not betting odds.
           </p>
         </div>
 

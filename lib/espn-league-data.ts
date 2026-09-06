@@ -1,4 +1,5 @@
 import type { MatchInfo, TeamInfo } from "@/lib/types";
+import { freshUpstreamFetch } from "@/lib/fetch-options";
 
 export type EspnLeagueSlug = "eng.1" | "esp.1";
 
@@ -147,8 +148,9 @@ export async function fetchEspnLeagueMatches(
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: 900 },
+      ...freshUpstreamFetch,
       headers: {
+        ...(freshUpstreamFetch.headers as Record<string, string>),
         Accept: "application/json",
         // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
         "User-Agent": "curl/8.5.0",

@@ -112,6 +112,7 @@ export function FormulaOneNextEvent({
       emblems={<CountryFlag code={countryCode} name={country} />}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? location}
+      imageFit="contain"
     />
   );
 }

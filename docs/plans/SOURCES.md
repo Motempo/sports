@@ -9,6 +9,12 @@ These Cursor plan files are the original specs this `docs/` corpus was consolida
 | Family-friendly ads | `/Users/pavelsirotin/.cursor/plans/sports_site_ads_0c5cb1e2.plan.md` |
 | Ops loop (oo) | `/Users/pavelsirotin/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md` |
 
+## In-repo ops plans
+
+| Topic | Path |
+|-------|------|
+| Open Linear user-report fix plan (MOT-52 / 53 / 48) | [user-reports-fix-plan.md](./user-reports-fix-plan.md) |
+
 ## Agent transcripts (chat decisions)
 
 Under `~/.cursor/projects/Users-pavelsirotin-Cursor-Motempo-sports/agent-transcripts/`:

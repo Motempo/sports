@@ -43,6 +43,12 @@ Related nested app: [`oo/README.md`](../oo/README.md) — ops dashboard consumer
 
 Thin in-repo stubs still useful: [`README.md`](../README.md), [`data/sources/README.md`](../data/sources/README.md).
 
+## Ops plans
+
+| Doc | Purpose |
+|-----|---------|
+| [plans/user-reports-fix-plan.md](./plans/user-reports-fix-plan.md) | Triage + fix plan for open Linear feedback (MOT-52 / 53 / 48) |
+
 ## Maintenance
 
 When product decisions change, update the relevant doc in this folder **in the same PR/change** as the code. Prefer editing here over rediscovering requirements from chat history.

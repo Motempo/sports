@@ -12,11 +12,12 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 
 | Layer | Detail |
 |-------|--------|
-| Primary | openfootball `es.1.json`, else `espana/{season}/1-liga.txt` for the **current** season |
-| Fallback | football-data `PD` only when that API is already on the same season |
+| Live | football-data.org `PD` (when key has access + same season) and ESPN `esp.1` scoreboard |
+| Mirror | openfootball `es.1.json`, else `espana/{season}/1-liga.txt` for the **current** season |
 | Seed | `data/la-liga-clubs-seed.json` (2026/27 clubs) + current-season preview grid when mirrors lag |
+| Selection | Same freshest-finished-match cascade as Premier League (`lib/league-data-cascade.ts`) |
 | Standings | Reuses `lib/league-standings.ts` + PL zone helper |
-| Key libs | `la-liga-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
+| Key libs | `la-liga-data.ts`, `espn-league-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
 
 ## UI
 

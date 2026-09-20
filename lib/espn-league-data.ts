@@ -39,10 +39,27 @@ export interface EspnLeagueParseOptions {
 
 const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports/soccer";
 
-/** ESPN scoreboard date span for a European club season (Aug → May). */
-export function espnSeasonDateRange(seasonKey: string): string {
+/**
+ * ESPN calendar-year scoreboard keys for a European club season (Aug → May).
+ * A single `YYYY0801-YYYY0531` range returns an empty board; year queries work.
+ */
+export function espnSeasonDateQueries(seasonKey: string): string[] {
   const startYear = Number(seasonKey.slice(0, 4)) || new Date().getFullYear();
-  return `${startYear}0801-${startYear + 1}0531`;
+  return [String(startYear), String(startYear + 1)];
+}
+
+/** @deprecated Prefer espnSeasonDateQueries — kept for callers/tests during MOT-52. */
+export function espnSeasonDateRange(seasonKey: string): string {
+  return espnSeasonDateQueries(seasonKey)[0] ?? String(new Date().getFullYear());
+}
+
+/** Keep Aug(start) → Jun(end) so prior-season spring fixtures drop out of the start year. */
+export function isEspnEventInSeason(eventDate: string, seasonStartYear: number): boolean {
+  const day = eventDate.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return false;
+  const from = `${seasonStartYear}-07-01`;
+  const to = `${seasonStartYear + 1}-07-01`;
+  return day >= from && day < to;
 }
 
 function parseScore(value?: string): number | null {
@@ -132,9 +149,28 @@ function parseEspnEvent(
   };
 }
 
+async function fetchEspnScoreboardEvents(
+  league: EspnLeagueSlug,
+  dates: string
+): Promise<EspnEvent[]> {
+  const url = `${ESPN_BASE}/${league}/scoreboard?limit=1000&dates=${dates}`;
+  const res = await fetch(url, {
+    ...freshUpstreamFetch,
+    headers: {
+      ...(freshUpstreamFetch.headers as Record<string, string>),
+      Accept: "application/json",
+      // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
+      "User-Agent": "curl/8.5.0",
+    },
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as { events?: EspnEvent[] };
+  return data.events ?? [];
+}
+
 /**
  * Pull a full club-league season from ESPN's public JSON scoreboard API.
- * Used when football-data.org is unavailable and before the openfootball mirror.
+ * Merges calendar-year boards (start + end year) and filters to the Aug→May season.
  */
 export async function fetchEspnLeagueMatches(
   league: EspnLeagueSlug,
@@ -144,32 +180,24 @@ export async function fetchEspnLeagueMatches(
   const expectedStartYear = Number(seasonKey.slice(0, 4));
   if (!expectedStartYear) return null;
 
-  const url = `${ESPN_BASE}/${league}/scoreboard?limit=1000&dates=${espnSeasonDateRange(seasonKey)}`;
-
   try {
-    const res = await fetch(url, {
-      ...freshUpstreamFetch,
-      headers: {
-        ...(freshUpstreamFetch.headers as Record<string, string>),
-        Accept: "application/json",
-        // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
-        "User-Agent": "curl/8.5.0",
-      },
-    });
-    if (!res.ok) return null;
+    const boards = await Promise.all(
+      espnSeasonDateQueries(seasonKey).map((dates) => fetchEspnScoreboardEvents(league, dates))
+    );
 
-    const data = (await res.json()) as {
-      leagues?: Array<{ season?: { year?: number } }>;
-      events?: EspnEvent[];
-    };
+    const byId = new Map<string, EspnEvent>();
+    for (const events of boards) {
+      for (const event of events) {
+        if (!event?.id || !event.date) continue;
+        if (!isEspnEventInSeason(event.date, expectedStartYear)) continue;
+        byId.set(event.id, event);
+      }
+    }
 
-    const seasonYear = data.leagues?.[0]?.season?.year;
-    if (seasonYear && seasonYear !== expectedStartYear) return null;
-
-    const events = data.events ?? [];
+    const events = [...byId.values()];
     if (events.length < 10) return null;
 
-    const sorted = [...events].sort(
+    const sorted = events.sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 

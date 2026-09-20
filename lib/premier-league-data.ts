@@ -6,6 +6,7 @@ import {
   isUpcomingMatch,
   type MatchDataSource,
 } from "@/lib/football-data";
+import { pickFreshestLeagueCandidate } from "@/lib/league-data-cascade";
 import {
   buildClubTeamInfo,
   computeLeagueStandings,
@@ -396,8 +397,8 @@ function generateSeedMatches(seasonKey: string): MatchInfo[] {
 
 /**
  * Premier League season payload.
- * Cascade: football-data.org (current season) → ESPN scoreboard scrape →
- * openfootball (JSON / england .txt) → seed.
+ * Cascade: football-data.org + ESPN + openfootball in parallel; pick the board
+ * with the most finished fixtures (ties prefer api → espn → openfootball) → seed.
  * Do not fall back to last season's openfootball file — that kept the page on 25/26
  * after 26/27 had started while the mirror lagged.
  */
@@ -405,22 +406,25 @@ export async function fetchPremierLeagueSeason(): Promise<PremierLeagueSeasonDat
   const [currentSeason] = seasonCandidates();
   const currentKey = currentSeason ?? "2026-27";
 
-  const api = await fetchFootballDataMatches();
-  if (api && api.seasonKey === currentKey) {
-    return buildPayload(api.matches, api.seasonKey, "api");
-  }
+  const [api, espn, openfootball] = await Promise.all([
+    fetchFootballDataMatches(),
+    fetchEspnLeagueMatches("eng.1", currentKey, {
+      resolveCode: resolveClubCode,
+      buildTeam: buildClubTeamInfo,
+    }),
+    fetchOpenFootballSeason(currentKey),
+  ]);
 
-  const espn = await fetchEspnLeagueMatches("eng.1", currentKey, {
-    resolveCode: resolveClubCode,
-    buildTeam: buildClubTeamInfo,
-  });
-  if (espn) {
-    return buildPayload(espn, currentKey, "espn");
-  }
+  const best = pickFreshestLeagueCandidate([
+    api && api.seasonKey === currentKey
+      ? { matches: api.matches, source: "api" }
+      : null,
+    espn ? { matches: espn, source: "espn" } : null,
+    openfootball ? { matches: openfootball, source: "openfootball" } : null,
+  ]);
 
-  const openfootball = await fetchOpenFootballSeason(currentKey);
-  if (openfootball) {
-    return buildPayload(openfootball, currentKey, "openfootball");
+  if (best) {
+    return buildPayload(best.matches, currentKey, best.source);
   }
 
   return buildPayload(generateSeedMatches(currentKey), currentKey, "seed");

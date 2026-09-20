@@ -182,10 +182,20 @@ async function fetchSourceFeed(
   }
 }
 
-export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
+export type NewsProvider = "x" | "rss";
+
+export type NewsFeedResult = {
+  items: NewsItem[];
+  provider: NewsProvider;
+  xSkipReason?: string;
+};
+
+export async function fetchNewsFeed(sportSlug: string): Promise<NewsFeedResult> {
   // Prefer live X timelines when APIXAPI is configured (MOT-48).
   const fromX = await fetchNewsItemsFromX(sportSlug);
-  if (fromX && fromX.length > 0) return fromX;
+  if (fromX.ok && fromX.items.length > 0) {
+    return { items: fromX.items, provider: "x" };
+  }
 
   const sources = getNewsFeedSources(sportSlug);
   const keywordPattern = getNewsKeywordPattern(sportSlug);
@@ -198,7 +208,16 @@ export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .filter((item, idx, arr) => arr.findIndex((x) => x.title === item.title) === idx);
 
-  return interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle);
+  return {
+    items: interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle),
+    provider: "rss",
+    xSkipReason: fromX.ok ? undefined : fromX.reason,
+  };
+}
+
+export async function fetchNewsItems(sportSlug: string): Promise<NewsItem[]> {
+  const feed = await fetchNewsFeed(sportSlug);
+  return feed.items;
 }
 
 function ogCacheGet(url: string): NewsMedia | undefined {

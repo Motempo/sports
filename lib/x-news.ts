@@ -11,6 +11,12 @@ import type { NewsItem } from "@/lib/types";
 
 const APIXAPI_BASE = "https://api.apitwitter.com";
 
+export type XNewsSkipReason = "unconfigured" | "http_error" | "empty" | "filtered_empty";
+
+export type XNewsResult =
+  | { ok: true; items: NewsItem[] }
+  | { ok: false; reason: XNewsSkipReason; items: [] };
+
 /** Ticket MOT-48 calls this APIXAPI; ApiTwitter keys also accepted. */
 export function getApixApiKey(): string | undefined {
   const key =
@@ -49,6 +55,12 @@ interface ApixTweetsResponse {
   };
   tweets?: ApixTweet[];
 }
+
+type HandleFetchOutcome = {
+  items: NewsItem[];
+  rawCount: number;
+  httpError: boolean;
+};
 
 function tweetText(tweet: ApixTweet): string {
   return (tweet.text ?? "").replace(/\s+/g, " ").trim();
@@ -134,7 +146,7 @@ async function fetchHandleTweets(
   apiKey: string,
   sportSlug: string,
   keywordPattern: RegExp
-): Promise<NewsItem[]> {
+): Promise<HandleFetchOutcome> {
   try {
     const res = await fetch(
       `${APIXAPI_BASE}/twitter/user/${encodeURIComponent(handle)}/tweets`,
@@ -148,24 +160,35 @@ async function fetchHandleTweets(
         signal: AbortSignal.timeout(12_000),
       }
     );
-    if (!res.ok) return [];
+    if (!res.ok) {
+      return { items: [], rawCount: 0, httpError: true };
+    }
     const body = (await res.json()) as ApixTweetsResponse;
     const tweets = body.data?.tweets ?? body.tweets ?? [];
-    return tweets
+    const items = tweets
       .map((tweet) => tweetToNewsItem(tweet, sportSlug, handle, keywordPattern))
       .filter((item): item is NewsItem => Boolean(item));
+    return { items, rawCount: tweets.length, httpError: false };
   } catch {
-    return [];
+    return { items: [], rawCount: 0, httpError: true };
   }
+}
+
+function logXSkip(sportSlug: string, reason: XNewsSkipReason, detail?: Record<string, number>) {
+  // Structured ops signal — never log the API key.
+  console.info("[news/x]", { sportSlug, reason, ...detail });
 }
 
 /**
  * Pull news directly from X timelines via APIXAPI / ApiTwitter (MOT-48).
- * Returns null when the key is missing so callers can fall back to RSS.
+ * Callers fall back to RSS when `ok` is false or items are empty.
  */
-export async function fetchNewsItemsFromX(sportSlug: string): Promise<NewsItem[] | null> {
+export async function fetchNewsItemsFromX(sportSlug: string): Promise<XNewsResult> {
   const apiKey = getApixApiKey();
-  if (!apiKey) return null;
+  if (!apiKey) {
+    logXSkip(sportSlug, "unconfigured");
+    return { ok: false, reason: "unconfigured", items: [] };
+  }
 
   const config = getSportSourceConfigOrThrow(sportSlug);
   const keywordPattern = getNewsKeywordPattern(sportSlug);
@@ -175,10 +198,25 @@ export async function fetchNewsItemsFromX(sportSlug: string): Promise<NewsItem[]
   const batches = await Promise.all(
     handles.map((handle) => fetchHandleTweets(handle, apiKey, sportSlug, keywordPattern))
   );
-  const all = batches.flat();
+  const rawCount = batches.reduce((sum, batch) => sum + batch.rawCount, 0);
+  const httpErrors = batches.filter((batch) => batch.httpError).length;
+  const all = batches.flatMap((batch) => batch.items);
   const deduped = all
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .filter((item, idx, arr) => arr.findIndex((x) => x.id === item.id || x.title === item.title) === idx);
 
-  return interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle);
+  const items = interleavePersonOrgMix(deduped, sportSlug, (item) => item.xHandle);
+
+  if (items.length > 0) {
+    return { ok: true, items };
+  }
+
+  const reason: XNewsSkipReason =
+    httpErrors === handles.length
+      ? "http_error"
+      : rawCount === 0
+        ? "empty"
+        : "filtered_empty";
+  logXSkip(sportSlug, reason, { rawCount, httpErrors, handles: handles.length });
+  return { ok: false, reason, items: [] };
 }

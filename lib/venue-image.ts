@@ -11,7 +11,7 @@ const USER_AGENT = "Sports-by-Motempo/1.0 (https://sports.motempo.com)";
 const FETCH_TIMEOUT_MS = 8000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 /** Bump when scoring/search changes so in-process hits from older logic are dropped. */
-const CACHE_VERSION = "aerial-oblique-v1";
+const CACHE_VERSION = "stadium-exterior-v1";
 
 const WIKI_API = "https://en.wikipedia.org/w/api.php";
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
@@ -124,7 +124,7 @@ function isUnusableVenueFile(fileTitle: string): boolean {
 }
 
 /**
- * Rank a Wikimedia file for a circuit (oblique aerial photo) or stadium (photograph).
+ * Rank a Wikimedia file for a circuit (oblique aerial photo) or stadium (exterior photograph).
  * Exported for scoring checks — higher is better; 0 and below are skipped.
  */
 export function scoreVenueImageFile(fileTitle: string, kind: VenueImageKind, lead: boolean): number {
@@ -143,7 +143,7 @@ export function scoreVenueImageFile(fileTitle: string, kind: VenueImageKind, lea
     if (schematic && !aerial) return -40;
     if (isHistoricalLayout) score -= 35;
 
-    // Prefer a 45°-style view from the air over a straight-down satellite map.
+    // Prefer a 45°-style view of the track from the air over a straight-down satellite map.
     if (aerial) score += 55;
     if (nadir) score -= 25;
     if (/\.jpe?g/.test(name)) score += 20;
@@ -157,7 +157,23 @@ export function scoreVenueImageFile(fileTitle: string, kind: VenueImageKind, lea
     if (name.endsWith(".svg")) return -80;
     if (/\.jpe?g/.test(name)) score += 18;
     if (name.endsWith(".png")) score += 8;
-    if (/aerial|panorama|stadium|estadio/.test(name)) score += 16;
+
+    // Prefer a full exterior / facade over aerial or interior shots (MOT-53).
+    if (/exterior|facade|façade|outside|entrance|front[_ ]?view|street[_ ]?view/.test(name)) {
+      score += 40;
+    }
+    if (/stand|tribune|haupttribüne|grandstand/.test(name) && !/crowd|fans|supporters/.test(name)) {
+      score += 12;
+    }
+    if (/stadium|estadio|arena|ground/.test(name)) score += 10;
+
+    if (/aerial|drone|helicopter|bird.?s.?eye|from[_ ]?(the[_ ])?(air|above)|satellite/.test(name)) {
+      score -= 30;
+    }
+    if (/interior|inside|dressing|locker|tunnel|pitch[_ ]?view|night[_ ]?match|crowd|fans|supporters|concourse/.test(name)) {
+      score -= 25;
+    }
+    if (/panorama/.test(name) && !/exterior|facade|façade/.test(name)) score -= 8;
   }
   return score;
 }
@@ -173,23 +189,32 @@ function bestSrcsetUrl(item: MediaItem): string | undefined {
   return src ? stripTracking(absoluteWikiUrl(src)) : undefined;
 }
 
-function preferUploadUrl(info: { thumburl?: string; url?: string; mime?: string }): string | null {
+function preferUploadUrl(
+  info: { thumburl?: string; url?: string; mime?: string },
+  preferOriginal = false
+): string | null {
   if (!info.mime?.startsWith("image/") || info.mime.includes("svg")) return null;
   const original = info.url ? stripTracking(info.url) : "";
   const thumb = info.thumburl ? stripTracking(info.thumburl) : "";
+  // Stadiums: prefer the full-resolution original when Commons hosts it on upload.wikimedia.org.
+  if (preferOriginal && original.includes("upload.wikimedia.org")) return original;
   // Next/Image allowlists upload.wikimedia.org; Commons now serves some thumbs from thumb.wikimedia.org.
   if (thumb.includes("upload.wikimedia.org")) return thumb;
   if (original.includes("upload.wikimedia.org")) return original;
   return thumb || original || null;
 }
 
-async function fileOriginalUrl(fileTitle: string, api = WIKI_API): Promise<string | null> {
+async function fileOriginalUrl(
+  fileTitle: string,
+  api = WIKI_API,
+  preferOriginal = false
+): Promise<string | null> {
   const params = new URLSearchParams({
     action: "query",
     titles: fileTitle,
     prop: "imageinfo",
     iiprop: "url|mime",
-    iiurlwidth: "1600",
+    iiurlwidth: preferOriginal ? "2400" : "1600",
     format: "json",
   });
   const data = (await wikiJson(`${api}?${params.toString()}`)) as {
@@ -198,7 +223,7 @@ async function fileOriginalUrl(fileTitle: string, api = WIKI_API): Promise<strin
   const page = Object.values(data?.query?.pages ?? {})[0];
   const info = page?.imageinfo?.[0];
   if (!info) return null;
-  return preferUploadUrl(info);
+  return preferUploadUrl(info, preferOriginal);
 }
 
 async function commonsFileSearch(query: string): Promise<string[]> {
@@ -242,6 +267,29 @@ async function pickCommonsAerialUrl(name: string): Promise<string | null> {
   return null;
 }
 
+async function pickCommonsExteriorUrl(name: string): Promise<string | null> {
+  const queries = [
+    `${name} exterior`,
+    `${name} stadium exterior`,
+    `${name} facade`,
+    `${name} outside`,
+  ];
+
+  for (const query of queries) {
+    const files = await commonsFileSearch(query);
+    const ranked = files
+      .map((title) => ({ title, score: scoreVenueImageFile(title, "stadium", false) }))
+      .filter((entry) => entry.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    for (const { title } of ranked.slice(0, 6)) {
+      const url = await fileOriginalUrl(title, COMMONS_API, true);
+      if (url && !url.toLowerCase().includes(".svg")) return url;
+    }
+  }
+  return null;
+}
+
 async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<string | null> {
   const encoded = encodeURIComponent(wikiTitle.replace(/ /g, "_"));
   const media = (await wikiJson(`https://en.wikipedia.org/api/rest_v1/page/media-list/${encoded}`)) as {
@@ -258,12 +306,13 @@ async function pickPhotoUrl(wikiTitle: string, kind: VenueImageKind): Promise<st
     if (kind === "circuit" && item.title && isCircuitSchematic(item.title) && !isObliqueAerial(item.title)) {
       continue;
     }
-    const fromSet = bestSrcsetUrl(item);
-    if (fromSet) {
-      if (kind === "circuit" || !fromSet.toLowerCase().includes(".svg")) return fromSet;
+    // Stadiums: skip soft srcset thumbs when we can load a higher-res original.
+    if (kind !== "stadium") {
+      const fromSet = bestSrcsetUrl(item);
+      if (fromSet && !fromSet.toLowerCase().includes(".svg")) return fromSet;
     }
     if (item.title) {
-      const original = await fileOriginalUrl(item.title);
+      const original = await fileOriginalUrl(item.title, WIKI_API, kind === "stadium");
       if (original) {
         if (kind === "circuit" && original.toLowerCase().includes(".svg")) continue;
         return original;
@@ -284,14 +333,17 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
     ];
   }
   const stadiumish = /stadium|estadio|arena|ground|park|field/i.test(trimmed);
-  const queries = stadiumish ? [trimmed] : [`${trimmed} football stadium`, `${trimmed} stadium`];
-  if (hint?.trim()) queries.unshift(`${trimmed} ${hint.trim()} stadium`);
+  const queries = stadiumish
+    ? [`${trimmed} exterior`, trimmed]
+    : [`${trimmed} football stadium exterior`, `${trimmed} football stadium`, `${trimmed} stadium`];
+  if (hint?.trim()) queries.unshift(`${trimmed} ${hint.trim()} stadium exterior`);
   return queries;
 }
 
 /**
  * Photograph of a race circuit or football stadium from Wikipedia / Wikimedia Commons.
  * Circuits prefer an oblique aerial (from the air at ~45°), not a flat layout map.
+ * Stadiums prefer a full exterior / facade photograph (MOT-53).
  */
 export async function resolveVenueImage(input: {
   kind: VenueImageKind;
@@ -310,6 +362,13 @@ export async function resolveVenueImage(input: {
       const aerialUrl = await pickCommonsAerialUrl(name);
       if (aerialUrl) {
         const value = { url: aerialUrl, alt: `${name} from the air` };
+        cacheSet(cacheKey, value);
+        return value;
+      }
+    } else {
+      const exteriorUrl = await pickCommonsExteriorUrl(name);
+      if (exteriorUrl) {
+        const value = { url: exteriorUrl, alt: `${name} exterior` };
         cacheSet(cacheKey, value);
         return value;
       }
@@ -332,7 +391,9 @@ export async function resolveVenueImage(input: {
     }
 
     const url = (await pickPhotoUrl(wikiTitle, input.kind)) ?? null;
-    const value = url ? { url, alt: wikiTitle } : null;
+    const value = url
+      ? { url, alt: input.kind === "stadium" ? `${wikiTitle} exterior` : wikiTitle }
+      : null;
     cacheSet(cacheKey, value);
     return value;
   } catch {

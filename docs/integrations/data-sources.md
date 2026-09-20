@@ -14,9 +14,9 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 ## ESPN (club leagues — scrape fallback)
 
 - No auth; public JSON scoreboard API
-- Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard`
-- Module: `lib/espn-league-data.ts`
-- Used when `FOOTBALL_DATA_API_KEY` is missing or football-data.org is still on the prior season; fresher than the openfootball mirror for live results
+- Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard?dates={year}`
+- Module: `lib/espn-league-data.ts` — merges **start + end calendar years**, filters to Jul(start)→Jun(end) so prior-season spring fixtures drop out
+- Used alongside football-data.org; fresher than the openfootball mirror for live results
 - Next.js fetch: `no-store` so a page open hits ESPN for a fresh table
 - Client `router.refresh()` on mount (and every 3 minutes while the page stays open)
 - Cron: `/api/cron/league-sync` also revalidates PL + La Liga pages every 2 hours
@@ -24,13 +24,13 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 ## openfootball
 
 - No auth; public-domain fixtures/results
-- Club leagues (primary for PL + La Liga): GitHub raw
+- Club leagues (mirror for PL + La Liga): GitHub raw
   `https://raw.githubusercontent.com/openfootball/football.json/master/{season}/{en.1|es.1}.json`
   and, when JSON is missing, football.db text:
   `england/{season}/1-premierleague.txt`, `espana/{season}/1-liga.txt`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
-- Cascade for club leagues: **football-data.org (same season only) → ESPN scoreboard scrape (uncached on page load) → current-season openfootball (JSON → league .txt) → current-season seed**. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started).
+- Cascade for club leagues: **football-data.org + ESPN + current-season openfootball in parallel → pick most finished fixtures** (ties: api → espn → openfootball) → current-season seed. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started). Helper: `lib/league-data-cascade.ts`.
 - Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`vercel.json`) to revalidate `/premier-league` and `/la-liga`. No Cursor agent needed — Cron runs on Vercel. `CRON_SECRET` is optional hardening only.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
@@ -49,7 +49,7 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 
 - Config: `data/sources/{slug}.json`
 - Mix of outlet RSS + Google News journalist feeds
-- **X / APIXAPI (MOT-48):** when `APIXAPI_KEY` (or `APITWITTER_API_KEY`) is set, `/api/news` prefers live X timelines for `newsHandles` via ApiTwitter (`api.apitwitter.com`). Falls back to RSS if the key is missing or timelines return empty.
+- **X / APIXAPI (MOT-48):** when `APIXAPI_KEY` (or `APITWITTER_API_KEY`) is set, `/api/news` prefers live X timelines for `newsHandles` via ApiTwitter (`api.apitwitter.com`). Response includes `provider: "x" | "rss"` and `xSkipReason` when falling back (`unconfigured` | `http_error` | `empty` | `filtered_empty`). Falls back to RSS if the key is missing or timelines return empty.
 - Parse: `fast-xml-parser` in `lib/news.ts`; X path in `lib/x-news.ts`
 - Media: RSS `media:content` / `media:thumbnail` / `enclosure` (object or array), HTML `<img>` / `<iframe>` in descriptions, Atom `media:group`
 - Google News items have no thumbnails in the feed. `/api/news` resolves `news.google.com/rss/articles/CBMi…` to the publisher URL (`lib/google-news.ts`) and scrapes `og:image` / `og:video` / `twitter:player` from that page (`lib/news-media.ts`). If the article page is blocked, it falls back to the publisher's own RSS (`/feed`, `/rss.xml`) and matches the story by URL. Enrichment runs only on the returned page (3 items) or the opened detail, with a 30-minute in-process cache.
@@ -66,11 +66,11 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
 
 ## Venue photos
 
-- Next-event card: Wikipedia / Wikimedia Commons (F1 circuits prefer oblique aerial photos from ~45°; stadiums prefer photographs)
-- F1 uses the circuit (prefer aerial track photos, skip SVG/layout maps); football uses the match stadium or the home club’s ground
+- Next-event card: Wikipedia / Wikimedia Commons (F1 circuits prefer oblique aerial photos from ~45°; stadiums prefer **full exterior / facade** photographs — MOT-53)
+- F1 uses the circuit (prefer aerial track photos, skip SVG/layout maps); football uses Commons exterior search then wiki media-list with exterior-biased scoring
 - Club home grounds: `data/pl-home-venues.json`, `data/la-liga-home-venues.json` fill empty openfootball venues for the featured card
 - Past-match modal fetches `/api/venue-image` so the same stadium photo can load after a click
-- Module: `lib/venue-image.ts`, `lib/club-home-venues.ts`
+- Module: `lib/venue-image.ts` (`CACHE_VERSION` bumped when scoring changes), `lib/club-home-venues.ts`
 
 ## Other
 

@@ -1,7 +1,8 @@
 # User reports fix plan
 
 **Pulled:** 2026-09-20 from `GET https://sports.motempo.com/api/feedback/recent`  
-**Open Linear issues:** 4 (`openCount: 4`) · **In-scope for Motempo/sports:** 3  
+**Status:** Implemented on branch `cursor/user-reports-fix-plan-0479` (MOT-52 / MOT-53 / MOT-48). MOT-46 remains Music-only.  
+**Open Linear issues at pull:** 4 (`openCount: 4`) · **In-scope for Motempo/sports:** 3  
 **Out of scope:** MOT-46 (`[music/explore]`) — route to Motempo Music
 
 Full Linear bodies are truncated by `/api/feedback/recent` (`descriptionPreview` = first line, 160 chars). Titles below use the API text; ellipsis marks truncation.

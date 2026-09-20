@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { enrichNewsItems, fetchNewsItems } from "@/lib/news";
+import { enrichNewsItems, fetchNewsFeed, fetchNewsItems } from "@/lib/news";
 import { CURRENT_SPORT_SLUG } from "@/lib/sports";
 
 export const dynamic = "force-dynamic";
@@ -23,8 +23,17 @@ export async function GET(request: NextRequest) {
 
   const offset = parseInt(searchParams.get("offset") ?? "0", 10);
   const limit = parseInt(searchParams.get("limit") ?? "3", 10);
-  const all = await fetchNewsItems(sport);
-  const items = await enrichNewsItems(all.slice(offset, offset + limit));
+  const feed = await fetchNewsFeed(sport);
+  const items = await enrichNewsItems(feed.items.slice(offset, offset + limit));
 
-  return NextResponse.json({ items, total: all.length, sport }, { headers: NO_CACHE_HEADERS });
+  return NextResponse.json(
+    {
+      items,
+      total: feed.items.length,
+      sport,
+      provider: feed.provider,
+      ...(feed.xSkipReason ? { xSkipReason: feed.xSkipReason } : {}),
+    },
+    { headers: NO_CACHE_HEADERS }
+  );
 }

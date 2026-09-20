@@ -17,11 +17,12 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 
 | Layer | Detail |
 |-------|--------|
-| Primary | openfootball `en.1.json`, else `england/{season}/1-premierleague.txt` for the **current** season (`2026-27`, …) |
-| Fallback | football-data `PL` only when that API is already on the same season (+ scorers for Golden Boot when key has access) |
+| Live | football-data.org `PL` (when key has access + same season) and ESPN `eng.1` scoreboard (calendar-year merge) |
+| Mirror | openfootball `en.1.json`, else `england/{season}/1-premierleague.txt` for the **current** season (`2026-27`, …) |
 | Seed | `data/pl-clubs-seed.json` (2026/27 clubs) + short matchday grid when mirrors lag |
+| Selection | Parallel fetch; pick the board with the **most finished fixtures** (ties: api → espn → openfootball) |
 | Standings | `lib/league-standings.ts` — zones 1–4 CL, 5 EL, 6 ECL, 18–20 relegated |
-| Key libs | `lib/premier-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
+| Key libs | `lib/premier-league-data.ts`, `league-data-cascade.ts`, `espn-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
 
 ## UI
 

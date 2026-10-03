@@ -4,10 +4,12 @@
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 15 App Router + React 19 + TypeScript |
+| Framework | Next.js 15.5.27 (pinned) App Router + React 19 + TypeScript |
 | Styling | Tailwind 4 + Radix/shadcn primitives |
 | Hosting | Vercel · `sports.motempo.com` |
 | Package | `@workspace/motempo-sports` |
+
+`next` and `eslint-config-next` are pinned to **15.5.27** (latest 15.5 security line). Stay on Next 15. `overrides` force `postcss@8.5.28`, `nanoid@3.3.19`, and `sharp@0.35.5`: Next 15.5.27 still depends on PostCSS 8.4.31, and its Sharp range can still resolve 0.34.x.
 
 Most sports data is **not** exposed as REST. Server Components (`components/sports/*PageContent.tsx`) fetch and stream UI. HTTP BFF routes cover **news, facts, and feedback only**.
 

@@ -59,23 +59,29 @@ async function fetchSuccessPayload(
   url: string,
   headers: [string, string][],
   label: string,
-  signal?: AbortSignal
+  signal: AbortSignal | undefined,
+  prepareBody?: (body: string) => string
 ): Promise<Pick<UpstreamSuccess, "body" | "contentType">> {
   console.info(`[sports-cache] miss ${label}`);
   const res = await fetch(url, { headers, signal });
-  const body = await res.text();
+  let body = await res.text();
   if (res.status !== 200) {
     console.info(`[sports-cache] skip ${res.status} ${label}`);
     throw new UpstreamHttpError(res.status, body);
   }
-  return { body, contentType: res.headers.get("content-type") };
+  if (prepareBody) body = prepareBody(body);
+  return {
+    body,
+    contentType: prepareBody ? "application/json" : res.headers.get("content-type"),
+  };
 }
 
 async function loadShared(
   url: string,
-  init: RequestInit | undefined,
+  init: CachedUpstreamInit | undefined,
   label: string,
-  cacheKey: string
+  cacheKey: string,
+  prepareBody?: (body: string) => string
 ): Promise<UpstreamSuccess> {
   const headers = headerEntries(init?.headers);
   const signal = init?.signal ?? undefined;
@@ -83,7 +89,7 @@ async function loadShared(
   const run = unstable_cache(
     async () => {
       ran = true;
-      return fetchSuccessPayload(url, headers, label, signal);
+      return fetchSuccessPayload(url, headers, label, signal, prepareBody);
     },
     [cacheKey],
     {
@@ -93,7 +99,7 @@ async function loadShared(
   );
 
   const stored = await run();
-  if (!ran) console.info(`[sports-cache] hit ${label}`);
+  if (!ran) console.info(`[sports-cache] hit shared ${label}`);
   return {
     ok: true,
     status: 200,
@@ -110,22 +116,40 @@ function toResponse(result: UpstreamResult): Response {
   return new Response(result.body, { status: result.status, headers });
 }
 
+export type CachedUpstreamInit = RequestInit & {
+  /**
+   * Distinguishes a trimmed body from the raw URL. Required when `prepareBody`
+   * changes what gets stored.
+   */
+  cacheShape?: string;
+};
+
+/**
+ * `prepareBody` runs only on a network miss, before the body is stored.
+ * Use it to drop fields the Data Cache cannot hold (2MB per entry).
+ */
 export async function cachedUpstreamFetch(
   input: string | URL,
-  init?: RequestInit
+  init?: CachedUpstreamInit,
+  prepareBody?: (body: string) => string
 ): Promise<Response> {
   const url = typeof input === "string" ? input : input.toString();
   const label = labelFor(url);
   const windowId = upstreamWindow();
-  const cacheKey = upstreamCacheKey(url, tokenFingerprint(init?.headers), windowId);
+  const cacheKey = upstreamCacheKey(
+    url,
+    tokenFingerprint(init?.headers),
+    windowId,
+    init?.cacheShape ?? ""
+  );
 
   const result = await readThroughUpstream({
     memoryKey: cacheKey,
     window: windowId,
     memory,
     inflight,
-    onMemoryHit: () => console.info(`[sports-cache] hit ${label}`),
-    load: () => loadShared(url, init, label, cacheKey),
+    onMemoryHit: () => console.info(`[sports-cache] hit memory ${label}`),
+    load: () => loadShared(url, init, label, cacheKey, prepareBody),
   });
 
   return toResponse(result);

@@ -16,8 +16,13 @@ export function upstreamWindow(now = Date.now(), ttlMs = SPORTS_UPSTREAM_TTL_MS)
   return Math.floor(now / ttlMs);
 }
 
-export function upstreamCacheKey(url: string, tokenFingerprint: string, window: number): string {
-  return JSON.stringify({ url, tokenFingerprint, window });
+export function upstreamCacheKey(
+  url: string,
+  tokenFingerprint: string,
+  window: number,
+  shape = ""
+): string {
+  return JSON.stringify({ url, tokenFingerprint, window, shape });
 }
 
 export class UpstreamHttpError extends Error {

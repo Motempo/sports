@@ -168,7 +168,7 @@ Upstream sports payloads (football-data, ESPN scoreboards, openfootball / GitHub
 |-------|----------------|
 | In-process map | Dedupes concurrent misses on one isolate; repeat hits in the same 90s window do not call out |
 | `unstable_cache` time bucket | Shared Next.js Data Cache across Hobby isolates. The bucket id changes every 90s, so the first request of the next window **blocks** on a fresh upstream read (a full-time result shows up within one TTL, not one extra stale-while-revalidate hop) |
-| What is stored | HTTP **200** bodies only. A 429 (or any other status) is not written. That request still falls through the cascade (football-data → ESPN → openfootball → seed). The next request tries football-data again |
+| What is stored | HTTP **200** bodies only. A 429 (or any other status) is not written. That request still falls through the cascade (football-data → ESPN → openfootball → seed). The next request tries football-data again. ESPN boards are trimmed before storage so they stay under the Data Cache 2MB entry cap |
 
 GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-photo fetches stay `no-store`.
 

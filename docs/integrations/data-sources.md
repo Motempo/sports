@@ -18,7 +18,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard?dates={year}`
 - Module: `lib/espn-league-data.ts` — merges **start + end calendar years**, filters to Jul(start)→Jun(end) so prior-season spring fixtures drop out
 - Used alongside football-data.org; fresher than the openfootball mirror for live results
-- Fetched through `cachedUpstreamFetch` (90s shared Data Cache). A page open inside that window reuses the two season boards (start year + end year) instead of calling ESPN again
+- Fetched through `cachedUpstreamFetch` (90s shared Data Cache). A page open inside that window reuses the two season boards (start year + end year) instead of calling ESPN again. The stored body keeps id, date, competitors, status, and venue so it fits the Data Cache 2MB entry cap
 - Client `router.refresh()` on mount (and every 3 minutes while the page stays open) re-renders the dynamic page; it does not bypass the upstream TTL
 - Cron: `/api/cron/league-sync` calls `revalidatePath` for PL + La Liga every 2 hours. Upstream freshness is the 90s data cache, not that route revalidation
 

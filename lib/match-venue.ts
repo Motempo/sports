@@ -3,7 +3,7 @@ import venueCacheSeed from "@/data/wc2026-venue-cache.json";
 import knockoutFixtures from "@/data/wc2026-knockout-fixtures.json";
 import { grokChatJson } from "@/lib/grok";
 import { lookupGroupFixture } from "@/lib/wc2026-fixtures";
-import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
+import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo } from "@/lib/types";
 
 type StadiumEntry = {
@@ -152,8 +152,9 @@ async function fetchVenueFromFootballData(
   matchId: number
 ): Promise<VenueRecord | undefined> {
   try {
-    const res = await cachedUpstreamFetch(`https://api.football-data.org/v4/matches/${matchId}`, {
+    const res = await fetch(`https://api.football-data.org/v4/matches/${matchId}`, {
       headers: { "X-Auth-Token": apiKey },
+      ...uncachedFetch,
     });
     if (!res.ok) return undefined;
 

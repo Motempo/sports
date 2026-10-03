@@ -149,18 +149,61 @@ function parseEspnEvent(
   };
 }
 
+/**
+ * ESPN's raw season board includes logos, odds, and broadcasts and can exceed
+ * the Data Cache's 2MB entry cap. Keep the fields the table actually reads.
+ */
+export function trimEspnScoreboardBody(body: string): string {
+  const data = JSON.parse(body) as { events?: EspnEvent[] };
+  const events = (data.events ?? []).map((event) => {
+    const competition = event.competitions?.[0];
+    return {
+      id: event.id,
+      date: event.date,
+      competitions: competition
+        ? [
+            {
+              competitors: (competition.competitors ?? []).map((competitor) => ({
+                homeAway: competitor.homeAway,
+                score: competitor.score,
+                team: competitor.team
+                  ? {
+                      displayName: competitor.team.displayName,
+                      shortDisplayName: competitor.team.shortDisplayName,
+                      abbreviation: competitor.team.abbreviation,
+                      logo: competitor.team.logo,
+                    }
+                  : undefined,
+              })),
+              status: competition.status?.type ? { type: competition.status.type } : undefined,
+              venue: competition.venue?.fullName
+                ? { fullName: competition.venue.fullName }
+                : undefined,
+            },
+          ]
+        : [],
+    };
+  });
+  return JSON.stringify({ events });
+}
+
 async function fetchEspnScoreboardEvents(
   league: EspnLeagueSlug,
   dates: string
 ): Promise<EspnEvent[]> {
   const url = `${ESPN_BASE}/${league}/scoreboard?limit=1000&dates=${dates}`;
-  const res = await cachedUpstreamFetch(url, {
-    headers: {
-      Accept: "application/json",
-      // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
-      "User-Agent": "curl/8.5.0",
+  const res = await cachedUpstreamFetch(
+    url,
+    {
+      cacheShape: "espn-scoreboard",
+      headers: {
+        Accept: "application/json",
+        // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
+        "User-Agent": "curl/8.5.0",
+      },
     },
-  });
+    trimEspnScoreboardBody
+  );
   if (!res.ok) return [];
   const data = (await res.json()) as { events?: EspnEvent[] };
   return data.events ?? [];

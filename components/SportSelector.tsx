@@ -49,7 +49,10 @@ function SportChip({ sport, activeSlug }: { sport: SportConfig; activeSlug: stri
         )}
         aria-hidden
       />
-      <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">{sport.label}</span>
+      <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">
+        {sport.label}
+        {!sport.available ? <span className="sr-only">, unavailable</span> : null}
+      </span>
     </>
   );
 
@@ -58,7 +61,6 @@ function SportChip({ sport, activeSlug }: { sport: SportConfig; activeSlug: stri
     return (
       <span className={chipClass} aria-current={isActive ? "page" : undefined}>
         {inner}
-        <span className="sr-only">, unavailable</span>
       </span>
     );
   }

@@ -31,7 +31,10 @@ Max ~2–3 units mobile, ~3–4 desktop (plan guidance).
 ## Networks
 
 1. **Google AdSense** — primary launch path  
-   - Site verification / loader script is always in `app/layout.tsx` `<head>` (`ca-pub-8086154575408312`, overridable via `NEXT_PUBLIC_ADSENSE_CLIENT`)  
+   - Site verification uses `<meta name="google-adsense-account" content="ca-pub-…">` from root metadata (`app/layout.tsx`). Publisher id defaults to `ca-pub-8086154575408312` and follows `NEXT_PUBLIC_ADSENSE_CLIENT`.  
+   - This is Google's ownership check for sites that should not place the AdSense code snippet on every page ([Connect your site to AdSense](https://support.google.com/adsense/answer/7584263)). It does not request `pagead2.googlesyndication.com`.  
+   - `public/ads.txt` stays the authorized-sellers file (`google.com, pub-8086154575408312, DIRECT, …`). Ads.txt does not verify site ownership and does not load scripts.  
+   - `adsbygoogle.js` is inserted by `AdProvider` only after the visitor accepts ad cookies, and only when `NEXT_PUBLIC_ADS_ENABLED`, `NEXT_PUBLIC_ADS_PLACEMENTS_LIVE`, and `NEXT_PUBLIC_ADS_PROVIDER=adsense` are set. Consent Mode defaults stay `denied` in the root layout and update to `granted` before the loader is added.  
    - Ad units still only render when placements are live and the visitor accepts ad cookies  
 2. **NitroPay** — optional sports-friendly A/B  
 3. Future: Mediavine Journey / Raptive when traffic thresholds hit  

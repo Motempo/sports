@@ -29,7 +29,7 @@ export interface AdSlotConfig {
 
 const truthy = (value: string | undefined): boolean => value?.trim().toLowerCase() === "true";
 
-/** Official AdSense publisher id for Motempo (site verification + ad units). */
+/** Official AdSense publisher id for Motempo (meta-tag verification + ad units). */
 export const ADSENSE_PUBLISHER_ID = "ca-pub-8086154575408312";
 
 function normalizeAdsenseClient(raw: string | undefined): string {

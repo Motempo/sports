@@ -20,6 +20,7 @@ import {
   adsEnabled,
   adsPlacementsLive,
   adProvider,
+  adsenseClientId,
   isAdsStackConfigured,
   nitroSiteId,
 } from "@/lib/ads-config";
@@ -46,6 +47,40 @@ function pushConsentUpdate(granted: boolean): void {
       analytics_storage: granted ? "denied" : "denied",
     },
   ]);
+}
+
+const ADSENSE_LOADER_ATTR = "data-motempo-adsense";
+
+/**
+ * Insert adsbygoogle.js only after Consent Mode is granted.
+ * The tag is omitted entirely unless ads are on and the visitor accepted.
+ */
+function loadAdsenseAfterConsent(clientId: string): void {
+  if (document.querySelector(`script[${ADSENSE_LOADER_ATTR}]`)) return;
+
+  const w = window as Window & {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  };
+  w.dataLayer = w.dataLayer ?? [];
+  const granted = {
+    ad_storage: "granted",
+    ad_user_data: "granted",
+    ad_personalization: "granted",
+    analytics_storage: "denied",
+  };
+  if (typeof w.gtag === "function") {
+    w.gtag("consent", "update", granted);
+  } else {
+    w.dataLayer.push(["consent", "update", granted]);
+  }
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
+  script.crossOrigin = "anonymous";
+  script.setAttribute(ADSENSE_LOADER_ATTR, "true");
+  document.head.appendChild(script);
 }
 
 export function AdProvider({ children }: { children: ReactNode }) {
@@ -87,6 +122,12 @@ export function AdProvider({ children }: { children: ReactNode }) {
   );
 
   const showNitroScript = adsAllowed && adProvider === "nitro" && nitroSiteId;
+  const showAdsenseScript = adsAllowed && adProvider === "adsense" && Boolean(adsenseClientId);
+
+  useEffect(() => {
+    if (!showAdsenseScript) return;
+    loadAdsenseAfterConsent(adsenseClientId);
+  }, [showAdsenseScript]);
 
   return (
     <AdConsentContext.Provider value={value}>

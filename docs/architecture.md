@@ -221,8 +221,9 @@ Bug reports keep the separate shadcn dialog in `components/ui/dialog.tsx`.
 3. Rate limit is **per-instance memory** — not durable across serverless isolates. `POST /api/feedback` and `POST /api/feedback/improve` each allow 10 requests per client per hour. The bucket key is the platform client IP: the rightmost hop of `x-vercel-forwarded-for`, then `x-real-ip` (the address `@vercel/functions` `ipAddress()` reads). A client-supplied `x-forwarded-for` is not a key, so a spoofed first hop cannot open a new bucket.  
 4. `POST /api/feedback` 500 responses are a generic message. Linear GraphQL text is logged on the server and is not copied into the response.  
 5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
-6. Ads category blocks are dashboard config, not code.
-7. News article fetches follow redirects manually (`lib/safe-http.ts`, max 5) and refuse loopback, private, link-local, metadata, and unique-local targets, including IPv4-mapped IPv6 and non-canonical numeric IPv4. Hostnames that resolve to those addresses are not requested.
+6. Ads category blocks are dashboard config, not code.  
+7. News article fetches follow redirects manually (`lib/safe-http.ts`, max 5) and refuse loopback, private, link-local, metadata, and unique-local targets, including IPv4-mapped IPv6 and non-canonical numeric IPv4. Hostnames that resolve to those addresses are not requested.  
+8. AdSense site ownership is the `google-adsense-account` meta tag. `adsbygoogle.js` is not on the page until the visitor accepts ad cookies and the ad kill switches are on.
 
 ---
 

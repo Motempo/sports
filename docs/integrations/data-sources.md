@@ -45,7 +45,7 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
 | Source | Use |
 |--------|-----|
 | Jolpica Ergast | Calendar, standings, results, circuit win history for next-event copy |
-| OpenF1 | Session start times merge |
+| OpenF1 | Session start, end (`date_end`), and `is_cancelled` merge into the live badge. Without an end time, the badge uses the session-type window in `docs/sports/formula-1.md`. |
 | Seed JSON | Offline / preview |
 | Curated circuit colour | `lib/f1-circuit-facts.ts` — commentator-style track notes (MOT-50) |
 

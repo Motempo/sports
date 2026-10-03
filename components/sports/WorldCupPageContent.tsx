@@ -10,6 +10,7 @@ import { SportHowItWorksSection } from "@/components/sports/SportHowItWorksSecti
 import { SportPageShell } from "@/components/sports/SportPageShell";
 import { GroupStandingsGrid } from "@/components/tournament/GroupStandingsGrid";
 import { GroupStageStatus } from "@/components/tournament/GroupStageStatus";
+import { LiveDataUnavailableNotice } from "@/components/tournament/LiveDataUnavailableNotice";
 import { RulesPrimer } from "@/components/tournament/RulesPrimer";
 import { ThirdPlaceTracker } from "@/components/tournament/ThirdPlaceTracker";
 import { TournamentRail } from "@/components/tournament/TournamentRail";
@@ -18,6 +19,7 @@ import { WorldCupAwardsSection } from "@/components/tournament/WorldCupAwardsSec
 import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsSection";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import { formatUpdatedTime } from "@/lib/match-timezone";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { computeGroupStandings, computeThirdPlaceTracker } from "@/lib/group-standings";
@@ -29,20 +31,17 @@ import {
   showGroupStandingsPrimary,
 } from "@/lib/tournament-phase";
 
-export const revalidate = 120;
-
 export async function WorldCupPageContent() {
   const { matches, groupMatches, todayMatches, upcomingMatches, source } = await fetchMatches();
   const grouped = groupMatchesByRound(matches);
   const phase = detectTournamentPhase(matches, groupMatches);
-  const standingsPrimary = showGroupStandingsPrimary(phase);
+  const liveDataUnavailable = source === "seed";
+  // A failed cascade must not present the knockout tree as a finished tournament.
+  const standingsPrimary = liveDataUnavailable || showGroupStandingsPrimary(phase);
   const standings = computeGroupStandings(groupMatches);
   const thirdPlace = computeThirdPlaceTracker(standings);
   const scheduleMatches = standingsPrimary ? groupMatches : undefined;
-  const lastUpdated = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const lastUpdated = formatUpdatedTime();
   const allMatches = [...groupMatches, ...matches];
   const featuredMatch = selectFeaturedMatch(allMatches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);
@@ -50,9 +49,12 @@ export async function WorldCupPageContent() {
   const awards = await buildWorldCupAwards(allMatches, goalStats);
   const records = buildWorldCupRecords(allMatches, goalStats);
 
+  const unavailableNotice = liveDataUnavailable ? <LiveDataUnavailableNotice /> : null;
+
   const table = standingsPrimary ? (
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
+        {unavailableNotice}
         <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Group Standings</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
@@ -61,12 +63,14 @@ export async function WorldCupPageContent() {
         </div>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
           <div className="min-w-0 flex-1">
-            <GroupStandingsGrid standings={standings} />
-            <ThirdPlaceTracker
-              rows={thirdPlace.rows}
-              cutlinePoints={thirdPlace.cutlinePoints}
-              cutlineGd={thirdPlace.cutlineGd}
-            />
+            <GroupStandingsGrid standings={standings} showZones={!liveDataUnavailable} />
+            {liveDataUnavailable ? null : (
+              <ThirdPlaceTracker
+                rows={thirdPlace.rows}
+                cutlinePoints={thirdPlace.cutlinePoints}
+                cutlineGd={thirdPlace.cutlineGd}
+              />
+            )}
             <GroupStageStatus phase={phase} />
           </div>
           <WorldCupStandingsAd />
@@ -76,6 +80,7 @@ export async function WorldCupPageContent() {
   ) : (
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
+        {unavailableNotice}
         <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Knockout Bracket</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
@@ -100,7 +105,13 @@ export async function WorldCupPageContent() {
     <SportPageShell
       activeSportSlug="world-cup"
       autoRefresh
-      rail={<TournamentRail phase={phase} knockoutMatches={matches} />}
+      rail={
+        <TournamentRail
+          phase={phase}
+          knockoutMatches={matches}
+          liveDataUnavailable={liveDataUnavailable}
+        />
+      }
       headerAd={<WorldCupAdPlacements />}
       nextEvent={
         <FeaturedMatchCard

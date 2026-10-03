@@ -8,9 +8,15 @@ import type { MatchInfo } from "@/lib/types";
 interface TournamentRailProps {
   phase: TournamentPhase;
   knockoutMatches: MatchInfo[];
+  /** When the match cascade fell back to the local seed, say so in the intro. */
+  liveDataUnavailable?: boolean;
 }
 
-export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) {
+export function TournamentRail({
+  phase,
+  knockoutMatches,
+  liveDataUnavailable = false,
+}: TournamentRailProps) {
   const steps = getRailSteps();
   const active = getActiveRailStep(phase, knockoutMatches);
   const guide = getTournamentGuide(phase);
@@ -68,7 +74,11 @@ export function TournamentRail({ phase, knockoutMatches }: TournamentRailProps) 
             })}
           </SeasonProgressRailScroller>
         </div>
-        <p className="mt-3 text-[13px] leading-snug text-muted sm:text-[14px]">{guide.intro}</p>
+        <p className="mt-3 text-[13px] leading-snug text-muted sm:text-[14px]">
+          {liveDataUnavailable
+            ? "Live data is unavailable. Scores on this page are not tournament results."
+            : guide.intro}
+        </p>
       </div>
     </section>
   );

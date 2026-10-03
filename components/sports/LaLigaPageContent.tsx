@@ -18,6 +18,7 @@ import { buildLaLigaAwards, fetchLaLigaTopScorer } from "@/lib/la-liga-awards";
 import { fetchLaLigaSeason } from "@/lib/la-liga-data";
 import { buildLaLigaRecords } from "@/lib/la-liga-records";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import { formatUpdatedTime } from "@/lib/match-timezone";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 
@@ -30,10 +31,7 @@ export async function LaLigaPageContent() {
     fetchLaLigaTopScorer(),
   ]);
   const records = buildLaLigaRecords(data, topScorer);
-  const lastUpdated = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const lastUpdated = formatUpdatedTime();
 
   return (
     <SportPageShell

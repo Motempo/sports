@@ -1,4 +1,5 @@
 import type { F1GrandPrix, F1RailStep, F1SeasonPhase } from "@/lib/f1-types";
+import { formatCalendarDate } from "@/lib/match-timezone";
 
 const RACE_WEEKEND_MS = 4 * 24 * 60 * 60 * 1000;
 
@@ -139,10 +140,7 @@ export function showStandingsPrimary(phase: F1SeasonPhase): boolean {
 }
 
 function formatGpDate(date: string): string {
-  return new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  return formatCalendarDate(date);
 }
 
 export function countRacesRemaining(calendar: F1GrandPrix[]): number {

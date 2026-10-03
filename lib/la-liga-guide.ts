@@ -17,7 +17,7 @@ const BASE_SECTIONS: LaLigaGuideSection[] = [
   },
   {
     title: "Tiebreakers",
-    body: "If clubs finish level on points, goal difference separates them, then goals scored.",
+    body: "Level on points, clubs are split by head-to-head points, then head-to-head goal difference, then overall goal difference and goals scored. Until both meetings are played, overall goal difference is used.",
   },
   {
     title: "Europe",

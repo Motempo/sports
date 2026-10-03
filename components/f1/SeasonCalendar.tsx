@@ -1,16 +1,10 @@
 import { cn } from "@/lib/utils";
+import { formatCalendarDate } from "@/lib/match-timezone";
 import type { F1GrandPrix } from "@/lib/f1-types";
 
 interface SeasonCalendarProps {
   calendar: F1GrandPrix[];
   highlightRound?: number;
-}
-
-function formatGpDate(date: string): string {
-  return new Date(`${date}T12:00:00Z`).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
 }
 
 function statusBadge(status: F1GrandPrix["status"]): { label: string; className: string } {
@@ -68,7 +62,7 @@ export function SeasonCalendar({ calendar, highlightRound }: SeasonCalendarProps
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1">
               <span className="text-[12px] tabular-nums text-muted sm:text-[13px]">
-                {formatGpDate(gp.date)}
+                {formatCalendarDate(gp.date)}
               </span>
               <span
                 className={cn(

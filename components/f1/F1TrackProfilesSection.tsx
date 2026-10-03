@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
 import type { F1TrackProfile } from "@/lib/f1-profiles";
 import type { F1GrandPrixStatus } from "@/lib/f1-types";
+import { formatCalendarDate } from "@/lib/match-timezone";
 import { cn, getFlagUrl } from "@/lib/utils";
 
 interface F1TrackProfilesSectionProps {
@@ -39,10 +40,7 @@ function trackStatusLabel(status: F1GrandPrixStatus): string {
 }
 
 function TrackProfileCard({ track, focused }: { track: F1TrackProfile; focused?: boolean }) {
-  const when = new Date(`${track.date}T12:00:00Z`).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const when = formatCalendarDate(track.date);
 
   return (
     <article

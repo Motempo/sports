@@ -10,7 +10,7 @@ import type {
   F1TitleFightInsight,
 } from "@/lib/f1-types";
 import { countRacesRemaining, getActiveGrandPrix } from "@/lib/f1-phase";
-import { uncachedFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import seedData from "@/data/f1-season-seed.json";
 
 const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
@@ -266,10 +266,7 @@ async function fetchSeasonWinners(
 ): Promise<Map<number, { name: string; code?: string }>> {
   const winners = new Map<number, { name: string; code?: string }>();
   try {
-    const res = await fetch(
-      `${JOLPICA_BASE}/${season}/results/1.json?limit=100`,
-      uncachedFetch
-    );
+    const res = await cachedUpstreamFetch(`${JOLPICA_BASE}/${season}/results/1.json?limit=100`);
     if (!res.ok) return winners;
 
     const data = (await res.json()) as { MRData: { RaceTable: { Races?: JolpicaRace[] } } };
@@ -335,7 +332,7 @@ async function fetchOpenF1Sessions(
     const gp = calendar.find((g) => g.round === targetRound);
     if (!gp) return [];
 
-    const res = await fetch(`${OPENF1_BASE}/sessions?year=${season}`, uncachedFetch);
+    const res = await cachedUpstreamFetch(`${OPENF1_BASE}/sessions?year=${season}`);
     if (!res.ok) return [];
 
     const data = (await res.json()) as OpenF1Session[];
@@ -430,9 +427,9 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
 
   try {
     const [calRes, dsRes, csRes, seasonWinners] = await Promise.all([
-      fetch(`${JOLPICA_BASE}/${season}.json`, uncachedFetch),
-      fetch(`${JOLPICA_BASE}/${season}/driverStandings.json`, uncachedFetch),
-      fetch(`${JOLPICA_BASE}/${season}/constructorStandings.json`, uncachedFetch),
+      cachedUpstreamFetch(`${JOLPICA_BASE}/${season}.json`),
+      cachedUpstreamFetch(`${JOLPICA_BASE}/${season}/driverStandings.json`),
+      cachedUpstreamFetch(`${JOLPICA_BASE}/${season}/constructorStandings.json`),
       fetchSeasonWinners(season),
     ]);
 
@@ -463,7 +460,9 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
 
     let lastRaceResults: F1RaceResult[] = [];
     if (standingsRound > 0) {
-      const lastRes = await fetch(`${JOLPICA_BASE}/${season}/${standingsRound}/results.json`, uncachedFetch);
+      const lastRes = await cachedUpstreamFetch(
+        `${JOLPICA_BASE}/${season}/${standingsRound}/results.json`
+      );
       if (lastRes.ok) {
         lastRaceResults = parseRaceResults(await lastRes.json());
       }

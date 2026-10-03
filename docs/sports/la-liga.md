@@ -16,13 +16,13 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 | Mirror | openfootball `es.1.json`, else `espana/{season}/1-liga.txt` for the **current** season |
 | Seed | `data/la-liga-clubs-seed.json` (2026/27 clubs) + current-season preview grid when mirrors lag |
 | Selection | Same freshest-finished-match cascade as Premier League (`lib/league-data-cascade.ts`) |
-| Standings | Reuses `lib/league-standings.ts` + PL zone helper |
+| Standings | `lib/la-liga-standings.ts` — points, then head-to-head (mini-table when 3+ clubs are level; both meetings required), then overall goal difference and goals scored |
 | Key libs | `la-liga-data.ts`, `espn-league-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
 
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
-- League table refetches live ESPN/API data when the page opens
+- League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream payloads share the 90s sports cache with Premier League
 - Finished fixtures in Matches open a next-match-style detail modal
 - `LaLigaSeasonRail`, reuses PL `LeagueTable` + `RaceTracker`
 - `HowLaLigaWorks`, news/facts, ads, OG image
@@ -33,7 +33,7 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 |-----|-------|
 | No awards module/section | PL has Golden Boot + table-derived |
 | No records module/section | Missing |
-| Zones | Still PL `zoneForPosition` naming (spots OK-ish for modern La Liga) |
+| Zones | Still hardcoded 1–4 Champions League, 5 Europa League, 6 Conference League, 18–20 relegation in `la-liga-standings.ts` and `league-standings.ts`. Not adjusted for the UEFA coefficient or Copa del Rey |
 | Types | Imports race insight from `premier-league-types` |
 | Fun facts | Thinner curated set (10 vs PL 12) |
 

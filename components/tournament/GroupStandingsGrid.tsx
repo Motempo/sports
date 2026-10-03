@@ -7,6 +7,8 @@ import { TeamEmblem } from "@/components/ui/TeamEmblem";
 
 interface GroupStandingsGridProps {
   standings: GroupStandings[];
+  /** Real tables paint qualification zones. The seed fallback leaves them off. */
+  showZones?: boolean;
 }
 
 const ZONE_STYLES: Record<QualificationZone, string> = {
@@ -14,7 +16,13 @@ const ZONE_STYLES: Record<QualificationZone, string> = {
   THIRD_BUBBLE: "border-l-2 border-l-amber-500",
   ELIMINATED: "border-l-2 border-l-transparent opacity-70",
 };
-function GroupCard({ group }: { group: GroupStandings }) {
+function GroupCard({
+  group,
+  showZones,
+}: {
+  group: GroupStandings;
+  showZones: boolean;
+}) {
   return (
     <div className="rounded-2xl border border-border bg-background p-3">
       <div className="mb-2 flex items-center justify-between">
@@ -29,7 +37,7 @@ function GroupCard({ group }: { group: GroupStandings }) {
             key={row.team.code}
             className={cn(
               "flex items-center gap-2 rounded-lg px-2 py-1.5",
-              ZONE_STYLES[row.zone]
+              showZones && ZONE_STYLES[row.zone]
             )}
           >
             <span className="w-4 shrink-0 text-[12px] font-bold text-muted">{row.position}</span>
@@ -46,13 +54,13 @@ function GroupCard({ group }: { group: GroupStandings }) {
         ))}
       </div>
       <p className="mt-2 text-[10px] text-muted">
-        Top 2 qualify · 3rd may advance as one of the best 8
+        {showZones ? "Top 2 qualify · 3rd may advance as one of the best 8" : "No matches played"}
       </p>
     </div>
   );
 }
 
-export function GroupStandingsGrid({ standings }: GroupStandingsGridProps) {
+export function GroupStandingsGrid({ standings, showZones = true }: GroupStandingsGridProps) {
   const [activeGroup, setActiveGroup] = useState(standings[0]?.groupId ?? "GROUP_A");
 
   if (standings.length === 0) {
@@ -84,23 +92,25 @@ export function GroupStandingsGrid({ standings }: GroupStandingsGridProps) {
       </div>
 
       <div className="lg:hidden">
-        <GroupCard group={active} />
+        <GroupCard group={active} showZones={showZones} />
       </div>
 
       <div className="hidden gap-3 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         {standings.map((g) => (
-          <GroupCard key={g.groupId} group={g} />
+          <GroupCard key={g.groupId} group={g} showZones={showZones} />
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-muted">
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" /> Top 2 — qualified
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-amber-500" /> 3rd — best-8 race
-        </span>
-      </div>
+      {showZones ? (
+        <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-muted">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Top 2 — qualified
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-amber-500" /> 3rd — best-8 race
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }

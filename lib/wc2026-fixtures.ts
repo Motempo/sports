@@ -1,5 +1,6 @@
 import groupFixtures from "@/data/wc2026-group-fixtures.json";
 import type { MatchInfo } from "@/lib/types";
+import { canonicalTeamCode } from "@/lib/wc-team-codes";
 
 type GroupFixtureDef = {
   fifaMatch: number;
@@ -21,7 +22,7 @@ for (const [key, def] of Object.entries(fixtures)) {
 
 export function groupFixtureKey(match: Pick<MatchInfo, "group" | "homeTeam" | "awayTeam">): string | null {
   if (!match.group) return null;
-  return `${match.group}|${match.homeTeam.code}|${match.awayTeam.code}`;
+  return `${match.group}|${canonicalTeamCode(match.homeTeam.code)}|${canonicalTeamCode(match.awayTeam.code)}`;
 }
 
 export function lookupGroupFixture(
@@ -32,9 +33,15 @@ export function lookupGroupFixture(
   const direct = groupFixtureKey(match);
   if (direct && fixtures[direct]) return fixtures[direct];
 
-  const swapped = `${match.group}|${match.awayTeam.code}|${match.homeTeam.code}`;
-  if (fixtures[swapped]) return fixtures[swapped];
+  const swapped = groupFixtureKey({
+    group: match.group,
+    homeTeam: match.awayTeam,
+    awayTeam: match.homeTeam,
+  });
+  if (swapped && fixtures[swapped]) return fixtures[swapped];
 
-  const canonical = `${match.group}|${[match.homeTeam.code, match.awayTeam.code].sort().join("|")}`;
+  const home = canonicalTeamCode(match.homeTeam.code);
+  const away = canonicalTeamCode(match.awayTeam.code);
+  const canonical = `${match.group}|${[home, away].sort().join("|")}`;
   return fixturesByCanonicalPair.get(canonical);
 }

@@ -4,6 +4,7 @@ import type {
   LeagueStandings,
   LeagueZone,
 } from "@/lib/la-liga-types";
+import { highestFinishedMatchday } from "@/lib/league-matchdays";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 
 const TOTAL_MATCHDAYS = 38;
@@ -224,21 +225,7 @@ function computeForm(code: string, matches: MatchInfo[]): Array<"W" | "D" | "L">
 }
 
 function currentMatchday(matches: MatchInfo[]): number {
-  const finished = matches.filter((m) => m.status === "FINISHED");
-  if (finished.length === 0) return 0;
-  let maxMd = 0;
-  for (const match of finished) {
-    const fromGroup = match.group?.match(/(\d+)/)?.[1];
-    if (fromGroup) maxMd = Math.max(maxMd, Number(fromGroup));
-  }
-  if (maxMd > 0) return Math.min(TOTAL_MATCHDAYS, maxMd);
-  const playedByTeam = finished.reduce<Record<string, number>>((acc, m) => {
-    acc[m.homeTeam.code] = (acc[m.homeTeam.code] ?? 0) + 1;
-    acc[m.awayTeam.code] = (acc[m.awayTeam.code] ?? 0) + 1;
-    return acc;
-  }, {});
-  const played = Math.max(0, ...Object.values(playedByTeam));
-  return Math.min(TOTAL_MATCHDAYS, played);
+  return highestFinishedMatchday(matches, TOTAL_MATCHDAYS);
 }
 
 export function computeLeagueStandings(

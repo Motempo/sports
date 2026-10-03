@@ -16,7 +16,7 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 | Mirror | openfootball `es.1.json`, else `espana/{season}/1-liga.txt` for the **current** season |
 | Seed | `data/la-liga-clubs-seed.json` (2026/27 clubs) + current-season preview grid when mirrors lag |
 | Selection | Same freshest-finished-match cascade as Premier League (`lib/league-data-cascade.ts`) |
-| Standings | `lib/la-liga-standings.ts` — points, then head-to-head (mini-table when 3+ clubs are level; both meetings required), then overall goal difference and goals scored |
+| Standings | `lib/la-liga-standings.ts` — points, then head-to-head (mini-table when 3+ clubs are level; both meetings required), then overall goal difference and goals scored. Header matchday is the highest real round with a finished game (`lib/league-matchdays.ts`) |
 | Key libs | `la-liga-data.ts`, `espn-league-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
 
 ## UI

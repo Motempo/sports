@@ -1,3 +1,4 @@
+import { highestFinishedMatchday } from "@/lib/league-matchdays";
 import type { MatchInfo } from "@/lib/types";
 import type {
   PremierLeaguePhase,
@@ -7,20 +8,7 @@ import type {
 const TOTAL_MATCHDAYS = 38;
 
 function finishedMatchdays(matches: MatchInfo[]): number {
-  const finished = matches.filter((m) => m.status === "FINISHED");
-  if (finished.length === 0) return 0;
-
-  let maxMd = 0;
-  for (const match of finished) {
-    const md = Number(match.group?.match(/(\d+)/)?.[1] ?? 0);
-    if (md > maxMd) maxMd = md;
-  }
-  if (maxMd > 0) return Math.min(TOTAL_MATCHDAYS, maxMd);
-
-  return Math.min(
-    TOTAL_MATCHDAYS,
-    Math.ceil(finished.length / 10)
-  );
+  return highestFinishedMatchday(matches, TOTAL_MATCHDAYS);
 }
 
 export function detectPremierLeaguePhase(

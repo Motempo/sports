@@ -75,7 +75,7 @@ Every sport page should provide:
 - FR-D1: Match/standings data prefers authoritative free API, then open mirror, then seed. Seed fallbacks show schedules, not invented results. A failed World Cup cascade leaves scores null and standings at 0 played, and the page says live data is unavailable.
 - FR-D2: Never expose API keys to the browser.
 - FR-D3: Accept free-tier score delay; do not promise real-time betting-grade feeds.
-- FR-D4: Club leagues use `stage: "LEAGUE"` and encode matchday in `group` (shared `MatchInfo`).
+- FR-D4: Club leagues use `stage: "LEAGUE"` and encode matchday in `group` (shared `MatchInfo`). The number is the real round (feed week when present, otherwise kickoff clusters with one appearance per club). A postponed fixture does not renumber later rounds. The table header is the highest round with a finished game.
 - FR-D5: The featured next-event card uses three short paragraphs — event description, form-book prediction, and how the result affects the athletes. Copy is deterministic from standings/schedule (no betting odds, no invented expert quotes).
 
 ### 6.2 News & facts

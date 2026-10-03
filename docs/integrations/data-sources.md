@@ -20,6 +20,7 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
 - No auth; public JSON scoreboard API
 - Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard?dates={year}`
 - Module: `lib/espn-league-data.ts` — merges **start + end calendar years**, filters to Jul(start)→Jun(end) so prior-season spring fixtures drop out
+- Matchweeks (`lib/league-matchdays.ts`): use ESPN `week` (number or `{ number }`) or note text such as `Matchweek 12` when the event has it. Otherwise rounds are inferred from kickoff clusters — a new round starts after a gap of three days, when a club would play twice, or when the slate is already full. A postponed fixture that falls between later rounds goes back to the earlier round still missing those clubs, so later matchweeks keep their numbers. The table’s matchday is the highest of those rounds with a finished game.
 - Used alongside football-data.org; fresher than the openfootball mirror for live results
 - Fetched through `cachedUpstreamFetch` (90s shared Data Cache). A page open inside that window reuses the two season boards (start year + end year) instead of calling ESPN again. The stored body keeps id, date, competitors, status, and venue so it fits the Data Cache 2MB entry cap
 - Client `router.refresh()` on mount (and every 3 minutes while the page stays open) re-renders the dynamic page; it does not bypass the upstream TTL

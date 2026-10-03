@@ -4,12 +4,12 @@ import type {
   F1RaceResult,
   F1SeasonData,
   F1SessionInfo,
-  F1SessionStatus,
   F1SessionType,
   F1StandingRow,
   F1TitleFightInsight,
 } from "@/lib/f1-types";
 import { countRacesRemaining, getActiveGrandPrix } from "@/lib/f1-phase";
+import { inferSessionStatus, mergeOpenF1Sessions, resolveSessionStatus } from "@/lib/f1-session-status";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import seedData from "@/data/f1-season-seed.json";
 
@@ -81,16 +81,6 @@ function toUtcIso(date: string, time?: string): string {
   return `${date}T12:00:00Z`;
 }
 
-function inferSessionStatus(utcDate: string, now = new Date()): F1SessionStatus {
-  const start = new Date(utcDate).getTime();
-  const end = start + 2 * 60 * 60 * 1000;
-  const nowMs = now.getTime();
-
-  if (nowMs >= start && nowMs <= end) return "live";
-  if (nowMs > end) return "finished";
-  return "scheduled";
-}
-
 function parseGrandPrix(race: JolpicaRace, standingsRound: number, now = new Date()): F1GrandPrix {
   const round = parseInt(race.round, 10);
   const country = race.Circuit.Location.country;
@@ -154,7 +144,7 @@ function parseSessionsFromRace(race: JolpicaRace, now = new Date()): F1SessionIn
       sessionType: def.sessionType,
       sessionLabel: def.label,
       utcDate,
-      status: inferSessionStatus(utcDate, now),
+      status: inferSessionStatus(utcDate, now, { sessionType: def.sessionType }),
       isSprintWeekend,
     });
   }
@@ -171,7 +161,7 @@ function parseSessionsFromRace(race: JolpicaRace, now = new Date()): F1SessionIn
     sessionType: "race",
     sessionLabel: "Race",
     utcDate: raceUtc,
-    status: inferSessionStatus(raceUtc, now),
+    status: inferSessionStatus(raceUtc, now, { sessionType: "race" }),
     isSprintWeekend,
   });
 
@@ -313,15 +303,6 @@ function openF1SessionLabel(name: string): string {
   return name;
 }
 
-function inferOpenF1Status(dateStart: string, dateEnd: string, now = new Date()): F1SessionStatus {
-  const start = new Date(dateStart).getTime();
-  const end = new Date(dateEnd).getTime();
-  const nowMs = now.getTime();
-  if (nowMs >= start && nowMs <= end) return "live";
-  if (nowMs > end) return "finished";
-  return "scheduled";
-}
-
 async function fetchOpenF1Sessions(
   season: number,
   targetRound: number,
@@ -340,54 +321,47 @@ async function fetchOpenF1Sessions(
     const windowMs = 5 * 24 * 60 * 60 * 1000;
 
     const roundSessions = data.filter((s) => {
-      if (s.is_cancelled) return false;
       const sessionTime = new Date(s.date_start).getTime();
       return Math.abs(sessionTime - gpTime) <= windowMs;
     });
 
-    return roundSessions.map((s) => ({
-      id: `openf1-${s.session_key}`,
-      round: targetRound,
-      gpName: gp.name,
-      circuit: gp.circuit,
-      circuitId: gp.circuitId,
-      country: gp.country,
-      countryCode: gp.countryCode,
-      sessionType: openF1SessionType(s.session_name, s.session_type),
-      sessionLabel: openF1SessionLabel(s.session_name),
-      utcDate: s.date_start,
-      status: inferOpenF1Status(s.date_start, s.date_end, now),
-      isSprintWeekend: gp.isSprintWeekend,
-    }));
+    return roundSessions.map((s) => {
+      const sessionType = openF1SessionType(s.session_name, s.session_type);
+      return {
+        id: `openf1-${s.session_key}`,
+        round: targetRound,
+        gpName: gp.name,
+        circuit: gp.circuit,
+        circuitId: gp.circuitId,
+        country: gp.country,
+        countryCode: gp.countryCode,
+        sessionType,
+        sessionLabel: openF1SessionLabel(s.session_name),
+        utcDate: s.date_start,
+        utcEnd: s.date_end,
+        status: inferSessionStatus(s.date_start, now, {
+          sessionType,
+          utcEnd: s.date_end,
+          reportedStatus: s.is_cancelled ? "cancelled" : undefined,
+        }),
+        isSprintWeekend: gp.isSprintWeekend,
+      };
+    });
   } catch {
     return [];
   }
 }
 
-function mergeOpenF1Sessions(
-  jolpicaSessions: F1SessionInfo[],
-  openF1Sessions: F1SessionInfo[]
-): F1SessionInfo[] {
-  if (openF1Sessions.length === 0) return jolpicaSessions;
-
-  return jolpicaSessions.map((session) => {
-    const match = openF1Sessions.find(
-      (o) =>
-        o.sessionType === session.sessionType ||
-        o.sessionLabel.toLowerCase() === session.sessionLabel.toLowerCase()
-    );
-    if (!match) return session;
-    return {
-      ...session,
-      utcDate: match.utcDate,
-      status: match.status,
-    };
-  });
-}
-
-function loadSeed(): F1SeasonData {
+function loadSeed(now = new Date()): F1SeasonData {
   const seed = seedData as Omit<F1SeasonData, "source">;
-  return { ...seed, source: "seed" };
+  return {
+    ...seed,
+    sessions: seed.sessions.map((session) => ({
+      ...session,
+      status: resolveSessionStatus(session, now),
+    })),
+    source: "seed",
+  };
 }
 
 export function computeTitleFightInsight(
@@ -496,7 +470,7 @@ export async function fetchF1SeasonData(now = new Date()): Promise<F1SeasonData>
     // fall through to seed
   }
 
-  return loadSeed();
+  return loadSeed(now);
 }
 
 export function getWeekendSessionsForRound(
@@ -509,6 +483,6 @@ export function getWeekendSessionsForRound(
 
   return data.sessions.filter((s) => s.round === round).map((s) => ({
     ...s,
-    status: inferSessionStatus(s.utcDate, now),
+    status: resolveSessionStatus(s, now),
   }));
 }

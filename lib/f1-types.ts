@@ -22,6 +22,8 @@ export interface F1SessionInfo {
   sessionType: F1SessionType;
   sessionLabel: string;
   utcDate: string;
+  /** Real end from OpenF1 or another fetched source, when we have one. */
+  utcEnd?: string;
   status: F1SessionStatus;
   isSprintWeekend: boolean;
 }

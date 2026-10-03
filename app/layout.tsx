@@ -76,6 +76,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh antialiased">
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
         <AdProvider>
           {children}
           <CookieNotice />

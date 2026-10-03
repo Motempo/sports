@@ -37,7 +37,7 @@ export function SportPageShell({
     <div className="min-h-dvh overflow-x-clip">
       {autoRefresh ? <TournamentAutoRefresh /> : null}
       <Header activeSportSlug={activeSportSlug} />
-      <main className="text-[15px] leading-relaxed sm:text-base">
+      <main id="main-content" tabIndex={-1} className="skip-target text-[15px] leading-relaxed sm:text-base">
         {rail}
         {headerAd}
         {nextEvent}

@@ -16,6 +16,7 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 | Mirror | openfootball worldcup JSON |
 | Seed | `data/wc2026-*.json`, `data/team-seed.json`, `team-iso-map.json` |
 | Key libs | `lib/football-data.ts`, `lib/knockout-enrich.ts`, `lib/group-standings.ts`, `lib/tournament-phase.ts`, `lib/match-forecast.ts`, `lib/match-venue.ts` |
+| Cache | football-data and openfootball via `cachedUpstreamFetch` (90s). Page stays `force-dynamic` |
 
 ## UI map
 

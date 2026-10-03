@@ -1,4 +1,4 @@
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { buildClubTeamInfo, resolveClubCode } from "@/lib/league-standings";
 import type { LeagueStandings } from "@/lib/premier-league-types";
 import type { MatchInfo } from "@/lib/types";
@@ -33,12 +33,9 @@ async function fetchPremierLeagueScorers(limit = 8): Promise<PremierLeagueAwardC
   if (!apiKey) return null;
 
   try {
-    const res = await fetch(
+    const res = await cachedUpstreamFetch(
       `https://api.football-data.org/v4/competitions/PL/scorers?limit=${limit}`,
-      {
-        headers: { "X-Auth-Token": apiKey },
-        ...freshUpstreamFetch,
-      }
+      { headers: { "X-Auth-Token": apiKey } }
     );
     if (!res.ok) return null;
     const data = (await res.json()) as { scorers?: FootballDataScorer[] };

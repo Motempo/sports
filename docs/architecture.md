@@ -80,7 +80,7 @@ prefer live API → community / open mirror → local seed
 | La Liga | football-data `PD` (current season) | ESPN scoreboard JSON scrape | openfootball `es.1.json` / `.txt` | `data/la-liga-clubs-seed.json` |
 | Formula 1 | Jolpica Ergast | OpenF1 sessions | `data/f1-season-seed.json` |
 
-Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, cache-bust URLs). No Redis / product Data Cache.
+Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for scoreboards and standings. `lib/fetch-options.ts` (`uncachedFetch`) stays on news, facts, and venue photos. No Redis. Shared cache is the Next.js Data Cache (included on Vercel Hobby).
 
 ---
 
@@ -89,7 +89,7 @@ Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, ca
 | Concern | Key files |
 |---------|-----------|
 | Registry / SEO | `sports.ts`, `types.ts` |
-| Football API | `football-data.ts`, `openfootball-data.ts` |
+| Football API | `football-data.ts`, `openfootball-data.ts`, `sports-upstream-cache.ts` |
 | WC | `wc2026-*.ts`, `group-standings.ts`, `knockout-*.ts`, `tournament-*.ts`, `world-cup-*.ts` |
 | F1 | `f1-*.ts` |
 | Premier League | `premier-league-*.ts` |
@@ -161,14 +161,28 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
 ---
 
-## Caching policy (current practice)
+## Caching policy
+
+Sport pages stay `dynamic = "force-dynamic"` so the shell renders per request (the 3-minute `router.refresh()` still feels live). They must **not** set `fetchCache = "force-no-store"` or `revalidate = 0` — `force-no-store` skips Data Cache reads.
+
+Upstream sports payloads (football-data, ESPN scoreboards, openfootball / GitHub raw, Jolpica, OpenF1, scorers) go through `cachedUpstreamFetch`:
+
+| Layer | What it does |
+|-------|----------------|
+| In-process map | Dedupes concurrent misses on one isolate; repeat hits in the same 90s window do not call out |
+| `unstable_cache` time bucket | Shared Next.js Data Cache across Hobby isolates. The bucket id changes every 90s, so the first request of the next window **blocks** on a fresh upstream read (a full-time result shows up within one TTL, not one extra stale-while-revalidate hop) |
+| What is stored | HTTP **200** bodies only. A 429 (or any other status) is not written. That request still falls through the cascade (football-data → ESPN → openfootball → seed). The next request tries football-data again. ESPN boards are trimmed before storage so they stay under the Data Cache 2MB entry cap |
+
+GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-photo fetches stay `no-store`.
+
+`'use cache'` / Cache Components is the Next 16 model and would change rendering for the whole app on 15.5, so it is not enabled. An in-memory map alone is not shared across isolates.
 
 | Surface | Policy |
 |---------|--------|
-| Upstream sports fetches | Prefer `no-store` / busted URLs |
-| Sport pages | `force-dynamic` / `revalidate = 0`; league pages also `fetchCache = force-no-store` |
+| Upstream sports fetches | 90s Data Cache via `cachedUpstreamFetch`; non-200 not stored |
+| Sport pages | `force-dynamic` (per-request HTML). No `fetchCache = force-no-store` |
 | News/facts APIs | `no-store` |
-| In-process | Facts array per sport; Linear IDs; venue Map |
+| In-process | Sports-cache window map; facts array per sport; Linear IDs; venue Map |
 
 ---
 
@@ -187,7 +201,7 @@ Pull requests and pushes to `main` run [`.github/workflows/ci.yml`](../.github/w
 
 `npm ci` → `npx tsc --noEmit` → `npm run lint` → `npm run build` → `npm test`
 
-No API keys or other secrets are required. `npm test` uses Node's built-in runner (`node:test` with type stripping) on `lib/**/*.test.ts`. Tests stay offline — they call pure helpers and must not request ESPN, football-data, or other upstreams. `scripts/node-test-alias-hook.mjs` resolves the `@/*` alias so those modules load outside the Next.js bundler. Sport pages are `force-dynamic`, so `next build` does not fetch upstream data.
+No API keys or other secrets are required. `npm test` uses Node's built-in runner (`node:test` with type stripping) on `lib/**/*.test.ts`. Tests stay offline — they call pure helpers and must not request ESPN, football-data, or other upstreams. `scripts/node-test-alias-hook.mjs` resolves the `@/*` alias and stubs `server-only` plus `next/cache` so those modules load outside the Next.js bundler. Sport pages are `force-dynamic`, so `next build` does not fetch upstream data.
 
 ---
 

@@ -1,6 +1,6 @@
 import plClubsSeed from "@/data/pl-clubs-seed.json";
 import { fetchEspnLeagueMatches } from "@/lib/espn-league-data";
-import { freshUpstreamFetch, cacheBustUrl } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import {
   isTodayMatch,
   isUpcomingMatch,
@@ -287,10 +287,10 @@ async function fetchFootballDataMatches(): Promise<{
   if (!apiKey) return null;
 
   try {
-    const res = await fetch("https://api.football-data.org/v4/competitions/PL/matches", {
-      headers: { "X-Auth-Token": apiKey },
-      ...freshUpstreamFetch,
-    });
+    const res = await cachedUpstreamFetch(
+      "https://api.football-data.org/v4/competitions/PL/matches",
+      { headers: { "X-Auth-Token": apiKey } }
+    );
     if (!res.ok) return null;
 
     const data = (await res.json()) as {
@@ -321,7 +321,7 @@ async function fetchOpenFootballJsonSeason(
 ): Promise<MatchInfo[] | null> {
   const url = `${OPENFOOTBALL_JSON_BASE}/${seasonKey}/en.1.json`;
   try {
-    const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
+    const res = await cachedUpstreamFetch(url);
     if (!res.ok) return null;
     const data = (await res.json()) as { matches?: OpenFootballMatch[] };
     const matches = (data.matches ?? [])
@@ -338,7 +338,7 @@ async function fetchOpenFootballTxtSeason(
 ): Promise<MatchInfo[] | null> {
   const url = `${OPENFOOTBALL_ENGLAND_TXT}/${seasonKey}/1-premierleague.txt`;
   try {
-    const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
+    const res = await cachedUpstreamFetch(url);
     if (!res.ok) return null;
     const text = await res.text();
     const rows = parseOpenFootballLeagueTxt(text);

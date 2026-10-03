@@ -30,7 +30,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`
-- League table refetches live ESPN/API data when the page opens (`no-store` + `router.refresh` on mount)
+- League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream football-data / ESPN / openfootball responses are shared for 90 seconds (`cachedUpstreamFetch`); a 429 is not stored and still falls through to the next source
 - Finished fixtures in Matches open a next-match-style detail modal
 - Ads: `PremierLeagueAdPlacements`
 

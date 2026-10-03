@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { BadgeCheck } from "lucide-react";
 import { ExpandableModal } from "@/components/ui/ExpandableModal";
@@ -15,9 +15,17 @@ interface FunFactsWidgetProps {
 }
 
 interface FactsPageResponse {
-  items: FunFact[];
-  nextOffset: number;
+  items?: FunFact[];
+  nextOffset?: number;
   wrapped?: boolean;
+  total?: number;
+  error?: string;
+}
+
+const FACTS_PAGE_SIZE = 3;
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
 }
 
 function seenStorageKey(sportSlug: string): string {
@@ -45,46 +53,115 @@ function saveSeenIds(sportSlug: string, ids: string[]) {
 
 export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
   const [items, setItems] = useState<FunFact[]>([]);
-  const [nextOffset, setNextOffset] = useState<number | undefined>(undefined);
+  const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [selected, setSelected] = useState<FunFact | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detail, setDetail] = useState<FunFact | null>(null);
+  const itemsRef = useRef<FunFact[]>([]);
+  const nextOffsetRef = useRef<number | undefined>(undefined);
+  const requestSeq = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
 
   const loadItems = useCallback(
-    async (offset: number | undefined, seen: string[]) => {
-      const params = new URLSearchParams({
-        sport: sportSlug,
-        limit: "3",
-      });
-      if (offset != null) params.set("offset", String(offset));
-      if (seen.length > 0) params.set("exclude", seen.join(","));
+    async (offset: number | undefined, seen: string[], append: boolean) => {
+      const seq = ++requestSeq.current;
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-      const res = await fetch(`/api/facts?${params.toString()}`, {
-        cache: "no-store",
-      });
-      const data = (await res.json()) as FactsPageResponse;
-      setItems(data.items);
-      setNextOffset(data.nextOffset);
+      try {
+        const params = new URLSearchParams({
+          sport: sportSlug,
+          limit: String(FACTS_PAGE_SIZE),
+        });
+        if (offset != null) params.set("offset", String(offset));
+        if (seen.length > 0) params.set("exclude", seen.join(","));
 
-      const newIds = data.items.map((fact) => fact.id);
-      saveSeenIds(sportSlug, data.wrapped ? newIds : [...seen, ...newIds].filter((id, i, all) => all.indexOf(id) === i));
+        const res = await fetch(`/api/facts?${params.toString()}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const data = (await res.json().catch(() => null)) as FactsPageResponse | null;
+        if (seq !== requestSeq.current) return;
+
+        if (!res.ok || !data || !Array.isArray(data.items) || data.error) {
+          if (!append) {
+            itemsRef.current = [];
+            setItems([]);
+            nextOffsetRef.current = undefined;
+            setHasMore(false);
+          }
+          return;
+        }
+
+        const page = data.items;
+        const current = append ? itemsRef.current : [];
+        const seenIds = new Set(current.map((fact) => fact.id));
+        const fresh = page.filter((fact) => !seenIds.has(fact.id));
+        const nextItems = append ? (fresh.length > 0 ? [...current, ...fresh] : current) : page;
+        itemsRef.current = nextItems;
+        setItems(nextItems);
+        if (typeof data.nextOffset === "number") nextOffsetRef.current = data.nextOffset;
+
+        const total = typeof data.total === "number" && Number.isFinite(data.total) ? data.total : undefined;
+        const reachedEnd =
+          fresh.length === 0 ||
+          page.length < FACTS_PAGE_SIZE ||
+          (total != null && nextItems.length >= total);
+        setHasMore(nextItems.length > 0 && !reachedEnd);
+
+        const freshIds = fresh.map((fact) => fact.id);
+        if (!append && data.wrapped) {
+          saveSeenIds(sportSlug, page.map((fact) => fact.id));
+        } else {
+          saveSeenIds(
+            sportSlug,
+            [...seen, ...freshIds].filter((id, i, all) => all.indexOf(id) === i)
+          );
+        }
+      } catch (error) {
+        if (seq !== requestSeq.current || controller.signal.aborted || isAbortError(error)) return;
+        if (!append) {
+          itemsRef.current = [];
+          setItems([]);
+          nextOffsetRef.current = undefined;
+          setHasMore(false);
+        }
+      }
     },
     [sportSlug]
   );
 
   useEffect(() => {
+    itemsRef.current = [];
+    setItems([]);
+    nextOffsetRef.current = undefined;
+    setHasMore(false);
     setLoading(true);
     const seen = loadSeenIds(sportSlug);
-    loadItems(undefined, seen).finally(() => setLoading(false));
+    let active = true;
+    loadItems(undefined, seen, false).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+      abortRef.current?.abort();
+    };
   }, [loadItems, sportSlug]);
 
   const handleShowMore = async () => {
+    if (loading || loadingMore || !hasMore) return;
     setLoadingMore(true);
-    const seen = loadSeenIds(sportSlug);
-    await loadItems(nextOffset, seen);
-    setLoadingMore(false);
+    try {
+      const seen = Array.from(
+        new Set([...loadSeenIds(sportSlug), ...itemsRef.current.map((fact) => fact.id)])
+      );
+      await loadItems(nextOffsetRef.current, seen, true);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   const openDetail = async (fact: FunFact) => {
@@ -95,10 +172,12 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
       const res = await fetch(`/api/facts?sport=${encodeURIComponent(sportSlug)}&id=${encodeURIComponent(fact.id)}`, {
         cache: "no-store",
       });
-      if (res.ok) {
-        const data = (await res.json()) as FunFact;
-        setDetail(data);
-      }
+      if (!res.ok) return;
+      const data = (await res.json()) as FunFact | { error?: string };
+      if (!data || typeof data !== "object" || !("id" in data) || "error" in data) return;
+      setDetail(data);
+    } catch {
+      // Keep the row already shown in the modal.
     } finally {
       setDetailLoading(false);
     }
@@ -109,7 +188,13 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
       <FeedWidget
         className="h-full"
         title="Fun Facts"
-        footer={<ShowMoreButton onClick={handleShowMore} loading={loadingMore} />}
+        footer={
+          <ShowMoreButton
+            onClick={handleShowMore}
+            loading={loadingMore}
+            disabled={!loading && !hasMore}
+          />
+        }
       >
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
@@ -123,6 +208,10 @@ export function FunFactsWidget({ sportSlug }: FunFactsWidgetProps) {
               </div>
             </div>
           ))
+        ) : items.length === 0 ? (
+          <p className="px-4 py-6 text-[15px] text-muted">
+            No fun facts right now. Check back soon.
+          </p>
         ) : (
           items.map((fact) => (
             <FeedRow

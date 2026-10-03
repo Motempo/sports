@@ -89,10 +89,10 @@ export function getFactsPage(
   offset: number | undefined,
   limit = 3,
   exclude: string[] = []
-): { items: FunFact[]; nextOffset: number; wrapped: boolean } {
+): { items: FunFact[]; nextOffset: number; wrapped: boolean; total: number } {
   const facts = getSportFacts(sportSlug);
   if (facts.length === 0) {
-    return { items: [], nextOffset: 0, wrapped: false };
+    return { items: [], nextOffset: 0, wrapped: false, total: 0 };
   }
 
   const start = ((offset ?? getFactsRotationOffset(facts.length)) % facts.length + facts.length) % facts.length;
@@ -125,6 +125,7 @@ export function getFactsPage(
     items,
     nextOffset: (lastIndex + 1) % facts.length,
     wrapped,
+    total: facts.length,
   };
 }
 

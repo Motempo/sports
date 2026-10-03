@@ -33,15 +33,17 @@ export function FeedWidget({ title, children, footer, className }: FeedWidgetPro
 export function ShowMoreButton({
   onClick,
   loading,
+  disabled,
 }: {
   onClick: () => void;
   loading?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={loading}
+      disabled={loading || disabled}
       className="min-h-[44px] text-[15px] font-medium text-link active:opacity-70 disabled:opacity-50 sm:hover:underline"
     >
       {loading ? "Loading…" : "More"}

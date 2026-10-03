@@ -69,7 +69,7 @@ News/facts: `force-dynamic`, `Cache-Control: no-store`.
 prefer live API → community / open mirror → local seed
 ```
 
-`MatchDataSource = "api" | "openfootball" | "seed"` (`lib/match-data-source.ts`).
+`MatchDataSource = "api" | "espn" | "openfootball" | "seed"` (`lib/match-data-source.ts`). Seed payloads are schedules, not invented results. World Cup group seeds stay `SCHEDULED` with null scores; the page labels that state as live data unavailable.
 
 | Sport | Primary | Fallback | Seed |
 |-------|---------|----------|------|

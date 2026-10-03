@@ -41,6 +41,7 @@ export function FeedRow({
     <Wrapper
       type={onClick ? "button" : undefined}
       onClick={onClick}
+      aria-haspopup={onClick ? "dialog" : undefined}
       className={cn(
         "flex w-full gap-3 px-3 py-3.5 text-left transition-colors sm:px-4",
         onClick && "cursor-pointer active:bg-surface sm:hover:bg-surface",

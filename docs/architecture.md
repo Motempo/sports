@@ -61,7 +61,7 @@ flowchart TB
 | `/api/feedback/close-shipped` | POST | Close shipped tickets | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 | `/api/feedback/reopen` | POST | Reopen issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 
-News/facts: `force-dynamic`, `Cache-Control: no-store`.
+News/facts: `force-dynamic`, `Cache-Control: no-store`. List responses include `items` (and news includes `total`; facts include `total`, `nextOffset`, and `wrapped`). The widgets append each **More** page and render the empty state when the response is not OK, the network fails, or the body is `{ error }`.
 
 ---
 

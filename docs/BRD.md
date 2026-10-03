@@ -61,7 +61,7 @@ Every sport page should provide:
 2. **Primary competitive view** — bracket *or* table / championship standings (phase-aware order)  
 3. **Schedule** — today's / upcoming fixtures or sessions by local day  
 4. **How it works** — collapsible educational primer  
-5. **News (3 + load more → modal)** and **Fun facts (same pattern)**  
+5. **News (3 + load more appends → modal)** and **Fun facts (same pattern)**  
 6. **Awards / records** where curated data exists (WC, F1, PL; La Liga gap)  
 7. **Ad placements** behind kill switches (never inside match cards / bracket tree)  
 8. **Footer** — Submit Feedback (identical across Motempo apps)
@@ -82,7 +82,7 @@ Every sport page should provide:
 
 - FR-N1: News prefers live X timelines when `APIXAPI_KEY` (or alias) is set; otherwise curated RSS / Google News per sport (`data/sources/{slug}.json`).
 - FR-N2: Fun facts from static JSON + optional Wikipedia enrichment.
-- FR-N3: Pagination default: offset/limit with `limit` default 3, clamped to 1–10. An unknown `sport` slug returns 400.
+- FR-N3: Pagination default: offset/limit with `limit` default 3, clamped to 1–10. An unknown `sport` slug returns 400. **More** appends the next page and disables once the list is exhausted; a non-OK response, network failure, or `{ error }` body shows the empty state instead of throwing.
 - FR-N4: News cards and the story modal show the post image when the feed or publisher page provides one, and play an embedded video when the post includes one (YouTube, Vimeo, or a direct video file).
 
 ### 6.3 Feedback

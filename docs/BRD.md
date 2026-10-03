@@ -92,7 +92,7 @@ Every sport page should provide:
 - FR-F2: Optional Grok “Improve text” when `GROK_API_KEY` / `XAI_API_KEY` present. `POST /api/feedback/improve` is rate-limited like submit (10/IP/hour) before any xAI call.
 - FR-F3: Rate limit submissions (10/IP/hour in-memory), keyed by the platform client IP (`x-vercel-forwarded-for` rightmost hop, else `x-real-ip`), not the first `X-Forwarded-For` hop. Failed submits return a generic message. Screenshot MIME is an image allowlist.
 - FR-F4: Support `feedbackCategory`: `general` | `sport-request`.
-- FR-F5: `GET /api/feedback/recent`, `POST /api/feedback/close-shipped`, and `POST /api/feedback/reopen` require `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. If the secret is unset or the header does not match, they return 401 and do not call Linear. `POST /api/feedback` stays public and rate-limited.
+- FR-F5: The app does not expose routes to list, close, or reopen Linear issues. `POST /api/feedback` stays public and rate-limited.
 
 ### 6.4 Home / last-viewed sport
 
@@ -123,7 +123,7 @@ Every sport page should provide:
 
 - Pages render fully on seed when APIs fail  
 - New sport follows the established shell in days, not weeks  
-- Feedback loop closes via Linear + oo without Slack  
+- Feedback reaches the shared Linear team  
 - Ads can be flipped on without layout rewrites  
 
 ---
@@ -139,6 +139,6 @@ Every sport page should provide:
 
 | System | Relationship |
 |--------|----------------|
-| **oo.motempo.com** (`oo/`) | Triages Linear feedback, plan/implement agents |
+| **oo.motempo.com** (`oo/`) | Being removed. This app no longer exposes feedback list, close, or reopen routes |
 | **Motempo Ads** | Source UX for Submit Feedback |
 | **Linear team `motempo`** | Shared issue queue; route by `appId` |

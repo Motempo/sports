@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --experimental-strip-types --test lib/feedback-ops-auth.test.ts"
+    "test": "node --experimental-strip-types --import ./scripts/register-node-test-alias.mjs --test \"lib/**/*.test.ts\""
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.16",

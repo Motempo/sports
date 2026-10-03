@@ -32,7 +32,7 @@ Motempo Sports is a **multi-sport companion site** for casual fans, parents, and
 ## 3. Product principles
 
 1. **Explain context, not just numbers** — plain-language races, gaps, and primers.
-2. **Mobile-first, local timezone** — schedules grouped by the user's local day.
+2. **Mobile-first, local timezone** — schedules grouped by the user's local day. The server render uses UTC so hydration matches; after paint, kickoffs and day groups follow the viewer's zone. The standings "Updated" time includes its zone.
 3. **Seed fallback always works** — pages must render useful content offline of upstream APIs.
 4. **X-inspired UI** — feed rows, minimal chrome (see founding design tokens in architecture doc).
 5. **Per-sport SEO routes** — `/world-cup`, `/formula-1`, `/premier-league`, `/la-liga`; homepage redirects to `CURRENT_SPORT_SLUG`.

@@ -95,7 +95,7 @@ Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for s
 | Premier League | `premier-league-*.ts` |
 | La Liga | `la-liga-*.ts` |
 | Club tables | `league-standings.ts` |
-| Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts` |
+| Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts`, `hooks/use-viewer-time-zone.ts` |
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
 | Venue photos | `venue-image.ts` |
@@ -105,6 +105,23 @@ Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for s
 | Legal | `legal.ts` |
 
 UI shells: `components/sports/{WorldCup,FormulaOne,PremierLeague,LaLiga}PageContent.tsx`.
+
+### Viewer timezone and hydration
+
+Vercel runs the app in UTC. Formatting a kickoff with `toLocaleString` or `Intl.DateTimeFormat().resolvedOptions().timeZone` during render uses that zone on the server and the viewer's zone in the browser, so React hydrates mismatched clocks and day columns.
+
+Client schedules keep the server HTML and the hydration render on an explicit UTC zone (`HYDRATION_TIME_ZONE` in `lib/match-timezone.ts`, `useViewerTimeZone`). After paint, the hook switches to the browser zone and regroups:
+
+- Football day columns: `ScheduleByDay` (Premier League, La Liga, World Cup)
+- Session day columns: `WeekendSessionsByDay` (Formula 1)
+- Featured kickoffs: `FeaturedMatchCard`, `FormulaOneNextEvent`
+- Bracket / match-card kickoffs: `BracketMatchCard`, `MatchCard`
+
+Until that switch the caption reads "Times in UTC". Afterwards it reads "Times in your local timezone" (it stays "Times in UTC" when that is the viewer's zone). Clock columns are wide enough for `12:00 PM` on one line so the swap does not wrap the row.
+
+The standings **Updated** line is the server render time. `formatUpdatedTime` always prints an explicit zone (`3:45 PM UTC`) and is not rewritten on the client.
+
+Civil dates stored as `YYYY-MM-DD` (F1 round days, not kickoff instants) use `formatCalendarDate`, which pins `timeZone: "UTC"` so the labeled day does not shift.
 
 ---
 

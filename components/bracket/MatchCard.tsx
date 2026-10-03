@@ -1,6 +1,8 @@
 "use client";
 
+import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { cn } from "@/lib/utils";
+import { formatViewerDateTime } from "@/lib/match-timezone";
 import type { MatchInfo } from "@/lib/types";
 import {
   formatKnockoutPlaceholder,
@@ -51,6 +53,7 @@ export function MatchCard({
   showContext,
   showForecast,
 }: MatchCardProps) {
+  const { timeZone } = useViewerTimeZone();
   const { display, isLive } = formatScore(match.homeScore, match.awayScore, match.status);
   const finished = match.status === "FINISHED";
   const homeWinner = finished && match.winnerCode === match.homeTeam.code;
@@ -58,8 +61,7 @@ export function MatchCard({
   const homeLoser = finished && !homeWinner && match.winnerCode;
   const awayLoser = finished && !awayWinner && match.winnerCode;
 
-  const date = new Date(match.utcDate);
-  const dateStr = date.toLocaleDateString("en-US", {
+  const dateStr = formatViewerDateTime(match.utcDate, timeZone, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -185,7 +187,9 @@ export function MatchCard({
           <p className="text-[12px] leading-snug text-foreground/80 sm:text-[13px]">{forecast}</p>
         )}
         {venueLine && <p className="break-words">{venueLine}</p>}
-        <p>{dateStr}</p>
+        <time dateTime={match.utcDate} className="block tabular-nums">
+          {dateStr}
+        </time>
       </div>
     </div>
   );

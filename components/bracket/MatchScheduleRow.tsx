@@ -63,7 +63,7 @@ export function MatchScheduleRow({
   const venueLine = formatMatchVenueLine(match);
 
   const inner: ReactNode = (
-    <div className="grid grid-cols-[3.25rem_1fr_auto] items-center gap-3 sm:grid-cols-[4rem_1fr_auto]">
+    <div className="grid grid-cols-[4.75rem_1fr_auto] items-center gap-3 sm:grid-cols-[5rem_1fr_auto]">
       <div className="text-right">
         {isLive ? (
           <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-link sm:text-[13px]">
@@ -71,9 +71,12 @@ export function MatchScheduleRow({
             Live
           </span>
         ) : (
-          <span className="text-[13px] font-medium tabular-nums text-muted sm:text-[14px]">
+          <time
+            dateTime={match.utcDate}
+            className="whitespace-nowrap text-[13px] font-medium tabular-nums text-muted sm:text-[14px]"
+          >
             {timeLabel}
-          </span>
+          </time>
         )}
       </div>
 

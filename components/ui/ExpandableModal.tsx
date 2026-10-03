@@ -49,6 +49,7 @@ export function ExpandableModal({
           )}
         />
         <DialogPrimitive.Content
+          aria-modal="true"
           aria-describedby={undefined}
           onOpenAutoFocus={(event) => {
             const active = document.activeElement;

@@ -29,8 +29,6 @@ import {
   showGroupStandingsPrimary,
 } from "@/lib/tournament-phase";
 
-export const revalidate = 120;
-
 export async function WorldCupPageContent() {
   const { matches, groupMatches, todayMatches, upcomingMatches, source } = await fetchMatches();
   const grouped = groupMatchesByRound(matches);

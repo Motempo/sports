@@ -1,4 +1,4 @@
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { enrichMatchVenues, resolveStadium } from "@/lib/match-venue";
 import {
   enrichKnockoutBracket,
@@ -326,12 +326,9 @@ export async function fetchMatches(): Promise<{
 
   if (apiKey) {
     try {
-      const res = await fetch(
+      const res = await cachedUpstreamFetch(
         "https://api.football-data.org/v4/competitions/WC/matches?season=2026",
-        {
-          headers: { "X-Auth-Token": apiKey },
-          ...freshUpstreamFetch,
-        }
+        { headers: { "X-Auth-Token": apiKey } }
       );
 
       if (res.ok) {

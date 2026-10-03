@@ -1,5 +1,5 @@
 import type { MatchInfo, TeamInfo } from "@/lib/types";
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 
 export type EspnLeagueSlug = "eng.1" | "esp.1";
 
@@ -154,10 +154,8 @@ async function fetchEspnScoreboardEvents(
   dates: string
 ): Promise<EspnEvent[]> {
   const url = `${ESPN_BASE}/${league}/scoreboard?limit=1000&dates=${dates}`;
-  const res = await fetch(url, {
-    ...freshUpstreamFetch,
+  const res = await cachedUpstreamFetch(url, {
     headers: {
-      ...(freshUpstreamFetch.headers as Record<string, string>),
       Accept: "application/json",
       // ESPN returns 403 for many custom UAs; a plain curl-style agent works.
       "User-Agent": "curl/8.5.0",

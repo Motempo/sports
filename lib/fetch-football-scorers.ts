@@ -1,4 +1,4 @@
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import teamSeed from "@/data/team-seed.json";
 import { buildTeamInfo } from "@/lib/team-info";
 
@@ -40,12 +40,9 @@ export async function fetchWorldCupScorers(limit = 12): Promise<ScorerRow[] | nu
   if (!apiKey) return null;
 
   try {
-    const res = await fetch(
+    const res = await cachedUpstreamFetch(
       `https://api.football-data.org/v4/competitions/WC/scorers?season=2026&limit=${limit}`,
-      {
-        headers: { "X-Auth-Token": apiKey },
-        ...freshUpstreamFetch,
-      }
+      { headers: { "X-Auth-Token": apiKey } }
     );
     if (!res.ok) return null;
 

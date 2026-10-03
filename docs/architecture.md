@@ -57,9 +57,9 @@ flowchart TB
 | `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
-| `/api/feedback/recent` | GET | List recent team issues | **No auth — ops risk** |
-| `/api/feedback/close-shipped` | POST | Close shipped tickets | **No auth — ops risk** |
-| `/api/feedback/reopen` | POST | Reopen issues | **No auth — ops risk** |
+| `/api/feedback/recent` | GET | List recent team issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
+| `/api/feedback/close-shipped` | POST | Close shipped tickets | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
+| `/api/feedback/reopen` | POST | Reopen issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 
 News/facts: `force-dynamic`, `Cache-Control: no-store`.
 
@@ -140,6 +140,7 @@ See `.env.example`. Summary:
 | `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
 | `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear |
+| `FEEDBACK_OPS_SECRET` | Bearer secret for `/api/feedback/recent`, `close-shipped`, and `reopen`. Required; routes return 401 when it is unset |
 | `COMMIT_SHA` | Deploy fingerprint in issues |
 | `NEXT_PUBLIC_ADS_*` | Ad kill switches + provider slots |
 
@@ -174,7 +175,7 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 ## Security notes for backend work
 
 1. Never ship secrets to client components.  
-2. Ops feedback routes currently have **no shared secret** — do not expand them without auth.  
+2. Ops feedback routes (`recent`, `close-shipped`, `reopen`) require `FEEDBACK_OPS_SECRET` as `Authorization: Bearer`. They return 401 and do not call Linear when the secret is unset or the header does not match. Do not expand them without that check. Public `POST /api/feedback` stays unauthenticated and rate-limited.  
 3. Rate limit is **per-instance memory** — not durable across serverless isolates.  
 4. Ads category blocks are dashboard config, not code.
 
@@ -182,4 +183,4 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
 ## Related nested app: `oo/`
 
-Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.
+Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. `close-shipped`, `reopen`, and `recent` need `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.

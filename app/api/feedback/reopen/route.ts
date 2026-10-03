@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
+import { authorizeFeedbackOps } from "@/lib/feedback-ops-auth";
 import { isLinearConfigured, reopenLinearIssues } from "@/lib/linear-issues";
 
 export async function POST(request: Request) {
+  const auth = authorizeFeedbackOps(request.headers.get("authorization"));
+  if (!auth.ok) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: auth.status });
+  }
+
   if (!isLinearConfigured()) {
     return NextResponse.json({ error: "LINEAR_API_KEY is not configured." }, { status: 503 });
   }

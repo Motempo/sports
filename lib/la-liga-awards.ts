@@ -131,7 +131,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
         sponsor: "Championship race",
         emoji: "🏆",
         description:
-          "Live title chase from the league table — points, then goal difference, decide the champion.",
+          "Live title chase from the league table — points, then head-to-head, then goal difference.",
         progress: 0,
         contenders: [],
         commentary: capForecast(
@@ -285,7 +285,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Live title chase from the league table — points, then goal difference, decide the champion.",
+        "Live title chase from the league table — points, then head-to-head, then goal difference.",
       // Progress bar is season completion, not title-gap tightness (MOT-47).
       progress: progressPct,
       contenders: titleContenders,

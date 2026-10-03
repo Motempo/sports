@@ -50,11 +50,155 @@ function applyResult(stats: TeamStats, goalsFor: number, goalsAgainst: number) {
   }
 }
 
-function compareRows(a: TeamStats, b: TeamStats): number {
-  if (b.points !== a.points) return b.points - a.points;
+/** Both league meetings. A single result is not a head-to-head tie-break. */
+const H2H_MATCHES_REQUIRED = 2;
+
+function compareOverall(a: TeamStats, b: TeamStats): number {
   if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
   if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
   return a.team.name.localeCompare(b.team.name);
+}
+
+function isFinishedScore(match: MatchInfo): match is MatchInfo & { homeScore: number; awayScore: number } {
+  return match.status === "FINISHED" && match.homeScore !== null && match.awayScore !== null;
+}
+
+function meetingsBetween(matches: MatchInfo[], codeA: string, codeB: string): number {
+  let count = 0;
+  for (const match of matches) {
+    if (!isFinishedScore(match)) continue;
+    const home = match.homeTeam.code;
+    const away = match.awayTeam.code;
+    if ((home === codeA && away === codeB) || (home === codeB && away === codeA)) count += 1;
+  }
+  return count;
+}
+
+function headToHeadComplete(codes: string[], matches: MatchInfo[]): boolean {
+  for (let i = 0; i < codes.length; i += 1) {
+    for (let j = i + 1; j < codes.length; j += 1) {
+      if (meetingsBetween(matches, codes[i]!, codes[j]!) < H2H_MATCHES_REQUIRED) return false;
+    }
+  }
+  return true;
+}
+
+function miniTable(code: string, matches: MatchInfo[], pool: Set<string>) {
+  let points = 0;
+  let goalsFor = 0;
+  let goalsAgainst = 0;
+  for (const match of matches) {
+    if (!isFinishedScore(match)) continue;
+    if (!pool.has(match.homeTeam.code) || !pool.has(match.awayTeam.code)) continue;
+    const home = match.homeTeam.code === code;
+    const away = match.awayTeam.code === code;
+    if (!home && !away) continue;
+    const scored = home ? match.homeScore : match.awayScore;
+    const conceded = home ? match.awayScore : match.homeScore;
+    goalsFor += scored;
+    goalsAgainst += conceded;
+    if (scored > conceded) points += 3;
+    else if (scored === conceded) points += 1;
+  }
+  return { points, goalDifference: goalsFor - goalsAgainst };
+}
+
+/**
+ * Clubs level on points, per RFEF Normas 2026/27 art. 10 (final classification).
+ *
+ * Two clubs: head-to-head goal difference, then overall goal difference, then
+ * goals scored. Head-to-head points ranks those two the same way, so it is
+ * applied first.
+ *
+ * Three or more: mini-table of the matches among them. Distinct mini-table
+ * points are final — later criteria do not reorder that. If two clubs stay
+ * level, the next step is goal difference in the matches between that pair
+ * only. If three or more stay level, it is goal difference among that subset.
+ * Overall goal difference and goals scored follow.
+ *
+ * Until every pair in the tie has played both meetings, head-to-head is
+ * skipped (the in-season table). Fair play and a neutral-ground play-off are
+ * not applied; the club name orders whatever is still level.
+ */
+function orderLevelOnPoints(group: TeamStats[], matches: MatchInfo[]): TeamStats[] {
+  if (group.length <= 1) return group;
+  const codes = group.map((team) => team.team.code);
+  if (!headToHeadComplete(codes, matches)) return [...group].sort(compareOverall);
+  return orderByMiniTable(group, matches);
+}
+
+function compareHeadToHead(a: TeamStats, b: TeamStats, matches: MatchInfo[], pool: Set<string>): number {
+  const miniA = miniTable(a.team.code, matches, pool);
+  const miniB = miniTable(b.team.code, matches, pool);
+  if (miniB.points !== miniA.points) return miniB.points - miniA.points;
+  if (miniB.goalDifference !== miniA.goalDifference) {
+    return miniB.goalDifference - miniA.goalDifference;
+  }
+  return compareOverall(a, b);
+}
+
+function orderStillLevel(bucket: TeamStats[], matches: MatchInfo[]): TeamStats[] {
+  if (bucket.length <= 1) return bucket;
+  const pool = new Set(bucket.map((team) => team.team.code));
+  if (bucket.length === 2) {
+    return [...bucket].sort((a, b) => compareHeadToHead(a, b, matches, pool));
+  }
+  return [...bucket].sort((a, b) => {
+    const gdA = miniTable(a.team.code, matches, pool).goalDifference;
+    const gdB = miniTable(b.team.code, matches, pool).goalDifference;
+    if (gdB !== gdA) return gdB - gdA;
+    return compareOverall(a, b);
+  });
+}
+
+function orderByMiniTable(group: TeamStats[], matches: MatchInfo[]): TeamStats[] {
+  if (group.length === 2) {
+    const pool = new Set(group.map((team) => team.team.code));
+    return [...group].sort((a, b) => compareHeadToHead(a, b, matches, pool));
+  }
+
+  const pool = new Set(group.map((team) => team.team.code));
+  const annotated = group.map((team) => ({
+    team,
+    miniPoints: miniTable(team.team.code, matches, pool).points,
+  }));
+  const distinct = new Set(annotated.map((row) => row.miniPoints));
+  if (distinct.size === annotated.length) {
+    return annotated
+      .sort(
+        (a, b) =>
+          b.miniPoints - a.miniPoints || a.team.team.name.localeCompare(b.team.team.name)
+      )
+      .map((row) => row.team);
+  }
+
+  const buckets = new Map<number, TeamStats[]>();
+  for (const row of annotated) {
+    const list = buckets.get(row.miniPoints) ?? [];
+    list.push(row.team);
+    buckets.set(row.miniPoints, list);
+  }
+
+  const ordered: TeamStats[] = [];
+  for (const points of [...buckets.keys()].sort((a, b) => b - a)) {
+    ordered.push(...orderStillLevel(buckets.get(points) ?? [], matches));
+  }
+  return ordered;
+}
+
+function orderLaLigaRows(rows: TeamStats[], matches: MatchInfo[]): TeamStats[] {
+  const buckets = new Map<number, TeamStats[]>();
+  for (const row of rows) {
+    const list = buckets.get(row.points) ?? [];
+    list.push(row);
+    buckets.set(row.points, list);
+  }
+
+  const ordered: TeamStats[] = [];
+  for (const points of [...buckets.keys()].sort((a, b) => b - a)) {
+    ordered.push(...orderLevelOnPoints(buckets.get(points) ?? [], matches));
+  }
+  return ordered;
 }
 
 function computeForm(code: string, matches: MatchInfo[]): Array<"W" | "D" | "L"> {
@@ -122,7 +266,7 @@ export function computeLeagueStandings(
     applyResult(byCode.get(match.awayTeam.code)!, match.awayScore, match.homeScore);
   }
 
-  const sorted = [...byCode.values()].sort(compareRows);
+  const sorted = orderLaLigaRows([...byCode.values()], matches);
   const rows: LeagueStandingRow[] = sorted.map((stats, index) => {
     const position = index + 1;
     return {

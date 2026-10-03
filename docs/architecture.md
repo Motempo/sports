@@ -92,7 +92,7 @@ Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, ca
 | F1 | `f1-*.ts` |
 | Premier League | `premier-league-*.ts` |
 | La Liga | `la-liga-*.ts` |
-| Club tables | `league-standings.ts` |
+| Club tables | `league-standings.ts` (Premier League: points, goal difference, goals scored); `la-liga-standings.ts` (La Liga head-to-head mini-table) |
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts` |
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |

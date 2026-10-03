@@ -5,6 +5,17 @@ import { grokChatJson } from "@/lib/grok";
 import { lookupGroupFixture } from "@/lib/wc2026-fixtures";
 import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo } from "@/lib/types";
+import {
+  claimVenueDetailSlot,
+  createVenueDetailWindow,
+  isMissingVenue,
+  noteVenueDetailMiss,
+  pauseVenueDetailWindow,
+  selectVenueDetailMatches,
+  venueDetailMissIsActive,
+} from "@/lib/venue-detail-budget";
+
+export { isMissingVenue };
 
 type StadiumEntry = {
   venue: string;
@@ -40,6 +51,9 @@ const stadiumList = stadiums as StadiumEntry[];
 const seedCache = venueCacheSeed as Record<string, VenueRecord>;
 
 const runtimeCache = new Map<number, VenueRecord>();
+const venueDetailWindow = createVenueDetailWindow();
+const venueDetailMisses = new Map<number, number>();
+const venueDetailInFlight = new Set<number>();
 
 function normalizeName(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -51,11 +65,6 @@ for (const entry of stadiumList) {
   for (const alias of entry.aliases ?? []) {
     stadiumByNormalized.set(normalizeName(alias), entry);
   }
-}
-
-export function isMissingVenue(venue?: string | null): boolean {
-  const trimmed = venue?.trim();
-  return !trimmed || trimmed.toUpperCase() === "TBD";
 }
 
 export function resolveStadium(venue?: string | null): ResolvedStadium | null {
@@ -147,28 +156,34 @@ function needsVenueResolution(match: MatchInfo): boolean {
   return isMissingVenue(match.venue) || !resolveStadium(match.venue);
 }
 
+type VenueDetailOutcome = {
+  record?: VenueRecord;
+  rateLimited: boolean;
+};
+
 async function fetchVenueFromFootballData(
   apiKey: string,
   matchId: number
-): Promise<VenueRecord | undefined> {
+): Promise<VenueDetailOutcome> {
   try {
     const res = await fetch(`https://api.football-data.org/v4/matches/${matchId}`, {
       headers: { "X-Auth-Token": apiKey },
       ...uncachedFetch,
     });
-    if (!res.ok) return undefined;
+    if (res.status === 429) return { rateLimited: true };
+    if (!res.ok) return { rateLimited: false };
 
     const data = (await res.json()) as { venue?: string | null };
     const venue = data.venue?.trim();
-    if (!venue || isMissingVenue(venue)) return undefined;
+    if (!venue || isMissingVenue(venue)) return { rateLimited: false };
 
     const resolved = resolveStadium(venue);
-    if (resolved) return resolved;
+    if (resolved) return { record: resolved, rateLimited: false };
 
     const commaCity = venue.includes(",") ? venue.split(",").slice(1).join(",").trim() : undefined;
-    return { venue, city: cityForStadium(venue) ?? commaCity };
+    return { record: { venue, city: cityForStadium(venue) ?? commaCity }, rateLimited: false };
   } catch {
-    return undefined;
+    return { rateLimited: false };
   }
 }
 
@@ -238,24 +253,39 @@ export async function enrichMatchVenues(
     return cached ? applyVenueRecord(match, cached) : match;
   });
 
-  const stillUnresolved = enriched.filter((m) => needsVenueResolution(m));
-  if (stillUnresolved.length === 0) return enriched;
-
-  const needDetailFetch = enriched.filter((m) => needsVenueResolution(m));
-
-  if (options?.footballDataApiKey && needDetailFetch.length > 0) {
-    const detailResults = await Promise.all(
-      needDetailFetch.slice(0, 48).map(async (match) => {
-        const record = await fetchVenueFromFootballData(options.footballDataApiKey!, match.id);
-        if (record) runtimeCache.set(match.id, record);
-        return { matchId: match.id, record };
-      })
+  // fetchMatches already requested the competition match list. These detail
+  // calls use uncachedFetch because client cards import this module. Only
+  // fixtures that are still missing a venue qualify, and one isolate spends
+  // at most four of those calls per minute.
+  if (options?.footballDataApiKey) {
+    const now = Date.now();
+    const targets = selectVenueDetailMatches(enriched).filter(
+      (match) =>
+        !venueDetailMissIsActive(venueDetailMisses, match.id, now) &&
+        !venueDetailInFlight.has(match.id)
     );
+    for (const match of targets) {
+      if (venueDetailInFlight.has(match.id)) continue;
+      if (!claimVenueDetailSlot(venueDetailWindow, Date.now())) break;
 
-    for (const { matchId, record } of detailResults) {
-      if (!record) continue;
-      const idx = enriched.findIndex((m) => m.id === matchId);
-      if (idx >= 0) enriched[idx] = applyVenueRecord(enriched[idx]!, record);
+      venueDetailInFlight.add(match.id);
+      try {
+        const outcome = await fetchVenueFromFootballData(options.footballDataApiKey, match.id);
+        if (outcome.rateLimited) {
+          pauseVenueDetailWindow(venueDetailWindow, Date.now());
+          break;
+        }
+        if (!outcome.record) {
+          noteVenueDetailMiss(venueDetailMisses, match.id, Date.now());
+          continue;
+        }
+
+        runtimeCache.set(match.id, outcome.record);
+        const idx = enriched.findIndex((item) => item.id === match.id);
+        if (idx >= 0) enriched[idx] = applyVenueRecord(enriched[idx]!, outcome.record);
+      } finally {
+        venueDetailInFlight.delete(match.id);
+      }
     }
   }
 

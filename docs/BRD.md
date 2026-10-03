@@ -91,6 +91,7 @@ Every sport page should provide:
 - FR-F2: Optional Grok “Improve text” when `GROK_API_KEY` / `XAI_API_KEY` present.
 - FR-F3: Rate limit submissions (10/IP/hour in-memory).
 - FR-F4: Support `feedbackCategory`: `general` | `sport-request`.
+- FR-F5: `GET /api/feedback/recent`, `POST /api/feedback/close-shipped`, and `POST /api/feedback/reopen` require `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. If the secret is unset or the header does not match, they return 401 and do not call Linear. `POST /api/feedback` stays public and rate-limited.
 
 ### 6.4 Home / last-viewed sport
 
@@ -129,8 +130,7 @@ Every sport page should provide:
 ## 9. Open product gaps (as of Aug 2026)
 
 1. **La Liga parity** with Premier League (awards, records, richer curated facts).  
-2. Ops API routes (`close-shipped`, `reopen`, `recent`) lack auth — treat as risk.  
-3. Club-league openfootball seasons can lag (e.g. mid-August before the new `yy-yy` JSON lands); cascade tries current then previous season.
+2. Club-league openfootball seasons can lag (e.g. mid-August before the new `yy-yy` JSON lands); cascade tries current then previous season.
 
 ---
 

@@ -1,9 +1,8 @@
 import "server-only";
 
-import { uncachedFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 
 const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
-const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
 /** Commentator-style colour for circuits — character, not betting tips. */
 export const CIRCUIT_COLOUR: Record<string, string> = {
@@ -62,8 +61,6 @@ interface WinnerRow {
   driverName: string;
 }
 
-const winnersCache = new Map<string, { value: WinnerRow[]; expiresAt: number }>();
-
 function normalizeCircuitKey(value: string): string {
   return value
     .toLowerCase()
@@ -116,18 +113,12 @@ export function getCircuitColourBlurb(circuitId: string | undefined, circuitName
 }
 
 async function fetchCircuitWinners(circuitId: string): Promise<WinnerRow[]> {
-  const cached = winnersCache.get(circuitId);
-  if (cached && Date.now() < cached.expiresAt) return cached.value;
-
   try {
-    const res = await fetch(`${JOLPICA_BASE}/circuits/${circuitId}/results/1.json?limit=100`, {
-      ...uncachedFetch,
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) {
-      winnersCache.set(circuitId, { value: [], expiresAt: Date.now() + CACHE_TTL_MS });
-      return [];
-    }
+    const res = await cachedUpstreamFetch(
+      `${JOLPICA_BASE}/circuits/${circuitId}/results/1.json?limit=100`,
+      { signal: AbortSignal.timeout(8000) }
+    );
+    if (!res.ok) return [];
     const data = (await res.json()) as {
       MRData?: {
         RaceTable?: {
@@ -147,10 +138,8 @@ async function fetchCircuitWinners(circuitId: string): Promise<WinnerRow[]> {
         driverName: `${driver.givenName} ${driver.familyName}`.trim(),
       });
     }
-    winnersCache.set(circuitId, { value: rows, expiresAt: Date.now() + CACHE_TTL_MS });
     return rows;
   } catch {
-    winnersCache.set(circuitId, { value: [], expiresAt: Date.now() + 5 * 60 * 1000 });
     return [];
   }
 }

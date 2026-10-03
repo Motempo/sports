@@ -1,4 +1,5 @@
-import plClubsSeed from "@/data/pl-clubs-seed.json";
+import plClubsSeed from "@/data/pl-clubs-seed.json" with { type: "json" };
+import { highestFinishedMatchday } from "@/lib/league-matchdays";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 import type {
   LeagueStandingRow,
@@ -192,22 +193,7 @@ function computeForm(code: string, matches: MatchInfo[]): Array<"W" | "D" | "L">
 }
 
 function currentMatchday(matches: MatchInfo[]): number {
-  const finished = matches.filter((m) => m.status === "FINISHED");
-  if (finished.length === 0) return 0;
-  let maxMd = 0;
-  for (const match of finished) {
-    const fromGroup = match.group?.match(/(\d+)/)?.[1];
-    if (fromGroup) maxMd = Math.max(maxMd, Number(fromGroup));
-  }
-  if (maxMd > 0) return Math.min(TOTAL_MATCHDAYS, maxMd);
-  const played = Math.max(...Object.values(
-    finished.reduce<Record<string, number>>((acc, m) => {
-      acc[m.homeTeam.code] = (acc[m.homeTeam.code] ?? 0) + 1;
-      acc[m.awayTeam.code] = (acc[m.awayTeam.code] ?? 0) + 1;
-      return acc;
-    }, {})
-  ));
-  return Math.min(TOTAL_MATCHDAYS, played);
+  return highestFinishedMatchday(matches, TOTAL_MATCHDAYS);
 }
 
 export function computeLeagueStandings(

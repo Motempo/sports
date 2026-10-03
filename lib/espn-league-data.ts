@@ -1,5 +1,6 @@
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
+import { assignLeagueMatchdays, type LeagueRoundFixture } from "@/lib/league-matchdays";
 
 export type EspnLeagueSlug = "eng.1" | "esp.1";
 
@@ -22,14 +23,29 @@ interface EspnStatusType {
   description?: string;
 }
 
+interface EspnWeek {
+  number?: number;
+}
+
+interface EspnNote {
+  headline?: string;
+  text?: string;
+}
+
+interface EspnCompetition {
+  competitors?: EspnCompetitor[];
+  status?: { type?: EspnStatusType };
+  venue?: { fullName?: string };
+  week?: number | EspnWeek;
+  altGameNote?: string;
+  notes?: Array<EspnNote | string>;
+}
+
 interface EspnEvent {
   id: string;
   date: string;
-  competitions?: Array<{
-    competitors?: EspnCompetitor[];
-    status?: { type?: EspnStatusType };
-    venue?: { fullName?: string };
-  }>;
+  week?: number | EspnWeek;
+  competitions?: EspnCompetition[];
 }
 
 export interface EspnLeagueParseOptions {
@@ -82,6 +98,60 @@ function mapEspnStatus(type?: EspnStatusType): MatchInfo["status"] {
     return "POSTPONED";
   }
   return "SCHEDULED";
+}
+
+const ROUND_TEXT =
+  /\b(?:match\s*weeks?|matchdays?|jornadas?|rounds?|weeks?)\s*#?\s*(\d{1,2})\b/i;
+
+function readWeekNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) return value;
+  if (value && typeof value === "object" && "number" in value) {
+    const number = (value as EspnWeek).number;
+    if (typeof number === "number" && Number.isInteger(number) && number > 0) return number;
+  }
+  return null;
+}
+
+function readRoundText(text: string | undefined): number | null {
+  if (!text) return null;
+  const match = text.match(ROUND_TEXT);
+  if (!match?.[1]) return null;
+  const number = Number(match[1]);
+  return Number.isInteger(number) && number > 0 ? number : null;
+}
+
+/** Round/week number ESPN put on the event, or null when the feed has none. */
+export function explicitEspnRound(event: EspnEvent): number | null {
+  const competition = event.competitions?.[0];
+  const fromWeek = readWeekNumber(event.week) ?? readWeekNumber(competition?.week);
+  if (fromWeek) return fromWeek;
+
+  const fromAlt = readRoundText(competition?.altGameNote);
+  if (fromAlt) return fromAlt;
+
+  for (const note of competition?.notes ?? []) {
+    const text = typeof note === "string" ? note : note.headline ?? note.text;
+    const fromNote = readRoundText(text);
+    if (fromNote) return fromNote;
+  }
+  return null;
+}
+
+function clubKey(team: EspnTeam | undefined): string | null {
+  const name = team?.displayName?.trim();
+  if (!name) return null;
+  const abbr = team?.abbreviation?.trim();
+  return abbr ? `${abbr}|${name}` : name;
+}
+
+function eventClubs(event: EspnEvent): { home: string; away: string } | null {
+  const competitors = event.competitions?.[0]?.competitors ?? [];
+  const home = competitors.find((competitor) => competitor.homeAway === "home");
+  const away = competitors.find((competitor) => competitor.homeAway === "away");
+  const homeKey = clubKey(home?.team);
+  const awayKey = clubKey(away?.team);
+  if (!homeKey || !awayKey) return null;
+  return { home: homeKey, away: awayKey };
 }
 
 function stableEspnMatchId(league: EspnLeagueSlug, eventId: string): number {
@@ -238,18 +308,41 @@ export async function fetchEspnLeagueMatches(
     const events = [...byId.values()];
     if (events.length < 10) return null;
 
-    const sorted = events.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-
-    const matches = sorted
-      .map((event, index) =>
-        parseEspnEvent(league, event, Math.floor(index / 10) + 1, options)
-      )
-      .filter((match): match is MatchInfo => match != null);
-
+    const matches = buildEspnLeagueMatches(events, league, options);
     return matches.length >= 10 ? matches : null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Turn a scoreboard payload into league fixtures.
+ * Matchweeks come from ESPN's round/week when the event has one; otherwise
+ * they are inferred so a postponement does not renumber later weeks.
+ */
+export function buildEspnLeagueMatches(
+  events: EspnEvent[],
+  league: EspnLeagueSlug,
+  options: EspnLeagueParseOptions
+): MatchInfo[] {
+  const playable = events.filter((event) => event?.id && event.date && eventClubs(event));
+  const sorted = [...playable].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime() || a.id.localeCompare(b.id)
+  );
+
+  const fixtures: LeagueRoundFixture[] = sorted.map((event) => {
+    const clubs = eventClubs(event)!;
+    return {
+      id: event.id,
+      kickoff: event.date,
+      homeKey: clubs.home,
+      awayKey: clubs.away,
+      explicitRound: explicitEspnRound(event),
+    };
+  });
+  const matchdays = assignLeagueMatchdays(fixtures);
+
+  return sorted
+    .map((event, index) => parseEspnEvent(league, event, matchdays[index] ?? 1, options))
+    .filter((match): match is MatchInfo => match != null);
 }

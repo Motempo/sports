@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isInferredIntent, type InferredIntent } from "@/lib/feedback-context";
 import { getGrokApiKey } from "@/lib/grok";
+import { checkRateLimit, rateLimitClientKey } from "@/lib/rate-limit";
 
 const IMPROVE_PROMPT = `Improve this user feedback for a Motempo web app. Keep the same meaning, fix grammar, and make it clearer and more actionable.
 
@@ -76,6 +77,16 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const { allowed, retryAfterSec } = checkRateLimit(
+    `improve:${rateLimitClientKey(request)}`
+  );
+  if (!allowed) {
+    return NextResponse.json(
+      { error: `Rate limit exceeded. Try again in ${retryAfterSec} seconds.` },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = (await request.json()) as { description?: string; pageUrl?: string };
     if (!body.description?.trim()) {

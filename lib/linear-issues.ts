@@ -8,8 +8,7 @@ import {
   type InferredIntent,
   type SportRequestMetadata,
 } from "@/lib/feedback-context";
-
-type AttachmentMimeType = string;
+import { allowedScreenshotMimeType } from "@/lib/screenshot-mime";
 
 type LinearGraphqlError = { message: string };
 type LinearGraphqlResponse<T> = {
@@ -24,7 +23,7 @@ export interface FeedbackPayload {
   appId?: string;
   description: string;
   screenshotBase64?: string;
-  screenshotMimeType?: AttachmentMimeType;
+  screenshotMimeType?: string;
   screenshotFilename?: string;
   pageUrl?: string;
   inferredIntent?: InferredIntent | null;
@@ -47,11 +46,13 @@ function getApiKey(): string {
 
 function formatLinearError(errors: LinearGraphqlError[] | undefined, fallback: string): string {
   const message = errors?.[0]?.message?.trim();
-  if (!message) return fallback;
-  if (/authentication|unauthorized|invalid api key/i.test(message)) {
-    return "Linear API key is invalid or missing permissions.";
+  if (message) {
+    console.error("Linear request failed:", message);
+    if (/authentication|unauthorized|invalid api key/i.test(message)) {
+      return "Linear API key is invalid or missing permissions.";
+    }
   }
-  return message.length > 400 ? `${message.slice(0, 400)}…` : message;
+  return fallback;
 }
 
 async function linearRequest<T>(
@@ -186,7 +187,8 @@ async function uploadAttachment(
   filename?: string
 ): Promise<string | undefined> {
   try {
-    const contentType = mimeType.trim() || "application/octet-stream";
+    const contentType = allowedScreenshotMimeType(mimeType);
+    if (!contentType) return undefined;
     const buffer = Buffer.from(fileBase64, "base64");
     const uploadFilename = resolveUploadFilename(contentType, filename);
 
@@ -249,11 +251,12 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
   const labelId = await resolveLabelId(linearAppLabel(appId));
   const labelIds = labelId ? [labelId] : undefined;
 
+  const screenshotMimeType = allowedScreenshotMimeType(payload.screenshotMimeType);
   let attachmentUrl: string | undefined;
-  if (payload.screenshotBase64 && payload.screenshotMimeType) {
+  if (payload.screenshotBase64 && screenshotMimeType) {
     attachmentUrl = await uploadAttachment(
       payload.screenshotBase64,
-      payload.screenshotMimeType,
+      screenshotMimeType,
       payload.screenshotFilename
     );
   }
@@ -288,7 +291,7 @@ export async function createFeedbackIssue(payload: FeedbackPayload): Promise<Fee
           appId,
           screenshotUrl: attachmentUrl,
           attachmentFilename: payload.screenshotFilename,
-          attachmentMimeType: payload.screenshotMimeType,
+          attachmentMimeType: screenshotMimeType,
           inferredIntent: payload.inferredIntent,
           category: payload.feedbackCategory,
           sportRequest: payload.sportRequest,

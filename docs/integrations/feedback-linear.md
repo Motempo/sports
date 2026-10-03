@@ -26,20 +26,26 @@ Every Motempo app posts feedback to the **same Linear team** (`LINEAR_TEAM_NAME=
 
 | Route | Role |
 |-------|------|
-| `POST /api/feedback` | Create issue (+ optional screenshot markdown) |
-| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve |
+| `POST /api/feedback` | Create issue (+ optional screenshot). 10/IP/hour. 500s are generic |
+| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve. POST is the same 10/IP/hour limit, checked before xAI |
 | `GET /api/feedback/recent` | Ops list. Requires `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 | `POST /api/feedback/close-shipped` | Close fixed tickets (used by oo/deploy). Same bearer secret |
 | `POST /api/feedback/reopen` | Reopen. Same bearer secret |
 
-`FEEDBACK_OPS_SECRET` is server-only. If it is unset, these three routes return **401** `{ "error": "Unauthorized" }` and do not call Linear. A missing or wrong bearer gets the same 401. `POST /api/feedback` is unchanged and stays rate-limited.
+`FEEDBACK_OPS_SECRET` is server-only. If it is unset, these three routes return **401** `{ "error": "Unauthorized" }` and do not call Linear. A missing or wrong bearer gets the same 401. `POST /api/feedback` stays unauthenticated and rate-limited.
 
 ```http
 GET /api/feedback/recent
 Authorization: Bearer <FEEDBACK_OPS_SECRET>
 ```
 
-Libs: `lib/linear-issues.ts`, `lib/feedback-ops-auth.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts` (10/IP/hr on `POST /api/feedback`).
+Libs: `lib/linear-issues.ts`, `lib/feedback-ops-auth.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
+
+`POST /api/feedback` and `POST /api/feedback/improve` are each limited to **10 requests per client IP per hour** (in-memory, per instance). The key is the Vercel client IP: rightmost hop of `x-vercel-forwarded-for`, otherwise `x-real-ip`. The first `x-forwarded-for` hop is ignored so a caller cannot rotate buckets by spoofing that header.
+
+Screenshot `contentType` must be an allowlisted image type (PNG, JPEG, WebP, GIF, AVIF, HEIC, HEIF, BMP, TIFF). Other client-supplied MIME types are rejected with 400 and are not sent to Linear.
+
+Upstream Linear error text is logged server-side. The public submit route answers 500 with `Failed to submit feedback.`
 
 ## UX
 

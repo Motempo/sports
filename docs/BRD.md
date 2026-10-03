@@ -82,14 +82,14 @@ Every sport page should provide:
 
 - FR-N1: News prefers live X timelines when `APIXAPI_KEY` (or alias) is set; otherwise curated RSS / Google News per sport (`data/sources/{slug}.json`).
 - FR-N2: Fun facts from static JSON + optional Wikipedia enrichment.
-- FR-N3: Pagination default: offset/limit with `limit` default 3.
+- FR-N3: Pagination default: offset/limit with `limit` default 3, clamped to 1–10. An unknown `sport` slug returns 400.
 - FR-N4: News cards and the story modal show the post image when the feed or publisher page provides one, and play an embedded video when the post includes one (YouTube, Vimeo, or a direct video file).
 
 ### 6.3 Feedback
 
 - FR-F1: `POST /api/feedback` creates a Linear issue with explicit `appId` (`sports`).
-- FR-F2: Optional Grok “Improve text” when `GROK_API_KEY` / `XAI_API_KEY` present.
-- FR-F3: Rate limit submissions (10/IP/hour in-memory).
+- FR-F2: Optional Grok “Improve text” when `GROK_API_KEY` / `XAI_API_KEY` present. `POST /api/feedback/improve` is rate-limited like submit (10/IP/hour) before any xAI call.
+- FR-F3: Rate limit submissions (10/IP/hour in-memory), keyed by the platform client IP (`x-vercel-forwarded-for` rightmost hop, else `x-real-ip`), not the first `X-Forwarded-For` hop. Failed submits return a generic message. Screenshot MIME is an image allowlist.
 - FR-F4: Support `feedbackCategory`: `general` | `sport-request`.
 - FR-F5: `GET /api/feedback/recent`, `POST /api/feedback/close-shipped`, and `POST /api/feedback/reopen` require `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. If the secret is unset or the header does not match, they return 401 and do not call Linear. `POST /api/feedback` stays public and rate-limited.
 

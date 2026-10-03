@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
+import { securityHeaders } from "./lib/security-headers";
 
 const nextConfig: NextConfig = {
   // Homepage routing is handled by middleware (last-viewed sport cookie → fallback CURRENT_SPORT_SLUG).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders(),
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "flagcdn.com" },

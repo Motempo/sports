@@ -180,6 +180,7 @@ GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-phot
 | Surface | Policy |
 |---------|--------|
 | Upstream sports fetches | 90s Data Cache via `cachedUpstreamFetch`; non-200 not stored |
+| Scheduled refresh | None. The window id rolls every 90s, and Hobby cron runs at most once a day, so a cron cannot keep these entries warm |
 | Sport pages | `force-dynamic` (per-request HTML). No `fetchCache = force-no-store` |
 | News/facts APIs | `no-store` |
 | In-process | Sports-cache window map; facts array per sport; Linear IDs; venue Map |

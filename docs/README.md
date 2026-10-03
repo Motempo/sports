@@ -25,7 +25,7 @@
 | Doc | Purpose |
 |-----|---------|
 | [integrations/data-sources.md](./integrations/data-sources.md) | football-data, openfootball, Jolpica, OpenF1, RSS, Wikipedia |
-| [integrations/feedback-linear.md](./integrations/feedback-linear.md) | Feedback → Linear, Grok improve, ops close-shipped |
+| [integrations/feedback-linear.md](./integrations/feedback-linear.md) | Feedback → Linear and Grok improve |
 | [integrations/ads.md](./integrations/ads.md) | Family-friendly ads, kill switches, placements |
 
 ## Source corpus (external)
@@ -39,7 +39,7 @@ Original planning artifacts live outside the repo. Paths:
 | Sports site ads | `~/.cursor/plans/sports_site_ads_0c5cb1e2.plan.md` |
 | Motempo ops loop (oo) | `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md` |
 
-Related nested app: [`oo/README.md`](../oo/README.md) — ops dashboard consumer of Sports Linear feedback.
+`oo/` was the ops dashboard that called the removed feedback ops routes. It is not part of this app. Feedback goes to Linear through `POST /api/feedback`.
 
 Thin in-repo stubs still useful: [`README.md`](../README.md), [`data/sources/README.md`](../data/sources/README.md).
 

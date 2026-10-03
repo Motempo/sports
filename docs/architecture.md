@@ -57,9 +57,6 @@ flowchart TB
 | `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + 10/IP/hour |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 10/IP/hour and is checked before any xAI call | GET public; POST rate limited (503 if no key) |
-| `/api/feedback/recent` | GET | List recent team issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
-| `/api/feedback/close-shipped` | POST | Close shipped tickets | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
-| `/api/feedback/reopen` | POST | Reopen issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 
 News/facts: `force-dynamic`, `Cache-Control: no-store`. List responses include `items` (and news includes `total`; facts include `total`, `nextOffset`, and `wrapped`). The widgets append each **More** page and render the empty state when the response is not OK, the network fails, or the body is `{ error }`.
 
@@ -157,7 +154,6 @@ See `.env.example`. Summary:
 | `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
 | `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear |
-| `FEEDBACK_OPS_SECRET` | Bearer secret for `/api/feedback/recent`, `close-shipped`, and `reopen`. Required; routes return 401 when it is unset |
 | `COMMIT_SHA` | Deploy fingerprint in issues |
 | `NEXT_PUBLIC_ADS_*` | Ad kill switches + provider slots |
 
@@ -217,7 +213,7 @@ Bug reports keep the separate shadcn dialog in `components/ui/dialog.tsx`.
 ## Security notes for backend work
 
 1. Never ship secrets to client components.  
-2. Ops feedback routes (`recent`, `close-shipped`, `reopen`) require `FEEDBACK_OPS_SECRET` as `Authorization: Bearer`. They return 401 and do not call Linear when the secret is unset or the header does not match. Do not expand them without that check. Public `POST /api/feedback` stays unauthenticated and rate-limited.  
+2. Public `POST /api/feedback` stays unauthenticated and rate-limited. The app does not expose routes to list, close, or reopen Linear issues.  
 3. Rate limit is **per-instance memory** — not durable across serverless isolates. `POST /api/feedback` and `POST /api/feedback/improve` each allow 10 requests per client per hour. The bucket key is the platform client IP: the rightmost hop of `x-vercel-forwarded-for`, then `x-real-ip` (the address `@vercel/functions` `ipAddress()` reads). A client-supplied `x-forwarded-for` is not a key, so a spoofed first hop cannot open a new bucket.  
 4. `POST /api/feedback` 500 responses are a generic message. Linear GraphQL text is logged on the server and is not copied into the response.  
 5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
@@ -243,4 +239,4 @@ No API keys or other secrets are required. `npm test` uses Node's built-in runne
 
 ## Related nested app: `oo/`
 
-Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. `close-shipped`, `reopen`, and `recent` need `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.
+`oo` was a private ops dashboard and the only caller of the sports feedback ops routes (`recent`, `close-shipped`, `reopen`). Those routes are removed. Sports feedback still creates Linear issues through public `POST /api/feedback`. See `docs/integrations/feedback-linear.md`.

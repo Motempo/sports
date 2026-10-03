@@ -1,6 +1,7 @@
 # User reports fix plan
 
-**Pulled:** 2026-09-20 from `GET https://sports.motempo.com/api/feedback/recent`  
+**Pulled:** 2026-09-20 from `GET https://sports.motempo.com/api/feedback/recent` (before ops auth).  
+**Now:** `recent`, `close-shipped`, and `reopen` require `Authorization: Bearer <FEEDBACK_OPS_SECRET>` and return 401 without it.  
 **Status:** Implemented on branch `cursor/user-reports-fix-plan-0479` (MOT-52 / MOT-53 / MOT-48). MOT-46 remains Music-only.  
 **Open Linear issues at pull:** 4 (`openCount: 4`) · **In-scope for Motempo/sports:** 3  
 **Out of scope:** MOT-46 (`[music/explore]`) — route to Motempo Music
@@ -195,8 +196,8 @@ Belongs to **Motempo Music**, not `Motempo/sports`. No code change here. Forward
 ## Implementation notes
 
 - Prefer **one PR per ticket** (or 52+53 together if touching shared league pages; keep 48 separate because of env dependency).
-- After each ship, oo/deploy can call `POST /api/feedback/close-shipped` for the matching identifiers.
-- Re-pull `/api/feedback/recent` before starting work in case new reports land (MOT-52/53 were filed the same day as this plan).
+- After each ship, oo/deploy can call `POST /api/feedback/close-shipped` with `Authorization: Bearer <FEEDBACK_OPS_SECRET>` for the matching identifiers.
+- Re-pull `GET /api/feedback/recent` with the same header before starting work in case new reports land (MOT-52/53 were filed the same day as this plan).
 
 ## Suggested Linear states after triage
 

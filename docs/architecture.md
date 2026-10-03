@@ -4,10 +4,12 @@
 
 | Layer | Choice |
 |-------|--------|
-| Framework | Next.js 15 App Router + React 19 + TypeScript |
+| Framework | Next.js 15.5.27 (pinned) App Router + React 19 + TypeScript |
 | Styling | Tailwind 4 + Radix/shadcn primitives |
 | Hosting | Vercel · `sports.motempo.com` |
 | Package | `@workspace/motempo-sports` |
+
+`next` and `eslint-config-next` are pinned to **15.5.27** (latest 15.5 security line). Stay on Next 15. `overrides` force `postcss@8.5.28`, `nanoid@3.3.19`, and `sharp@0.35.5`: Next 15.5.27 still depends on PostCSS 8.4.31, and its Sharp range can still resolve 0.34.x.
 
 Most sports data is **not** exposed as REST. Server Components (`components/sports/*PageContent.tsx`) fetch and stream UI. HTTP BFF routes cover **news, facts, and feedback only**.
 
@@ -55,9 +57,9 @@ flowchart TB
 | `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
-| `/api/feedback/recent` | GET | List recent team issues | **No auth — ops risk** |
-| `/api/feedback/close-shipped` | POST | Close shipped tickets | **No auth — ops risk** |
-| `/api/feedback/reopen` | POST | Reopen issues | **No auth — ops risk** |
+| `/api/feedback/recent` | GET | List recent team issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
+| `/api/feedback/close-shipped` | POST | Close shipped tickets | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
+| `/api/feedback/reopen` | POST | Reopen issues | `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
 
 News/facts: `force-dynamic`, `Cache-Control: no-store`.
 
@@ -78,7 +80,7 @@ prefer live API → community / open mirror → local seed
 | La Liga | football-data `PD` (current season) | ESPN scoreboard JSON scrape | openfootball `es.1.json` / `.txt` | `data/la-liga-clubs-seed.json` |
 | Formula 1 | Jolpica Ergast | OpenF1 sessions | `data/f1-season-seed.json` |
 
-Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, cache-bust URLs). No Redis / product Data Cache.
+Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for scoreboards and standings. `lib/fetch-options.ts` (`uncachedFetch`) stays on news, facts, and venue photos. No Redis. Shared cache is the Next.js Data Cache (included on Vercel Hobby).
 
 ---
 
@@ -87,7 +89,7 @@ Fetch helpers: `lib/fetch-options.ts` (`uncachedFetch`, `freshUpstreamFetch`, ca
 | Concern | Key files |
 |---------|-----------|
 | Registry / SEO | `sports.ts`, `types.ts` |
-| Football API | `football-data.ts`, `openfootball-data.ts` |
+| Football API | `football-data.ts`, `openfootball-data.ts`, `sports-upstream-cache.ts` |
 | WC | `wc2026-*.ts`, `group-standings.ts`, `knockout-*.ts`, `tournament-*.ts`, `world-cup-*.ts` |
 | F1 | `f1-*.ts` |
 | Premier League | `premier-league-*.ts` |
@@ -138,6 +140,7 @@ See `.env.example`. Summary:
 | `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
 | `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear |
+| `FEEDBACK_OPS_SECRET` | Bearer secret for `/api/feedback/recent`, `close-shipped`, and `reopen`. Required; routes return 401 when it is unset |
 | `COMMIT_SHA` | Deploy fingerprint in issues |
 | `NEXT_PUBLIC_ADS_*` | Ad kill switches + provider slots |
 
@@ -158,26 +161,51 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
 ---
 
-## Caching policy (current practice)
+## Caching policy
+
+Sport pages stay `dynamic = "force-dynamic"` so the shell renders per request (the 3-minute `router.refresh()` still feels live). They must **not** set `fetchCache = "force-no-store"` or `revalidate = 0` — `force-no-store` skips Data Cache reads.
+
+Upstream sports payloads (football-data, ESPN scoreboards, openfootball / GitHub raw, Jolpica, OpenF1, scorers) go through `cachedUpstreamFetch`:
+
+| Layer | What it does |
+|-------|----------------|
+| In-process map | Dedupes concurrent misses on one isolate; repeat hits in the same 90s window do not call out |
+| `unstable_cache` time bucket | Shared Next.js Data Cache across Hobby isolates. The bucket id changes every 90s, so the first request of the next window **blocks** on a fresh upstream read (a full-time result shows up within one TTL, not one extra stale-while-revalidate hop) |
+| What is stored | HTTP **200** bodies only. A 429 (or any other status) is not written. That request still falls through the cascade (football-data → ESPN → openfootball → seed). The next request tries football-data again. ESPN boards are trimmed before storage so they stay under the Data Cache 2MB entry cap |
+
+GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-photo fetches stay `no-store`.
+
+`'use cache'` / Cache Components is the Next 16 model and would change rendering for the whole app on 15.5, so it is not enabled. An in-memory map alone is not shared across isolates.
 
 | Surface | Policy |
 |---------|--------|
-| Upstream sports fetches | Prefer `no-store` / busted URLs |
-| Sport pages | `force-dynamic` / `revalidate = 0`; league pages also `fetchCache = force-no-store` |
+| Upstream sports fetches | 90s Data Cache via `cachedUpstreamFetch`; non-200 not stored |
+| Scheduled refresh | None. The window id rolls every 90s, and Hobby cron runs at most once a day, so a cron cannot keep these entries warm |
+| Sport pages | `force-dynamic` (per-request HTML). No `fetchCache = force-no-store` |
 | News/facts APIs | `no-store` |
-| In-process | Facts array per sport; Linear IDs; venue Map |
+| In-process | Sports-cache window map; facts array per sport; Linear IDs; venue Map |
 
 ---
 
 ## Security notes for backend work
 
 1. Never ship secrets to client components.  
-2. Ops feedback routes currently have **no shared secret** — do not expand them without auth.  
+2. Ops feedback routes (`recent`, `close-shipped`, `reopen`) require `FEEDBACK_OPS_SECRET` as `Authorization: Bearer`. They return 401 and do not call Linear when the secret is unset or the header does not match. Do not expand them without that check. Public `POST /api/feedback` stays unauthenticated and rate-limited.  
 3. Rate limit is **per-instance memory** — not durable across serverless isolates.  
 4. Ads category blocks are dashboard config, not code.
 
 ---
 
+## CI
+
+Pull requests and pushes to `main` run [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
+
+`npm ci` → `npx tsc --noEmit` → `npm run lint` → `npm run build` → `npm test`
+
+No API keys or other secrets are required. `npm test` uses Node's built-in runner (`node:test` with type stripping) on `lib/**/*.test.ts`. Tests stay offline — they call pure helpers and must not request ESPN, football-data, or other upstreams. `scripts/node-test-alias-hook.mjs` resolves the `@/*` alias and stubs `server-only` plus `next/cache` so those modules load outside the Next.js bundler. Sport pages are `force-dynamic`, so `next build` does not fetch upstream data.
+
+---
+
 ## Related nested app: `oo/`
 
-Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.
+Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. `close-shipped`, `reopen`, and `recent` need `Authorization: Bearer <FEEDBACK_OPS_SECRET>`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.

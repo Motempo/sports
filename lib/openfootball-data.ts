@@ -1,6 +1,6 @@
 import knockoutFixtures from "@/data/wc2026-knockout-fixtures.json";
 import teamSeed from "@/data/team-seed.json";
-import { cacheBustUrl, freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { inferMatchStatusFromKickoff } from "@/lib/match-status";
 import type { BracketRound, MatchInfo, MatchStage } from "@/lib/types";
 import { buildTeamInfo } from "@/lib/team-info";
@@ -249,7 +249,7 @@ export async function fetchOpenFootballRawMatches(): Promise<OpenFootballMatch[]
 
 async function fetchOpenFootballDoc(url: string): Promise<OpenFootballDoc | null> {
   try {
-    const res = await fetch(cacheBustUrl(url), freshUpstreamFetch);
+    const res = await cachedUpstreamFetch(url);
     if (!res.ok) return null;
     return (await res.json()) as OpenFootballDoc;
   } catch {
@@ -259,7 +259,7 @@ async function fetchOpenFootballDoc(url: string): Promise<OpenFootballDoc | null
 
 /**
  * Free public-domain World Cup 2026 fixtures and results (no API key).
- * Pulls from fast-updating and official mirrors in parallel on every call.
+ * Pulls from fast-updating and official mirrors in parallel, sharing a short TTL.
  * @see https://github.com/openfootball/worldcup.json
  */
 export async function fetchOpenFootballMatches(): Promise<MatchInfo[]> {

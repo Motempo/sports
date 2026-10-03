@@ -178,6 +178,16 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
 ---
 
+## CI
+
+Pull requests and pushes to `main` run [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
+
+`npm ci` → `npx tsc --noEmit` → `npm run lint` → `npm run build` → `npm test`
+
+No API keys or other secrets are required. `npm test` uses Node's built-in runner (`node:test` with type stripping) on `lib/**/*.test.ts`. Tests stay offline — they call pure helpers and must not request ESPN, football-data, or other upstreams. `scripts/node-test-alias-hook.mjs` resolves the `@/*` alias so those modules load outside the Next.js bundler. Sport pages are `force-dynamic`, so `next build` does not fetch upstream data.
+
+---
+
 ## Related nested app: `oo/`
 
 Private ops dashboard (intended standalone `Motempo/oo`). Consumes Linear issues tagged for sports; plan → approve → implement → `close-shipped`. See `oo/README.md` and `docs/integrations/feedback-linear.md`.

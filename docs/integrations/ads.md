@@ -40,3 +40,13 @@ Max ~2–3 units mobile, ~3–4 desktop (plan guidance).
 3. Future: Mediavine Journey / Raptive when traffic thresholds hit  
 
 Block in dashboards: gambling/betting, dating, alcohol, mature, weight-loss spam, etc.
+
+## Content Security Policy
+
+Response headers are set in `next.config.ts` via `lib/security-headers.ts`. The CSP is **`Content-Security-Policy-Report-Only`**.
+
+The AdSense loader in `app/layout.tsx` is on every page, even while placements are off. Google’s AdSense CSP guidance does not support a frozen domain allowlist (ad and consent hosts change) and the strict nonce policy they document includes `'unsafe-eval'`. Enforcing an allowlist can blank ads; enforcing `'unsafe-eval'` weakens the script policy. Report-only keeps crests, Wikimedia images, and the feedback dialog working while violations stay visible in the browser console.
+
+`script-src` allows `'self'`, `'unsafe-inline'` (Next.js bootstrap, theme init, consent default/update), Google ad/consent hosts, and `*.nitropay.com`. It does **not** allow `'unsafe-eval'` in production, so eval from the ad loader still reports.
+
+When ads are approved and a consented session reports no unexpected violations, promote the header to enforcing `Content-Security-Policy`. Prefer a per-request nonce in middleware (Next.js applies it to its own scripts when the request carries the policy) over keeping this host list forever, and add `'unsafe-eval'` only if that live session still needs it.

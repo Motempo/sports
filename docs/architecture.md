@@ -223,7 +223,11 @@ Bug reports keep the separate shadcn dialog in `components/ui/dialog.tsx`.
 5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
 6. Ads category blocks are dashboard config, not code.  
 7. News article fetches follow redirects manually (`lib/safe-http.ts`, max 5) and refuse loopback, private, link-local, metadata, and unique-local targets, including IPv4-mapped IPv6 and non-canonical numeric IPv4. Hostnames that resolve to those addresses are not requested.  
-8. AdSense site ownership is the `google-adsense-account` meta tag. `adsbygoogle.js` is not on the page until the visitor accepts ad cookies and the ad kill switches are on.
+8. AdSense site ownership is the `google-adsense-account` meta tag. `adsbygoogle.js` is not on the page until the visitor accepts ad cookies and the ad kill switches are on.  
+9. **Browser headers** (`lib/security-headers.ts`, applied from `next.config.ts` on every route):
+   - Enforcing: `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and a restrictive `Permissions-Policy` (camera, mic, geolocation, payment, and similar features disabled; fullscreen / picture-in-picture / encrypted-media only for this origin plus YouTube and Vimeo embeds).
+   - `Content-Security-Policy-Report-Only` (not enforcing yet). It allows same-origin fetches (news, facts, venue photos, feedback), inline scripts Next.js plus the theme and consent snippets need, `'unsafe-inline'` styles, and `https:` images and media so crests, flags, Wikimedia, and publisher CDNs still load. Script, connect, and frame sources allow the Google AdSense / consent hosts and NitroPay in addition to `'self'`.
+   - Do not promote that policy to enforcing `Content-Security-Policy` until a session with live ad placements and ad consent is clean. Google does not support a fixed AdSense host allowlist, and the strict nonce policy they do support requires `'unsafe-eval'`. See [integrations/ads.md](./integrations/ads.md).
 
 ---
 

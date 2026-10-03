@@ -9,7 +9,7 @@ export function formatMatchDataSource(source: MatchDataSource): string {
     case "openfootball":
       return "Community feed · auto-refresh";
     case "seed":
-      return "Preview data";
+      return "Live data unavailable";
   }
 }
 

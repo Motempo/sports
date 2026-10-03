@@ -16,6 +16,7 @@ import {
 import type { GroupStandings } from "@/lib/group-standings";
 import type { MatchDataSource } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import { LiveDataUnavailableNotice } from "@/components/tournament/LiveDataUnavailableNotice";
 import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
 import type { MatchInfo } from "@/lib/types";
 
@@ -150,11 +151,9 @@ export function ScheduleByDay({
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
+          {source === "seed" ? <LiveDataUnavailableNotice /> : null}
           <p className="mt-2 text-[14px] text-muted">
             No live or scheduled matches in the next 30 days.
-            {source === "seed"
-              ? " Match data is temporarily unavailable — refresh shortly or check back during the tournament."
-              : ""}
           </p>
         </div>
       </section>
@@ -171,6 +170,7 @@ export function ScheduleByDay({
             {hasMore ? " · Load more for later fixtures" : ""}
           </p>
         </div>
+        {source === "seed" ? <LiveDataUnavailableNotice /> : null}
 
         <div
           role="region"

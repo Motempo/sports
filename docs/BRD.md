@@ -72,7 +72,7 @@ Every sport page should provide:
 
 ### 6.1 Data & scores
 
-- FR-D1: Match/standings data prefers authoritative free API, then open mirror, then seed.
+- FR-D1: Match/standings data prefers authoritative free API, then open mirror, then seed. Seed fallbacks show schedules, not invented results. A failed World Cup cascade leaves scores null and standings at 0 played, and the page says live data is unavailable.
 - FR-D2: Never expose API keys to the browser.
 - FR-D3: Accept free-tier score delay; do not promise real-time betting-grade feeds.
 - FR-D4: Club leagues use `stage: "LEAGUE"` and encode matchday in `group` (shared `MatchInfo`).

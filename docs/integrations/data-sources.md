@@ -4,6 +4,8 @@
 
 Free-first. Cascade: **live API → community mirror → local seed**. Keys stay server-side.
 
+World Cup, Premier League, and La Liga seeds are fixture grids only. They leave scores null. A failed World Cup cascade must not mark past group kickoffs finished or fill in scores — standings from that path show 0 played, and the page says live data is unavailable (`formatMatchDataSource("seed")`).
+
 ## football-data.org
 
 - Env: `FOOTBALL_DATA_API_KEY` (`X-Auth-Token`)

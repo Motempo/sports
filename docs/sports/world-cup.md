@@ -14,7 +14,7 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 |-------|--------|
 | Primary | football-data.org competition `WC` |
 | Mirror | openfootball worldcup JSON |
-| Seed | `data/wc2026-*.json`, `data/team-seed.json`, `team-iso-map.json` |
+| Seed | `data/wc2026-*.json`, `data/team-seed.json`, `team-iso-map.json` — fixture grid only |
 | Key libs | `lib/football-data.ts`, `lib/knockout-enrich.ts`, `lib/group-standings.ts`, `lib/tournament-phase.ts`, `lib/match-forecast.ts`, `lib/match-venue.ts` |
 | Cache | football-data and openfootball via `cachedUpstreamFetch` (90s). Page stays `force-dynamic` |
 
@@ -30,6 +30,10 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 | Knockout | `BracketTree` during knockouts |
 | Primer | `RulesPrimer` / tournament guide |
 | Awards / records | `world-cup-awards.ts`, `world-cup-records.ts` |
+
+## Seed fallback
+
+When football-data.org and openfootball both fail, `generateSeedGroupMatches` returns the group fixture grid as `SCHEDULED` with null scores. Past kickoffs are not marked `FINISHED`, and the seed does not invent scorelines. Standings from that payload show 0 played. The World Cup page states that live data is unavailable and does not paint those tables as qualification results.
 
 ## Requirements highlights
 

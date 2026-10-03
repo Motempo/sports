@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AdProvider } from "@/components/ads/AdProvider";
 import { CookieNotice } from "@/components/legal/CookieNotice";
 import { Toaster } from "@/components/ui/toaster";
-import { ADSENSE_PUBLISHER_ID } from "@/lib/ads-config";
+import { adsenseClientId } from "@/lib/ads-config";
 import { themeInitScript } from "@/lib/theme";
 import { getCurrentSport, SITE_NAME, SITE_URL } from "@/lib/sports";
 import "./globals.css";
@@ -42,6 +42,11 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  // AdSense site ownership check. Does not load adsbygoogle.js.
+  // https://support.google.com/adsense/answer/7584263
+  other: {
+    "google-adsense-account": adsenseClientId,
+  },
 };
 
 export default function RootLayout({
@@ -67,12 +72,6 @@ export default function RootLayout({
               });
             `,
           }}
-        />
-        {/* Google AdSense site verification + loader */}
-        <script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_PUBLISHER_ID}`}
-          crossOrigin="anonymous"
         />
       </head>
       <body className="min-h-dvh antialiased">

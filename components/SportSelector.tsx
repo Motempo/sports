@@ -18,11 +18,11 @@ function resolveActiveSlug(pathname: string, propSlug?: string): string {
   return segment && SPORTS.some((s) => s.slug === segment) ? segment : CURRENT_SPORT_SLUG;
 }
 
-function GroupLabel({ children }: { children: string }) {
+function GroupLabel({ id, children }: { id: string; children: string }) {
   return (
     <span
+      id={id}
       className="shrink-0 self-center px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted sm:px-2.5 sm:text-[11px]"
-      aria-hidden
     >
       {children}
     </span>
@@ -49,13 +49,17 @@ function SportChip({ sport, activeSlug }: { sport: SportConfig; activeSlug: stri
         )}
         aria-hidden
       />
-      <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">{sport.label}</span>
+      <span className="whitespace-nowrap text-[10px] font-semibold sm:text-[11px]">
+        {sport.label}
+        {!sport.available ? <span className="sr-only">, unavailable</span> : null}
+      </span>
     </>
   );
 
   if (!sport.available) {
+    // Non-widget: aria-disabled on a span is ignored. Expose the status as text.
     return (
-      <span className={chipClass} aria-disabled>
+      <span className={chipClass} aria-current={isActive ? "page" : undefined}>
         {inner}
       </span>
     );
@@ -70,6 +74,37 @@ function SportChip({ sport, activeSlug }: { sport: SportConfig; activeSlug: stri
     >
       {inner}
     </Link>
+  );
+}
+
+function SportGroup({
+  label,
+  labelId,
+  sports,
+  activeSlug,
+}: {
+  label: string;
+  labelId: string;
+  sports: SportConfig[];
+  activeSlug: string;
+}) {
+  if (sports.length === 0) return null;
+
+  return (
+    <div role="group" aria-labelledby={labelId} className="flex shrink-0 gap-1">
+      <GroupLabel id={labelId}>{label}</GroupLabel>
+      {/*
+        Tailwind preflight sets list-style: none, which makes VoiceOver drop list
+        semantics. The explicit role keeps the season a list.
+      */}
+      <ul role="list" className="m-0 flex shrink-0 list-none gap-1 p-0">
+        {sports.map((sport) => (
+          <li key={sport.id} className="flex shrink-0">
+            <SportChip sport={sport} activeSlug={activeSlug} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -93,14 +128,18 @@ export function SportSelector({ activeSportSlug }: SportSelectorProps) {
         />
 
         <SeasonProgressRailScroller activeStepId={activeSlug} className="px-1">
-          {currentSports.length > 0 ? <GroupLabel>Current season</GroupLabel> : null}
-          {currentSports.map((sport) => (
-            <SportChip key={sport.id} sport={sport} activeSlug={activeSlug} />
-          ))}
-          {pastSports.length > 0 ? <GroupLabel>Last season</GroupLabel> : null}
-          {pastSports.map((sport) => (
-            <SportChip key={sport.id} sport={sport} activeSlug={activeSlug} />
-          ))}
+          <SportGroup
+            label="Current season"
+            labelId="sport-group-current"
+            sports={currentSports}
+            activeSlug={activeSlug}
+          />
+          <SportGroup
+            label="Last season"
+            labelId="sport-group-past"
+            sports={pastSports}
+            activeSlug={activeSlug}
+          />
           <button
             type="button"
             onClick={() => setSuggestOpen(true)}

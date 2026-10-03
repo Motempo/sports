@@ -42,7 +42,7 @@ flowchart TB
 
 **Homepage recall:** `middleware.ts` + `lib/last-sport.ts` — essential cookie `motempo-sports-last-sport` set on sport page visits; `/` redirects to that slug (fallback `CURRENT_SPORT_SLUG`). Do not add a permanent `next.config` redirect for `/` (it would cache past the cookie).
 
-**Header picker:** `SportSelector` is a horizontally scrollable rail (same UX as the F1 season calendar): Current season chips, then Last season chips, centred on the active sport.
+**Header picker:** `SportSelector` is a horizontally scrollable rail (same UX as the F1 season calendar): Current season chips, then Last season chips, centred on the active sport. Each season is a labelled group containing a list (the visible label is the accessible name). The active chip sets `aria-current="page"`. Sports that are not available are static text ending in “unavailable”, not disabled controls. The root layout’s “Skip to content” link targets `#main-content` on sport and legal pages.
 
 **Shared types:** `lib/types.ts` — `MatchInfo`, `MatchStatus`, `MatchStage` (`BracketRound | "GROUP" | "LEAGUE"`), `NewsItem`, `FunFact`, `BracketData`.
 

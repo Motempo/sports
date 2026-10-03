@@ -15,7 +15,11 @@ export function LegalPageShell({ title, intro, sections, className }: LegalPageS
     <div className="min-h-dvh">
       <Header />
 
-      <main className={cn("mx-auto max-w-3xl px-3 py-8 sm:px-4 sm:py-10", className)}>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={cn("skip-target mx-auto max-w-3xl px-3 py-8 sm:px-4 sm:py-10", className)}
+      >
         <p className="text-[12px] font-medium uppercase tracking-wide text-muted">
           Last updated {LEGAL_LAST_UPDATED}
         </p>

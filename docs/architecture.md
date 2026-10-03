@@ -212,6 +212,7 @@ GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-phot
 4. `POST /api/feedback` 500 responses are a generic message. Linear GraphQL text is logged on the server and is not copied into the response.  
 5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
 6. Ads category blocks are dashboard config, not code.
+7. News article fetches follow redirects manually (`lib/safe-http.ts`, max 5) and refuse loopback, private, link-local, metadata, and unique-local targets, including IPv4-mapped IPv6 and non-canonical numeric IPv4. Hostnames that resolve to those addresses are not requested.
 
 ---
 

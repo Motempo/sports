@@ -1,6 +1,7 @@
 import "server-only";
 
 import { isGoogleNewsUrl, isSafeHttpUrl } from "@/lib/news-media";
+import { fetchPublicHttp } from "@/lib/safe-http";
 
 const BATCH_EXECUTE_URL = "https://news.google.com/_/DotsSplashUi/data/batchexecute";
 const USER_AGENT = "Mozilla/5.0 (compatible; Sports-by-Motempo/1.0; +https://sports.motempo.com)";
@@ -42,7 +43,7 @@ function googleNewsArticleId(url: string): string | undefined {
 
 async function fetchHtml(url: string): Promise<string | null> {
   try {
-    const res = await fetch(url, {
+    const res = await fetchPublicHttp(url, {
       cache: "no-store",
       headers: { "User-Agent": USER_AGENT, Accept: "text/html,application/xhtml+xml" },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),

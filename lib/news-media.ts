@@ -1,4 +1,7 @@
+import { isSafeHttpUrl } from "@/lib/safe-url";
 import type { NewsVideoKind } from "@/lib/types";
+
+export { isSafeHttpUrl };
 
 export type { NewsVideoKind };
 
@@ -29,25 +32,6 @@ export function isGoogleNewsUrl(url: string): boolean {
   try {
     const host = new URL(url).hostname.replace(/^www\./, "");
     return host === "news.google.com";
-  } catch {
-    return false;
-  }
-}
-
-export function isSafeHttpUrl(raw: string): boolean {
-  try {
-    const url = new URL(raw);
-    if (url.protocol !== "http:" && url.protocol !== "https:") return false;
-    const host = url.hostname.toLowerCase();
-    if (!host || host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) {
-      return false;
-    }
-    if (host === "0.0.0.0" || host === "::1" || host === "[::1]") return false;
-    if (/^(127|10|0)\./.test(host) || host.startsWith("192.168.") || host.startsWith("169.254.")) {
-      return false;
-    }
-    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(host)) return false;
-    return true;
   } catch {
     return false;
   }

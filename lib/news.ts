@@ -5,11 +5,11 @@ import {
   extractRssMedia,
   isGoogleNewsUrl,
   isSafeHttpUrl,
-  scrapeMediaFromHtml,
   youtubeThumbnailUrl,
   youtubeVideoId,
   type NewsMedia,
 } from "@/lib/news-media";
+import { fetchPublicHttp, readPublicArticleMedia } from "@/lib/safe-http";
 import {
   getNewsFeedSources,
   getNewsKeywordPattern,
@@ -262,11 +262,10 @@ async function fetchPublisherFeedItems(origin: string): Promise<RssItem[]> {
 
   for (const path of paths) {
     try {
-      const res = await fetch(`${origin}${path}`, {
+      const res = await fetchPublicHttp(`${origin}${path}`, {
         cache: "no-store",
         headers: { "User-Agent": USER_AGENT, Accept: "application/rss+xml, application/xml, text/xml" },
         signal: AbortSignal.timeout(OG_TIMEOUT_MS),
-        redirect: "follow",
       });
       if (!res.ok) continue;
       const xml = await res.text();
@@ -311,26 +310,17 @@ async function scrapeArticleMedia(url: string): Promise<NewsMedia> {
   if (cached) return cached;
   if (!isSafeHttpUrl(url) || isGoogleNewsUrl(url)) return {};
 
-  try {
-    const res = await fetch(url, {
-      cache: "no-store",
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "text/html,application/xhtml+xml",
-      },
-      signal: AbortSignal.timeout(OG_TIMEOUT_MS),
-      redirect: "follow",
-    });
-    if (!res.ok) {
-      return {};
-    }
-    const html = await res.text();
-    const media = scrapeMediaFromHtml(html);
-    ogCacheSet(url, media);
-    return media;
-  } catch {
-    return {};
-  }
+  const media = await readPublicArticleMedia(url, {
+    cache: "no-store",
+    headers: {
+      "User-Agent": USER_AGENT,
+      Accept: "text/html,application/xhtml+xml",
+    },
+    signal: AbortSignal.timeout(OG_TIMEOUT_MS),
+  });
+  if (!media) return {};
+  ogCacheSet(url, media);
+  return media;
 }
 
 export interface EnrichNewsOptions {

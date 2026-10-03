@@ -19,6 +19,8 @@ Mirror an existing sport (prefer Premier League for club leagues, F1 for season 
 - [ ] `lib/{sport}-types.ts`, `lib/{sport}-data.ts`, `lib/{sport}-phase.ts`, `lib/{sport}-guide.ts`
 - [ ] Clubs/teams seed JSON under `data/`
 - [ ] Implement cascade: API → optional openfootball → seed
+- [ ] Fetch upstream scoreboards with `cachedUpstreamFetch` (do not set `cache: "no-store"` or cache-bust GitHub raw URLs)
+- [ ] Sport page: `dynamic = "force-dynamic"` only — do not export `fetchCache = "force-no-store"`
 - [ ] Reuse `lib/league-standings.ts` or `match-schedule.ts` where format matches
 
 ## 4. News & facts

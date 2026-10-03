@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { scheduleZoneCaption, useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { MatchScheduleRow } from "@/components/bracket/MatchScheduleRow";
 import { MatchDetailModal } from "@/components/sports/MatchDetailModal";
 import {
@@ -99,11 +100,8 @@ export function ScheduleByDay({
 }: ScheduleByDayProps) {
   const [visibleMatchCount, setVisibleMatchCount] = useState(initialVisibleMatches);
   const [selectedMatch, setSelectedMatch] = useState<MatchInfo | null>(null);
-  // Always show kickoffs in the viewer's local timezone (not the league's home country).
-  const timeZone = useMemo(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
-    []
-  );
+  // UTC until paint, then the viewer's zone — see useViewerTimeZone.
+  const { timeZone, pending } = useViewerTimeZone();
 
   const dayGroups = useMemo(() => {
     const now = new Date();
@@ -168,7 +166,7 @@ export function ScheduleByDay({
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
-            {formatMatchDataSource(source)} · Times in your local timezone
+            {formatMatchDataSource(source)} · {scheduleZoneCaption(timeZone, pending)}
             {hasMore ? " · Load more for later fixtures" : ""}
           </p>
         </div>

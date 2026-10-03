@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authorizeFeedbackOps } from "@/lib/feedback-ops-auth";
 
 type LinearGraphqlResponse<T> = {
   data?: T;
@@ -30,7 +31,12 @@ async function linearRequest<T>(
   return json.data;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = authorizeFeedbackOps(request.headers.get("authorization"));
+  if (!auth.ok) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: auth.status });
+  }
+
   const apiKey = process.env.LINEAR_API_KEY?.trim();
   if (!apiKey) {
     return NextResponse.json({ error: "LINEAR_API_KEY is not configured." }, { status: 503 });

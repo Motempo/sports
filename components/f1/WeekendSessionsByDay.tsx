@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { SessionScheduleRow } from "@/components/f1/SessionScheduleRow";
+import { scheduleZoneCaption, useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { useColumnsPerRow } from "@/hooks/use-columns-per-row";
 import {
   groupSessionsByLocalDay,
@@ -9,6 +10,7 @@ import {
   type F1SessionDayGroup,
 } from "@/lib/f1-session-schedule";
 import type { F1GrandPrix, F1SessionInfo } from "@/lib/f1-types";
+import { formatCalendarDate } from "@/lib/match-timezone";
 
 interface WeekendSessionsByDayProps {
   sessions: F1SessionInfo[];
@@ -17,7 +19,7 @@ interface WeekendSessionsByDayProps {
   title?: string;
 }
 
-function DayColumn({ group }: { group: F1SessionDayGroup }) {
+function DayColumn({ group, timeZone }: { group: F1SessionDayGroup; timeZone: string }) {
   return (
     <div className="min-w-0">
       <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
@@ -32,6 +34,7 @@ function DayColumn({ group }: { group: F1SessionDayGroup }) {
               key={session.id}
               session={session}
               showDivider={index > 0}
+              timeZone={timeZone}
             />
           ))
         )}
@@ -43,7 +46,7 @@ function DayColumn({ group }: { group: F1SessionDayGroup }) {
 function BreakMessage({ nextGp }: { nextGp?: F1GrandPrix | null }) {
   const nextLine =
     nextGp && (nextGp.status === "upcoming" || nextGp.status === "current")
-      ? ` Next up: ${nextGp.name} on ${new Date(`${nextGp.date}T12:00:00Z`).toLocaleDateString(undefined, { month: "short", day: "numeric" })}.`
+      ? ` Next up: ${nextGp.name} on ${formatCalendarDate(nextGp.date)}.`
       : "";
 
   return (
@@ -67,10 +70,8 @@ export function WeekendSessionsByDay({
 }: WeekendSessionsByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
-  const timeZone = useMemo(
-    () => Intl.DateTimeFormat().resolvedOptions().timeZone,
-    []
-  );
+  const { timeZone, pending } = useViewerTimeZone();
+  const zoneCaption = scheduleZoneCaption(timeZone, pending);
 
   const dayGroups = useMemo(() => {
     const now = new Date();
@@ -91,7 +92,7 @@ export function WeekendSessionsByDay({
           <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
             <p className="text-[11px] text-muted sm:text-[12px]">
-              {source === "api" ? "Live data" : "Preview data"} · Your timezone
+              {source === "api" ? "Live data" : "Preview data"} · {zoneCaption}
             </p>
           </div>
           <BreakMessage nextGp={nextGp} />
@@ -114,7 +115,7 @@ export function WeekendSessionsByDay({
         <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
           <p className="text-[11px] text-muted sm:text-[12px]">
-            {source === "api" ? "Live data" : "Preview data"} · Your timezone
+            {source === "api" ? "Live data" : "Preview data"} · {zoneCaption}
           </p>
         </div>
 
@@ -128,7 +129,7 @@ export function WeekendSessionsByDay({
               }}
             >
               {row.map((group) => (
-                <DayColumn key={group.dayKey} group={group} />
+                <DayColumn key={group.dayKey} group={group} timeZone={timeZone} />
               ))}
             </div>
           ))}

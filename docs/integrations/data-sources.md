@@ -10,8 +10,10 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
 
 - Env: `FOOTBALL_DATA_API_KEY` (`X-Auth-Token`)
 - Competitions: `WC` (World Cup), `PL` (Premier League), `PD` (La Liga / Primera División)
-- Free tier: rate limits; PL/PD may require plan access
+- Free tier: 10 requests/minute for the whole key. A 429 is not cached; the cascade falls through to ESPN / openfootball for that render and the next render tries football-data again
+- PL/PD may require plan access
 - Module: `lib/football-data.ts`, scorers via `lib/fetch-football-scorers.ts`
+- World Cup venues: local fixtures and `data/wc2026-stadiums.json` first. One `/world-cup` render adds at most 4 `GET /v4/matches/{id}` calls, and only when a fixture is still missing a stadium. One isolate stays within that cap per minute, and does not retry a miss for 10 minutes. A missing venue is omitted (`lib/match-venue.ts`, `lib/venue-detail-budget.ts`)
 
 ## ESPN (club leagues — scrape fallback)
 
@@ -19,9 +21,9 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
 - Endpoints: `https://site.api.espn.com/apis/site/v2/sports/soccer/{eng.1|esp.1}/scoreboard?dates={year}`
 - Module: `lib/espn-league-data.ts` — merges **start + end calendar years**, filters to Jul(start)→Jun(end) so prior-season spring fixtures drop out
 - Used alongside football-data.org; fresher than the openfootball mirror for live results
-- Next.js fetch: `no-store` so a page open hits ESPN for a fresh table
-- Client `router.refresh()` on mount (and every 3 minutes while the page stays open)
-- Cron: `/api/cron/league-sync` also revalidates PL + La Liga pages every 2 hours
+- Fetched through `cachedUpstreamFetch` (90s shared Data Cache). A page open inside that window reuses the two season boards (start year + end year) instead of calling ESPN again. The stored body keeps id, date, competitors, status, and venue so it fits the Data Cache 2MB entry cap
+- Client `router.refresh()` on mount (and every 3 minutes while the page stays open) re-renders the dynamic page; it does not bypass the upstream TTL
+- Refresh is that 90s window, filled when a page render misses the cache. There is no scheduled league sync
 
 ## openfootball
 
@@ -32,8 +34,9 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
   `england/{season}/1-premierleague.txt`, `espana/{season}/1-liga.txt`
 - World Cup mirrors still via worldcup.json / GitHub Pages where configured
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
+- GitHub raw URLs are requested as-is (no `?_=` cache buster) and stored only when the response is HTTP 200, for the same 90s window as the other sports payloads
 - Cascade for club leagues: **football-data.org + ESPN + current-season openfootball in parallel → pick most finished fixtures** (ties: api → espn → openfootball) → current-season seed. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started). Helper: `lib/league-data-cascade.ts`.
-- Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`vercel.json`) to revalidate `/premier-league` and `/la-liga`. No Cursor agent needed — Cron runs on Vercel. `CRON_SECRET` is optional hardening only.
+- No Vercel Cron. The cache key includes a 90-second window, so a prefetch is abandoned when the window rolls. Hobby cron jobs run at most once per day (a schedule such as `0 */2 * * *` fails deployment). A schedule frequent enough to stay inside one window would add football-data.org calls on top of live traffic, against the 10 requests/minute free quota. `CRON_SECRET` is unused.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1
@@ -45,7 +48,7 @@ World Cup, Premier League, and La Liga seeds are fixture grids only. They leave 
 | Seed JSON | Offline / preview |
 | Curated circuit colour | `lib/f1-circuit-facts.ts` — commentator-style track notes (MOT-50) |
 
-Modules: `lib/f1-data.ts` (+ related `f1-*.ts`).
+Modules: `lib/f1-data.ts` (+ related `f1-*.ts`). Jolpica and OpenF1 use the same 90s `cachedUpstreamFetch` window as football-data / ESPN. A non-200 is not cached. Circuit win history no longer keeps an empty result for 12 hours.
 
 ## News (RSS + optional X)
 

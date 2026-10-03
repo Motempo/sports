@@ -20,6 +20,7 @@ import { buildTrackProfiles, getCircuitTrackFact } from "@/lib/f1-circuit-facts"
 import { computeTitleFightInsight, fetchF1SeasonData } from "@/lib/f1-data";
 import { buildF1Records } from "@/lib/f1-records";
 import { selectFeaturedF1Event } from "@/lib/f1-session-schedule";
+import { formatUpdatedTime } from "@/lib/match-timezone";
 import { resolveVenueImage } from "@/lib/venue-image";
 import {
   detectSeasonPhase,
@@ -47,10 +48,7 @@ export async function FormulaOnePageContent() {
     circuit ? resolveVenueImage({ kind: "circuit", name: circuit, hint: country }) : null,
     circuit ? getCircuitTrackFact({ circuitId, circuitName: circuit }) : null,
   ]);
-  const lastUpdated = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const lastUpdated = formatUpdatedTime();
 
   return (
     <SportPageShell

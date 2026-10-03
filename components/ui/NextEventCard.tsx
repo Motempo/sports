@@ -9,6 +9,8 @@ interface NextEventCardProps {
   title: string;
   kicker?: string | null;
   whenLabel: string;
+  /** UTC instant for the kickoff, when `whenLabel` is a clock time. */
+  whenDateTime?: string;
   location?: string | null;
   paragraphs: string[];
   imageUrl?: string | null;
@@ -26,6 +28,7 @@ function EventCardBody({
   title,
   kicker,
   whenLabel,
+  whenDateTime,
   location,
   paragraphs,
   imageUrl,
@@ -58,7 +61,16 @@ function EventCardBody({
 
           <div className="min-w-0">
             <p className="text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
-            <p className="mt-1.5 text-[13px] text-muted sm:text-[14px]">{whenLabel}</p>
+            {whenDateTime ? (
+              <time
+                dateTime={whenDateTime}
+                className="mt-1.5 block text-[13px] tabular-nums text-muted sm:text-[14px]"
+              >
+                {whenLabel}
+              </time>
+            ) : (
+              <p className="mt-1.5 text-[13px] tabular-nums text-muted sm:text-[14px]">{whenLabel}</p>
+            )}
             {location && (
               <p className="mt-1 text-[13px] font-medium text-foreground/80 sm:text-[14px]">
                 {location}
@@ -103,6 +115,7 @@ export function NextEventCard({
   title,
   kicker,
   whenLabel,
+  whenDateTime,
   location,
   paragraphs,
   imageUrl,
@@ -118,6 +131,7 @@ export function NextEventCard({
       title={title}
       kicker={kicker}
       whenLabel={whenLabel}
+      whenDateTime={whenDateTime}
       location={location}
       paragraphs={paragraphs}
       imageUrl={imageUrl}

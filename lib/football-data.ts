@@ -1,4 +1,4 @@
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { enrichMatchVenues, resolveStadium } from "@/lib/match-venue";
 import {
   enrichKnockoutBracket,
@@ -132,7 +132,13 @@ export function selectUpcomingMatches(matches: MatchInfo[]): MatchInfo[] {
   return matches.filter((m) => isUpcomingMatch(m)).sort(sortMatches);
 }
 
-function generateSeedGroupMatches(): MatchInfo[] {
+/**
+ * Local group-stage fixture grid used only when both upstreams fail.
+ * Scores stay null and every match stays scheduled — including kickoffs that
+ * are already in the past. Inventing 2-1 / 1-1 finals made a failed cascade
+ * look like a completed group stage. Same rule as the club-league seeds.
+ */
+export function generateSeedGroupMatches(): MatchInfo[] {
   const groups = Array.from({ length: 12 }, (_, i) => `GROUP_${String.fromCharCode(65 + i)}`);
   const venues = [
     { venue: "MetLife Stadium", city: "East Rutherford, NJ" },
@@ -151,7 +157,6 @@ function generateSeedGroupMatches(): MatchInfo[] {
 
   const matches: MatchInfo[] = [];
   let id = 1000;
-  const nowMs = Date.now();
 
   const roundRobin = [
     [0, 1],
@@ -176,13 +181,6 @@ function generateSeedGroupMatches(): MatchInfo[] {
       const hour = kickoffHours[gi % 4]! + (pi % 2);
       const minute = gi % 2 === 0 ? 0 : 30;
       const utcDate = tournamentKickoffIso(dayKey, hour, minute);
-      const finished = new Date(utcDate).getTime() < nowMs;
-
-      const scores = finished
-        ? pi % 2 === 0
-          ? [2, 1]
-          : [1, 1]
-        : [null, null];
       const v = venues[(gi + pi) % venues.length];
 
       matches.push({
@@ -192,20 +190,12 @@ function generateSeedGroupMatches(): MatchInfo[] {
         group,
         homeTeam: groupTeams[pair[0]!]!,
         awayTeam: groupTeams[pair[1]!]!,
-        homeScore: scores[0]!,
-        awayScore: scores[1]!,
-        status: finished ? "FINISHED" : "SCHEDULED",
+        homeScore: null,
+        awayScore: null,
+        status: "SCHEDULED",
         utcDate,
         venue: v.venue,
         city: v.city,
-        winnerCode:
-          finished && scores[0] !== null && scores[1] !== null
-            ? scores[0]! > scores[1]!
-              ? groupTeams[pair[0]!]!.code
-              : scores[0]! < scores[1]!
-                ? groupTeams[pair[1]!]!.code
-                : undefined
-            : undefined,
       });
     });
   });
@@ -326,12 +316,9 @@ export async function fetchMatches(): Promise<{
 
   if (apiKey) {
     try {
-      const res = await fetch(
+      const res = await cachedUpstreamFetch(
         "https://api.football-data.org/v4/competitions/WC/matches?season=2026",
-        {
-          headers: { "X-Auth-Token": apiKey },
-          ...freshUpstreamFetch,
-        }
+        { headers: { "X-Auth-Token": apiKey } }
       );
 
       if (res.ok) {
@@ -360,23 +347,7 @@ export async function fetchMatches(): Promise<{
     // fall through to seed
   }
 
-  const groupMatches = generateSeedGroupMatches();
-  const standings = computeGroupStandings(groupMatches);
-  const knockoutMatches = enrichKnockoutBracket(
-    mergeKnockoutWithFixtures(generateBracketFromFixtures()),
-    groupMatches,
-    standings
-  );
-  const todayMatches = selectTodayMatches(groupMatches);
-  const upcomingMatches = selectUpcomingMatches(groupMatches);
-
-  return {
-    matches: knockoutMatches,
-    groupMatches,
-    todayMatches,
-    upcomingMatches,
-    source: "seed",
-  };
+  return buildTournamentPayload(generateSeedGroupMatches(), "seed");
 }
 
 export function groupMatchesByRound(matches: MatchInfo[]): Record<BracketRound, MatchInfo[]> {

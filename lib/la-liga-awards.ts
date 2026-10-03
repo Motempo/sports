@@ -1,4 +1,4 @@
-import { freshUpstreamFetch } from "@/lib/fetch-options";
+import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { buildLaLigaClubTeamInfo, resolveLaLigaClubCode } from "@/lib/la-liga-clubs";
 import type { LaLigaSeasonData } from "@/lib/la-liga-types";
 import { capForecast } from "@/lib/match-forecast";
@@ -55,12 +55,9 @@ async function fetchLaLigaScorers(limit = 8): Promise<
   if (!apiKey) return [];
 
   try {
-    const res = await fetch(
+    const res = await cachedUpstreamFetch(
       `https://api.football-data.org/v4/competitions/PD/scorers?limit=${limit}`,
-      {
-        headers: { "X-Auth-Token": apiKey },
-        ...freshUpstreamFetch,
-      }
+      { headers: { "X-Auth-Token": apiKey } }
     );
     if (!res.ok) return [];
     const data = (await res.json()) as { scorers?: FootballDataScorer[] };
@@ -134,7 +131,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
         sponsor: "Championship race",
         emoji: "🏆",
         description:
-          "Live title chase from the league table — points, then goal difference, decide the champion.",
+          "Live title chase from the league table — points, then head-to-head, then goal difference.",
         progress: 0,
         contenders: [],
         commentary: capForecast(
@@ -288,7 +285,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Live title chase from the league table — points, then goal difference, decide the champion.",
+        "Live title chase from the league table — points, then head-to-head, then goal difference.",
       // Progress bar is season completion, not title-gap tightness (MOT-47).
       progress: progressPct,
       contenders: titleContenders,

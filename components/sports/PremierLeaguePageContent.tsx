@@ -15,6 +15,7 @@ import { PremierLeagueRail } from "@/components/premier-league/PremierLeagueRail
 import { PremierLeagueRecordsSection } from "@/components/premier-league/PremierLeagueRecordsSection";
 import { RaceTracker } from "@/components/premier-league/RaceTracker";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import { formatUpdatedTime } from "@/lib/match-timezone";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { buildPremierLeagueAwards } from "@/lib/premier-league-awards";
@@ -27,10 +28,7 @@ export async function PremierLeaguePageContent() {
   const records = buildPremierLeagueRecords(data.matches, data.standings);
   const featuredMatch = selectFeaturedMatch(data.matches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);
-  const lastUpdated = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const lastUpdated = formatUpdatedTime();
 
   return (
     <SportPageShell

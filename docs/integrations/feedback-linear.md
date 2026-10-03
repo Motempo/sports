@@ -28,11 +28,18 @@ Every Motempo app posts feedback to the **same Linear team** (`LINEAR_TEAM_NAME=
 |-------|------|
 | `POST /api/feedback` | Create issue (+ optional screenshot). 10/IP/hour. 500s are generic |
 | `GET/POST /api/feedback/improve` | Grok rewrite availability / improve. POST is the same 10/IP/hour limit, checked before xAI |
-| `GET /api/feedback/recent` | Ops list (no auth) |
-| `POST /api/feedback/close-shipped` | Close fixed tickets (no auth; used by oo/deploy) |
-| `POST /api/feedback/reopen` | Reopen (no auth) |
+| `GET /api/feedback/recent` | Ops list. Requires `Authorization: Bearer <FEEDBACK_OPS_SECRET>` |
+| `POST /api/feedback/close-shipped` | Close fixed tickets (used by oo/deploy). Same bearer secret |
+| `POST /api/feedback/reopen` | Reopen. Same bearer secret |
 
-Libs: `lib/linear-issues.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
+`FEEDBACK_OPS_SECRET` is server-only. If it is unset, these three routes return **401** `{ "error": "Unauthorized" }` and do not call Linear. A missing or wrong bearer gets the same 401. `POST /api/feedback` stays unauthenticated and rate-limited.
+
+```http
+GET /api/feedback/recent
+Authorization: Bearer <FEEDBACK_OPS_SECRET>
+```
+
+Libs: `lib/linear-issues.ts`, `lib/feedback-ops-auth.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
 
 `POST /api/feedback` and `POST /api/feedback/improve` are each limited to **10 requests per client IP per hour** (in-memory, per instance). The key is the Vercel client IP: rightmost hop of `x-vercel-forwarded-for`, otherwise `x-real-ip`. The first `x-forwarded-for` hop is ignored so a caller cannot rotate buckets by spoofing that header.
 
@@ -46,7 +53,7 @@ Port of Motempo Ads feedback flow — see skill `~/.cursor/skills/motempo-feedba
 
 ## Downstream: oo
 
-`oo.motempo.com` (folder `oo/`): coordinator triages Linear → plan agents → human approve → implement agents → Vercel deploy → `close-shipped`.  
+`oo.motempo.com` (folder `oo/`): coordinator triages Linear → plan agents → human approve → implement agents → Vercel deploy → `close-shipped` with `Authorization: Bearer <FEEDBACK_OPS_SECRET>`.  
 Plan: `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md`.
 
 ## History

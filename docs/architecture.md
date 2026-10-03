@@ -99,7 +99,7 @@ Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for s
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
 | Venue photos | `venue-image.ts` |
-| Venues | `match-venue.ts` |
+| Venues | `match-venue.ts` — local stadiums first; at most 4 football-data match-detail calls per World Cup render |
 | Ads | `ads-config.ts`, `ad-consent.ts` |
 | Feedback | `linear-issues.ts`, `feedback-context.ts`, `rate-limit.ts` |
 | Legal | `legal.ts` |

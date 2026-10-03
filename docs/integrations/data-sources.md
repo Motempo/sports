@@ -11,6 +11,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Free tier: 10 requests/minute for the whole key. A 429 is not cached; the cascade falls through to ESPN / openfootball for that render and the next render tries football-data again
 - PL/PD may require plan access
 - Module: `lib/football-data.ts`, scorers via `lib/fetch-football-scorers.ts`
+- World Cup venues: local fixtures and `data/wc2026-stadiums.json` first. One `/world-cup` render adds at most 4 `GET /v4/matches/{id}` calls, and only when a fixture is still missing a stadium. One isolate stays within that cap per minute, and does not retry a miss for 10 minutes. A missing venue is omitted (`lib/match-venue.ts`, `lib/venue-detail-budget.ts`)
 
 ## ESPN (club leagues — scrape fallback)
 

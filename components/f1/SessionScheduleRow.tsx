@@ -7,6 +7,7 @@ import type { F1SessionInfo } from "@/lib/f1-types";
 interface SessionScheduleRowProps {
   session: F1SessionInfo;
   showDivider?: boolean;
+  timeZone?: string;
 }
 
 const SESSION_TYPE_COLORS: Record<string, string> = {
@@ -20,14 +21,15 @@ const SESSION_TYPE_COLORS: Record<string, string> = {
 export function SessionScheduleRow({
   session,
   showDivider,
+  timeZone,
 }: SessionScheduleRowProps) {
   const isLive = session.status === "live";
   const finished = session.status === "finished";
-  const timeLabel = isLive ? "Live" : formatLocalSessionTime(session.utcDate);
+  const timeLabel = isLive ? "Live" : formatLocalSessionTime(session.utcDate, timeZone);
 
   return (
     <div className={cn("px-3 py-3 sm:px-4", showDivider && "border-t border-border")}>
-      <div className="grid grid-cols-[3.25rem_1fr] items-start gap-3 sm:grid-cols-[4rem_1fr]">
+      <div className="grid grid-cols-[4.75rem_1fr] items-start gap-3 sm:grid-cols-[5rem_1fr]">
         <div className="text-right">
           {isLive ? (
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#E10600] sm:text-[13px]">
@@ -35,14 +37,15 @@ export function SessionScheduleRow({
               Live
             </span>
           ) : (
-            <span
+            <time
+              dateTime={session.utcDate}
               className={cn(
-                "text-[13px] font-semibold tabular-nums sm:text-[14px]",
+                "whitespace-nowrap text-[13px] font-semibold tabular-nums sm:text-[14px]",
                 finished ? "text-muted" : "text-foreground"
               )}
             >
               {timeLabel}
-            </span>
+            </time>
           )}
         </div>
 

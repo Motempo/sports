@@ -18,6 +18,7 @@ import { WorldCupAwardsSection } from "@/components/tournament/WorldCupAwardsSec
 import { WorldCupRecordsSection } from "@/components/tournament/WorldCupRecordsSection";
 import { fetchMatches, groupMatchesByRound } from "@/lib/football-data";
 import { formatMatchDataSource } from "@/lib/match-data-source";
+import { formatUpdatedTime } from "@/lib/match-timezone";
 import { selectFeaturedMatch } from "@/lib/match-schedule";
 import { resolveMatchVenueImage } from "@/lib/venue-image";
 import { computeGroupStandings, computeThirdPlaceTracker } from "@/lib/group-standings";
@@ -39,10 +40,7 @@ export async function WorldCupPageContent() {
   const standings = computeGroupStandings(groupMatches);
   const thirdPlace = computeThirdPlaceTracker(standings);
   const scheduleMatches = standingsPrimary ? groupMatches : undefined;
-  const lastUpdated = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const lastUpdated = formatUpdatedTime();
   const allMatches = [...groupMatches, ...matches];
   const featuredMatch = selectFeaturedMatch(allMatches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);

@@ -1,6 +1,7 @@
 "use client";
 
 import { TeamCard } from "@/components/bracket/TeamCard";
+import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { getRoundLabel } from "@/lib/bracket-constants";
 import { featuredMatchParagraphs } from "@/lib/featured-match-copy";
@@ -8,6 +9,7 @@ import type { GroupStandings } from "@/lib/group-standings";
 import { isMatchLive } from "@/lib/match-status";
 import { formatMatchVenueLine } from "@/lib/match-venue";
 import type { LeagueStandings, PremierLeagueRaceInsight } from "@/lib/premier-league-types";
+import { formatViewerDateTime } from "@/lib/match-timezone";
 import type { MatchInfo, VenueImage } from "@/lib/types";
 
 interface FeaturedMatchCardProps {
@@ -35,18 +37,18 @@ function teamLabel(team: MatchInfo["homeTeam"]): string {
   return team.name?.trim() || team.code;
 }
 
-function formatWhen(match: MatchInfo): string {
-  const opts: Intl.DateTimeFormatOptions = {
+function formatWhen(match: MatchInfo, timeZone: string): string {
+  const dateOptions: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
     day: "numeric",
   };
   if (isMatchLive(match.status)) return "Live now";
   if (match.status === "FINISHED") {
-    return new Date(match.utcDate).toLocaleDateString(undefined, opts);
+    return formatViewerDateTime(match.utcDate, timeZone, dateOptions);
   }
-  return new Date(match.utcDate).toLocaleString(undefined, {
-    ...opts,
+  return formatViewerDateTime(match.utcDate, timeZone, {
+    ...dateOptions,
     hour: "numeric",
     minute: "2-digit",
   });
@@ -68,6 +70,7 @@ export function FeaturedMatchCard({
   venueImage,
   chrome = "section",
 }: FeaturedMatchCardProps) {
+  const { timeZone } = useViewerTimeZone();
   if (!match) return null;
 
   const live = isMatchLive(match.status);
@@ -80,7 +83,8 @@ export function FeaturedMatchCard({
       live={live}
       kicker={matchKicker(match)}
       title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}
-      whenLabel={formatWhen(match)}
+      whenLabel={formatWhen(match, timeZone)}
+      whenDateTime={match.utcDate}
       location={formatMatchVenueLine(match)}
       paragraphs={featuredMatchParagraphs(match, {
         groupStandings: standings,

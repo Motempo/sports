@@ -1,6 +1,9 @@
 import {
   addDaysToDayKey,
   dayKeyToLocalDate,
+  formatCalendarDayParts,
+  formatViewerDateTime,
+  HYDRATION_TIME_ZONE,
   localDayKeyFromUtc,
   resolveScheduleTimeZone,
   todayKey,
@@ -26,8 +29,11 @@ export interface F1SessionDayGroup {
 
 const LIVE_STATUS: F1SessionStatus = "live";
 
-export function formatLocalSessionTime(utcDate: string): string {
-  return new Date(utcDate).toLocaleTimeString(undefined, {
+export function formatLocalSessionTime(
+  utcDate: string,
+  timeZone: string = HYDRATION_TIME_ZONE
+): string {
+  return formatViewerDateTime(utcDate, timeZone, {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -41,13 +47,7 @@ export function formatLocalDayLabel(
   const tz = resolveScheduleTimeZone(timeZone);
   const today = todayKey(now, tz);
   const tomorrow = addDaysToDayKey(today, 1);
-  const dayStart = dayKeyToLocalDate(dayKey);
-
-  const weekday = dayStart.toLocaleDateString(undefined, { weekday: "short" });
-  const monthDay = dayStart.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const { weekday, monthDay } = formatCalendarDayParts(dayKey);
 
   if (dayKey === today) return `Today · ${weekday}, ${monthDay}`;
   if (dayKey === tomorrow) return `Tomorrow · ${weekday}, ${monthDay}`;

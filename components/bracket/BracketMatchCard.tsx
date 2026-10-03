@@ -1,6 +1,8 @@
 "use client";
 
+import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { cn } from "@/lib/utils";
+import { formatViewerDateTime } from "@/lib/match-timezone";
 import type { BracketDetailLevel } from "@/lib/bracket-tree-layout";
 import type { MatchInfo } from "@/lib/types";
 import { formatKnockoutPlaceholder, isPlaceholderTeam } from "@/lib/match-context";
@@ -30,11 +32,10 @@ function teamEmblem(team: MatchInfo["homeTeam"], size: number) {
   return <TeamEmblem team={team} size={size} />;
 }
 
-function formatKickoff(utcDate: string): { date: string; time: string } {
-  const date = new Date(utcDate);
+function formatKickoff(utcDate: string, timeZone: string): { date: string; time: string } {
   return {
-    date: date.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    time: date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }),
+    date: formatViewerDateTime(utcDate, timeZone, { month: "short", day: "numeric" }),
+    time: formatViewerDateTime(utcDate, timeZone, { hour: "numeric", minute: "2-digit" }),
   };
 }
 
@@ -123,6 +124,7 @@ export function BracketMatchCard({
   cardWidth,
   highlight,
 }: BracketMatchCardProps) {
+  const { timeZone } = useViewerTimeZone();
   const live = isMatchLive(match.status);
   const finished = match.status === "FINISHED";
   const homeWinner = finished && match.winnerCode === match.homeTeam.code;
@@ -137,7 +139,7 @@ export function BracketMatchCard({
     detailLevel === 0 ? 22 : detailLevel === 1 ? 24 : detailLevel <= 3 ? 26 : expanded ? 30 : 28;
 
   const scoreText = formatScore(match);
-  const kickoff = formatKickoff(match.utcDate);
+  const kickoff = formatKickoff(match.utcDate, timeZone);
   const venueLine = formatMatchVenueLine(match);
   const rawForecast = detailLevel >= 4 ? getMatchForecast(match) : null;
   const forecast = rawForecast ? truncateForecast(rawForecast) : null;
@@ -332,7 +334,10 @@ export function BracketMatchCard({
             Live
           </p>
         ) : (
-          <p className={cn("tabular-nums text-muted", metaText)}>
+          <time
+            dateTime={match.utcDate}
+            className={cn("block tabular-nums text-muted", metaText)}
+          >
             {detailLevel >= 2 ? (
               <>
                 {kickoff.date} · {kickoff.time}
@@ -343,7 +348,7 @@ export function BracketMatchCard({
                 <span className="block leading-tight">{kickoff.time}</span>
               </>
             )}
-          </p>
+          </time>
         )}
       </div>
 

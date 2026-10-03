@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import { NextEventCard } from "@/components/ui/NextEventCard";
+import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import {
   featuredF1EventParagraphs,
   type FeaturedF1Event,
 } from "@/lib/f1-session-schedule";
 import type { F1ConstructorStandingRow, F1StandingRow, F1TitleFightInsight } from "@/lib/f1-types";
 import type { VenueImage } from "@/lib/types";
+import { formatViewerDateTime } from "@/lib/match-timezone";
 import { getFlagUrl } from "@/lib/utils";
 
 interface FormulaOneNextEventProps {
@@ -25,17 +27,16 @@ function headingFor(event: FeaturedF1Event): string {
   return "Next race";
 }
 
-function formatWhen(utcDate: string, live: boolean, complete: boolean): string {
+function formatWhen(utcDate: string, timeZone: string, live: boolean, complete: boolean): string {
   if (live) return "Live now";
-  const date = new Date(utcDate);
   if (complete) {
-    return date.toLocaleDateString(undefined, {
+    return formatViewerDateTime(utcDate, timeZone, {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
   }
-  return date.toLocaleString(undefined, {
+  return formatViewerDateTime(utcDate, timeZone, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -75,6 +76,7 @@ export function FormulaOneNextEvent({
   venueImage,
   trackFact,
 }: FormulaOneNextEventProps) {
+  const { timeZone } = useViewerTimeZone();
   if (!event) return null;
 
   const live = event.kind === "session" && event.status === "live";
@@ -101,7 +103,8 @@ export function FormulaOneNextEvent({
       live={live}
       kicker={kicker}
       title={title}
-      whenLabel={formatWhen(utcDate, live, complete)}
+      whenLabel={formatWhen(utcDate, timeZone, live, complete)}
+      whenDateTime={utcDate}
       location={location}
       paragraphs={featuredF1EventParagraphs(event, {
         titleFight,

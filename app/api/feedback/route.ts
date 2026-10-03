@@ -6,15 +6,15 @@ import {
   isSportRequestMetadata,
 } from "@/lib/feedback-context";
 import { createFeedbackIssue } from "@/lib/linear-issues";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, rateLimitClientKey } from "@/lib/rate-limit";
+import { allowedScreenshotMimeType } from "@/lib/screenshot-mime";
+
+const GENERIC_SUBMIT_ERROR = "Failed to submit feedback.";
 
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    "unknown";
-
-  const { allowed, retryAfterSec } = checkRateLimit(ip);
+  const { allowed, retryAfterSec } = checkRateLimit(
+    `feedback:${rateLimitClientKey(request)}`
+  );
   if (!allowed) {
     return NextResponse.json(
       { error: `Rate limit exceeded. Try again in ${retryAfterSec} seconds.` },
@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Feedback text is required" }, { status: 400 });
     }
 
+    let screenshotMimeType: string | undefined;
     if (body.screenshotBase64) {
       const attachmentBytes = Buffer.byteLength(body.screenshotBase64, "base64");
       if (attachmentBytes > MAX_ATTACHMENT_BYTES) {
@@ -64,6 +65,17 @@ export async function POST(request: NextRequest) {
           { status: 413 }
         );
       }
+
+      screenshotMimeType = allowedScreenshotMimeType(body.screenshotMimeType);
+      if (!screenshotMimeType) {
+        return NextResponse.json(
+          {
+            error:
+              "Screenshot must be a PNG, JPEG, WebP, GIF, AVIF, HEIC, BMP, or TIFF image.",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     const inferredIntent = isInferredIntent(body.inferredIntent) ? body.inferredIntent : null;
@@ -72,7 +84,7 @@ export async function POST(request: NextRequest) {
       appId: body.appId,
       description: body.description.trim(),
       screenshotBase64: body.screenshotBase64,
-      screenshotMimeType: body.screenshotMimeType,
+      screenshotMimeType,
       screenshotFilename: body.screenshotFilename,
       pageUrl: body.pageUrl,
       inferredIntent,
@@ -82,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to submit feedback";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Feedback submission failed:", err);
+    return NextResponse.json({ error: GENERIC_SUBMIT_ERROR }, { status: 500 });
   }
 }

@@ -26,13 +26,19 @@ Every Motempo app posts feedback to the **same Linear team** (`LINEAR_TEAM_NAME=
 
 | Route | Role |
 |-------|------|
-| `POST /api/feedback` | Create issue (+ optional screenshot markdown) |
-| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve |
+| `POST /api/feedback` | Create issue (+ optional screenshot). 10/IP/hour. 500s are generic |
+| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve. POST is the same 10/IP/hour limit, checked before xAI |
 | `GET /api/feedback/recent` | Ops list (no auth) |
 | `POST /api/feedback/close-shipped` | Close fixed tickets (no auth; used by oo/deploy) |
 | `POST /api/feedback/reopen` | Reopen (no auth) |
 
-Libs: `lib/linear-issues.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts` (10/IP/hr).
+Libs: `lib/linear-issues.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
+
+`POST /api/feedback` and `POST /api/feedback/improve` are each limited to **10 requests per client IP per hour** (in-memory, per instance). The key is the Vercel client IP: rightmost hop of `x-vercel-forwarded-for`, otherwise `x-real-ip`. The first `x-forwarded-for` hop is ignored so a caller cannot rotate buckets by spoofing that header.
+
+Screenshot `contentType` must be an allowlisted image type (PNG, JPEG, WebP, GIF, AVIF, HEIC, HEIF, BMP, TIFF). Other client-supplied MIME types are rejected with 400 and are not sent to Linear.
+
+Upstream Linear error text is logged server-side. The public submit route answers 500 with `Failed to submit feedback.`
 
 ## UX
 

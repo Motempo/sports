@@ -50,11 +50,11 @@ flowchart TB
 
 | Route | Methods | Purpose | Auth |
 |-------|---------|---------|------|
-| `/api/news` | GET | Paginated RSS news (+ image/video enrichment) | Public |
+| `/api/news` | GET | Paginated RSS news (+ image/video enrichment). `limit` is clamped to 1–10 (default 3). Unknown `sport` is 400 | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
 | `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
-| `/api/feedback` | POST | Create Linear issue | Public + IP rate limit |
-| `/api/feedback/improve` | GET/POST | Grok availability / rewrite | Public (503 if no key) |
+| `/api/feedback` | POST | Create Linear issue | Public + 10/IP/hour |
+| `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 10/IP/hour and is checked before any xAI call | GET public; POST rate limited (503 if no key) |
 | `/api/feedback/recent` | GET | List recent team issues | **No auth — ops risk** |
 | `/api/feedback/close-shipped` | POST | Close shipped tickets | **No auth — ops risk** |
 | `/api/feedback/reopen` | POST | Reopen issues | **No auth — ops risk** |
@@ -173,8 +173,10 @@ Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
 1. Never ship secrets to client components.  
 2. Ops feedback routes currently have **no shared secret** — do not expand them without auth.  
-3. Rate limit is **per-instance memory** — not durable across serverless isolates.  
-4. Ads category blocks are dashboard config, not code.
+3. Rate limit is **per-instance memory** — not durable across serverless isolates. `POST /api/feedback` and `POST /api/feedback/improve` each allow 10 requests per client per hour. The bucket key is the platform client IP: the rightmost hop of `x-vercel-forwarded-for`, then `x-real-ip` (the address `@vercel/functions` `ipAddress()` reads). A client-supplied `x-forwarded-for` is not a key, so a spoofed first hop cannot open a new bucket.  
+4. `POST /api/feedback` 500 responses are a generic message. Linear GraphQL text is logged on the server and is not copied into the response.  
+5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
+6. Ads category blocks are dashboard config, not code.
 
 ---
 

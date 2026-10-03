@@ -3,12 +3,14 @@ import {
   isImageMimeType,
   validateAttachmentSize,
 } from "@/lib/feedback-attachment-markdown";
+import { allowedScreenshotMimeType } from "@/lib/screenshot-mime";
 
 export {
   formatAttachmentSize,
   MAX_ATTACHMENT_BYTES,
   validateAttachmentSize,
 } from "@/lib/feedback-attachment-markdown";
+export { SCREENSHOT_MIME_TYPES } from "@/lib/screenshot-mime";
 
 export function canPreviewAttachment(mime: string): boolean {
   return isImageMimeType(mime);
@@ -25,6 +27,10 @@ function shouldCompressImage(file: File): boolean {
  * Compress screenshots when possible; pass other files through with a size check.
  */
 export async function prepareFeedbackAttachment(file: File): Promise<File> {
+  if (!allowedScreenshotMimeType(file.type)) {
+    throw new Error("Attach a PNG, JPEG, WebP, GIF, AVIF, HEIC, BMP, or TIFF image.");
+  }
+
   if (shouldCompressImage(file)) {
     try {
       return await compressBugScreenshot(file);
@@ -38,7 +44,6 @@ export async function prepareFeedbackAttachment(file: File): Promise<File> {
   return file;
 }
 
-export function resolveAttachmentMimeType(file: File): string {
-  const mime = file.type.trim();
-  return mime || "application/octet-stream";
+export function resolveAttachmentMimeType(file: File): string | undefined {
+  return allowedScreenshotMimeType(file.type);
 }

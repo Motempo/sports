@@ -20,6 +20,7 @@ import {
   MAX_ATTACHMENT_BYTES,
   prepareFeedbackAttachment,
   resolveAttachmentMimeType,
+  SCREENSHOT_MIME_TYPES,
 } from "@/lib/feedback-attachment";
 import { getDefaultMotempoAppId, type InferredIntent } from "@/lib/feedback-context";
 import { formatSportRequestDescription } from "@/lib/feedback-context";
@@ -422,7 +423,7 @@ export function BugReportDialog({
                 id="feedback-attachment"
                 ref={fileInputRef}
                 type="file"
-                accept="*/*"
+                accept={SCREENSHOT_MIME_TYPES.join(",")}
                 className="sr-only"
                 onChange={handleFileChange}
                 disabled={busy}

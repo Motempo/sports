@@ -10,6 +10,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Competitions: `WC` (World Cup), `PL` (Premier League), `PD` (La Liga / Primera División)
 - Free tier: rate limits; PL/PD may require plan access
 - Module: `lib/football-data.ts`, scorers via `lib/fetch-football-scorers.ts`
+- World Cup venues: local fixtures and `data/wc2026-stadiums.json` first. One `/world-cup` render adds at most 4 `GET /v4/matches/{id}` calls, and only when a fixture is still missing a stadium. One isolate stays within that cap per minute, and does not retry a miss for 10 minutes. A missing venue is omitted (`lib/match-venue.ts`, `lib/venue-detail-budget.ts`)
 
 ## ESPN (club leagues — scrape fallback)
 

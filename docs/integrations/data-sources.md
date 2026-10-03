@@ -20,7 +20,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Used alongside football-data.org; fresher than the openfootball mirror for live results
 - Fetched through `cachedUpstreamFetch` (90s shared Data Cache). A page open inside that window reuses the two season boards (start year + end year) instead of calling ESPN again. The stored body keeps id, date, competitors, status, and venue so it fits the Data Cache 2MB entry cap
 - Client `router.refresh()` on mount (and every 3 minutes while the page stays open) re-renders the dynamic page; it does not bypass the upstream TTL
-- Cron: `/api/cron/league-sync` calls `revalidatePath` for PL + La Liga every 2 hours. Upstream freshness is the 90s data cache, not that route revalidation
+- Refresh is that 90s window, filled when a page render misses the cache. There is no scheduled league sync
 
 ## openfootball
 
@@ -33,7 +33,7 @@ Free-first. Cascade: **live API → community mirror → local seed**. Keys stay
 - Modules: `lib/openfootball-data.ts` (WC), `premier-league-data.ts`, `la-liga-data.ts`, `openfootball-league-txt.ts`
 - GitHub raw URLs are requested as-is (no `?_=` cache buster) and stored only when the response is HTTP 200, for the same 90s window as the other sports payloads
 - Cascade for club leagues: **football-data.org + ESPN + current-season openfootball in parallel → pick most finished fixtures** (ties: api → espn → openfootball) → current-season seed. Do not fall back to last season’s openfootball file, and ignore football-data when it still serves the prior season (that kept PL on 25/26 after 26/27 started). Helper: `lib/league-data-cascade.ts`.
-- Scheduled refresh: Vercel Cron hits `/api/cron/league-sync` every 2 hours (`vercel.json`) to revalidate `/premier-league` and `/la-liga`. No Cursor agent needed — Cron runs on Vercel. `CRON_SECRET` is optional hardening only.
+- No Vercel Cron. The cache key includes a 90-second window, so a prefetch is abandoned when the window rolls. Hobby cron jobs run at most once per day (a schedule such as `0 */2 * * *` fails deployment). A schedule frequent enough to stay inside one window would add football-data.org calls on top of live traffic, against the 10 requests/minute free quota. `CRON_SECRET` is unused.
 - Season keys use `yy-yy` form (`2026-27`); August+ uses the new start year.
 
 ## F1

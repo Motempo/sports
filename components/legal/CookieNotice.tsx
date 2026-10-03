@@ -19,9 +19,7 @@ export function CookieNotice() {
   const showAdChoices = adsConsentRequired;
 
   return (
-    <div
-      role="dialog"
-      aria-live="polite"
+    <section
       aria-label="Cookie notice"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 px-3 py-2 backdrop-blur-md safe-bottom sm:px-4"
     >
@@ -70,6 +68,6 @@ export function CookieNotice() {
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

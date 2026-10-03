@@ -204,6 +204,16 @@ GitHub raw URLs are **not** cache-busted with `?_=`. News, facts, and venue-phot
 
 ---
 
+## Dialogs and notices
+
+Match details, news stories, and fun facts open `components/ui/ExpandableModal.tsx`, a modal Radix Dialog. Opening moves focus to the close control, Tab stays inside the dialog (including the scrollable body), and Escape or Close returns focus to the fixture or feed row that opened it. The visible heading is the dialog title. The panel stays a bottom sheet on small screens and a top-aligned card from the `sm` breakpoint, with a short fade.
+
+The cookie notice (`components/legal/CookieNotice.tsx`) is not a dialog. It does not block the rest of the page, so it is a named region (`<section aria-label="Cookie notice">`). It does not move or trap focus; visitors reach it as a landmark.
+
+Bug reports keep the separate shadcn dialog in `components/ui/dialog.tsx`.
+
+---
+
 ## Security notes for backend work
 
 1. Never ship secrets to client components.  

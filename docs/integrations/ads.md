@@ -14,7 +14,7 @@ Family-friendly **general audience** (not child-directed COPPA network). Allow c
 | `NEXT_PUBLIC_ADS_PLACEMENTS_LIVE` | Gate real slot rendering |
 | `NEXT_PUBLIC_ADS_PROVIDER` | `adsense` \| `nitro` |
 
-Config: `lib/ads-config.ts`. Consent: `lib/ad-consent.ts` + cookie notice. `public/ads.txt` for sellers.
+Config: `lib/ads-config.ts`. Consent: `lib/ad-consent.ts` + cookie notice (`components/legal/CookieNotice.tsx`). The notice is a non-modal region landmark, not a dialog, because the rest of the page stays usable. `public/ads.txt` for sellers.
 
 ## Placements
 

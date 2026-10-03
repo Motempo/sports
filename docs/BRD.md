@@ -84,6 +84,7 @@ Every sport page should provide:
 - FR-N2: Fun facts from static JSON + optional Wikipedia enrichment.
 - FR-N3: Pagination default: offset/limit with `limit` default 3, clamped to 1–10. An unknown `sport` slug returns 400. **More** appends the next page and disables once the list is exhausted; a non-OK response, network failure, or `{ error }` body shows the empty state instead of throwing.
 - FR-N4: News cards and the story modal show the post image when the feed or publisher page provides one, and play an embedded video when the post includes one (YouTube, Vimeo, or a direct video file).
+- FR-N5: News, fun-fact, and match-detail modals move focus inside on open, keep Tab inside the dialog, and return focus to the triggering fixture or row on Escape or Close. Each dialog has a visible accessible title.
 
 ### 6.3 Feedback
 
@@ -101,7 +102,7 @@ Every sport page should provide:
 
 ### 6.5 Legal & ads
 
-- FR-L1: Privacy + Terms pages; cookie/consent notice for ads.
+- FR-L1: Privacy + Terms pages; cookie/consent notice for ads. The notice is a non-modal region (it does not use dialog semantics or trap focus).
 - FR-A1: Ads disabled until approval; `NEXT_PUBLIC_ADS_ENABLED` + `NEXT_PUBLIC_ADS_PLACEMENTS_LIVE`.
 - FR-A2: Block gambling/betting, dating, alcohol, mature, etc. in network dashboards.
 

@@ -12,7 +12,7 @@ export interface FootballVenuePhoto {
   aliases: string[];
   /** Same-origin path, `/venues/football/<slug>.webp`. */
   file: string;
-  /** Layout frame. Aerials are shown at 3:2 until a file's real size replaces this. */
+  /** Pixel size of the committed aerial. Files are 1600×1067 (3:2). */
   width: number;
   height: number;
   alt: string;

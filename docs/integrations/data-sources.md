@@ -73,7 +73,7 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`). Jolpica and OpenF1 use the same
 
 ## Venue photos
 
-- La Liga and Premier League grounds use a same-origin aerial at `public/venues/football/<slug>.webp`, indexed by `data/football-venue-photos.json` (venue name, city, club, slug). `lib/venue-image.ts` serves that file for a matching stadium and does not fetch another photo when the file is not on disk yet.
+- La Liga and Premier League grounds use a same-origin aerial at `public/venues/football/<slug>.webp`, indexed by `data/football-venue-photos.json` (venue name, city, club, slug). The files are generated aerials in club colours, not photographs, so the catalog stores no author, source, or license. `lib/venue-image.ts` serves that file for a matching stadium and does not fetch another photo if the file is missing.
 - Lookup is exact on the venue name and aliases (`lib/football-venue-photos.ts`). A stadium that is not in the catalog, including World Cup grounds, still uses the live Wikipedia exterior search.
 - F1 circuits are unchanged: oblique aerials are still chosen at request time from Wikipedia / Wikimedia Commons.
 - Club home grounds: `data/pl-home-venues.json`, `data/la-liga-home-venues.json` fill empty openfootball venues for the featured card. World Cup venues come from `data/wc2026-stadiums.json`.

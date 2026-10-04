@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import {
   listFootballVenuePhotos,
@@ -42,6 +42,16 @@ describe("football venue photos", () => {
     assert.equal(lookupFootballVenuePhoto("Los Angeles Memorial Coliseum"), null);
     assert.equal(lookupFootballVenuePhoto("MetLife Stadium"), null);
     assert.equal(lookupFootballVenuePhoto("White Hart Lane"), null);
+  });
+
+  it("stores every catalog aerial on disk and leaves no unused file", () => {
+    const dir = new URL("../public/venues/football/", import.meta.url);
+    const onDisk = readdirSync(dir).filter((name) => name.endsWith(".webp")).sort();
+    const expected = photos.map((photo) => `${photo.slug}.webp`).sort();
+    assert.deepEqual(onDisk, expected);
+    for (const name of expected) {
+      assert.equal(existsSync(new URL(name, dir)), true, name);
+    }
   });
 
   it("keeps slugs unique and stores no credit or license fields", () => {

@@ -347,7 +347,8 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
  * Photograph of a race circuit or football stadium.
  * Circuits prefer an oblique aerial from Wikipedia / Wikimedia Commons.
  * La Liga and Premier League grounds use a same-origin aerial from
- * `data/football-venue-photos.json` when that file is on disk.
+ * `data/football-venue-photos.json`. A catalogued ground with no file
+ * returns nothing rather than another photo.
  * Other stadiums still prefer a full exterior (MOT-53).
  */
 export async function resolveVenueImage(input: {

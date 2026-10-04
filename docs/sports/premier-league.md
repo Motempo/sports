@@ -27,7 +27,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
-- Stadium photo is the next match's home ground: same-origin aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`
+- Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`

@@ -165,6 +165,17 @@
     },
     {
       "round": 16,
+      "name": "Malaysian Grand Prix",
+      "circuit": "Sepang International Circuit",
+      "circuitId": "sepang",
+      "country": "Malaysia",
+      "date": "2026-10-04",
+      "utcDate": "2026-10-04T07:00:00Z",
+      "isSprintWeekend": false,
+      "status": "upcoming"
+    },
+    {
+      "round": 17,
       "name": "Singapore Grand Prix",
       "circuit": "Marina Bay Street Circuit",
       "country": "Singapore",
@@ -174,7 +185,7 @@
       "status": "upcoming"
     },
     {
-      "round": 17,
+      "round": 18,
       "name": "United States Grand Prix",
       "circuit": "Circuit of the Americas",
       "country": "USA",
@@ -184,7 +195,7 @@
       "status": "upcoming"
     },
     {
-      "round": 18,
+      "round": 19,
       "name": "Mexico City Grand Prix",
       "circuit": "Aut\u00f3dromo Hermanos Rodr\u00edguez",
       "country": "Mexico",
@@ -194,7 +205,7 @@
       "status": "upcoming"
     },
     {
-      "round": 19,
+      "round": 20,
       "name": "Brazilian Grand Prix",
       "circuit": "Aut\u00f3dromo Jos\u00e9 Carlos Pace",
       "country": "Brazil",
@@ -204,7 +215,7 @@
       "status": "upcoming"
     },
     {
-      "round": 20,
+      "round": 21,
       "name": "Las Vegas Grand Prix",
       "circuit": "Las Vegas Strip Street Circuit",
       "country": "USA",
@@ -214,7 +225,7 @@
       "status": "upcoming"
     },
     {
-      "round": 21,
+      "round": 22,
       "name": "Qatar Grand Prix",
       "circuit": "Losail International Circuit",
       "country": "Qatar",
@@ -224,7 +235,7 @@
       "status": "upcoming"
     },
     {
-      "round": 22,
+      "round": 23,
       "name": "Abu Dhabi Grand Prix",
       "circuit": "Yas Marina Circuit",
       "country": "UAE",

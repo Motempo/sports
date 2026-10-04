@@ -97,7 +97,7 @@ Club leagues share `lib/club-display-name.ts`. `buildClubTeamInfo` and `buildLaL
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts`, `hooks/use-viewer-time-zone.ts` |
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
-| Venue photos | `venue-image.ts`, `football-venue-photos.ts`, `data/football-venue-photos.json` |
+| Venue photos | `venue-image.ts`, `football-venue-photos.ts`, `data/football-venue-photos.json`, `f1-circuit-photos.ts`, `data/f1-circuit-photos.json` |
 | Venues | `match-venue.ts` — local stadiums first; at most 4 football-data match-detail calls per World Cup render |
 | Ads | `ads-config.ts`, `ad-consent.ts` |
 | Feedback | `linear-issues.ts`, `feedback-context.ts`, `rate-limit.ts` |
@@ -131,7 +131,7 @@ Every sport page renders through `SportPageShell` in this order:
 1. Header + sport selector  
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
-4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit/stadium photo (half-width on large screens, below the text on narrow screens)  
+4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit or stadium image (half-width on large screens, below the text on narrow screens). F1 circuits and La Liga / Premier League grounds are same-origin illustrated aerials; other stadiums can still be photographs  
 5. Matches / weekend sessions — finished football fixtures open a modal with the same next-match card (score, copy, stadium photo)  
 6. News + Fun facts  
 7. Mid-content ad  

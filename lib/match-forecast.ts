@@ -1,4 +1,5 @@
 import { getRoundLabel } from "@/lib/bracket-constants";
+import { presentTeamName } from "@/lib/club-display-name";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 import { isPlaceholderTeam } from "@/lib/match-context";
 
@@ -62,7 +63,7 @@ function pick(seed: number, options: string[]): string {
 }
 
 function teamName(team: TeamInfo): string {
-  return team.name?.trim() || team.code;
+  return presentTeamName(team);
 }
 
 /** Prefer ending on a full sentence; only ellipsis if we must cut mid-thought. */

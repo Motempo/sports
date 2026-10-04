@@ -1,3 +1,4 @@
+import { clubDisplayName } from "@/lib/club-display-name";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { buildLaLigaClubTeamInfo, resolveLaLigaClubCode } from "@/lib/la-liga-clubs";
 import type { LaLigaSeasonData } from "@/lib/la-liga-types";
@@ -71,7 +72,7 @@ async function fetchLaLigaScorers(limit = 8): Promise<
       return {
         playerName: row.player.name,
         teamCode: team.code,
-        teamName: team.shortName ?? team.name,
+        teamName: clubDisplayName(team),
         crest: team.crest,
         goals: row.goals ?? 0,
       };
@@ -199,9 +200,9 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
   }
 
   const titleEntries = rows.slice(0, 5).map((r) => ({
-    label: r.team.shortName ?? r.team.name,
+    label: clubDisplayName(r.team),
     teamCode: r.team.code,
-    teamName: r.team.name,
+    teamName: clubDisplayName(r.team),
     crest: r.team.crest,
     stat: r.points,
     statLabel: "pts",
@@ -222,9 +223,9 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
           .sort((a, b) => b.goalsFor - a.goalsFor || b.points - a.points)
           .slice(0, 5)
           .map((r) => ({
-            label: r.team.shortName ?? r.team.name,
+            label: clubDisplayName(r.team),
             teamCode: r.team.code,
-            teamName: r.team.name,
+            teamName: clubDisplayName(r.team),
             crest: r.team.crest,
             stat: r.goalsFor,
             statLabel: "club goals",
@@ -238,9 +239,9 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
   // Lower conceded = better: invert for softmax weights, display real conceded.
   const zamoraContenders = buildContenders(
     zamoraSorted.map((r) => ({
-      label: r.team.shortName ?? r.team.name,
+      label: clubDisplayName(r.team),
       teamCode: r.team.code,
-      teamName: r.team.name,
+      teamName: clubDisplayName(r.team),
       crest: r.team.crest,
       stat: Math.max(1, 50 - r.goalsAgainst),
       statLabel: "def",
@@ -252,9 +253,9 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
   }));
 
   const europeEntries = rows.slice(0, 6).map((r) => ({
-    label: r.team.shortName ?? r.team.name,
+    label: clubDisplayName(r.team),
     teamCode: r.team.code,
-    teamName: r.team.name,
+    teamName: clubDisplayName(r.team),
     crest: r.team.crest,
     stat: r.points,
     statLabel: "pts",
@@ -265,9 +266,9 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     .slice(-5)
     .reverse()
     .map((r) => ({
-      label: r.team.shortName ?? r.team.name,
+      label: clubDisplayName(r.team),
       teamCode: r.team.code,
-      teamName: r.team.name,
+      teamName: clubDisplayName(r.team),
       crest: r.team.crest,
       stat: r.points,
       statLabel: "pts",

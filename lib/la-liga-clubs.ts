@@ -1,4 +1,5 @@
-import laLigaClubsSeed from "@/data/la-liga-clubs-seed.json";
+import laLigaClubsSeed from "@/data/la-liga-clubs-seed.json" with { type: "json" };
+import { clubDisplayName } from "@/lib/club-display-name";
 import type { ClubSeed } from "@/lib/la-liga-types";
 import type { TeamInfo } from "@/lib/types";
 
@@ -87,10 +88,15 @@ export function buildLaLigaClubTeamInfo(
   shortName?: string
 ): TeamInfo {
   const seed = clubs.find((c) => c.code === code);
+  const display = clubDisplayName({
+    code,
+    name: name || seed?.name,
+    shortName: shortName || seed?.shortName,
+  });
   return {
     code,
-    name: name || seed?.name || code,
-    shortName: shortName || seed?.shortName,
+    name: display,
+    shortName: display,
     crest: crest || seed?.crest,
     iso2: "es",
   };

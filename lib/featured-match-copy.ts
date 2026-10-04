@@ -1,4 +1,5 @@
 import { getRoundLabel } from "@/lib/bracket-constants";
+import { presentTeamName, withDisplayedClubs } from "@/lib/club-display-name";
 import { getMatchStakes } from "@/lib/match-context";
 import { getMatchForecast } from "@/lib/match-forecast";
 import { formatMatchVenueLine } from "@/lib/match-venue";
@@ -8,7 +9,7 @@ import type { LeagueStandingRow, LeagueStandings, PremierLeagueRaceInsight } fro
 import type { MatchInfo } from "@/lib/types";
 
 function teamLabel(team: MatchInfo["homeTeam"]): string {
-  return team.name?.trim() || team.code;
+  return presentTeamName(team);
 }
 
 function ordinal(position: number): string {
@@ -228,5 +229,5 @@ export function featuredMatchParagraphs(
   match: MatchInfo,
   options?: Parameters<typeof featuredMatchBrief>[1]
 ): string[] {
-  return nextEventParagraphs(featuredMatchBrief(match, options));
+  return nextEventParagraphs(featuredMatchBrief(withDisplayedClubs(match), options));
 }

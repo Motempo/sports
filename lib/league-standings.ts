@@ -1,4 +1,5 @@
 import plClubsSeed from "@/data/pl-clubs-seed.json" with { type: "json" };
+import { clubDisplayName } from "@/lib/club-display-name";
 import { highestFinishedMatchday } from "@/lib/league-matchdays";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
 import type {
@@ -98,10 +99,15 @@ export function buildClubTeamInfo(
   shortName?: string
 ): TeamInfo {
   const seed = clubs.find((c) => c.code === code);
+  const display = clubDisplayName({
+    code,
+    name: name || seed?.name,
+    shortName: shortName || seed?.shortName,
+  });
   return {
     code,
-    name: name || seed?.name || code,
-    shortName: shortName || seed?.shortName,
+    name: display,
+    shortName: display,
     crest: crest || seed?.crest,
     iso2: code.slice(0, 2).toLowerCase(),
   };
@@ -254,9 +260,9 @@ export function computeTitleRace(
     return {
       kind: "title",
       title: "Champions",
-      message: `${leader.team.name} are ${leagueName} champions on ${leader.points} points.`,
-      leaderLabel: `1 · ${leader.team.shortName ?? leader.team.name} · ${leader.points} pts`,
-      chaseLabel: `2 · ${challenger.team.shortName ?? challenger.team.name} · ${challenger.points} pts`,
+      message: `${clubDisplayName(leader.team)} are ${leagueName} champions on ${leader.points} points.`,
+      leaderLabel: `1 · ${clubDisplayName(leader.team)} · ${leader.points} pts`,
+      chaseLabel: `2 · ${clubDisplayName(challenger.team)} · ${challenger.points} pts`,
       remaining: 0,
     };
   }
@@ -266,10 +272,10 @@ export function computeTitleRace(
     kind: "title",
     title: mathematical ? "Title sealed" : "Title race",
     message: mathematical
-      ? `${leader.team.name} cannot be caught — ${gap} points clear with ${remaining} match${remaining === 1 ? "" : "es"} left.`
-      : `${leader.team.name} lead ${challenger.team.name} by ${gap} point${gap === 1 ? "" : "s"} with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
-    leaderLabel: `1 · ${leader.team.shortName ?? leader.team.name} · ${leader.points} pts`,
-    chaseLabel: `2 · ${challenger.team.shortName ?? challenger.team.name} · ${challenger.points} pts`,
+      ? `${clubDisplayName(leader.team)} cannot be caught — ${gap} points clear with ${remaining} match${remaining === 1 ? "" : "es"} left.`
+      : `${clubDisplayName(leader.team)} lead ${clubDisplayName(challenger.team)} by ${gap} point${gap === 1 ? "" : "s"} with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
+    leaderLabel: `1 · ${clubDisplayName(leader.team)} · ${leader.points} pts`,
+    chaseLabel: `2 · ${clubDisplayName(challenger.team)} · ${challenger.points} pts`,
     remaining,
   };
 }
@@ -285,13 +291,13 @@ export function computeRelegationRace(
   const remaining = Math.max(0, MATCHES_PER_TEAM - safety.played);
 
   if (remaining === 0) {
-    const relegated = standings.rows.filter((r) => r.zone === "RELEGATION").map((r) => r.team.shortName ?? r.team.name);
+    const relegated = standings.rows.filter((r) => r.zone === "RELEGATION").map((r) => clubDisplayName(r.team));
     return {
       kind: "relegation",
       title: "Relegated",
       message: `${relegated.join(", ")} go down after ${standings.seasonLabel}.`,
-      leaderLabel: `17 · ${cut.team.shortName ?? cut.team.name} · ${cut.points} pts`,
-      chaseLabel: `20 · ${bottom.team.shortName ?? bottom.team.name} · ${bottom.points} pts`,
+      leaderLabel: `17 · ${clubDisplayName(cut.team)} · ${cut.points} pts`,
+      chaseLabel: `20 · ${clubDisplayName(bottom.team)} · ${bottom.points} pts`,
       remaining: 0,
     };
   }
@@ -300,9 +306,9 @@ export function computeRelegationRace(
   return {
     kind: "relegation",
     title: "Relegation battle",
-    message: `${safety.team.name} sit in the drop zone, ${gap} point${gap === 1 ? "" : "s"} from safety with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
-    leaderLabel: `17 · ${cut.team.shortName ?? cut.team.name} · ${cut.points} pts`,
-    chaseLabel: `18 · ${safety.team.shortName ?? safety.team.name} · ${safety.points} pts`,
+    message: `${clubDisplayName(safety.team)} sit in the drop zone, ${gap} point${gap === 1 ? "" : "s"} from safety with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
+    leaderLabel: `17 · ${clubDisplayName(cut.team)} · ${cut.points} pts`,
+    chaseLabel: `18 · ${clubDisplayName(safety.team)} · ${safety.points} pts`,
     remaining,
   };
 }

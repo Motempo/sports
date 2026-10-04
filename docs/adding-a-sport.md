@@ -22,6 +22,7 @@ Mirror an existing sport (prefer Premier League for club leagues, F1 for season 
 - [ ] Fetch upstream scoreboards with `cachedUpstreamFetch` (do not set `cache: "no-store"` or cache-bust GitHub raw URLs)
 - [ ] Sport page: `dynamic = "force-dynamic"` only — do not export `fetchCache = "force-no-store"`
 - [ ] Reuse `lib/league-standings.ts` or `match-schedule.ts` where format matches
+- [ ] Club leagues: add the club to `lib/club-display-name.ts` so every surface uses one short display name
 
 ## 4. News & facts
 

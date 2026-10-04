@@ -7,6 +7,7 @@ import { formatLocalMatchTime } from "@/lib/match-schedule";
 import { getRoundLabel } from "@/lib/bracket-constants";
 import { getMatchdayLabel, getMatchStakes } from "@/lib/match-context";
 import type { GroupStandings } from "@/lib/group-standings";
+import { presentTeamName, withDisplayedClubs } from "@/lib/club-display-name";
 import { formatMatchVenueLine } from "@/lib/match-venue";
 import { isMatchLive, isMatchPlayed } from "@/lib/match-status";
 import type { MatchInfo } from "@/lib/types";
@@ -46,21 +47,24 @@ export function MatchScheduleRow({
   onSelect,
   timeZone,
 }: MatchScheduleRowProps) {
-  const { display, isLive } = formatScore(match.homeScore, match.awayScore, match.status);
-  const finished = match.status === "FINISHED";
-  const homeWinner = finished && match.winnerCode === match.homeTeam.code;
-  const awayWinner = finished && match.winnerCode === match.awayTeam.code;
-  const cancelled = match.status === "CANCELLED" || match.status === "POSTPONED";
+  const shown = withDisplayedClubs(match);
+  const homeName = presentTeamName(shown.homeTeam);
+  const awayName = presentTeamName(shown.awayTeam);
+  const { display, isLive } = formatScore(shown.homeScore, shown.awayScore, shown.status);
+  const finished = shown.status === "FINISHED";
+  const homeWinner = finished && shown.winnerCode === shown.homeTeam.code;
+  const awayWinner = finished && shown.winnerCode === shown.awayTeam.code;
+  const cancelled = shown.status === "CANCELLED" || shown.status === "POSTPONED";
   const interactive = !cancelled && !!onSelect;
 
-  const timeLabel = isLive ? "Live" : formatLocalMatchTime(match.utcDate, timeZone);
-  const groupLabel = formatGroupLabel(match.group);
+  const timeLabel = isLive ? "Live" : formatLocalMatchTime(shown.utcDate, timeZone);
+  const groupLabel = formatGroupLabel(shown.group);
   const roundLabel =
-    match.stage !== "GROUP" && match.stage !== "LEAGUE" ? getRoundLabel(match.round) : null;
-  const matchday = showContext && groupMatches ? getMatchdayLabel(match, groupMatches) : null;
+    shown.stage !== "GROUP" && shown.stage !== "LEAGUE" ? getRoundLabel(shown.round) : null;
+  const matchday = showContext && groupMatches ? getMatchdayLabel(shown, groupMatches) : null;
   const stakes =
-    showContext && standings ? getMatchStakes(match, standings, groupMatches) : null;
-  const venueLine = formatMatchVenueLine(match);
+    showContext && standings ? getMatchStakes(shown, standings, groupMatches) : null;
+  const venueLine = formatMatchVenueLine(shown);
 
   const inner: ReactNode = (
     <div className="grid grid-cols-[4.75rem_1fr_auto] items-center gap-3 sm:grid-cols-[5rem_1fr_auto]">
@@ -72,7 +76,7 @@ export function MatchScheduleRow({
           </span>
         ) : (
           <time
-            dateTime={match.utcDate}
+            dateTime={shown.utcDate}
             className="whitespace-nowrap text-[13px] font-medium tabular-nums text-muted sm:text-[14px]"
           >
             {timeLabel}
@@ -82,27 +86,29 @@ export function MatchScheduleRow({
 
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <TeamEmblem team={match.homeTeam} size={20} className="shrink-0" />
+          <TeamEmblem team={shown.homeTeam} size={20} className="shrink-0" />
           <span
             className={cn(
               "truncate text-[14px] sm:text-[15px]",
               homeWinner && "font-semibold",
-              finished && !homeWinner && match.winnerCode && "text-muted"
+              finished && !homeWinner && shown.winnerCode && "text-muted"
             )}
+            title={homeName}
           >
-            {match.homeTeam.name}
+            {homeName}
           </span>
         </div>
         <div className="mt-1 flex items-center gap-2">
-          <TeamEmblem team={match.awayTeam} size={20} className="shrink-0" />
+          <TeamEmblem team={shown.awayTeam} size={20} className="shrink-0" />
           <span
             className={cn(
               "truncate text-[14px] sm:text-[15px]",
               awayWinner && "font-semibold",
-              finished && !awayWinner && match.winnerCode && "text-muted"
+              finished && !awayWinner && shown.winnerCode && "text-muted"
             )}
+            title={awayName}
           >
-            {match.awayTeam.name}
+            {awayName}
           </span>
         </div>
         {(roundLabel || groupLabel || matchday) && (
@@ -140,7 +146,7 @@ export function MatchScheduleRow({
         className={frameClass}
         onClick={() => onSelect?.(match)}
         aria-haspopup="dialog"
-        aria-label={`Open details for ${match.homeTeam.name} vs ${match.awayTeam.name}`}
+        aria-label={`Open details for ${homeName} vs ${awayName}`}
       >
         {inner}
       </button>

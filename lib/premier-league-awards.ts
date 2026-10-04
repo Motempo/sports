@@ -1,3 +1,4 @@
+import { clubDisplayName } from "@/lib/club-display-name";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { buildClubTeamInfo, resolveClubCode } from "@/lib/league-standings";
 import type { LeagueStandings } from "@/lib/premier-league-types";
@@ -49,7 +50,7 @@ async function fetchPremierLeagueScorers(limit = 8): Promise<PremierLeagueAwardC
         rank: index + 1,
         label: row.player.name,
         teamCode: code,
-        teamName: team.name,
+        teamName: clubDisplayName(team),
         crest: team.crest,
         stat: row.goals ?? 0,
         statLabel: "goals",
@@ -71,9 +72,9 @@ function topBy(
     .slice(0, limit)
     .map((row, index) => ({
       rank: index + 1,
-      label: row.team.shortName ?? row.team.name,
+      label: clubDisplayName(row.team),
       teamCode: row.team.code,
-      teamName: row.team.name,
+      teamName: clubDisplayName(row.team),
       crest: row.team.crest,
       stat: pick(row),
       statLabel,
@@ -124,9 +125,9 @@ export async function buildPremierLeagueAwards(
       .slice(0, 4)
       .map((row, index) => ({
         rank: index + 1,
-        label: row.team.shortName ?? row.team.name,
+        label: clubDisplayName(row.team),
         teamCode: row.team.code,
-        teamName: row.team.name,
+        teamName: clubDisplayName(row.team),
         crest: row.team.crest,
         stat: row.goalsAgainst,
         statLabel: "GA",

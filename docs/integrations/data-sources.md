@@ -73,9 +73,9 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`). Jolpica and OpenF1 use the same
 
 ## Venue photos
 
-- Football grounds for La Liga, the Premier League, and the World Cup are curated same-origin photos in `public/venues/football/`, indexed by `data/football-venue-photos.json` (Commons file page, author, and license). Licenses are public domain, CC0, CC BY, or CC BY-SA. The next-event card and the match modal show a small credit line linking to the Commons page.
-- Lookup is exact on the venue name and aliases (`lib/football-venue-photos.ts`). `lib/venue-image.ts` checks that catalog for `kind: "stadium"` before the live Wikipedia search, so a ground that is not in the catalog still uses the older exterior search.
-- F1 circuits are unchanged: oblique aerials are still chosen at request time from Wikipedia / Wikimedia Commons (not the football catalog).
+- La Liga and Premier League grounds use a same-origin aerial at `public/venues/football/<slug>.webp`, indexed by `data/football-venue-photos.json` (venue name, city, club, slug). `lib/venue-image.ts` serves that file for a matching stadium and does not fetch another photo when the file is not on disk yet.
+- Lookup is exact on the venue name and aliases (`lib/football-venue-photos.ts`). A stadium that is not in the catalog, including World Cup grounds, still uses the live Wikipedia exterior search.
+- F1 circuits are unchanged: oblique aerials are still chosen at request time from Wikipedia / Wikimedia Commons.
 - Club home grounds: `data/pl-home-venues.json`, `data/la-liga-home-venues.json` fill empty openfootball venues for the featured card. World Cup venues come from `data/wc2026-stadiums.json`.
 - Past-match modal fetches `/api/venue-image` so the same stadium photo can load after a click
 - Module: `lib/venue-image.ts` (`CACHE_VERSION` bumped when scoring changes), `lib/football-venue-photos.ts`, `lib/club-home-venues.ts`

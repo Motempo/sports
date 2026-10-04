@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
-import type { VenueImageCredit } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface NextEventCardProps {
@@ -19,7 +18,6 @@ interface NextEventCardProps {
   /** Pixel size of a same-origin stadium photo. Keeps that photo's frame stable. */
   imageWidth?: number;
   imageHeight?: number;
-  imageCredit?: VenueImageCredit | null;
   /** `aerial` crops an oblique circuit photo so the track sits in the centre; stadiums stay `cover`. */
   imageFit?: "cover" | "aerial";
   className?: string;
@@ -40,7 +38,6 @@ function EventCardBody({
   imageAlt,
   imageWidth,
   imageHeight,
-  imageCredit,
   imageFit = "cover",
   className,
 }: Omit<NextEventCardProps, "heading" | "chrome">) {
@@ -123,18 +120,6 @@ function EventCardBody({
               )}
               unoptimized={!imageUrl.startsWith("/")}
             />
-            {imageCredit ? (
-              <a
-                href={imageCredit.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={`Photo: ${imageCredit.author} / ${imageCredit.license}. Resized for the web.`}
-                className="absolute inset-x-0 bottom-0 z-10 truncate bg-black/55 px-2 py-1 text-[10px] leading-snug text-white/90 underline-offset-2 hover:text-white hover:underline sm:text-[11px]"
-              >
-                Photo: {imageCredit.author} / {imageCredit.license}
-                <span className="sr-only">. Resized and compressed from the original.</span>
-              </a>
-            ) : null}
           </div>
         )}
       </div>
@@ -156,7 +141,6 @@ export function NextEventCard({
   imageAlt = "",
   imageWidth,
   imageHeight,
-  imageCredit,
   imageFit = "cover",
   className,
   chrome = "section",
@@ -175,7 +159,6 @@ export function NextEventCard({
       imageAlt={imageAlt}
       imageWidth={imageWidth}
       imageHeight={imageHeight}
-      imageCredit={imageCredit}
       imageFit={imageFit}
       className={className}
     />

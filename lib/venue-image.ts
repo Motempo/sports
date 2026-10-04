@@ -1,5 +1,7 @@
 import "server-only";
 
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { lookupFootballVenuePhoto } from "@/lib/football-venue-photos";
 import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo, VenueImage } from "@/lib/types";
@@ -342,10 +344,11 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
 }
 
 /**
- * Photograph of a race circuit or football stadium from Wikipedia / Wikimedia Commons.
- * Circuits prefer an oblique aerial (from the air at ~45°), not a flat layout map.
- * Football grounds in the curated catalog (`data/football-venue-photos.json`) are
- * served from this origin. Other stadiums still prefer a full exterior (MOT-53).
+ * Photograph of a race circuit or football stadium.
+ * Circuits prefer an oblique aerial from Wikipedia / Wikimedia Commons.
+ * La Liga and Premier League grounds use a same-origin aerial from
+ * `data/football-venue-photos.json` when that file is on disk.
+ * Other stadiums still prefer a full exterior (MOT-53).
  */
 export async function resolveVenueImage(input: {
   kind: VenueImageKind;
@@ -363,8 +366,11 @@ export async function resolveVenueImage(input: {
     if (input.kind === "stadium") {
       const curated = lookupFootballVenuePhoto(name);
       if (curated) {
-        cacheSet(cacheKey, curated);
-        return curated;
+        const relative = curated.url.replace(/^\//, "");
+        const onDisk = existsSync(path.join(process.cwd(), "public", relative));
+        const value = onDisk ? curated : null;
+        cacheSet(cacheKey, value);
+        return value;
       }
     }
 

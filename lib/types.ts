@@ -31,23 +31,12 @@ export interface MatchInfo {
   winnerCode?: string;
 }
 
-export interface VenueImageCredit {
-  /** Photographer or rights holder, plain text. */
-  author: string;
-  /** Short license name, for example "CC BY-SA 4.0". */
-  license: string;
-  /** Wikimedia Commons file page. */
-  sourceUrl: string;
-}
-
 export interface VenueImage {
   url: string;
   alt: string;
-  /** Pixel size of a same-origin photo, used to keep the stadium in frame. */
+  /** Pixel size of a same-origin photo, used to keep the frame stable. */
   width?: number;
   height?: number;
-  /** Shown on the photo when the license asks for attribution. */
-  credit?: VenueImageCredit;
 }
 
 export type NewsVideoKind = "youtube" | "vimeo" | "file";

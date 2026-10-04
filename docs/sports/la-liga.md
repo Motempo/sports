@@ -22,7 +22,7 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
-- Stadium photo is the next match's home ground from `data/football-venue-photos.json` (same-origin Commons aerial or exterior, with a credit line)
+- Stadium photo is the next match's home ground: same-origin aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`
 - League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream payloads share the 90s sports cache with Premier League
 - Finished fixtures in Matches open a next-match-style detail modal
 - `LaLigaSeasonRail`, reuses PL `LeagueTable` + `RaceTracker`

@@ -3,23 +3,19 @@ import type { VenueImage } from "@/lib/types";
 
 export interface FootballVenuePhoto {
   id: string;
-  league: "la-liga" | "premier-league" | "world-cup";
-  code: string | null;
+  league: "la-liga" | "premier-league";
+  code: string;
+  club: string;
   venue: string;
   city: string;
+  slug: string;
   aliases: string[];
-  view: "aerial" | "vantage" | "exterior";
+  /** Same-origin path, `/venues/football/<slug>.webp`. */
   file: string;
+  /** Layout frame. Aerials are shown at 3:2 until a file's real size replaces this. */
   width: number;
   height: number;
   alt: string;
-  commonsTitle: string;
-  sourceUrl: string;
-  author: string;
-  license: string;
-  licenseUrl: string;
-  modified: string;
-  note?: string;
 }
 
 const catalog = photos as FootballVenuePhoto[];
@@ -55,16 +51,11 @@ function toImage(photo: FootballVenuePhoto): VenueImage {
     alt: photo.alt,
     width: photo.width,
     height: photo.height,
-    credit: {
-      author: photo.author,
-      license: photo.license,
-      sourceUrl: photo.sourceUrl,
-    },
   };
 }
 
 /**
- * Same-origin photo for a La Liga, Premier League, or World Cup ground.
+ * Same-origin aerial for a La Liga or Premier League ground.
  * Matching is exact on the catalog's venue names and aliases, after accent folding.
  */
 export function lookupFootballVenuePhoto(name: string | null | undefined): VenueImage | null {

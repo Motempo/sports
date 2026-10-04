@@ -54,7 +54,7 @@ flowchart TB
 |-------|---------|---------|------|
 | `/api/news` | GET | Paginated RSS news (+ image/video enrichment). `limit` is clamped to 1–10 (default 3). Unknown `sport` is 400 | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
-| `/api/venue-image` | GET | Stadium photo for a match venue. Curated football grounds are same-origin; other stadiums fall back to Wikipedia | Public |
+| `/api/venue-image` | GET | Stadium photo for a match venue. La Liga and Premier League grounds are same-origin when the aerial file is present; other stadiums use Wikipedia | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + 10/IP/hour |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 10/IP/hour and is checked before any xAI call | GET public; POST rate limited (503 if no key) |
 

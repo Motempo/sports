@@ -23,7 +23,7 @@ Track FIFA World Cup 2026 (USA · Canada · Mexico) with the shared returning-us
 | Section | Components / notes |
 |---------|-------------------|
 | Rail | `TournamentRail` (compact) |
-| Next event | `FeaturedMatchCard`. Stadium photo comes from `data/football-venue-photos.json` (same-origin Commons file, credit line on the image) |
+| Next event | `FeaturedMatchCard`. Stadium photo is still resolved live from Wikipedia / Wikimedia Commons |
 | Schedule | `ScheduleByDay` — finished games open a next-match-style detail modal |
 | Widgets | News + Fun facts (`sportSlug="world-cup"`) |
 | Groups / standings | Group grids + third-place tracker (group stage) |

@@ -172,6 +172,8 @@ Dark default. Key CSS-intent colors from founding plan:
 
 Prefer feed rows over card chrome; no ads inside bracket trees or match cards.
 
+**Site icons** match the Motempo Tasks app byte-for-byte (`public/favicon.ico`, `public/favicon-32.png`, `public/icon.png` 512×512, `public/apple-touch-icon.png` 180×180, `public/favicon.png`, plus `app/favicon.ico` and `app/icon.png`). Root layout metadata points `icons` at those public URLs. Do not add `app/icon.tsx` or `app/apple-icon.tsx`; those generated routes would replace the shared files.
+
 ---
 
 ## Caching policy

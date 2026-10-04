@@ -24,6 +24,10 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 | Standings | `lib/league-standings.ts` — zones 1–4 CL, 5 EL, 6 ECL, 18–20 relegated. Header matchday is the highest real round with a finished game (`lib/league-matchdays.ts`) |
 | Key libs | `lib/premier-league-data.ts`, `league-data-cascade.ts`, `espn-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
 
+## Club names
+
+Premier League uses the same normalizer as La Liga (`lib/club-display-name.ts`). Each club has one short display name on the table, fixtures, next-match card, form book, awards, and records. The style is the existing short table name: “Manchester United FC” is **Man United**, “Manchester City FC” is **Man City**, “Tottenham Hotspur” is **Spurs**, “AFC Bournemouth” is **Bournemouth**, “Brighton & Hove Albion” is **Brighton**, “Nottingham Forest” is **Nott'm Forest**, “Wolverhampton Wanderers” is **Wolves**. A missing short name falls back the same way as La Liga.
+
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)

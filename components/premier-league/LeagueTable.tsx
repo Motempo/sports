@@ -1,6 +1,7 @@
 "use client";
 
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
+import { clubDisplayName } from "@/lib/club-display-name";
 import { cn } from "@/lib/utils";
 import type { LeagueStandingRow, LeagueStandings, LeagueZone } from "@/lib/premier-league-types";
 
@@ -81,8 +82,7 @@ export function LeagueTable({ standings }: LeagueTableProps) {
             <div className="flex min-w-0 items-center gap-2">
               <TeamEmblem team={row.team} size={20} rounded="md" />
               <span className="truncate text-[13px] font-semibold sm:text-[14px]">
-                <span className="sm:hidden">{row.team.shortName ?? row.team.name}</span>
-                <span className="hidden sm:inline">{row.team.name}</span>
+                {clubDisplayName(row.team)}
               </span>
             </div>
             <span className="text-right text-[12px] tabular-nums text-muted sm:text-[13px]">

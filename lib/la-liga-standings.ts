@@ -1,3 +1,4 @@
+import { clubDisplayName } from "@/lib/club-display-name";
 import type {
   LeagueRaceInsight,
   LeagueStandingRow,
@@ -296,9 +297,9 @@ export function computeTitleRace(standings: LeagueStandings): LeagueRaceInsight 
     return {
       kind: "title",
       title: "Champions",
-      message: `${leader.team.name} are La Liga champions on ${leader.points} points.`,
-      leaderLabel: `1 · ${leader.team.shortName ?? leader.team.name} · ${leader.points} pts`,
-      chaseLabel: `2 · ${challenger.team.shortName ?? challenger.team.name} · ${challenger.points} pts`,
+      message: `${clubDisplayName(leader.team)} are La Liga champions on ${leader.points} points.`,
+      leaderLabel: `1 · ${clubDisplayName(leader.team)} · ${leader.points} pts`,
+      chaseLabel: `2 · ${clubDisplayName(challenger.team)} · ${challenger.points} pts`,
       remaining: 0,
     };
   }
@@ -308,10 +309,10 @@ export function computeTitleRace(standings: LeagueStandings): LeagueRaceInsight 
     kind: "title",
     title: mathematical ? "Title sealed" : "Title race",
     message: mathematical
-      ? `${leader.team.name} cannot be caught — ${gap} points clear with ${remaining} match${remaining === 1 ? "" : "es"} left.`
-      : `${leader.team.name} lead ${challenger.team.name} by ${gap} point${gap === 1 ? "" : "s"} with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
-    leaderLabel: `1 · ${leader.team.shortName ?? leader.team.name} · ${leader.points} pts`,
-    chaseLabel: `2 · ${challenger.team.shortName ?? challenger.team.name} · ${challenger.points} pts`,
+      ? `${clubDisplayName(leader.team)} cannot be caught — ${gap} points clear with ${remaining} match${remaining === 1 ? "" : "es"} left.`
+      : `${clubDisplayName(leader.team)} lead ${clubDisplayName(challenger.team)} by ${gap} point${gap === 1 ? "" : "s"} with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
+    leaderLabel: `1 · ${clubDisplayName(leader.team)} · ${leader.points} pts`,
+    chaseLabel: `2 · ${clubDisplayName(challenger.team)} · ${challenger.points} pts`,
     remaining,
   };
 }
@@ -340,13 +341,13 @@ export function computeRelegationRace(standings: LeagueStandings): LeagueRaceIns
   if (remaining === 0) {
     const relegated = standings.rows
       .filter((r) => r.zone === "RELEGATION")
-      .map((r) => r.team.shortName ?? r.team.name);
+      .map((r) => clubDisplayName(r.team));
     return {
       kind: "relegation",
       title: "Relegated",
       message: `${relegated.join(", ")} go down to Segunda after ${standings.seasonLabel}.`,
-      leaderLabel: `17 · ${cut.team.shortName ?? cut.team.name} · ${cut.points} pts`,
-      chaseLabel: `20 · ${bottom.team.shortName ?? bottom.team.name} · ${bottom.points} pts`,
+      leaderLabel: `17 · ${clubDisplayName(cut.team)} · ${cut.points} pts`,
+      chaseLabel: `20 · ${clubDisplayName(bottom.team)} · ${bottom.points} pts`,
       remaining: 0,
     };
   }
@@ -355,9 +356,9 @@ export function computeRelegationRace(standings: LeagueStandings): LeagueRaceIns
   return {
     kind: "relegation",
     title: "Relegation battle",
-    message: `${safety.team.name} sit in the drop zone, ${gap} point${gap === 1 ? "" : "s"} from safety with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
-    leaderLabel: `17 · ${cut.team.shortName ?? cut.team.name} · ${cut.points} pts`,
-    chaseLabel: `18 · ${safety.team.shortName ?? safety.team.name} · ${safety.points} pts`,
+    message: `${clubDisplayName(safety.team)} sit in the drop zone, ${gap} point${gap === 1 ? "" : "s"} from safety with ${remaining} match${remaining === 1 ? "" : "es"} left.`,
+    leaderLabel: `17 · ${clubDisplayName(cut.team)} · ${cut.points} pts`,
+    chaseLabel: `18 · ${clubDisplayName(safety.team)} · ${safety.points} pts`,
     remaining,
   };
 }

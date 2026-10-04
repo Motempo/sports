@@ -1,3 +1,4 @@
+import { clubDisplayName } from "@/lib/club-display-name";
 import { capForecast } from "@/lib/match-forecast";
 import type { LeagueStandingRow, LeagueStandings } from "@/lib/premier-league-types";
 import type { MatchInfo, TeamInfo } from "@/lib/types";
@@ -33,7 +34,7 @@ function record(
 }
 
 function teamLabel(team: TeamInfo): string {
-  return team.shortName ?? team.name;
+  return clubDisplayName(team);
 }
 
 function vsLabel(match: MatchInfo): string {
@@ -119,7 +120,7 @@ function longestWinStreak(
 
     if (max > 0 && (!best || max > best.length)) {
       best = {
-        team: row.team.shortName ?? row.team.name,
+        team: clubDisplayName(row.team),
         teamCode: code,
         length: max,
       };
@@ -136,8 +137,8 @@ function uniqueWinners(matches: MatchInfo[]): { count: number; names: string[] }
     const homeWins = m.homeScore! > m.awayScore!;
     const code = homeWins ? m.homeTeam.code : m.awayTeam.code;
     const name = homeWins
-      ? m.homeTeam.shortName ?? m.homeTeam.name
-      : m.awayTeam.shortName ?? m.awayTeam.name;
+      ? clubDisplayName(m.homeTeam)
+      : clubDisplayName(m.awayTeam);
     winners.set(code, name);
   }
   return { count: winners.size, names: [...winners.values()] };
@@ -186,7 +187,7 @@ export function buildPremierLeagueRecords(
         "Highest points total by one club in a single Premier League campaign — the modern title haul.",
       allTime: {
         value: "100 pts",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "2017/18",
       },
@@ -195,7 +196,7 @@ export function buildPremierLeagueRecords(
         : leader
           ? {
               value: `${leader.points} pts`,
-              holder: leader.team.shortName ?? leader.team.name,
+              holder: clubDisplayName(leader.team),
               teamCode: leader.team.code,
               crest: leader.team.crest,
               context: `${seasonLabel} · MD ${standings.matchday}`,
@@ -207,11 +208,11 @@ export function buildPremierLeagueRecords(
           : !seasonNotStarted && leader && leader.points > 0
             ? "leading"
             : null,
-      commentary: `Manchester City's 100-point season in 2017/18 remains the gold standard. ${
+      commentary: `Man City's 100-point season in 2017/18 remains the gold standard. ${
         seasonNotStarted
           ? "The contestants are yet to be seen — nobody leads a blank scorecard."
           : leader && leader.points > 0
-            ? `${leader.team.name} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
+            ? `${clubDisplayName(leader.team)} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
             : "The points race opens with Matchday 1."
       } Commentators watch every dropped point as title maths.`,
     }),
@@ -224,7 +225,7 @@ export function buildPremierLeagueRecords(
         "Most league goals scored by one side in a single season — attacking fireworks over 38 games.",
       allTime: {
         value: "106 goals",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "2017/18",
       },
@@ -233,7 +234,7 @@ export function buildPremierLeagueRecords(
         : goalsLeader && goalsLeader.goalsFor > 0
           ? {
               value: `${goalsLeader.goalsFor} goals`,
-              holder: goalsLeader.team.shortName ?? goalsLeader.team.name,
+              holder: clubDisplayName(goalsLeader.team),
               teamCode: goalsLeader.team.code,
               crest: goalsLeader.team.crest,
               context: `${seasonLabel} · ${goalsLeader.played} played`,
@@ -245,11 +246,11 @@ export function buildPremierLeagueRecords(
           : !seasonNotStarted && goalsLeader && goalsLeader.goalsFor > 0
             ? "leading"
             : null,
-      commentary: `City's 106 in 2017/18 is the Premier League scoring mountain. ${
+      commentary: `Man City's 106 in 2017/18 is the Premier League scoring mountain. ${
         seasonNotStarted
           ? "Nobody has a goal on the board until the first ball is kicked."
           : goalsLeader && goalsLeader.goalsFor > 0
-            ? `${goalsLeader.team.name} lead ${seasonLabel} with ${goalsLeader.goalsFor}.`
+            ? `${clubDisplayName(goalsLeader.team)} lead ${seasonLabel} with ${goalsLeader.goalsFor}.`
             : "The charts fill after the first weekend."
       }`,
     }),
@@ -261,7 +262,7 @@ export function buildPremierLeagueRecords(
       description: "Most league victories by one club in a 38-game Premier League season.",
       allTime: {
         value: "32 wins",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "2017/18 & 2018/19",
       },
@@ -270,7 +271,7 @@ export function buildPremierLeagueRecords(
         : winsLeader && winsLeader.won > 0
           ? {
               value: `${winsLeader.won} wins`,
-              holder: winsLeader.team.shortName ?? winsLeader.team.name,
+              holder: clubDisplayName(winsLeader.team),
               teamCode: winsLeader.team.code,
               crest: winsLeader.team.crest,
               context: `${seasonLabel} · ${winsLeader.played} played`,
@@ -282,11 +283,11 @@ export function buildPremierLeagueRecords(
           : !seasonNotStarted && winsLeader && winsLeader.won > 0
             ? "leading"
             : null,
-      commentary: `City's 32 wins in back-to-back seasons set the bar. ${
+      commentary: `Man City's 32 wins in back-to-back seasons set the bar. ${
         seasonNotStarted
           ? "The win column is empty until Kickoff 1."
           : winsLeader && winsLeader.won > 0
-            ? `${winsLeader.team.name} have ${winsLeader.won} so far in ${seasonLabel}.`
+            ? `${clubDisplayName(winsLeader.team)} have ${winsLeader.won} so far in ${seasonLabel}.`
             : "Sunday results start the wins race."
       }`,
     }),
@@ -298,7 +299,7 @@ export function buildPremierLeagueRecords(
       description: "Most consecutive Premier League victories in a row — pure momentum.",
       allTime: {
         value: "18 in a row",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "Aug–Dec 2017",
       },
@@ -311,7 +312,7 @@ export function buildPremierLeagueRecords(
           }
         : awaiting,
       highlightSeason: streak && streak.length >= 18 ? "all-time" : streak ? "leading" : null,
-      commentary: `City's 18-game run in 2017 rewrote the consecutive-wins chart. ${
+      commentary: `Man City's 18-game run in 2017 rewrote the consecutive-wins chart. ${
         streak
           ? `${streak.team} own ${seasonLabel}'s longest streak at ${streak.length}.`
           : "Streaks start the first time a side strings two Sundays together."
@@ -325,7 +326,7 @@ export function buildPremierLeagueRecords(
       description: "Largest winning margin in a Premier League match — a true hiding.",
       allTime: {
         value: "9–0",
-        holder: "Leicester City",
+        holder: "Leicester",
         teamCode: "LEI",
         context: "vs Southampton · 2019",
       },
@@ -338,7 +339,7 @@ export function buildPremierLeagueRecords(
           }
         : awaiting,
       highlightSeason: bigWin && bigWin.margin >= 9 ? "all-time" : bigWin ? "leading" : null,
-      commentary: `Leicester's 9–0 in 2019 (and United's 9–0 vs Ipswich in 1995) sit at the top. ${
+      commentary: `Leicester's 9–0 in 2019 (and Man United's 9–0 vs Ipswich in 1995) sit at the top. ${
         bigWin
           ? `${bigWin.winner} have ${seasonLabel}'s biggest win at ${bigWin.scoreline}.`
           : "The first blowout writes this card."
@@ -388,7 +389,7 @@ export function buildPremierLeagueRecords(
         : cleanest && cleanest.played > 0
           ? {
               value: `${cleanest.goalsAgainst} conceded`,
-              holder: cleanest.team.shortName ?? cleanest.team.name,
+              holder: clubDisplayName(cleanest.team),
               teamCode: cleanest.team.code,
               crest: cleanest.team.crest,
               context: `${seasonLabel} · ${cleanest.played} played`,
@@ -404,7 +405,7 @@ export function buildPremierLeagueRecords(
         seasonNotStarted
           ? "Clean sheets are theoretical until Matchday 1."
           : cleanest && cleanest.played > 0
-            ? `${cleanest.team.name} have conceded ${cleanest.goalsAgainst} in ${seasonLabel}.`
+            ? `${clubDisplayName(cleanest.team)} have conceded ${cleanest.goalsAgainst} in ${seasonLabel}.`
             : "The defence charts open with the first goal."
       }`,
     }),
@@ -416,7 +417,7 @@ export function buildPremierLeagueRecords(
       description: "Smallest gap between first and second — drama measured in points and GD.",
       allTime: {
         value: "GD only",
-        holder: "City vs United",
+        holder: "Man City vs Man United",
         teamCode: "MCI",
         context: "Both 89 pts · 2011/12",
       },
@@ -425,7 +426,7 @@ export function buildPremierLeagueRecords(
           ? awaiting
           : {
               value: `${gap} pt${gap === 1 ? "" : "s"}`,
-              holder: `${leader?.team.shortName ?? "Leader"} vs ${rows[1]?.team.shortName ?? "2nd"}`,
+              holder: `${leader ? clubDisplayName(leader.team) : "Leader"} vs ${rows[1] ? clubDisplayName(rows[1].team) : "2nd"}`,
               teamCode: leader?.team.code,
               crest: leader?.team.crest,
               context: `${seasonLabel} live gap`,
@@ -499,7 +500,7 @@ export function buildPremierLeagueRecords(
       description: "Most English top-flight championships won by a club — the all-time kings.",
       allTime: {
         value: "20 titles",
-        holder: "Manchester United",
+        holder: "Man United",
         teamCode: "MUN",
         context: "All-time leaders",
       },
@@ -508,18 +509,18 @@ export function buildPremierLeagueRecords(
         : leader
           ? {
               value: "Chasing history",
-              holder: leader.team.shortName ?? leader.team.name,
+              holder: clubDisplayName(leader.team),
               teamCode: leader.team.code,
               crest: leader.team.crest,
               context: `${seasonLabel} table leaders`,
             }
           : { value: "—", holder: "Season not started", context: seasonLabel },
       highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
-      commentary: `Manchester United's 20 titles remain the English mountain. ${
+      commentary: `Man United's 20 titles remain the English mountain. ${
         seasonNotStarted
           ? "History can wait until Matchday 1."
           : leader && leader.points > 0
-            ? `${leader.team.name} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
+            ? `${clubDisplayName(leader.team)} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
             : "The next champion will be decided across 38 matchdays."
       }`,
     }),
@@ -565,7 +566,7 @@ export function buildPremierLeagueRecords(
         return unbeaten
           ? {
               value: `${unbeaten.played} unbeaten`,
-              holder: unbeaten.team.shortName ?? unbeaten.team.name,
+              holder: clubDisplayName(unbeaten.team),
               teamCode: unbeaten.team.code,
               crest: unbeaten.team.crest,
               context: `${seasonLabel} · ${unbeaten.won}W ${unbeaten.drawn}D`,
@@ -592,7 +593,7 @@ export function buildPremierLeagueRecords(
       description: "Most Premier League titles won in a row — dynasty maths.",
       allTime: {
         value: "4 in a row",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "2020/21–2023/24",
       },
@@ -601,18 +602,18 @@ export function buildPremierLeagueRecords(
         : leader
           ? {
               value: "Defending / chasing",
-              holder: leader.team.shortName ?? leader.team.name,
+              holder: clubDisplayName(leader.team),
               teamCode: leader.team.code,
               crest: leader.team.crest,
               context: `${seasonLabel} table leaders`,
             }
           : awaiting,
       highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
-      commentary: `City's four-in-a-row is the Premier League dynasty record, passing United's threes. ${
+      commentary: `Man City's four-in-a-row is the Premier League dynasty record, passing Man United's threes. ${
         seasonNotStarted
           ? "The next chapter opens in August."
           : leader
-            ? `${leader.team.name} sit top of ${seasonLabel} while that history sits in the studio graphic.`
+            ? `${clubDisplayName(leader.team)} sit top of ${seasonLabel} while that history sits in the studio graphic.`
             : "38 games decide whether the streak grows or snaps."
       }`,
     }),
@@ -624,7 +625,7 @@ export function buildPremierLeagueRecords(
       description: "Healthiest goals scored minus conceded in a Premier League season.",
       allTime: {
         value: "+79",
-        holder: "Manchester City",
+        holder: "Man City",
         teamCode: "MCI",
         context: "2017/18",
       },
@@ -633,7 +634,7 @@ export function buildPremierLeagueRecords(
         : leader
           ? {
               value: `${leader.goalDifference >= 0 ? "+" : ""}${leader.goalDifference}`,
-              holder: leader.team.shortName ?? leader.team.name,
+              holder: clubDisplayName(leader.team),
               teamCode: leader.team.code,
               crest: leader.team.crest,
               context: `${leader.goalsFor} for · ${leader.goalsAgainst} against`,
@@ -645,11 +646,11 @@ export function buildPremierLeagueRecords(
           : !seasonNotStarted && leader && leader.played > 0
             ? "leading"
             : null,
-      commentary: `City's +79 in 2017/18 is the GD Everest. ${
+      commentary: `Man City's +79 in 2017/18 is the GD Everest. ${
         seasonNotStarted
           ? "Difference is zero-zero until someone scores."
           : leader
-            ? `${leader.team.name} sit on ${leader.goalDifference >= 0 ? "+" : ""}${leader.goalDifference} in ${seasonLabel}.`
+            ? `${clubDisplayName(leader.team)} sit on ${leader.goalDifference >= 0 ? "+" : ""}${leader.goalDifference} in ${seasonLabel}.`
             : "GD appears with the first goal."
       }`,
     }),

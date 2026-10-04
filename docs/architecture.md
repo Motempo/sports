@@ -79,6 +79,8 @@ prefer live API → community / open mirror → local seed
 
 Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for scoreboards and standings. `lib/fetch-options.ts` (`uncachedFetch`) stays on news, facts, and venue photos. No Redis. Shared cache is the Next.js Data Cache (included on Vercel Hobby).
 
+Club leagues share `lib/club-display-name.ts`. `buildClubTeamInfo` and `buildLaLigaClubTeamInfo` store that display name on both `name` and `shortName`, and league UI reads it again so a long official name from football-data, ESPN, or openfootball cannot leak onto the page. World Cup national teams do not go through this map (codes can collide, e.g. ESP).
+
 ---
 
 ## Domain module map (`lib/`)

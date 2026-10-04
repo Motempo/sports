@@ -35,7 +35,9 @@ function ContenderRow({
         <p className={cn("truncate text-[13px] font-semibold", leader && "text-foreground")}>
           {contender.label}
         </p>
-        <p className="truncate text-[11px] text-muted">{contender.teamName}</p>
+        {contender.label !== contender.teamName && (
+          <p className="truncate text-[11px] text-muted">{contender.teamName}</p>
+        )}
       </div>
       <div className="shrink-0 text-right">
         <p className="text-[12px] font-bold tabular-nums">

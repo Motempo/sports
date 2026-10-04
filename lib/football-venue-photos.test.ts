@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, it } from "node:test";
+import { listClubDisplayNames, withDisplayedClubs } from "./club-display-name.ts";
 import {
   listFootballVenuePhotos,
   lookupFootballVenuePhoto,
   normalizeVenueName,
 } from "./football-venue-photos.ts";
+import type { MatchInfo } from "./types.ts";
 
 const laLigaVenues = JSON.parse(
   readFileSync(new URL("../data/la-liga-home-venues.json", import.meta.url), "utf8")
@@ -34,6 +36,34 @@ describe("football venue photos", () => {
     assert.equal(image?.url, "/venues/football/sanchez-pizjuan.webp");
     assert.equal(normalizeVenueName("St. James' Park"), "st james park");
     assert.equal(lookupFootballVenuePhoto("St James Park")?.url, "/venues/football/st-james-park.webp");
+  });
+
+  it("keeps the stadium photo when a league club is shown under its short name", () => {
+    const shown = withDisplayedClubs({
+      id: 1,
+      round: "R32",
+      stage: "LEAGUE",
+      homeTeam: { code: "MAL", name: "Málaga CF", shortName: "Málaga", iso2: "ES" },
+      awayTeam: {
+        code: "ESP",
+        name: "RCD Espanyol de Barcelona",
+        shortName: "Espanyol",
+        iso2: "ES",
+      },
+      homeScore: null,
+      awayScore: null,
+      status: "SCHEDULED",
+      utcDate: "2026-10-04T15:00:00Z",
+      venue: "Estadio La Rosaleda",
+      city: "Málaga",
+    } satisfies MatchInfo);
+    assert.equal(shown.homeTeam.name, "Málaga");
+    assert.equal(shown.awayTeam.name, "Espanyol");
+    assert.equal(shown.venue, "Estadio La Rosaleda");
+    assert.equal(lookupFootballVenuePhoto(shown.venue)?.url, "/venues/football/la-rosaleda.webp");
+    for (const club of listClubDisplayNames()) {
+      assert.equal(lookupFootballVenuePhoto(club.display), null, club.display);
+    }
   });
 
   it("does not claim a different ground or a World Cup stadium", () => {

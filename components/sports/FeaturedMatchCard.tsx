@@ -4,6 +4,7 @@ import { TeamCard } from "@/components/bracket/TeamCard";
 import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { getRoundLabel } from "@/lib/bracket-constants";
+import { presentTeamName, withDisplayedClubs } from "@/lib/club-display-name";
 import { featuredMatchParagraphs } from "@/lib/featured-match-copy";
 import type { GroupStandings } from "@/lib/group-standings";
 import { isMatchLive } from "@/lib/match-status";
@@ -34,7 +35,7 @@ function matchKicker(match: MatchInfo): string {
 }
 
 function teamLabel(team: MatchInfo["homeTeam"]): string {
-  return team.name?.trim() || team.code;
+  return presentTeamName(team);
 }
 
 function formatWhen(match: MatchInfo, timeZone: string): string {
@@ -75,18 +76,19 @@ export function FeaturedMatchCard({
 
   const live = isMatchLive(match.status);
   const played = match.status === "FINISHED" || live;
+  const shown = withDisplayedClubs(match);
 
   return (
     <NextEventCard
       heading={headingFor(match)}
       chrome={chrome}
       live={live}
-      kicker={matchKicker(match)}
-      title={`${teamLabel(match.homeTeam)} vs ${teamLabel(match.awayTeam)}`}
-      whenLabel={formatWhen(match, timeZone)}
-      whenDateTime={match.utcDate}
-      location={formatMatchVenueLine(match)}
-      paragraphs={featuredMatchParagraphs(match, {
+      kicker={matchKicker(shown)}
+      title={`${teamLabel(shown.homeTeam)} vs ${teamLabel(shown.awayTeam)}`}
+      whenLabel={formatWhen(shown, timeZone)}
+      whenDateTime={shown.utcDate}
+      location={formatMatchVenueLine(shown)}
+      paragraphs={featuredMatchParagraphs(shown, {
         groupStandings: standings,
         groupMatches,
         leagueStandings,
@@ -94,18 +96,18 @@ export function FeaturedMatchCard({
         relegationRace,
       })}
       imageUrl={venueImage?.url}
-      imageAlt={venueImage?.alt ?? formatMatchVenueLine(match) ?? teamLabel(match.homeTeam)}
+      imageAlt={venueImage?.alt ?? formatMatchVenueLine(shown) ?? teamLabel(shown.homeTeam)}
       imageWidth={venueImage?.width}
       imageHeight={venueImage?.height}
       emblems={
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-          <TeamCard team={match.homeTeam} align="left" />
-          <span className="text-[13px] font-extrabold tabular-nums text-muted sm:text-[15px]">
-            {played && match.homeScore !== null && match.awayScore !== null
-              ? `${match.homeScore}–${match.awayScore}`
+        <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
+          <TeamCard team={shown.homeTeam} align="left" wrapName />
+          <span className="shrink-0 text-center text-[13px] font-extrabold tabular-nums text-muted sm:text-[15px]">
+            {played && shown.homeScore !== null && shown.awayScore !== null
+              ? `${shown.homeScore}–${shown.awayScore}`
               : "vs"}
           </span>
-          <TeamCard team={match.awayTeam} align="right" />
+          <TeamCard team={shown.awayTeam} align="right" wrapName />
         </div>
       }
     />

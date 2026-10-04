@@ -97,6 +97,8 @@ export function FeaturedMatchCard({
       })}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? formatMatchVenueLine(shown) ?? teamLabel(shown.homeTeam)}
+      imageWidth={venueImage?.width}
+      imageHeight={venueImage?.height}
       emblems={
         <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
           <TeamCard team={shown.homeTeam} align="left" wrapName />

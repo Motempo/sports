@@ -1,0 +1,718 @@
+[
+  {
+    "id": "laliga-rma",
+    "league": "la-liga",
+    "code": "RMA",
+    "club": "Real Madrid",
+    "venue": "Estadio Santiago Bernabéu",
+    "city": "Madrid",
+    "slug": "santiago-bernabeu",
+    "aliases": [
+      "Estadio Santiago Bernabéu",
+      "Estadio Santiago Bernabeu",
+      "Santiago Bernabéu",
+      "Santiago Bernabeu"
+    ],
+    "file": "/venues/football/santiago-bernabeu.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Santiago Bernabéu in Madrid"
+  },
+  {
+    "id": "laliga-fcb",
+    "league": "la-liga",
+    "code": "FCB",
+    "club": "FC Barcelona",
+    "venue": "Estadi Olímpic Lluís Companys",
+    "city": "Barcelona",
+    "slug": "olimpic-lluis-companys",
+    "aliases": [
+      "Estadi Olímpic Lluís Companys",
+      "Estadi Olimpic Lluis Companys",
+      "Estadi Olímpic"
+    ],
+    "file": "/venues/football/olimpic-lluis-companys.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadi Olímpic Lluís Companys in Barcelona"
+  },
+  {
+    "id": "laliga-atl",
+    "league": "la-liga",
+    "code": "ATL",
+    "club": "Club Atlético de Madrid",
+    "venue": "Estadio Cívitas Metropolitano",
+    "city": "Madrid",
+    "slug": "civitas-metropolitano",
+    "aliases": [
+      "Estadio Cívitas Metropolitano",
+      "Estadio Civitas Metropolitano",
+      "Estadio Metropolitano",
+      "Wanda Metropolitano",
+      "Cívitas Metropolitano",
+      "Riyadh Air Metropolitano"
+    ],
+    "file": "/venues/football/civitas-metropolitano.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Cívitas Metropolitano in Madrid"
+  },
+  {
+    "id": "laliga-ath",
+    "league": "la-liga",
+    "code": "ATH",
+    "club": "Athletic Club",
+    "venue": "San Mamés",
+    "city": "Bilbao",
+    "slug": "san-mames",
+    "aliases": [
+      "San Mamés",
+      "San Mames",
+      "Nuevo San Mamés",
+      "Estadio San Mamés"
+    ],
+    "file": "/venues/football/san-mames.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of San Mamés in Bilbao"
+  },
+  {
+    "id": "laliga-vil",
+    "league": "la-liga",
+    "code": "VIL",
+    "club": "Villarreal CF",
+    "venue": "Estadio de la Cerámica",
+    "city": "Villarreal",
+    "slug": "la-ceramica",
+    "aliases": [
+      "Estadio de la Cerámica",
+      "Estadio de la Ceramica",
+      "El Madrigal",
+      "Estadio El Madrigal"
+    ],
+    "file": "/venues/football/la-ceramica.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio de la Cerámica in Villarreal"
+  },
+  {
+    "id": "laliga-rso",
+    "league": "la-liga",
+    "code": "RSO",
+    "club": "Real Sociedad de Fútbol",
+    "venue": "Reale Arena",
+    "city": "San Sebastián",
+    "slug": "reale-arena",
+    "aliases": [
+      "Reale Arena",
+      "Estadio de Anoeta",
+      "Anoeta",
+      "Reale Seguros Stadium"
+    ],
+    "file": "/venues/football/reale-arena.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Reale Arena in San Sebastián"
+  },
+  {
+    "id": "laliga-bet",
+    "league": "la-liga",
+    "code": "BET",
+    "club": "Real Betis Balompié",
+    "venue": "Estadio Benito Villamarín",
+    "city": "Seville",
+    "slug": "benito-villamarin",
+    "aliases": [
+      "Estadio Benito Villamarín",
+      "Estadio Benito Villamarin",
+      "Benito Villamarín",
+      "Villamarín"
+    ],
+    "file": "/venues/football/benito-villamarin.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Benito Villamarín in Seville"
+  },
+  {
+    "id": "laliga-sev",
+    "league": "la-liga",
+    "code": "SEV",
+    "club": "Sevilla FC",
+    "venue": "Estadio Ramón Sánchez-Pizjuán",
+    "city": "Seville",
+    "slug": "sanchez-pizjuan",
+    "aliases": [
+      "Estadio Ramón Sánchez-Pizjuán",
+      "Estadio Ramon Sanchez-Pizjuan",
+      "Ramón Sánchez-Pizjuán",
+      "Sánchez-Pizjuán",
+      "Sanchez Pizjuan"
+    ],
+    "file": "/venues/football/sanchez-pizjuan.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Ramón Sánchez-Pizjuán in Seville"
+  },
+  {
+    "id": "laliga-val",
+    "league": "la-liga",
+    "code": "VAL",
+    "club": "Valencia CF",
+    "venue": "Estadio de Mestalla",
+    "city": "Valencia",
+    "slug": "mestalla",
+    "aliases": [
+      "Estadio de Mestalla",
+      "Mestalla",
+      "Estadio Mestalla"
+    ],
+    "file": "/venues/football/mestalla.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio de Mestalla in Valencia"
+  },
+  {
+    "id": "laliga-osa",
+    "league": "la-liga",
+    "code": "OSA",
+    "club": "CA Osasuna",
+    "venue": "Estadio El Sadar",
+    "city": "Pamplona",
+    "slug": "el-sadar",
+    "aliases": [
+      "Estadio El Sadar",
+      "El Sadar",
+      "Estadio Reyno de Navarra",
+      "Reyno de Navarra"
+    ],
+    "file": "/venues/football/el-sadar.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio El Sadar in Pamplona"
+  },
+  {
+    "id": "laliga-cel",
+    "league": "la-liga",
+    "code": "CEL",
+    "club": "RC Celta de Vigo",
+    "venue": "Estadio Abanca Balaídos",
+    "city": "Vigo",
+    "slug": "balaidos",
+    "aliases": [
+      "Estadio Abanca Balaídos",
+      "Estadio Abanca Balaidos",
+      "Balaídos",
+      "Balaidos",
+      "Estadio de Balaídos"
+    ],
+    "file": "/venues/football/balaidos.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Abanca Balaídos in Vigo"
+  },
+  {
+    "id": "laliga-ray",
+    "league": "la-liga",
+    "code": "RAY",
+    "club": "Rayo Vallecano de Madrid",
+    "venue": "Estadio de Vallecas",
+    "city": "Madrid",
+    "slug": "vallecas",
+    "aliases": [
+      "Estadio de Vallecas",
+      "Campo de Fútbol de Vallecas",
+      "Campo de Futbol de Vallecas"
+    ],
+    "file": "/venues/football/vallecas.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio de Vallecas in Madrid"
+  },
+  {
+    "id": "laliga-get",
+    "league": "la-liga",
+    "code": "GET",
+    "club": "Getafe CF",
+    "venue": "Coliseum",
+    "city": "Getafe",
+    "slug": "coliseum",
+    "aliases": [
+      "Coliseum",
+      "Coliseum Alfonso Pérez",
+      "Coliseum Alfonso Perez",
+      "Estadio Coliseum"
+    ],
+    "file": "/venues/football/coliseum.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Coliseum in Getafe"
+  },
+  {
+    "id": "laliga-esp",
+    "league": "la-liga",
+    "code": "ESP",
+    "club": "RCD Espanyol de Barcelona",
+    "venue": "RCDE Stadium",
+    "city": "Barcelona",
+    "slug": "rcde-stadium",
+    "aliases": [
+      "RCDE Stadium",
+      "Estadi Cornellà-El Prat",
+      "Estadi Cornella-El Prat",
+      "Stage Front Stadium",
+      "Cornellà-El Prat"
+    ],
+    "file": "/venues/football/rcde-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of RCDE Stadium in Barcelona"
+  },
+  {
+    "id": "laliga-ala",
+    "league": "la-liga",
+    "code": "ALA",
+    "club": "Deportivo Alavés",
+    "venue": "Estadio de Mendizorroza",
+    "city": "Vitoria-Gasteiz",
+    "slug": "mendizorroza",
+    "aliases": [
+      "Estadio de Mendizorroza",
+      "Mendizorroza",
+      "Mendizorrotza",
+      "Estadio de Mendizorrotza"
+    ],
+    "file": "/venues/football/mendizorroza.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio de Mendizorroza in Vitoria-Gasteiz"
+  },
+  {
+    "id": "laliga-elc",
+    "league": "la-liga",
+    "code": "ELC",
+    "club": "Elche CF",
+    "venue": "Estadio Martínez Valero",
+    "city": "Elche",
+    "slug": "martinez-valero",
+    "aliases": [
+      "Estadio Martínez Valero",
+      "Estadio Martinez Valero",
+      "Martínez Valero",
+      "Martinez Valero"
+    ],
+    "file": "/venues/football/martinez-valero.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Martínez Valero in Elche"
+  },
+  {
+    "id": "laliga-lev",
+    "league": "la-liga",
+    "code": "LEV",
+    "club": "Levante UD",
+    "venue": "Estadi Ciutat de València",
+    "city": "Valencia",
+    "slug": "ciutat-de-valencia",
+    "aliases": [
+      "Estadi Ciutat de València",
+      "Estadi Ciutat de Valencia",
+      "Ciutat de València",
+      "Ciutat de Valencia"
+    ],
+    "file": "/venues/football/ciutat-de-valencia.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadi Ciutat de València in Valencia"
+  },
+  {
+    "id": "laliga-mal",
+    "league": "la-liga",
+    "code": "MAL",
+    "club": "Málaga CF",
+    "venue": "Estadio La Rosaleda",
+    "city": "Málaga",
+    "slug": "la-rosaleda",
+    "aliases": [
+      "Estadio La Rosaleda",
+      "La Rosaleda"
+    ],
+    "file": "/venues/football/la-rosaleda.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio La Rosaleda in Málaga"
+  },
+  {
+    "id": "laliga-rac",
+    "league": "la-liga",
+    "code": "RAC",
+    "club": "Real Racing Club de Santander",
+    "venue": "Campos de Sport de El Sardinero",
+    "city": "Santander",
+    "slug": "el-sardinero",
+    "aliases": [
+      "Campos de Sport de El Sardinero",
+      "El Sardinero",
+      "Campos de Sport del Sardinero"
+    ],
+    "file": "/venues/football/el-sardinero.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Campos de Sport de El Sardinero in Santander"
+  },
+  {
+    "id": "laliga-dep",
+    "league": "la-liga",
+    "code": "DEP",
+    "club": "RC Deportivo La Coruña",
+    "venue": "Estadio Abanca-Riazor",
+    "city": "A Coruña",
+    "slug": "riazor",
+    "aliases": [
+      "Estadio Abanca-Riazor",
+      "Estadio de Riazor",
+      "Riazor",
+      "Estadio Riazor"
+    ],
+    "file": "/venues/football/riazor.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Estadio Abanca-Riazor in A Coruña"
+  },
+  {
+    "id": "pl-ars",
+    "league": "premier-league",
+    "code": "ARS",
+    "club": "Arsenal",
+    "venue": "Emirates Stadium",
+    "city": "London",
+    "slug": "emirates-stadium",
+    "aliases": [
+      "Emirates Stadium"
+    ],
+    "file": "/venues/football/emirates-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Emirates Stadium in London"
+  },
+  {
+    "id": "pl-avl",
+    "league": "premier-league",
+    "code": "AVL",
+    "club": "Aston Villa",
+    "venue": "Villa Park",
+    "city": "Birmingham",
+    "slug": "villa-park",
+    "aliases": [
+      "Villa Park"
+    ],
+    "file": "/venues/football/villa-park.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Villa Park in Birmingham"
+  },
+  {
+    "id": "pl-bou",
+    "league": "premier-league",
+    "code": "BOU",
+    "club": "AFC Bournemouth",
+    "venue": "Vitality Stadium",
+    "city": "Bournemouth",
+    "slug": "vitality-stadium",
+    "aliases": [
+      "Vitality Stadium",
+      "Dean Court"
+    ],
+    "file": "/venues/football/vitality-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Vitality Stadium in Bournemouth"
+  },
+  {
+    "id": "pl-bre",
+    "league": "premier-league",
+    "code": "BRE",
+    "club": "Brentford",
+    "venue": "Gtech Community Stadium",
+    "city": "Brentford",
+    "slug": "gtech-community-stadium",
+    "aliases": [
+      "Gtech Community Stadium",
+      "Brentford Community Stadium",
+      "Gtech Stadium"
+    ],
+    "file": "/venues/football/gtech-community-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Gtech Community Stadium in Brentford"
+  },
+  {
+    "id": "pl-bha",
+    "league": "premier-league",
+    "code": "BHA",
+    "club": "Brighton & Hove Albion",
+    "venue": "American Express Stadium",
+    "city": "Brighton",
+    "slug": "american-express-stadium",
+    "aliases": [
+      "American Express Stadium",
+      "American Express Community Stadium",
+      "Falmer Stadium",
+      "Amex Stadium"
+    ],
+    "file": "/venues/football/american-express-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of American Express Stadium in Brighton"
+  },
+  {
+    "id": "pl-che",
+    "league": "premier-league",
+    "code": "CHE",
+    "club": "Chelsea",
+    "venue": "Stamford Bridge",
+    "city": "London",
+    "slug": "stamford-bridge",
+    "aliases": [
+      "Stamford Bridge"
+    ],
+    "file": "/venues/football/stamford-bridge.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Stamford Bridge in London"
+  },
+  {
+    "id": "pl-cov",
+    "league": "premier-league",
+    "code": "COV",
+    "club": "Coventry City",
+    "venue": "Coventry Building Society Arena",
+    "city": "Coventry",
+    "slug": "coventry-building-society-arena",
+    "aliases": [
+      "Coventry Building Society Arena",
+      "CBS Arena",
+      "Ricoh Arena"
+    ],
+    "file": "/venues/football/coventry-building-society-arena.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Coventry Building Society Arena in Coventry"
+  },
+  {
+    "id": "pl-cry",
+    "league": "premier-league",
+    "code": "CRY",
+    "club": "Crystal Palace",
+    "venue": "Selhurst Park",
+    "city": "London",
+    "slug": "selhurst-park",
+    "aliases": [
+      "Selhurst Park"
+    ],
+    "file": "/venues/football/selhurst-park.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Selhurst Park in London"
+  },
+  {
+    "id": "pl-eve",
+    "league": "premier-league",
+    "code": "EVE",
+    "club": "Everton",
+    "venue": "Hill Dickinson Stadium",
+    "city": "Liverpool",
+    "slug": "hill-dickinson-stadium",
+    "aliases": [
+      "Hill Dickinson Stadium",
+      "Everton Stadium",
+      "Bramley-Moore Dock Stadium"
+    ],
+    "file": "/venues/football/hill-dickinson-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Hill Dickinson Stadium in Liverpool"
+  },
+  {
+    "id": "pl-ful",
+    "league": "premier-league",
+    "code": "FUL",
+    "club": "Fulham",
+    "venue": "Craven Cottage",
+    "city": "London",
+    "slug": "craven-cottage",
+    "aliases": [
+      "Craven Cottage"
+    ],
+    "file": "/venues/football/craven-cottage.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Craven Cottage in London"
+  },
+  {
+    "id": "pl-hul",
+    "league": "premier-league",
+    "code": "HUL",
+    "club": "Hull City",
+    "venue": "MKM Stadium",
+    "city": "Hull",
+    "slug": "mkm-stadium",
+    "aliases": [
+      "MKM Stadium",
+      "KC Stadium",
+      "KCOM Stadium"
+    ],
+    "file": "/venues/football/mkm-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of MKM Stadium in Hull"
+  },
+  {
+    "id": "pl-ips",
+    "league": "premier-league",
+    "code": "IPS",
+    "club": "Ipswich Town",
+    "venue": "Portman Road",
+    "city": "Ipswich",
+    "slug": "portman-road",
+    "aliases": [
+      "Portman Road"
+    ],
+    "file": "/venues/football/portman-road.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Portman Road in Ipswich"
+  },
+  {
+    "id": "pl-lee",
+    "league": "premier-league",
+    "code": "LEE",
+    "club": "Leeds United",
+    "venue": "Elland Road",
+    "city": "Leeds",
+    "slug": "elland-road",
+    "aliases": [
+      "Elland Road"
+    ],
+    "file": "/venues/football/elland-road.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Elland Road in Leeds"
+  },
+  {
+    "id": "pl-liv",
+    "league": "premier-league",
+    "code": "LIV",
+    "club": "Liverpool",
+    "venue": "Anfield",
+    "city": "Liverpool",
+    "slug": "anfield",
+    "aliases": [
+      "Anfield"
+    ],
+    "file": "/venues/football/anfield.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Anfield in Liverpool"
+  },
+  {
+    "id": "pl-mci",
+    "league": "premier-league",
+    "code": "MCI",
+    "club": "Manchester City",
+    "venue": "Etihad Stadium",
+    "city": "Manchester",
+    "slug": "etihad-stadium",
+    "aliases": [
+      "Etihad Stadium",
+      "City of Manchester Stadium"
+    ],
+    "file": "/venues/football/etihad-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Etihad Stadium in Manchester"
+  },
+  {
+    "id": "pl-mun",
+    "league": "premier-league",
+    "code": "MUN",
+    "club": "Manchester United",
+    "venue": "Old Trafford",
+    "city": "Manchester",
+    "slug": "old-trafford",
+    "aliases": [
+      "Old Trafford"
+    ],
+    "file": "/venues/football/old-trafford.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Old Trafford in Manchester"
+  },
+  {
+    "id": "pl-new",
+    "league": "premier-league",
+    "code": "NEW",
+    "club": "Newcastle United",
+    "venue": "St. James' Park",
+    "city": "Newcastle",
+    "slug": "st-james-park",
+    "aliases": [
+      "St. James' Park",
+      "St James' Park",
+      "St James Park",
+      "St. James Park"
+    ],
+    "file": "/venues/football/st-james-park.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of St. James' Park in Newcastle"
+  },
+  {
+    "id": "pl-nfo",
+    "league": "premier-league",
+    "code": "NFO",
+    "club": "Nottingham Forest",
+    "venue": "The City Ground",
+    "city": "Nottingham",
+    "slug": "city-ground",
+    "aliases": [
+      "The City Ground",
+      "City Ground"
+    ],
+    "file": "/venues/football/city-ground.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of The City Ground in Nottingham"
+  },
+  {
+    "id": "pl-sun",
+    "league": "premier-league",
+    "code": "SUN",
+    "club": "Sunderland",
+    "venue": "Stadium of Light",
+    "city": "Sunderland",
+    "slug": "stadium-of-light",
+    "aliases": [
+      "Stadium of Light"
+    ],
+    "file": "/venues/football/stadium-of-light.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Stadium of Light in Sunderland"
+  },
+  {
+    "id": "pl-tot",
+    "league": "premier-league",
+    "code": "TOT",
+    "club": "Tottenham Hotspur",
+    "venue": "Tottenham Hotspur Stadium",
+    "city": "London",
+    "slug": "tottenham-hotspur-stadium",
+    "aliases": [
+      "Tottenham Hotspur Stadium"
+    ],
+    "file": "/venues/football/tottenham-hotspur-stadium.webp",
+    "width": 1600,
+    "height": 1067,
+    "alt": "Aerial view of Tottenham Hotspur Stadium in London"
+  }
+]

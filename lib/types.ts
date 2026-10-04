@@ -34,6 +34,9 @@ export interface MatchInfo {
 export interface VenueImage {
   url: string;
   alt: string;
+  /** Pixel size of a same-origin photo, used to keep the frame stable. */
+  width?: number;
+  height?: number;
 }
 
 export type NewsVideoKind = "youtube" | "vimeo" | "file";

@@ -31,6 +31,7 @@ Premier League uses the same normalizer as La Liga (`lib/club-display-name.ts`).
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
+- Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
 - Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`

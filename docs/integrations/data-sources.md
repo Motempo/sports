@@ -75,16 +75,16 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`). Jolpica and OpenF1 use the same
 
 - La Liga and Premier League grounds use a same-origin aerial at `public/venues/football/<slug>.webp`, indexed by `data/football-venue-photos.json` (venue name, city, club, slug). The files are generated aerials in club colours, not photographs, so the catalog stores no author, source, or license. `lib/venue-image.ts` serves that file for a matching stadium and does not fetch another photo if the file is missing.
 - Lookup is exact on the venue name and aliases (`lib/football-venue-photos.ts`). A stadium that is not in the catalog, including World Cup grounds, still uses the live Wikipedia exterior search.
-- F1 circuits are unchanged: oblique aerials are still chosen at request time from Wikipedia / Wikimedia Commons.
+- F1 circuits use a same-origin illustrated aerial at `public/venues/f1/<slug>.webp`, indexed by `data/f1-circuit-photos.json` (circuit name, country, slug). The files are generated aerials, not photographs, so the catalog stores no author, source, or license. `lib/venue-image.ts` serves that file for a calendar circuit and does not fetch Wikimedia if the file is missing. Flags on the F1 card and track profiles are regional-indicator emoji from the circuit country code, not flagcdn.
 - Club home grounds: `data/pl-home-venues.json`, `data/la-liga-home-venues.json` fill empty openfootball venues for the featured card. World Cup venues come from `data/wc2026-stadiums.json`.
 - Past-match modal fetches `/api/venue-image` so the same stadium photo can load after a click
-- Module: `lib/venue-image.ts` (`CACHE_VERSION` bumped when scoring changes), `lib/football-venue-photos.ts`, `lib/club-home-venues.ts`
+- Module: `lib/venue-image.ts` (`CACHE_VERSION` bumped when scoring changes), `lib/football-venue-photos.ts`, `lib/f1-circuit-photos.ts`, `lib/club-home-venues.ts`
 
 ## Other
 
 | Source | Use |
 |--------|-----|
-| flagcdn.com | National flags (WC) |
+| flagcdn.com | National flags for World Cup teams and F1 driver/constructor profiles. F1 circuit flags are offline emoji |
 | REST Countries | Optional country metadata (founding plan) |
 | xAI Grok | Feedback improve; optional venue resolve |
 

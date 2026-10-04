@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CountryFlag } from "@/components/f1/CountryFlag";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import {
@@ -10,7 +10,6 @@ import {
 import type { F1ConstructorStandingRow, F1StandingRow, F1TitleFightInsight } from "@/lib/f1-types";
 import type { VenueImage } from "@/lib/types";
 import { formatViewerDateTime } from "@/lib/match-timezone";
-import { getFlagUrl } from "@/lib/utils";
 
 interface FormulaOneNextEventProps {
   event: FeaturedF1Event | null;
@@ -43,29 +42,6 @@ function formatWhen(utcDate: string, timeZone: string, live: boolean, complete: 
     hour: "numeric",
     minute: "2-digit",
   });
-}
-
-function CountryFlag({ code, name }: { code?: string; name: string }) {
-  if (!code) {
-    return (
-      <div className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-border bg-surface text-[13px] font-bold text-muted">
-        {name.slice(0, 3).toUpperCase()}
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-border bg-surface shadow-sm">
-      <Image
-        src={getFlagUrl(code, 80)}
-        alt={`${name} flag`}
-        width={64}
-        height={64}
-        className="h-full w-full object-cover"
-        unoptimized
-      />
-    </div>
-  );
 }
 
 export function FormulaOneNextEvent({
@@ -115,7 +91,8 @@ export function FormulaOneNextEvent({
       emblems={<CountryFlag code={countryCode} name={country} />}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? location}
-      imageFit="aerial"
+      imageWidth={venueImage?.width}
+      imageHeight={venueImage?.height}
     />
   );
 }

@@ -8,6 +8,8 @@ import type {
   F1StandingRow,
   F1TitleFightInsight,
 } from "@/lib/f1-types";
+import { parseGrandPrix, parseSessionsFromRace, type JolpicaRace } from "@/lib/f1-calendar-parse";
+import { applyGrandPrixIdentity, applySessionIdentity, isSessionInGrandPrixWeekend } from "@/lib/f1-circuits";
 import { countRacesRemaining, getActiveGrandPrix } from "@/lib/f1-phase";
 import { inferSessionStatus, mergeOpenF1Sessions, resolveSessionStatus } from "@/lib/f1-session-status";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
@@ -16,156 +18,10 @@ import seedData from "@/data/f1-season-seed.json";
 const JOLPICA_BASE = "https://api.jolpi.ca/ergast/f1";
 const OPENF1_BASE = "https://api.openf1.org/v1";
 
-const COUNTRY_CODES: Record<string, string> = {
-  Australia: "AU",
-  China: "CN",
-  Japan: "JP",
-  USA: "US",
-  Canada: "CA",
-  Monaco: "MC",
-  Spain: "ES",
-  Austria: "AT",
-  "United Kingdom": "GB",
-  Belgium: "BE",
-  Hungary: "HU",
-  Netherlands: "NL",
-  Italy: "IT",
-  Azerbaijan: "AZ",
-  Singapore: "SG",
-  Mexico: "MX",
-  Brazil: "BR",
-  Qatar: "QA",
-  "United Arab Emirates": "AE",
-  Bahrain: "BH",
-  "Saudi Arabia": "SA",
-  Miami: "US",
-};
-
-interface JolpicaRace {
-  season: string;
-  round: string;
-  raceName: string;
-  date: string;
-  time?: string;
-  Circuit: {
-    circuitId: string;
-    circuitName: string;
-    Location: { locality: string; country: string };
-  };
-  FirstPractice?: { date: string; time: string };
-  SecondPractice?: { date: string; time: string };
-  ThirdPractice?: { date: string; time: string };
-  Qualifying?: { date: string; time: string };
-  Sprint?: { date: string; time: string };
-  SprintQualifying?: { date: string; time: string };
-  Results?: Array<{
-    position: string;
-    Driver: { code: string; givenName: string; familyName: string };
-    Constructor: { name: string };
-    status: string;
-  }>;
-}
-
 function getSeasonYear(): number {
   const env = process.env.F1_SEASON;
   if (env && /^\d{4}$/.test(env)) return parseInt(env, 10);
   return new Date().getFullYear();
-}
-
-function countryCode(country: string): string | undefined {
-  return COUNTRY_CODES[country];
-}
-
-function toUtcIso(date: string, time?: string): string {
-  if (time) return `${date}T${time}`;
-  return `${date}T12:00:00Z`;
-}
-
-function parseGrandPrix(race: JolpicaRace, standingsRound: number, now = new Date()): F1GrandPrix {
-  const round = parseInt(race.round, 10);
-  const country = race.Circuit.Location.country;
-  let status: F1GrandPrix["status"] = "upcoming";
-
-  if (round < standingsRound) {
-    status = "completed";
-  } else if (round === standingsRound) {
-    const raceTime = new Date(toUtcIso(race.date, race.time)).getTime();
-    status = now.getTime() > raceTime + 3 * 60 * 60 * 1000 ? "completed" : "current";
-  }
-
-  const winner = race.Results?.[0];
-  return {
-    round,
-    name: race.raceName,
-    circuit: race.Circuit.circuitName,
-    circuitId: race.Circuit.circuitId,
-    country,
-    countryCode: countryCode(country),
-    date: race.date,
-    utcDate: toUtcIso(race.date, race.time),
-    status,
-    isSprintWeekend: Boolean(race.Sprint),
-    winner: winner ? `${winner.Driver.givenName} ${winner.Driver.familyName}` : undefined,
-    winnerCode: winner?.Driver.code,
-  };
-}
-
-const SESSION_DEFS: Array<{
-  key: keyof JolpicaRace;
-  sessionType: F1SessionType;
-  label: string;
-}> = [
-  { key: "FirstPractice", sessionType: "practice", label: "Practice 1" },
-  { key: "SecondPractice", sessionType: "practice", label: "Practice 2" },
-  { key: "ThirdPractice", sessionType: "practice", label: "Practice 3" },
-  { key: "SprintQualifying", sessionType: "sprint_qualifying", label: "Sprint Qualifying" },
-  { key: "Qualifying", sessionType: "qualifying", label: "Qualifying" },
-  { key: "Sprint", sessionType: "sprint", label: "Sprint" },
-];
-
-function parseSessionsFromRace(race: JolpicaRace, now = new Date()): F1SessionInfo[] {
-  const round = parseInt(race.round, 10);
-  const country = race.Circuit.Location.country;
-  const isSprintWeekend = Boolean(race.Sprint);
-  const sessions: F1SessionInfo[] = [];
-
-  for (const def of SESSION_DEFS) {
-    const block = race[def.key] as { date: string; time: string } | undefined;
-    if (!block) continue;
-    const utcDate = toUtcIso(block.date, block.time);
-    sessions.push({
-      id: `${round}-${String(def.key)}`,
-      round,
-      gpName: race.raceName,
-      circuit: race.Circuit.circuitName,
-      circuitId: race.Circuit.circuitId,
-      country,
-      countryCode: countryCode(country),
-      sessionType: def.sessionType,
-      sessionLabel: def.label,
-      utcDate,
-      status: inferSessionStatus(utcDate, now, { sessionType: def.sessionType }),
-      isSprintWeekend,
-    });
-  }
-
-  const raceUtc = toUtcIso(race.date, race.time);
-  sessions.push({
-    id: `${round}-Race`,
-    round,
-    gpName: race.raceName,
-    circuit: race.Circuit.circuitName,
-    circuitId: race.Circuit.circuitId,
-    country,
-    countryCode: countryCode(country),
-    sessionType: "race",
-    sessionLabel: "Race",
-    utcDate: raceUtc,
-    status: inferSessionStatus(raceUtc, now, { sessionType: "race" }),
-    isSprintWeekend,
-  });
-
-  return sessions;
 }
 
 function parseDriverStandings(data: unknown): F1StandingRow[] {
@@ -317,13 +173,9 @@ async function fetchOpenF1Sessions(
     if (!res.ok) return [];
 
     const data = (await res.json()) as OpenF1Session[];
-    const gpTime = new Date(`${gp.date}T12:00:00Z`).getTime();
-    const windowMs = 5 * 24 * 60 * 60 * 1000;
-
-    const roundSessions = data.filter((s) => {
-      const sessionTime = new Date(s.date_start).getTime();
-      return Math.abs(sessionTime - gpTime) <= windowMs;
-    });
+    // Identity stays on the Grand Prix. OpenF1's country_code for the
+    // relocated Sepang meeting is still BRN, so it must not overwrite the circuit.
+    const roundSessions = data.filter((s) => isSessionInGrandPrixWeekend(s.date_start, gp.utcDate));
 
     return roundSessions.map((s) => {
       const sessionType = openF1SessionType(s.session_name, s.session_type);
@@ -356,10 +208,13 @@ function loadSeed(now = new Date()): F1SeasonData {
   const seed = seedData as Omit<F1SeasonData, "source">;
   return {
     ...seed,
-    sessions: seed.sessions.map((session) => ({
-      ...session,
-      status: resolveSessionStatus(session, now),
-    })),
+    calendar: seed.calendar.map((gp) => applyGrandPrixIdentity(gp)),
+    sessions: seed.sessions.map((session) =>
+      applySessionIdentity({
+        ...session,
+        status: resolveSessionStatus(session, now),
+      })
+    ),
     source: "seed",
   };
 }

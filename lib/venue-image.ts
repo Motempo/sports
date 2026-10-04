@@ -2,6 +2,7 @@ import "server-only";
 
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { f1CircuitPhotoOnDisk } from "@/lib/f1-circuit-photos";
 import { lookupFootballVenuePhoto } from "@/lib/football-venue-photos";
 import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo, VenueImage } from "@/lib/types";
@@ -14,7 +15,7 @@ const USER_AGENT = "Sports-by-Motempo/1.0 (https://sports.motempo.com)";
 const FETCH_TIMEOUT_MS = 8000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 /** Bump when scoring/search changes so in-process hits from older logic are dropped. */
-const CACHE_VERSION = "stadium-exterior-v1";
+const CACHE_VERSION = "f1-illustrated-aerial-v1";
 
 const WIKI_API = "https://en.wikipedia.org/w/api.php";
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
@@ -247,29 +248,6 @@ async function commonsFileSearch(query: string): Promise<string[]> {
     .filter((title): title is string => typeof title === "string" && title.length > 0 && !isUnusableVenueFile(title));
 }
 
-async function pickCommonsAerialUrl(name: string): Promise<string | null> {
-  const queries = [
-    `${name} aerial`,
-    `${name} circuit aerial view`,
-    `${name} overview`,
-    `${name} Grand Prix aerial`,
-  ];
-
-  for (const query of queries) {
-    const files = await commonsFileSearch(query);
-    const ranked = files
-      .map((title) => ({ title, score: scoreVenueImageFile(title, "circuit", false) }))
-      .filter((entry) => entry.score > 0)
-      .sort((a, b) => b.score - a.score);
-
-    for (const { title } of ranked.slice(0, 6)) {
-      const url = await fileOriginalUrl(title, COMMONS_API);
-      if (url && !url.toLowerCase().includes(".svg")) return url;
-    }
-  }
-  return null;
-}
-
 async function pickCommonsExteriorUrl(name: string): Promise<string | null> {
   const queries = [
     `${name} exterior`,
@@ -344,8 +322,9 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
 }
 
 /**
- * Photograph of a race circuit or football stadium.
- * Circuits prefer an oblique aerial from Wikipedia / Wikimedia Commons.
+ * Illustrated aerial of an F1 circuit, or a photograph of a football stadium.
+ * Calendar circuits read `public/venues/f1/<slug>.webp`. A known circuit with
+ * no file returns nothing — Formula 1 does not fall through to Wikimedia.
  * La Liga and Premier League grounds use a same-origin aerial from
  * `data/football-venue-photos.json`. A catalogued ground with no file
  * returns nothing rather than another photo.
@@ -376,12 +355,9 @@ export async function resolveVenueImage(input: {
     }
 
     if (input.kind === "circuit") {
-      const aerialUrl = await pickCommonsAerialUrl(name);
-      if (aerialUrl) {
-        const value = { url: aerialUrl, alt: `${name} from the air` };
-        cacheSet(cacheKey, value);
-        return value;
-      }
+      const curated = f1CircuitPhotoOnDisk(name);
+      cacheSet(cacheKey, curated);
+      return curated;
     } else {
       const exteriorUrl = await pickCommonsExteriorUrl(name);
       if (exteriorUrl) {

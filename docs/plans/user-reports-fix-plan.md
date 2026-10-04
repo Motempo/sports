@@ -99,7 +99,7 @@ Likely intent: **full exterior** for the featured PL stadium, plus **consistent 
 - Thumbnails via `iiurlwidth=1600`; `preferUploadUrl` often prefers **thumb** over original
 - Cache key version: `aerial-oblique-v1` (24h in-process + CDN `s-maxage=86400`)
 
-F1 circuits correctly prefer oblique aerials — **do not change `kind: "circuit"`**.
+F1 circuits no longer use Commons. MOT-56 serves an illustrated aerial from `public/venues/f1/<slug>.webp` and does not fall through to Wikimedia. Stadium scoring below is unchanged.
 
 ### Root causes
 

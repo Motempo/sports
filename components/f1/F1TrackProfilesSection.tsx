@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import { CountryFlag } from "@/components/f1/CountryFlag";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
 import type { F1TrackProfile } from "@/lib/f1-profiles";
 import type { F1GrandPrixStatus } from "@/lib/f1-types";
 import { formatCalendarDate } from "@/lib/match-timezone";
-import { cn, getFlagUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface F1TrackProfilesSectionProps {
   tracks: F1TrackProfile[];
@@ -68,15 +68,7 @@ function TrackProfileCard({ track, focused }: { track: F1TrackProfile; focused?:
         <p className="mt-1 text-[13px] font-semibold text-foreground/80">{track.circuitName}</p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-muted">
-          {track.countryCode && (
-            <Image
-              src={getFlagUrl(track.countryCode, 40)}
-              alt=""
-              width={18}
-              height={12}
-              className="h-3 w-[18px] rounded-[2px] object-cover"
-            />
-          )}
+          <CountryFlag code={track.countryCode} name={track.country} size="sm" />
           <span>{track.country}</span>
           {track.isSprintWeekend ? (
             <span className="rounded-full bg-[#E10600]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#E10600]">

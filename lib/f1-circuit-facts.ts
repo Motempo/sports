@@ -54,6 +54,10 @@ export const CIRCUIT_COLOUR: Record<string, string> = {
     "Imola is old-school Emilia-Romagna: elevation, commitment, and little room to recover once you miss an apex.",
   vegas:
     "Las Vegas runs the Strip at night — long straights, cold desert air, and a showpiece venue that still has to race like a proper Grand Prix.",
+  sepang:
+    "Sepang is a wide tropical circuit — two long straights, fast direction changes, and heat that makes the tyre cliff the story.",
+  madring:
+    "Madring is Madrid's new loop — a mix of a permanent circuit and street sections, with traction zones that reward a tidy exit.",
 };
 
 interface WinnerRow {
@@ -97,6 +101,11 @@ const CIRCUIT_NAME_TO_ID: Record<string, string> = {
   jeddah_corniche_circuit: "jeddah",
   autodromo_enzo_e_dino_ferrari: "imola",
   las_vegas_strip_circuit: "vegas",
+  las_vegas_strip_street_circuit: "vegas",
+  lusail_international_circuit: "losail",
+  sepang_international_circuit: "sepang",
+  sepang: "sepang",
+  madring: "madring",
 };
 
 export function resolveCircuitId(circuitId: string | undefined, circuitName: string): string | null {

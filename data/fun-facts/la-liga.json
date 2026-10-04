@@ -42,7 +42,7 @@
   {
     "id": "laliga-fact-5",
     "title": "Athletic Club policy",
-    "summary": "Athletic Bilbao fields only players with Basque ties.",
+    "summary": "Athletic Club fields only players with Basque ties.",
     "category": "Clubs",
     "emoji": "🦁",
     "wikipediaTitle": "Athletic Club",
@@ -92,11 +92,11 @@
   {
     "id": "laliga-fact-10",
     "title": "Derbi Madrileño",
-    "summary": "Real Madrid vs Atlético is the capital derby.",
+    "summary": "Real Madrid vs Atlético Madrid is the capital derby.",
     "category": "Rivalries",
     "emoji": "⚔️",
     "wikipediaTitle": "Madrid Derby",
-    "detail": "The Derbi Madrileño pits city neighbors from opposite sides of Madrid's football culture — European glamour versus Atlético's grit.",
+    "detail": "The Derbi Madrileño pits city neighbors from opposite sides of Madrid's football culture — European glamour versus Atlético Madrid's grit.",
     "sourceHandle": "AS_Comunica"
   }
 ]

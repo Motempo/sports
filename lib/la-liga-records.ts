@@ -1,3 +1,4 @@
+import { clubDisplayName } from "@/lib/club-display-name";
 import { capForecast } from "@/lib/match-forecast";
 import type { LaLigaSeasonData, LeagueStandingRow } from "@/lib/la-liga-types";
 import type { MatchInfo } from "@/lib/types";
@@ -114,7 +115,7 @@ function longestWinStreak(matches: MatchInfo[], rows: LeagueStandingRow[]): {
 
     if (max > 0 && (!best || max > best.length)) {
       best = {
-        team: row.team.shortName ?? row.team.name,
+        team: clubDisplayName(row.team),
         teamCode: code,
         length: max,
       };
@@ -131,8 +132,8 @@ function uniqueWinners(matches: MatchInfo[]): { count: number; names: string[] }
     const homeWins = m.homeScore! > m.awayScore!;
     const code = homeWins ? m.homeTeam.code : m.awayTeam.code;
     const name = homeWins
-      ? m.homeTeam.shortName ?? m.homeTeam.name
-      : m.awayTeam.shortName ?? m.awayTeam.name;
+      ? clubDisplayName(m.homeTeam)
+      : clubDisplayName(m.awayTeam);
     winners.set(code, name);
   }
   return { count: winners.size, names: [...winners.values()] };
@@ -196,7 +197,7 @@ export function buildLaLigaRecords(
         : leader
         ? {
             value: `${leader.points} pts`,
-            holder: leader.team.shortName ?? leader.team.name,
+            holder: clubDisplayName(leader.team),
             teamCode: leader.team.code,
             context: `${seasonLabel} · MD ${standings.matchday}`,
           }
@@ -211,7 +212,7 @@ export function buildLaLigaRecords(
         seasonNotStarted
           ? "The contestants are yet to be seen — nobody leads a blank scorecard."
           : leader && leader.points > 0
-          ? `${leader.team.name} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
+          ? `${clubDisplayName(leader.team)} lead ${seasonLabel} on ${leader.points} after ${leader.played} match${leader.played === 1 ? "" : "es"}.`
           : "The points race opens with Matchday 1."
       } Commentators watch every dropped point as title maths.`,
     }),
@@ -233,7 +234,7 @@ export function buildLaLigaRecords(
         : goalsLeader
         ? {
             value: `${goalsLeader.goalsFor} goals`,
-            holder: goalsLeader.team.shortName ?? goalsLeader.team.name,
+            holder: clubDisplayName(goalsLeader.team),
             teamCode: goalsLeader.team.code,
             context: `${seasonLabel} attack`,
           }
@@ -248,7 +249,7 @@ export function buildLaLigaRecords(
         seasonNotStarted
           ? "The contestants are yet to be seen — nets are still empty."
           : goalsLeader && goalsLeader.goalsFor > 0
-          ? `${goalsLeader.team.name} lead the ${seasonLabel} scoring charts with ${goalsLeader.goalsFor}.`
+          ? `${clubDisplayName(goalsLeader.team)} lead the ${seasonLabel} scoring charts with ${goalsLeader.goalsFor}.`
           : "Club goal tallies start climbing from the opening whistle."
       }`,
     }),
@@ -270,7 +271,7 @@ export function buildLaLigaRecords(
         : winsLeader
         ? {
             value: `${winsLeader.won} win${winsLeader.won === 1 ? "" : "s"}`,
-            holder: winsLeader.team.shortName ?? winsLeader.team.name,
+            holder: clubDisplayName(winsLeader.team),
             teamCode: winsLeader.team.code,
             context: `${seasonLabel} season`,
           }
@@ -285,7 +286,7 @@ export function buildLaLigaRecords(
         seasonNotStarted
           ? "The contestants are yet to be seen — three points are still a rumour."
           : winsLeader && winsLeader.won > 0
-          ? `${winsLeader.team.name} sit on ${winsLeader.won} for ${seasonLabel}.`
+          ? `${clubDisplayName(winsLeader.team)} sit on ${winsLeader.won} for ${seasonLabel}.`
           : "First three points of the season open this chart."
       }`,
     }),
@@ -344,7 +345,7 @@ export function buildLaLigaRecords(
           }
         : { value: "—", holder: "No results yet", context: seasonLabel },
       highlightSeason: bigWin && bigWin.margin >= 8 ? "leading" : bigWin ? "leading" : null,
-      commentary: `Athletic's 12–1 in 1931 remains folklore. ${
+      commentary: `Athletic Club's 12–1 in 1931 remains folklore. ${
         bigWin
           ? `${bigWin.winner}'s ${bigWin.scoreline} is ${seasonLabel}'s heaviest win so far.`
           : "The first thrashing of the season will claim this card."
@@ -359,14 +360,14 @@ export function buildLaLigaRecords(
         "Most combined goals in one league fixture — open, chaotic afternoons.",
       allTime: {
         value: "14 goals",
-        holder: "Athletic 12–1 Barcelona",
+        holder: "Athletic Club 12–1 Barcelona",
         teamCode: "ATH",
         context: "1930/31",
       },
       season: high
         ? {
             value: `${high.goals} goals`,
-            holder: `${high.match.homeTeam.shortName ?? high.match.homeTeam.name} ${high.match.homeScore}–${high.match.awayScore} ${high.match.awayTeam.shortName ?? high.match.awayTeam.name}`,
+            holder: `${clubDisplayName(high.match.homeTeam)} ${high.match.homeScore}–${high.match.awayScore} ${clubDisplayName(high.match.awayTeam)}`,
             teamCode: high.match.homeTeam.code,
             context: seasonLabel,
           }
@@ -393,7 +394,7 @@ export function buildLaLigaRecords(
       season: cleanest
         ? {
             value: `${cleanest.goalsAgainst} conceded`,
-            holder: cleanest.team.shortName ?? cleanest.team.name,
+            holder: clubDisplayName(cleanest.team),
             teamCode: cleanest.team.code,
             context: `${seasonLabel} · ${cleanest.played} played`,
           }
@@ -406,7 +407,7 @@ export function buildLaLigaRecords(
           : null,
       commentary: `Deportivo's 18-conceded season is the modern defensive mountain. ${
         cleanest && cleanest.played > 0
-          ? `${cleanest.team.name} have let in ${cleanest.goalsAgainst} in ${seasonLabel}.`
+          ? `${clubDisplayName(cleanest.team)} have let in ${cleanest.goalsAgainst} in ${seasonLabel}.`
           : "Clean sheets start writing this story from Matchday 1."
       }`,
     }),
@@ -428,7 +429,7 @@ export function buildLaLigaRecords(
           : gap !== null && leader && rows[1]
           ? {
               value: `${gap} pt${gap === 1 ? "" : "s"}`,
-              holder: `${leader.team.shortName ?? leader.team.name} vs ${rows[1].team.shortName ?? rows[1].team.name}`,
+              holder: `${clubDisplayName(leader.team)} vs ${clubDisplayName(rows[1].team)}`,
               teamCode: leader.team.code,
               context: `${seasonLabel} live gap`,
             }
@@ -439,7 +440,7 @@ export function buildLaLigaRecords(
         seasonNotStarted
           ? "The contestants are yet to be seen — a 0–0 gap is not a photo finish."
           : gap !== null && leader && rows[1]
-          ? `Right now ${leader.team.name} lead ${rows[1].team.name} by ${gap} — ${gap <= 6 ? "one weekend can flip it." : "still a live chase if form shifts."}`
+          ? `Right now ${clubDisplayName(leader.team)} lead ${clubDisplayName(rows[1].team)} by ${gap} — ${gap <= 6 ? "one weekend can flip it." : "still a live chase if form shifts."}`
           : "The gap chart fills once two clubs are on the board."
       }`,
     }),
@@ -518,17 +519,17 @@ export function buildLaLigaRecords(
         : leader
         ? {
             value: "Chasing history",
-            holder: leader.team.shortName ?? leader.team.name,
+            holder: clubDisplayName(leader.team),
             teamCode: leader.team.code,
             context: `${seasonLabel} table leaders`,
           }
         : { value: "—", holder: "Season not started", context: seasonLabel },
       highlightSeason: !seasonNotStarted && leader && leader.points > 0 ? "leading" : null,
-      commentary: `Real Madrid lead the all-time title chart, with Barcelona close behind and Atlético the next most successful. ${
+      commentary: `Real Madrid lead the all-time title chart, with Barcelona close behind and Atlético Madrid the next most successful. ${
         seasonNotStarted
           ? "The contestants are yet to be seen — history can wait until Matchday 1."
           : leader && leader.points > 0
-          ? `${leader.team.name} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
+          ? `${clubDisplayName(leader.team)} currently top ${seasonLabel} — every point is another step toward adding to the pile.`
           : "The next champion will be decided across 38 matchdays."
       }`,
     }),
@@ -588,7 +589,7 @@ export function buildLaLigaRecords(
         return unbeaten
           ? {
               value: `${unbeaten.played} unbeaten`,
-              holder: unbeaten.team.shortName ?? unbeaten.team.name,
+              holder: clubDisplayName(unbeaten.team),
               teamCode: unbeaten.team.code,
               context: `${seasonLabel} · ${unbeaten.won}W ${unbeaten.drawn}D`,
             }
@@ -619,7 +620,7 @@ export function buildLaLigaRecords(
         : leader
           ? {
               value: `${leader.points} pts`,
-              holder: leader.team.shortName ?? leader.team.name,
+              holder: clubDisplayName(leader.team),
               teamCode: leader.team.code,
               context: `${seasonLabel} title race`,
             }
@@ -630,7 +631,7 @@ export function buildLaLigaRecords(
         (seasonNotStarted
           ? "The next title chase starts at Matchday 1."
           : leader && leader.points > 0
-            ? `${leader.team.name} currently lead ${seasonLabel} — every point is another step in this season's title fight.`
+            ? `${clubDisplayName(leader.team)} currently lead ${seasonLabel} — every point is another step in this season's title fight.`
             : "The next champion will be decided across 38 matchdays."),
     }),
 
@@ -676,7 +677,7 @@ export function buildLaLigaRecords(
         return best
           ? {
               value: `${best.goalDifference > 0 ? "+" : ""}${best.goalDifference} GD`,
-              holder: best.team.shortName ?? best.team.name,
+              holder: clubDisplayName(best.team),
               teamCode: best.team.code,
               context: `${seasonLabel} · ${best.goalsFor}–${best.goalsAgainst}`,
             }

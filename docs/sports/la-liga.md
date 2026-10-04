@@ -19,6 +19,10 @@ Same league-table companion pattern as Premier League for Spain’s top flight: 
 | Standings | `lib/la-liga-standings.ts` — points, then head-to-head (mini-table when 3+ clubs are level; both meetings required), then overall goal difference and goals scored. Header matchday is the highest real round with a finished game (`lib/league-matchdays.ts`) |
 | Key libs | `la-liga-data.ts`, `espn-league-data.ts`, `la-liga-phase.ts`, `la-liga-guide.ts`, `la-liga-types.ts` |
 
+## Club names
+
+Every La Liga surface (next-match card, match list, table, form book, race labels, awards, records) uses one short display name per club from `lib/club-display-name.ts`. Official forms such as “RCD Espanyol de Barcelona” or “Club Atlético de Madrid” are not shown. Examples: Espanyol, Málaga, Real Madrid, Atlético Madrid, Athletic Club, Real Sociedad, Barcelona. Accents stay. A missing short name falls back to a cleaned official name, then the club code, then “Club”.
+
 ## UI
 
 - Shared `SportPageShell` + featured next-match card (description / form-book / player impact)

@@ -1,8 +1,8 @@
 [
   { "code": "RMA", "name": "Real Madrid", "shortName": "Real Madrid", "crest": "https://crests.football-data.org/86.png" },
   { "code": "FCB", "name": "FC Barcelona", "shortName": "Barcelona", "crest": "https://crests.football-data.org/81.png" },
-  { "code": "ATL", "name": "Club Atlético de Madrid", "shortName": "Atlético", "crest": "https://crests.football-data.org/78.png" },
-  { "code": "ATH", "name": "Athletic Club", "shortName": "Athletic", "crest": "https://crests.football-data.org/77.png" },
+  { "code": "ATL", "name": "Club Atlético de Madrid", "shortName": "Atlético Madrid", "crest": "https://crests.football-data.org/78.png" },
+  { "code": "ATH", "name": "Athletic Club", "shortName": "Athletic Club", "crest": "https://crests.football-data.org/77.png" },
   { "code": "VIL", "name": "Villarreal CF", "shortName": "Villarreal", "crest": "https://crests.football-data.org/94.png" },
   { "code": "RSO", "name": "Real Sociedad de Fútbol", "shortName": "Real Sociedad", "crest": "https://crests.football-data.org/92.png" },
   { "code": "BET", "name": "Real Betis Balompié", "shortName": "Betis", "crest": "https://crests.football-data.org/90.png" },

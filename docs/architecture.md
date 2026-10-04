@@ -54,7 +54,7 @@ flowchart TB
 |-------|---------|---------|------|
 | `/api/news` | GET | Paginated RSS news (+ image/video enrichment). `limit` is clamped to 1–10 (default 3). Unknown `sport` is 400 | Public |
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
-| `/api/venue-image` | GET | Wikipedia stadium photo for a match venue | Public |
+| `/api/venue-image` | GET | Stadium photo for a match venue. Curated football grounds are same-origin; other stadiums fall back to Wikipedia | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + 10/IP/hour |
 | `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 10/IP/hour and is checked before any xAI call | GET public; POST rate limited (503 if no key) |
 
@@ -95,7 +95,7 @@ Fetch helpers: `lib/sports-upstream-cache.ts` (`cachedUpstreamFetch`, 90s) for s
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts`, `hooks/use-viewer-time-zone.ts` |
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |
-| Venue photos | `venue-image.ts` |
+| Venue photos | `venue-image.ts`, `football-venue-photos.ts`, `data/football-venue-photos.json` |
 | Venues | `match-venue.ts` — local stadiums first; at most 4 football-data match-detail calls per World Cup render |
 | Ads | `ads-config.ts`, `ad-consent.ts` |
 | Feedback | `linear-issues.ts`, `feedback-context.ts`, `rate-limit.ts` |

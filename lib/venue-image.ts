@@ -1,5 +1,6 @@
 import "server-only";
 
+import { lookupFootballVenuePhoto } from "@/lib/football-venue-photos";
 import { uncachedFetch } from "@/lib/fetch-options";
 import type { MatchInfo, VenueImage } from "@/lib/types";
 
@@ -343,7 +344,8 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
 /**
  * Photograph of a race circuit or football stadium from Wikipedia / Wikimedia Commons.
  * Circuits prefer an oblique aerial (from the air at ~45°), not a flat layout map.
- * Stadiums prefer a full exterior / facade photograph (MOT-53).
+ * Football grounds in the curated catalog (`data/football-venue-photos.json`) are
+ * served from this origin. Other stadiums still prefer a full exterior (MOT-53).
  */
 export async function resolveVenueImage(input: {
   kind: VenueImageKind;
@@ -358,6 +360,14 @@ export async function resolveVenueImage(input: {
   if (cached !== undefined) return cached;
 
   try {
+    if (input.kind === "stadium") {
+      const curated = lookupFootballVenuePhoto(name);
+      if (curated) {
+        cacheSet(cacheKey, curated);
+        return curated;
+      }
+    }
+
     if (input.kind === "circuit") {
       const aerialUrl = await pickCommonsAerialUrl(name);
       if (aerialUrl) {

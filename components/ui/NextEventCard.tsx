@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import type { VenueImageCredit } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 interface NextEventCardProps {
@@ -15,6 +16,10 @@ interface NextEventCardProps {
   paragraphs: string[];
   imageUrl?: string | null;
   imageAlt?: string;
+  /** Pixel size of a same-origin stadium photo. Keeps that photo's frame stable. */
+  imageWidth?: number;
+  imageHeight?: number;
+  imageCredit?: VenueImageCredit | null;
   /** `aerial` crops an oblique circuit photo so the track sits in the centre; stadiums stay `cover`. */
   imageFit?: "cover" | "aerial";
   className?: string;
@@ -33,9 +38,17 @@ function EventCardBody({
   paragraphs,
   imageUrl,
   imageAlt,
+  imageWidth,
+  imageHeight,
+  imageCredit,
   imageFit = "cover",
   className,
 }: Omit<NextEventCardProps, "heading" | "chrome">) {
+  const hasFrame = Boolean(imageUrl && imageWidth && imageHeight && imageWidth > 0 && imageHeight > 0);
+  const sourceRatio = hasFrame ? imageWidth! / imageHeight! : 0;
+  // Very wide facade panoramas stay fully visible instead of becoming a thin strip.
+  const frameRatio = sourceRatio > 2.8 ? 2.4 : sourceRatio;
+  const containWide = sourceRatio > 2.8;
   return (
     <div
       className={cn(
@@ -47,7 +60,8 @@ function EventCardBody({
       <div
         className={cn(
           "grid grid-cols-1",
-          imageUrl && "lg:grid-cols-2 lg:items-stretch"
+          imageUrl && "lg:grid-cols-2",
+          imageUrl && (hasFrame ? "lg:items-start" : "lg:items-stretch")
         )}
       >
         <div className="flex min-w-0 flex-col gap-3 px-4 py-5 text-left sm:gap-3.5 sm:px-6 sm:py-6">
@@ -88,19 +102,39 @@ function EventCardBody({
         </div>
 
         {imageUrl && (
-          <div className="relative isolate min-h-[14rem] w-full overflow-hidden bg-surface sm:min-h-[18rem] lg:min-h-0 lg:h-full">
+          <div
+            className={cn(
+              "relative isolate w-full overflow-hidden bg-surface",
+              hasFrame ? "lg:self-start" : "min-h-[14rem] sm:min-h-[18rem] lg:min-h-0 lg:h-full"
+            )}
+            style={hasFrame ? { aspectRatio: String(frameRatio) } : undefined}
+          >
             <Image
               src={imageUrl}
               alt={imageAlt ?? ""}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className={cn(
-                imageFit === "aerial"
-                  ? "object-cover object-[center_72%]"
-                  : "object-cover object-center"
+                containWide
+                  ? "object-contain object-center"
+                  : imageFit === "aerial"
+                    ? "object-cover object-[center_72%]"
+                    : "object-cover object-center"
               )}
-              unoptimized
+              unoptimized={!imageUrl.startsWith("/")}
             />
+            {imageCredit ? (
+              <a
+                href={imageCredit.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`Photo: ${imageCredit.author} / ${imageCredit.license}. Resized for the web.`}
+                className="absolute inset-x-0 bottom-0 z-10 truncate bg-black/55 px-2 py-1 text-[10px] leading-snug text-white/90 underline-offset-2 hover:text-white hover:underline sm:text-[11px]"
+              >
+                Photo: {imageCredit.author} / {imageCredit.license}
+                <span className="sr-only">. Resized and compressed from the original.</span>
+              </a>
+            ) : null}
           </div>
         )}
       </div>
@@ -120,6 +154,9 @@ export function NextEventCard({
   paragraphs,
   imageUrl,
   imageAlt = "",
+  imageWidth,
+  imageHeight,
+  imageCredit,
   imageFit = "cover",
   className,
   chrome = "section",
@@ -136,6 +173,9 @@ export function NextEventCard({
       paragraphs={paragraphs}
       imageUrl={imageUrl}
       imageAlt={imageAlt}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+      imageCredit={imageCredit}
       imageFit={imageFit}
       className={className}
     />

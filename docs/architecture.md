@@ -155,7 +155,7 @@ See `.env.example`. Summary:
 | `APIXAPI_KEY` | Optional ApiTwitter key for live X news (`APITWITTER_API_KEY` alias) |
 | `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
-| `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear |
+| `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear team MOT (`@motempo/feedback`) |
 | `COMMIT_SHA` | Deploy fingerprint in issues |
 | `NEXT_PUBLIC_ADS_*` | Ad kill switches + provider slots |
 
@@ -241,6 +241,6 @@ No API keys or other secrets are required. `npm test` uses Node's built-in runne
 
 ---
 
-## Related nested app: `oo/`
+## User reports
 
-`oo` was a private ops dashboard and the only caller of the sports feedback ops routes (`recent`, `close-shipped`, `reopen`). Those routes are removed. Sports feedback still creates Linear issues through public `POST /api/feedback`. See `docs/integrations/feedback-linear.md`.
+`oo.motempo.com` is retired. User reports live in Linear team **MOT** through `@motempo/feedback`. This app creates issues with public `POST /api/feedback`. See [integrations/feedback-linear.md](./integrations/feedback-linear.md).

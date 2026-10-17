@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { getConstructorColor } from "@/lib/f1-constructor-colors";
 import type { F1DriverProfile } from "@/lib/f1-profiles";
-import { getFlagUrl } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
 
 interface F1DriverProfilesSectionProps {
@@ -41,15 +40,13 @@ function DriverProfileCard({ driver }: { driver: F1DriverProfile }) {
         </h3>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-muted">
-          {driver.nationalityIso2 && (
-            <Image
-              src={getFlagUrl(driver.nationalityIso2, 40)}
-              alt=""
-              width={18}
-              height={12}
-              className="h-3 w-[18px] rounded-[2px] object-cover"
+          {driver.nationalityIso2 ? (
+            <CountryFlag
+              code={driver.nationalityIso2}
+              name={driver.nationality ?? driver.nationalityIso2}
+              size="sm"
             />
-          )}
+          ) : null}
           <span>{driver.nationality ?? "Nationality TBA"}</span>
         </div>
 

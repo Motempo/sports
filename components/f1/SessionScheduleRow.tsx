@@ -8,6 +8,8 @@ interface SessionScheduleRowProps {
   session: F1SessionInfo;
   showDivider?: boolean;
   timeZone?: string;
+  /** Hide the repeated grand-prix line and tighten the row. */
+  compact?: boolean;
 }
 
 const SESSION_TYPE_COLORS: Record<string, string> = {
@@ -22,14 +24,15 @@ export function SessionScheduleRow({
   session,
   showDivider,
   timeZone,
+  compact = false,
 }: SessionScheduleRowProps) {
   const isLive = session.status === "live";
   const finished = session.status === "finished";
   const timeLabel = isLive ? "Live" : formatLocalSessionTime(session.utcDate, timeZone);
 
   return (
-    <div className={cn("px-3 py-3 sm:px-4", showDivider && "border-t border-border")}>
-      <div className="grid grid-cols-[4.75rem_1fr] items-start gap-3 sm:grid-cols-[5rem_1fr]">
+    <div className={cn(compact ? "px-3 py-2" : "px-3 py-3 sm:px-4", showDivider && "border-t border-border")}>
+      <div className={cn("grid grid-cols-[4.5rem_1fr] items-start", compact ? "gap-2" : "gap-3 sm:grid-cols-[5rem_1fr]")}>
         <div className="text-right">
           {isLive ? (
             <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#E10600] sm:text-[13px]">
@@ -58,9 +61,11 @@ export function SessionScheduleRow({
           >
             {session.sessionLabel}
           </p>
-          <p className="mt-0.5 truncate text-[12px] text-muted sm:text-[13px]">
-            {session.gpName} · {session.circuit}
-          </p>
+          {compact ? null : (
+            <p className="mt-0.5 truncate text-[12px] text-muted sm:text-[13px]">
+              {session.gpName} · {session.circuit}
+            </p>
+          )}
           {session.isSprintWeekend && session.sessionType === "sprint" && (
             <p className="mt-1 text-[11px] text-amber-500">Sprint weekend</p>
           )}

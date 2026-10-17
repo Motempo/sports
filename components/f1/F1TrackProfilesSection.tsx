@@ -1,7 +1,10 @@
 "use client";
 
-import { CountryFlag } from "@/components/f1/CountryFlag";
+import Image from "next/image";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
+import { lookupF1Circuit } from "@/lib/f1-circuits";
+import { formatCircuitLength } from "@/lib/f1-circuit-layout";
 import type { F1TrackProfile } from "@/lib/f1-profiles";
 import type { F1GrandPrixStatus } from "@/lib/f1-types";
 import { formatCalendarDate } from "@/lib/match-timezone";
@@ -41,6 +44,8 @@ function trackStatusLabel(status: F1GrandPrixStatus): string {
 
 function TrackProfileCard({ track, focused }: { track: F1TrackProfile; focused?: boolean }) {
   const when = formatCalendarDate(track.date);
+  const circuit = lookupF1Circuit(track.id, track.circuitName);
+  const length = formatCircuitLength(circuit?.lengthMeters);
 
   return (
     <article
@@ -52,6 +57,24 @@ function TrackProfileCard({ track, focused }: { track: F1TrackProfile; focused?:
       )}
     >
       <div className="absolute inset-y-0 left-0 w-1.5 bg-[#E10600]" aria-hidden />
+
+      {circuit ? (
+        <figure className="border-b border-border bg-surface/60 px-3 py-2 pl-5">
+          <Image
+            src={circuit.file}
+            alt={circuit.alt}
+            width={circuit.width}
+            height={circuit.height}
+            unoptimized
+            className="mx-auto h-24 w-full object-contain"
+          />
+          {length ? (
+            <figcaption aria-hidden className="mt-1 text-center text-[11px] tabular-nums text-muted">
+              {length}
+            </figcaption>
+          ) : null}
+        </figure>
+      ) : null}
 
       <div className="flex flex-1 flex-col p-4 pl-5 sm:p-5 sm:pl-6">
         <div className="mb-3 flex items-start justify-between gap-3">
@@ -105,7 +128,7 @@ export function F1TrackProfilesSection({ tracks, season, focusRound }: F1TrackPr
 
   return (
     <section className="border-t border-border bg-surface/30">
-      <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
+      <div className="mx-auto max-w-6xl px-3 py-4 sm:px-4 sm:py-5">
         <div className="mb-2">
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Track Profiles</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">

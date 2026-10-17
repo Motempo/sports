@@ -9,10 +9,11 @@
  * are enforcing. `frame-ancestors 'none'` is in the report-only policy;
  * `X-Frame-Options: DENY` enforces the same control until the CSP is promoted.
  *
- * Image and media sources use `https:` because crests, flags, Wikimedia,
+ * Image and media sources use `https:` because crests, Wikimedia,
  * and the hosts in `next.config.ts` `images.remotePatterns` are only part of
- * what the browser loads. News, fun-fact, and X media URLs are publisher CDNs
- * chosen at request time (BBC, Sky, Guardian, YouTube thumbs, unavatar, etc.).
+ * what the browser loads. Country flags and F1 circuit drawings are same-origin.
+ * News, fun-fact, and X media URLs are publisher CDNs chosen at request time
+ * (BBC, Sky, Guardian, YouTube thumbs, unavatar, etc.).
  */
 
 const GOOGLE_AD_HOSTS = [
@@ -36,12 +37,11 @@ const NITRO_HOSTS = ["https://*.nitropay.com", "https://nitropay.com"];
 /**
  * Hosts the app references directly. `https:` on img-src/media-src also covers
  * these; they are listed so the policy documents the inventory:
- * flagcdn, crests.football-data.org, upload/thumb.wikimedia.org, i.guim.co.uk,
+ * crests.football-data.org, upload/thumb.wikimedia.org, i.guim.co.uk,
  * *.bbc.co.uk, *.bbci.co.uk, unavatar.io, *.skyassets.com, i.ytimg.com,
  * pbs.twimg.com / video.twimg.com (X media), and Google ad creatives.
  */
 const KNOWN_MEDIA_HOSTS = [
-  "https://flagcdn.com",
   "https://crests.football-data.org",
   "https://upload.wikimedia.org",
   "https://thumb.wikimedia.org",

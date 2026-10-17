@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { getConstructorColor } from "@/lib/f1-constructor-colors";
 import type { F1TeamProfile } from "@/lib/f1-profiles";
-import { getFlagUrl } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { ProfileCarousel } from "@/components/f1/ProfileCarousel";
 
 interface F1TeamProfilesSectionProps {
@@ -37,15 +36,13 @@ function TeamProfileCard({ team }: { team: F1TeamProfile }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted">
-          {team.nationalityIso2 && (
-            <Image
-              src={getFlagUrl(team.nationalityIso2, 40)}
-              alt=""
-              width={18}
-              height={12}
-              className="h-3 w-[18px] rounded-[2px] object-cover"
+          {team.nationalityIso2 ? (
+            <CountryFlag
+              code={team.nationalityIso2}
+              name={team.nationality ?? team.nationalityIso2}
+              size="sm"
             />
-          )}
+          ) : null}
           <span>{team.nationality ?? "Nationality TBA"}</span>
         </div>
 

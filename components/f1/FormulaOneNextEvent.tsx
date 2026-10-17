@@ -1,6 +1,6 @@
 "use client";
 
-import { CountryFlag } from "@/components/f1/CountryFlag";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { NextEventCard } from "@/components/ui/NextEventCard";
 import { useViewerTimeZone } from "@/hooks/use-viewer-time-zone";
 import {
@@ -18,6 +18,8 @@ interface FormulaOneNextEventProps {
   constructorStandings?: F1ConstructorStandingRow[];
   venueImage?: VenueImage | null;
   trackFact?: string | null;
+  /** Drop the full-width section so the card can sit beside the weekend schedule. */
+  embedded?: boolean;
 }
 
 function headingFor(event: FeaturedF1Event): string {
@@ -51,6 +53,7 @@ export function FormulaOneNextEvent({
   constructorStandings,
   venueImage,
   trackFact,
+  embedded = false,
 }: FormulaOneNextEventProps) {
   const { timeZone } = useViewerTimeZone();
   if (!event) return null;
@@ -88,11 +91,14 @@ export function FormulaOneNextEvent({
         constructorStandings,
         trackFact,
       })}
-      emblems={<CountryFlag code={countryCode} name={country} />}
+      emblems={<CountryFlag code={countryCode} name={country} size="lg" />}
       imageUrl={venueImage?.url}
       imageAlt={venueImage?.alt ?? location}
       imageWidth={venueImage?.width}
       imageHeight={venueImage?.height}
+      imageCaption={venueImage?.caption}
+      imageFit="diagram"
+      chrome={embedded ? "embedded" : "section"}
     />
   );
 }

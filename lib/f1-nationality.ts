@@ -1,4 +1,4 @@
-/** Ergast/Jolpica nationality strings → ISO 3166-1 alpha-2 for flagcdn. */
+/** Ergast/Jolpica nationality strings → ISO 3166-1 alpha-2 for bundled flag SVGs. */
 const NATIONALITY_ISO2: Record<string, string> = {
   american: "us",
   argentine: "ar",

@@ -25,7 +25,7 @@
 | Doc | Purpose |
 |-----|---------|
 | [integrations/data-sources.md](./integrations/data-sources.md) | football-data, openfootball, Jolpica, OpenF1, RSS, Wikipedia |
-| [integrations/feedback-linear.md](./integrations/feedback-linear.md) | Feedback → Linear and Grok improve |
+| [integrations/feedback-linear.md](./integrations/feedback-linear.md) | User reports in Linear team MOT via `@motempo/feedback`; Grok improve |
 | [integrations/ads.md](./integrations/ads.md) | Family-friendly ads, kill switches, placements |
 
 ## Source corpus (external)
@@ -37,9 +37,9 @@ Original planning artifacts live outside the repo. Paths:
 | Founding World Cup plan | `~/.cursor/plans/world_cup_tracker_app_6d7bbc04.plan.md` |
 | Formula One page | `~/.cursor/plans/formula_one_page_b600a36e.plan.md` |
 | Sports site ads | `~/.cursor/plans/sports_site_ads_0c5cb1e2.plan.md` |
-| Motempo ops loop (oo) | `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md` |
+| Motempo ops loop (retired) | `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md` |
 
-`oo/` was the ops dashboard that called the removed feedback ops routes. It is not part of this app. Feedback goes to Linear through `POST /api/feedback`.
+`oo.motempo.com` is retired. User reports live in Linear team MOT through `@motempo/feedback`. This app creates issues with `POST /api/feedback`.
 
 Thin in-repo stubs still useful: [`README.md`](../README.md), [`data/sources/README.md`](../data/sources/README.md).
 

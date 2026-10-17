@@ -2,7 +2,7 @@
 
 ## Contract
 
-Every Motempo app posts feedback to the **same Linear team** (`LINEAR_TEAM_NAME=motempo`) with an **explicit `appId`**.
+User reports live in Linear team **MOT** through `@motempo/feedback`. This app submits with an explicit `appId` (`sports`). `LINEAR_TEAM_NAME` is the team name `motempo` (key MOT).
 
 ```json
 {
@@ -43,9 +43,11 @@ Upstream Linear error text is logged server-side. The public submit route answer
 
 Port of Motempo Ads feedback flow — see skill `~/.cursor/skills/motempo-feedback/SKILL.md`. Components under `components/feedback/`.
 
-## Downstream: oo
+## User reports
 
-`oo` was the only caller of the removed list, close, and reopen routes. It is being deleted. Feedback still lands in the shared Linear team through `POST /api/feedback`. Historical plan: `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md`.
+`oo.motempo.com` is retired. User reports live in Linear team **MOT** through `@motempo/feedback`.
+
+This app creates those issues with public `POST /api/feedback`. Historical ops-loop plan: `~/.cursor/plans/motempo_ops_loop_ee5f146b.plan.md`.
 
 ## History
 

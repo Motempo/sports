@@ -16,6 +16,11 @@ interface SportPageShellProps {
   howItWorks: ReactNode;
   awards?: ReactNode;
   records?: ReactNode;
+  /**
+   * From 900px, place the featured card and the schedule side by side.
+   * Callers pass embedded chrome so those blocks do not each take a full-width section.
+   */
+  pairLead?: boolean;
 }
 
 /** Shared returning-user layout used by every sport page. */
@@ -32,6 +37,7 @@ export function SportPageShell({
   howItWorks,
   awards,
   records,
+  pairLead = false,
 }: SportPageShellProps) {
   return (
     <div className="min-h-dvh overflow-x-clip">
@@ -40,8 +46,19 @@ export function SportPageShell({
       <main id="main-content" tabIndex={-1} className="skip-target text-[15px] leading-relaxed sm:text-base">
         {rail}
         {headerAd}
-        {nextEvent}
-        {matches}
+        {pairLead ? (
+          <section className="border-b border-border bg-surface/30">
+            <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-3 px-3 py-3 min-[900px]:grid-cols-[minmax(16rem,20rem)_minmax(0,1fr)] min-[900px]:gap-4 min-[900px]:px-4 min-[900px]:py-4">
+              <div className="min-w-0">{nextEvent}</div>
+              <div className="min-w-0 @container">{matches}</div>
+            </div>
+          </section>
+        ) : (
+          <>
+            {nextEvent}
+            {matches}
+          </>
+        )}
         {newsAndFacts}
         {midAd}
         {table}

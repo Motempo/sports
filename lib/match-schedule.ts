@@ -164,6 +164,28 @@ export function countDayGroupMatches(groups: MatchDayGroup[]): number {
   return groups.reduce((total, group) => total + group.matches.length, 0);
 }
 
+/** Non-empty match days, in order. An empty “today” placeholder does not count. */
+export function countMatchDays(groups: MatchDayGroup[]): number {
+  return groups.reduce((total, group) => total + (group.matches.length > 0 ? 1 : 0), 0);
+}
+
+/**
+ * First `dayLimit` days that actually have fixtures, with every match on those days.
+ */
+export function sliceDayGroupsByDayCount(
+  groups: MatchDayGroup[],
+  dayLimit: number
+): MatchDayGroup[] {
+  if (dayLimit <= 0) return [];
+  const result: MatchDayGroup[] = [];
+  for (const group of groups) {
+    if (group.matches.length === 0) continue;
+    if (result.length >= dayLimit) break;
+    result.push(group);
+  }
+  return result;
+}
+
 /**
  * Keep day columns in order, but only the first `limit` fixtures overall.
  * Empty placeholder days are dropped so the first visible slots are real games.

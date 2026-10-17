@@ -21,7 +21,9 @@ interface FeaturedMatchCardProps {
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
   venueImage?: VenueImage | null;
-  chrome?: "section" | "card";
+  chrome?: "section" | "embedded" | "card";
+  /** Sit beside the match list: short stadium strip, tighter type. */
+  embedded?: boolean;
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -70,6 +72,7 @@ export function FeaturedMatchCard({
   relegationRace,
   venueImage,
   chrome = "section",
+  embedded = false,
 }: FeaturedMatchCardProps) {
   const { timeZone } = useViewerTimeZone();
   if (!match) return null;
@@ -81,7 +84,8 @@ export function FeaturedMatchCard({
   return (
     <NextEventCard
       heading={headingFor(match)}
-      chrome={chrome}
+      chrome={embedded ? "embedded" : chrome}
+      density={embedded ? "compact" : "regular"}
       live={live}
       kicker={matchKicker(shown)}
       title={`${teamLabel(shown.homeTeam)} vs ${teamLabel(shown.awayTeam)}`}

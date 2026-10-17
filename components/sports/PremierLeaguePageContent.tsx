@@ -35,9 +35,11 @@ export async function PremierLeaguePageContent() {
       activeSportSlug="premier-league"
       autoRefresh
       rail={<PremierLeagueRail phase={data.phase} seasonLabel={data.seasonLabel} />}
+      pairLead
       headerAd={<PremierLeagueAdPlacements />}
       nextEvent={
         <FeaturedMatchCard
+          embedded
           match={featuredMatch}
           leagueStandings={data.standings}
           titleRace={data.titleRace}
@@ -49,7 +51,7 @@ export async function PremierLeaguePageContent() {
       midAd={<PremierLeagueMidAd />}
       table={
         <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
+          <div className="mx-auto max-w-6xl px-3 py-3 sm:px-4 sm:py-4">
             <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-[18px] font-extrabold sm:text-[20px]">League Table</h2>
               <p className="text-[11px] text-muted sm:text-[12px]">
@@ -68,6 +70,8 @@ export async function PremierLeaguePageContent() {
       }
       matches={
         <ScheduleByDay
+          embedded
+          variant="league"
           todayMatches={data.todayMatches}
           upcomingMatches={data.upcomingMatches}
           source={data.source}

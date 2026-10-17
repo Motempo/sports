@@ -36,6 +36,7 @@ export async function PremierLeaguePageContent() {
       autoRefresh
       rail={<PremierLeagueRail phase={data.phase} seasonLabel={data.seasonLabel} />}
       pairLead
+      pairColumns="league"
       headerAd={<PremierLeagueAdPlacements />}
       nextEvent={
         <FeaturedMatchCard

@@ -30,7 +30,7 @@ Premier League uses the same normalizer as La Liga (`lib/club-display-name.ts`).
 
 ## UI
 
-- Shared `SportPageShell` with `pairLead`: from 900px the next-match card and the match list sit side by side. The next-match column is capped at 20rem so the list can use the rest of a landscape screen. Below 900px they stack.
+- Shared `SportPageShell` with `pairLead` and `pairColumns="league"`: from 900px the next-match card and the match list sit side by side. The next-match column is capped at 20rem so the list can use the rest of a landscape screen. Formula 1 uses the equal-column split instead. Below 900px they stack.
 - Featured next-match card uses embedded chrome and compact density (short stadium strip, 65ch copy). Copy is description / form-book / player impact.
 - Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`

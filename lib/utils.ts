@@ -18,7 +18,3 @@ export function formatRelativeTime(date: string | Date): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export function getFlagUrl(iso2: string, size = 40): string {
-  const w = size <= 40 ? 40 : 80;
-  return `https://flagcdn.com/w${w}/${iso2.toLowerCase()}.png`;
-}

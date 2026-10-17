@@ -25,7 +25,7 @@ Every La Liga surface (next-match card, match list, table, form book, race label
 
 ## UI
 
-- Shared `SportPageShell` with `pairLead`, same landscape split as Premier League: from 900px the next-match card (max 20rem, compact stadium strip) sits beside the match list; below 900px they stack.
+- Shared `SportPageShell` with `pairLead` and `pairColumns="league"`, same landscape split as Premier League: from 900px the next-match card (max 20rem, compact stadium strip) sits beside the match list. Formula 1 uses equal columns. Below 900px they stack.
 - Featured next-match card (description / form-book / player impact) uses embedded chrome.
 - Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - Shared `ScheduleByDay` `variant="league"`: next three match days in a compact grid (one / two / three columns by container width). "Show more days" loads further days.

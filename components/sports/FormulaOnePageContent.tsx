@@ -55,8 +55,10 @@ export async function FormulaOnePageContent() {
       activeSportSlug="formula-1"
       rail={<SeasonRail phase={phase} calendar={data.calendar} season={data.season} />}
       headerAd={<FormulaOneAdPlacements />}
+      pairLead
       nextEvent={
         <FormulaOneNextEvent
+          embedded
           event={featuredEvent}
           titleFight={titleFight}
           driverStandings={data.driverStandings}
@@ -69,7 +71,7 @@ export async function FormulaOnePageContent() {
       midAd={<FormulaOneMidAd />}
       table={
         <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
+          <div className="mx-auto max-w-6xl px-3 py-3 sm:px-4 sm:py-4">
             <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-[18px] font-extrabold sm:text-[20px]">Championship Standings</h2>
               <p className="text-[11px] text-muted sm:text-[12px]">
@@ -90,7 +92,12 @@ export async function FormulaOnePageContent() {
         </section>
       }
       matches={
-        <WeekendSessionsByDay sessions={data.sessions} source={data.source} nextGp={nextGp} />
+        <WeekendSessionsByDay
+          embedded
+          sessions={data.sessions}
+          source={data.source}
+          nextGp={nextGp}
+        />
       }
       howItWorks={
         <SportHowItWorksSection>

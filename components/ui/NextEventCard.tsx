@@ -18,11 +18,13 @@ interface NextEventCardProps {
   /** Pixel size of a same-origin stadium photo. Keeps that photo's frame stable. */
   imageWidth?: number;
   imageHeight?: number;
-  /** `aerial` crops an oblique circuit photo so the track sits in the centre; stadiums stay `cover`. */
-  imageFit?: "cover" | "aerial";
+  /** Short label under a circuit diagram. */
+  imageCaption?: string | null;
+  /** `aerial` crops an oblique circuit photo. `diagram` keeps a small layout drawing. */
+  imageFit?: "cover" | "aerial" | "diagram";
   className?: string;
-  /** Page section with heading, or just the inner rounded card (modals). */
-  chrome?: "section" | "card";
+  /** Page section with heading, the lead column, or just the inner rounded card (modals). */
+  chrome?: "section" | "embedded" | "card";
 }
 
 function EventCardBody({
@@ -38,9 +40,31 @@ function EventCardBody({
   imageAlt,
   imageWidth,
   imageHeight,
+  imageCaption,
   imageFit = "cover",
   className,
 }: Omit<NextEventCardProps, "heading" | "chrome">) {
+  if (imageFit === "diagram") {
+    return (
+      <DiagramEventBody
+        live={live}
+        emblems={emblems}
+        title={title}
+        kicker={kicker}
+        whenLabel={whenLabel}
+        whenDateTime={whenDateTime}
+        location={location}
+        paragraphs={paragraphs}
+        imageUrl={imageUrl}
+        imageAlt={imageAlt}
+        imageWidth={imageWidth}
+        imageHeight={imageHeight}
+        imageCaption={imageCaption}
+        className={className}
+      />
+    );
+  }
+
   const hasFrame = Boolean(imageUrl && imageWidth && imageHeight && imageWidth > 0 && imageHeight > 0);
   const sourceRatio = hasFrame ? imageWidth! / imageHeight! : 0;
   // Very wide facade panoramas stay fully visible instead of becoming a thin strip.
@@ -90,7 +114,7 @@ function EventCardBody({
           </div>
 
           {paragraphs.length > 0 && (
-            <div className="space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
+            <div className="max-w-[65ch] space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
               {paragraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
@@ -118,11 +142,102 @@ function EventCardBody({
                     ? "object-cover object-[center_72%]"
                     : "object-cover object-center"
               )}
-              unoptimized={!imageUrl.startsWith("/")}
+              unoptimized={!imageUrl.startsWith("/") || imageUrl.endsWith(".svg")}
             />
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function DiagramEventBody({
+  live,
+  emblems,
+  title,
+  kicker,
+  whenLabel,
+  whenDateTime,
+  location,
+  paragraphs,
+  imageUrl,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  imageCaption,
+  className,
+}: Omit<NextEventCardProps, "heading" | "chrome" | "imageFit">) {
+  return (
+    <div
+      className={cn(
+        "overflow-hidden rounded-2xl border border-border bg-background shadow-sm",
+        live && "ring-1 ring-link/40",
+        className
+      )}
+    >
+      <div className="flex items-start gap-3 px-3 pt-3 sm:gap-4 sm:px-4 sm:pt-3.5">
+        <div className="min-w-0 flex-1 text-left">
+          {kicker && (
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+              {kicker}
+            </p>
+          )}
+          <div className="mt-2 min-w-0">{emblems}</div>
+          <p className="mt-2 text-[18px] font-extrabold leading-tight sm:text-[20px]">{title}</p>
+          {whenDateTime ? (
+            <time dateTime={whenDateTime} className="mt-1 block text-[13px] tabular-nums text-muted">
+              {whenLabel}
+            </time>
+          ) : (
+            <p className="mt-1 text-[13px] tabular-nums text-muted">{whenLabel}</p>
+          )}
+          {location && (
+            <p className="mt-0.5 text-[13px] font-medium text-foreground/80">{location}</p>
+          )}
+        </div>
+        {imageUrl ? (
+          <figure className="w-[6.75rem] shrink-0 sm:w-[8.75rem]">
+            <Image
+              src={imageUrl}
+              alt={imageAlt ?? ""}
+              width={imageWidth && imageWidth > 0 ? imageWidth : 240}
+              height={imageHeight && imageHeight > 0 ? imageHeight : 180}
+              className="h-auto w-full"
+              unoptimized
+            />
+            {imageCaption ? (
+              <figcaption
+                aria-hidden
+                className="mt-1 text-center text-[10px] font-medium tabular-nums text-muted"
+              >
+                {imageCaption}
+              </figcaption>
+            ) : null}
+          </figure>
+        ) : null}
+      </div>
+      {paragraphs.length > 0 && (
+        <div className="max-w-[65ch] space-y-2 px-3 pb-3 pt-2.5 text-[13px] leading-snug text-foreground/90 sm:px-4 sm:pb-3.5 sm:text-[14px]">
+          {paragraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CardHeading({ heading, live }: { heading?: string; live: boolean }) {
+  if (!heading && !live) return null;
+  return (
+    <div className="mb-2 flex items-center gap-2">
+      {heading ? <h2 className="text-[17px] font-extrabold sm:text-[18px]">{heading}</h2> : null}
+      {live && (
+        <span className="inline-flex items-center gap-1 rounded-full bg-link/10 px-2 py-0.5 text-[11px] font-semibold text-link">
+          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-link" />
+          Live
+        </span>
+      )}
     </div>
   );
 }
@@ -141,6 +256,7 @@ export function NextEventCard({
   imageAlt = "",
   imageWidth,
   imageHeight,
+  imageCaption,
   imageFit = "cover",
   className,
   chrome = "section",
@@ -159,6 +275,7 @@ export function NextEventCard({
       imageAlt={imageAlt}
       imageWidth={imageWidth}
       imageHeight={imageHeight}
+      imageCaption={imageCaption}
       imageFit={imageFit}
       className={className}
     />
@@ -166,6 +283,15 @@ export function NextEventCard({
 
   if (chrome === "card") {
     return body;
+  }
+
+  if (chrome === "embedded") {
+    return (
+      <div className="min-w-0">
+        <CardHeading heading={heading} live={live} />
+        {body}
+      </div>
+    );
   }
 
   return (

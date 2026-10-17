@@ -17,17 +17,25 @@ interface WeekendSessionsByDayProps {
   source: "api" | "seed";
   nextGp?: F1GrandPrix | null;
   title?: string;
+  /** Sit in the lead column: every session day stacked, without a page-width section. */
+  embedded?: boolean;
 }
 
-function DayColumn({ group, timeZone }: { group: F1SessionDayGroup; timeZone: string }) {
+function DayColumn({
+  group,
+  timeZone,
+  compact = false,
+}: {
+  group: F1SessionDayGroup;
+  timeZone: string;
+  compact?: boolean;
+}) {
   return (
     <div className="min-w-0">
-      <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
-        {group.label}
-      </h3>
+      <h3 className={cnHeading(compact)}>{group.label}</h3>
       <div className="overflow-hidden rounded-2xl border border-border bg-background">
         {group.sessions.length === 0 ? (
-          <p className="px-3 py-4 text-[13px] text-muted sm:px-4">No sessions today.</p>
+          <p className="px-3 py-3 text-[13px] text-muted">No sessions today.</p>
         ) : (
           group.sessions.map((session, index) => (
             <SessionScheduleRow
@@ -35,12 +43,19 @@ function DayColumn({ group, timeZone }: { group: F1SessionDayGroup; timeZone: st
               session={session}
               showDivider={index > 0}
               timeZone={timeZone}
+              compact={compact}
             />
           ))
         )}
       </div>
     </div>
   );
+}
+
+function cnHeading(compact: boolean): string {
+  return compact
+    ? "mb-1.5 text-[12px] font-semibold text-foreground"
+    : "mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]";
 }
 
 function BreakMessage({ nextGp }: { nextGp?: F1GrandPrix | null }) {
@@ -67,6 +82,7 @@ export function WeekendSessionsByDay({
   source,
   nextGp = null,
   title = "This Weekend",
+  embedded = false,
 }: WeekendSessionsByDayProps) {
   const columnsPerRow = useColumnsPerRow();
   const [visibleRows, setVisibleRows] = useState(1);
@@ -85,19 +101,43 @@ export function WeekendSessionsByDay({
     setVisibleRows(1);
   }, [dayGroups.length]);
 
+  const heading = (
+    <div className={embedded ? "mb-2 flex flex-col gap-0.5" : "mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between"}>
+      <h2 className={embedded ? "text-[17px] font-extrabold sm:text-[18px]" : "text-[18px] font-extrabold sm:text-[20px]"}>
+        {title}
+      </h2>
+      <p className="text-[11px] text-muted sm:text-[12px]">
+        {source === "api" ? "Live data" : "Preview data"} · {zoneCaption}
+      </p>
+    </div>
+  );
+
   if (!hasSessionsToShow) {
+    const empty = (
+      <>
+        {heading}
+        <BreakMessage nextGp={nextGp} />
+      </>
+    );
+    if (embedded) return <div className="min-w-0">{empty}</div>;
     return (
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
-          <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
-            <p className="text-[11px] text-muted sm:text-[12px]">
-              {source === "api" ? "Live data" : "Preview data"} · {zoneCaption}
-            </p>
-          </div>
-          <BreakMessage nextGp={nextGp} />
-        </div>
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">{empty}</div>
       </section>
+    );
+  }
+
+  if (embedded) {
+    const days = dayGroups.filter((group) => group.sessions.length > 0);
+    return (
+      <div className="min-w-0">
+        {heading}
+        <div className="space-y-2.5">
+          {days.map((group) => (
+            <DayColumn key={group.dayKey} group={group} timeZone={timeZone} compact />
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -112,12 +152,7 @@ export function WeekendSessionsByDay({
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
-        <div className="mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
-          <p className="text-[11px] text-muted sm:text-[12px]">
-            {source === "api" ? "Live data" : "Preview data"} · {zoneCaption}
-          </p>
-        </div>
+        {heading}
 
         <div className="space-y-4">
           {visible.map((row) => (

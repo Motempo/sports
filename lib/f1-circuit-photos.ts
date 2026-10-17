@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { formatCircuitLength } from "@/lib/f1-circuit-layout";
 import type { VenueImage } from "@/lib/types";
 import { listF1Circuits, lookupF1Circuit, type F1CircuitRecord } from "@/lib/f1-circuits";
 
@@ -9,11 +10,12 @@ function toImage(circuit: F1CircuitRecord): VenueImage {
     alt: circuit.alt,
     width: circuit.width,
     height: circuit.height,
+    caption: circuit.layout === "geometry" ? formatCircuitLength(circuit.lengthMeters) : null,
   };
 }
 
 /**
- * Same-origin illustrated aerial for a calendar circuit.
+ * Same-origin circuit-layout drawing for a calendar circuit.
  * Matching is exact on the catalog name and aliases, after accent folding.
  * The file may not be on disk yet — callers that render check {@link f1CircuitPhotoOnDisk}.
  */
@@ -22,7 +24,7 @@ export function lookupF1CircuitPhoto(name: string | null | undefined): VenueImag
   return circuit ? toImage(circuit) : null;
 }
 
-/** Catalog image when `public/venues/f1/<slug>.webp` exists, otherwise nothing. */
+/** Catalog drawing when `public/venues/f1/<slug>.svg` exists, otherwise nothing. */
 export function f1CircuitPhotoOnDisk(name: string | null | undefined): VenueImage | null {
   const image = lookupF1CircuitPhoto(name);
   if (!image) return null;

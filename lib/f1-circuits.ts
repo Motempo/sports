@@ -13,6 +13,10 @@ export interface F1CircuitRecord {
   width: number;
   height: number;
   alt: string;
+  /** Metres recorded with the circuit geometry. Omitted on a placeholder. */
+  lengthMeters?: number;
+  /** `placeholder` when the calendar circuit has no centreline to draw. */
+  layout: "geometry" | "placeholder";
 }
 
 const circuits = catalog as F1CircuitRecord[];
@@ -160,16 +164,6 @@ for (const circuit of circuits) {
 export function countryToIso2(country: string | undefined | null): string | undefined {
   if (!country?.trim()) return undefined;
   return COUNTRY_ISO2[country.trim().toLowerCase()];
-}
-
-/** Regional-indicator emoji for a real ISO 3166-1 alpha-2 code. Offline, no image request. */
-export function countryFlagEmoji(iso2: string | undefined | null): string | null {
-  if (!iso2) return null;
-  const code = iso2.trim().toUpperCase();
-  if (!/^[A-Z]{2}$/.test(code)) return null;
-  return [...code]
-    .map((char) => String.fromCodePoint(0x1f1e6 + char.charCodeAt(0) - 65))
-    .join("");
 }
 
 export function lookupF1Circuit(

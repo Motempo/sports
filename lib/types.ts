@@ -37,6 +37,8 @@ export interface VenueImage {
   /** Pixel size of a same-origin photo, used to keep the frame stable. */
   width?: number;
   height?: number;
+  /** Short label under a circuit diagram, such as the traced length. */
+  caption?: string | null;
 }
 
 export type NewsVideoKind = "youtube" | "vimeo" | "file";

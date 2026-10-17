@@ -15,7 +15,7 @@ const USER_AGENT = "Sports-by-Motempo/1.0 (https://sports.motempo.com)";
 const FETCH_TIMEOUT_MS = 8000;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 /** Bump when scoring/search changes so in-process hits from older logic are dropped. */
-const CACHE_VERSION = "f1-illustrated-aerial-v1";
+const CACHE_VERSION = "f1-circuit-layout-v1";
 
 const WIKI_API = "https://en.wikipedia.org/w/api.php";
 const COMMONS_API = "https://commons.wikimedia.org/w/api.php";
@@ -322,8 +322,8 @@ function searchQuery(kind: VenueImageKind, name: string, hint?: string): string[
 }
 
 /**
- * Illustrated aerial of an F1 circuit, or a photograph of a football stadium.
- * Calendar circuits read `public/venues/f1/<slug>.webp`. A known circuit with
+ * Circuit-layout drawing of an F1 circuit, or a photograph of a football stadium.
+ * Calendar circuits read `public/venues/f1/<slug>.svg`. A known circuit with
  * no file returns nothing — Formula 1 does not fall through to Wikimedia.
  * La Liga and Premier League grounds use a same-origin aerial from
  * `data/football-venue-photos.json`. A catalogued ground with no file

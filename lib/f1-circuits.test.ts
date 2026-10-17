@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { parseGrandPrix, parseSessionsFromRace, type JolpicaRace } from "./f1-calendar-parse.ts";
+import { countryFlagSrc } from "./country-flag.ts";
 import {
   applyGrandPrixIdentity,
-  countryFlagEmoji,
   countryToIso2,
   isSessionInGrandPrixWeekend,
   listF1Circuits,
@@ -77,19 +77,20 @@ describe("F1 country flags", () => {
       const iso = countryToIso2(country);
       assert.ok(iso, country);
       assert.match(iso!, /^[A-Z]{2}$/);
-      assert.equal(countryFlagEmoji(iso)?.length, 4, country);
+      assert.equal(countryFlagSrc(iso), `/flags/${iso!.toLowerCase()}.svg`, country);
     }
   });
 
-  it("builds a Malaysian flag offline and rejects a code that is not alpha-2", () => {
+  it("resolves a bundled Malaysian flag and rejects a code that is not a flag file", () => {
     assert.equal(countryToIso2("Malaysia"), "MY");
     assert.equal(countryToIso2("UK"), "GB");
     assert.equal(countryToIso2("UAE"), "AE");
     assert.equal(countryToIso2("USA"), "US");
-    assert.equal(countryFlagEmoji("MY"), "\u{1F1F2}\u{1F1FE}");
-    assert.equal(countryFlagEmoji("gb"), "\u{1F1EC}\u{1F1E7}");
-    assert.equal(countryFlagEmoji("MAL"), null);
-    assert.equal(countryFlagEmoji(""), null);
+    assert.equal(countryFlagSrc("MY"), "/flags/my.svg");
+    assert.equal(countryFlagSrc("gb"), "/flags/gb.svg");
+    assert.equal(countryFlagSrc("gb-eng"), "/flags/gb-eng.svg");
+    assert.equal(countryFlagSrc("MAL"), null);
+    assert.equal(countryFlagSrc(""), null);
   });
 });
 
@@ -141,7 +142,7 @@ describe("F1 calendar identity", () => {
       const iso = countryToIso2(race.country);
       assert.equal(identity.countryCode, iso);
       assert.equal(raceNameAgreesWithCountry(identity.name, identity.countryCode!), true);
-      assert.ok(countryFlagEmoji(identity.countryCode));
+      assert.equal(countryFlagSrc(identity.countryCode), `/flags/${identity.countryCode!.toLowerCase()}.svg`);
     }
   });
 
@@ -151,7 +152,7 @@ describe("F1 calendar identity", () => {
       const identity = applyGrandPrixIdentity(gp);
       assert.equal(identity.name, gp.name, gp.name);
       assert.ok(identity.countryCode, gp.country);
-      assert.ok(countryFlagEmoji(identity.countryCode));
+      assert.equal(countryFlagSrc(identity.countryCode), `/flags/${identity.countryCode!.toLowerCase()}.svg`);
       assert.equal(raceNameAgreesWithCountry(identity.name, identity.countryCode!), true, gp.name);
       assert.equal(identity.date, gp.date);
     }

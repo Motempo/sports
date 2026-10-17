@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { cn, getFlagUrl } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
+import { countryFlagSrc } from "@/lib/country-flag";
+import { cn } from "@/lib/utils";
 import type { TeamInfo } from "@/lib/types";
 
 type EmblemSource = "crest" | "flag";
@@ -14,12 +16,13 @@ interface TeamEmblemProps {
   rounded?: "full" | "md";
 }
 
-function buildSources(team: TeamEmblemProps["team"], size: number): Array<{ kind: EmblemSource; url: string }> {
+function buildSources(team: TeamEmblemProps["team"]): Array<{ kind: EmblemSource; url: string }> {
   const sources: Array<{ kind: EmblemSource; url: string }> = [];
   if (team.crest?.trim()) {
     sources.push({ kind: "crest", url: team.crest.trim() });
   }
-  sources.push({ kind: "flag", url: getFlagUrl(team.iso2, size) });
+  const flag = countryFlagSrc(team.iso2);
+  if (flag) sources.push({ kind: "flag", url: flag });
   return sources;
 }
 
@@ -29,7 +32,7 @@ export function TeamEmblem({
   className,
   rounded = "full",
 }: TeamEmblemProps) {
-  const sources = useMemo(() => buildSources(team, size), [team, size]);
+  const sources = useMemo(() => buildSources(team), [team]);
   const [sourceIndex, setSourceIndex] = useState(0);
 
   useEffect(() => {
@@ -38,6 +41,24 @@ export function TeamEmblem({
 
   const active = sourceIndex < sources.length ? sources[sourceIndex] : null;
   const radius = rounded === "full" ? "rounded-full" : "rounded-md";
+  const frame = cn(
+    "relative flex shrink-0 items-center justify-center overflow-hidden border-2 border-border bg-surface shadow-sm",
+    radius,
+    className
+  );
+
+  if (active?.kind === "flag") {
+    return (
+      <div className={frame} style={{ width: size, height: size }}>
+        <CountryFlag
+          code={team.iso2}
+          name={team.name}
+          size={size >= 36 ? "md" : "sm"}
+          className="h-[78%] w-[78%] border-0 shadow-none"
+        />
+      </div>
+    );
+  }
 
   if (!active) {
     return (
@@ -55,24 +76,14 @@ export function TeamEmblem({
   }
 
   return (
-    <div
-      className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden border-2 border-border bg-surface shadow-sm",
-        radius,
-        className
-      )}
-      style={{ width: size, height: size }}
-    >
+    <div className={frame} style={{ width: size, height: size }}>
       <Image
         key={`${team.code}-${active.kind}-${active.url}`}
         src={active.url}
         alt={`${team.name} emblem`}
         width={size}
         height={size}
-        className={cn(
-          "max-h-full max-w-full",
-          active.kind === "flag" ? "h-[85%] w-[85%] object-contain" : "h-full w-full object-cover"
-        )}
+        className="h-full w-full max-h-full max-w-full object-cover"
         unoptimized
         onError={() => {
           setSourceIndex((current) => current + 1);

@@ -3,299 +3,431 @@
     "id": "albert_park",
     "slug": "albert-park",
     "circuit": "Albert Park Grand Prix Circuit",
-    "aliases": ["Albert Park Grand Prix Circuit", "Albert Park Circuit", "Albert Park"],
+    "aliases": [
+      "Albert Park Grand Prix Circuit",
+      "Albert Park Circuit",
+      "Albert Park"
+    ],
     "country": "Australia",
     "iso2": "AU",
     "gpName": "Australian Grand Prix",
-    "file": "/venues/f1/albert-park.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Albert Park Grand Prix Circuit, Australia"
+    "file": "/venues/f1/albert-park.svg",
+    "width": 238,
+    "height": 284,
+    "alt": "Circuit layout of Albert Park Grand Prix Circuit, Australia, 5.278 km",
+    "layout": "geometry",
+    "lengthMeters": 5278
   },
   {
     "id": "shanghai",
     "slug": "shanghai",
     "circuit": "Shanghai International Circuit",
-    "aliases": ["Shanghai International Circuit", "Shanghai"],
+    "aliases": [
+      "Shanghai International Circuit",
+      "Shanghai"
+    ],
     "country": "China",
     "iso2": "CN",
     "gpName": "Chinese Grand Prix",
-    "file": "/venues/f1/shanghai.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Shanghai International Circuit, China"
+    "file": "/venues/f1/shanghai.svg",
+    "width": 284,
+    "height": 253,
+    "alt": "Circuit layout of Shanghai International Circuit, China, 5.451 km",
+    "layout": "geometry",
+    "lengthMeters": 5451
   },
   {
     "id": "suzuka",
     "slug": "suzuka",
     "circuit": "Suzuka Circuit",
-    "aliases": ["Suzuka Circuit", "Suzuka International Racing Course", "Suzuka"],
+    "aliases": [
+      "Suzuka Circuit",
+      "Suzuka International Racing Course",
+      "Suzuka"
+    ],
     "country": "Japan",
     "iso2": "JP",
     "gpName": "Japanese Grand Prix",
-    "file": "/venues/f1/suzuka.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Suzuka Circuit, Japan"
+    "file": "/venues/f1/suzuka.svg",
+    "width": 284,
+    "height": 168,
+    "alt": "Circuit layout of Suzuka Circuit, Japan, 5.807 km",
+    "layout": "geometry",
+    "lengthMeters": 5807
   },
   {
     "id": "miami",
     "slug": "miami",
     "circuit": "Miami International Autodrome",
-    "aliases": ["Miami International Autodrome", "Miami"],
+    "aliases": [
+      "Miami International Autodrome",
+      "Miami"
+    ],
     "country": "USA",
     "iso2": "US",
     "gpName": "Miami Grand Prix",
-    "file": "/venues/f1/miami.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Miami International Autodrome, USA"
+    "file": "/venues/f1/miami.svg",
+    "width": 284,
+    "height": 135,
+    "alt": "Circuit layout of Miami International Autodrome, USA, 5.412 km",
+    "layout": "geometry",
+    "lengthMeters": 5412
   },
   {
     "id": "villeneuve",
     "slug": "gilles-villeneuve",
     "circuit": "Circuit Gilles Villeneuve",
-    "aliases": ["Circuit Gilles Villeneuve", "Gilles Villeneuve", "Montreal"],
+    "aliases": [
+      "Circuit Gilles Villeneuve",
+      "Gilles Villeneuve",
+      "Montreal"
+    ],
     "country": "Canada",
     "iso2": "CA",
     "gpName": "Canadian Grand Prix",
-    "file": "/venues/f1/gilles-villeneuve.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit Gilles Villeneuve, Canada"
+    "file": "/venues/f1/gilles-villeneuve.svg",
+    "width": 117,
+    "height": 284,
+    "alt": "Circuit layout of Circuit Gilles Villeneuve, Canada, 4.361 km",
+    "layout": "geometry",
+    "lengthMeters": 4361
   },
   {
     "id": "monaco",
     "slug": "monaco",
     "circuit": "Circuit de Monaco",
-    "aliases": ["Circuit de Monaco", "Monte Carlo", "Monaco"],
+    "aliases": [
+      "Circuit de Monaco",
+      "Monte Carlo",
+      "Monaco"
+    ],
     "country": "Monaco",
     "iso2": "MC",
     "gpName": "Monaco Grand Prix",
-    "file": "/venues/f1/monaco.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit de Monaco, Monaco"
+    "file": "/venues/f1/monaco.svg",
+    "width": 223,
+    "height": 284,
+    "alt": "Circuit layout of Circuit de Monaco, Monaco, 3.337 km",
+    "layout": "geometry",
+    "lengthMeters": 3337
   },
   {
     "id": "catalunya",
     "slug": "barcelona-catalunya",
     "circuit": "Circuit de Barcelona-Catalunya",
-    "aliases": ["Circuit de Barcelona-Catalunya", "Barcelona-Catalunya", "Catalunya"],
+    "aliases": [
+      "Circuit de Barcelona-Catalunya",
+      "Barcelona-Catalunya",
+      "Catalunya"
+    ],
     "country": "Spain",
     "iso2": "ES",
     "gpName": "Barcelona Grand Prix",
-    "file": "/venues/f1/barcelona-catalunya.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit de Barcelona-Catalunya, Spain"
+    "file": "/venues/f1/barcelona-catalunya.svg",
+    "width": 239,
+    "height": 284,
+    "alt": "Circuit layout of Circuit de Barcelona-Catalunya, Spain, 4.655 km",
+    "layout": "geometry",
+    "lengthMeters": 4655
   },
   {
     "id": "red_bull_ring",
     "slug": "red-bull-ring",
     "circuit": "Red Bull Ring",
-    "aliases": ["Red Bull Ring", "Spielberg"],
+    "aliases": [
+      "Red Bull Ring",
+      "Spielberg"
+    ],
     "country": "Austria",
     "iso2": "AT",
     "gpName": "Austrian Grand Prix",
-    "file": "/venues/f1/red-bull-ring.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of the Red Bull Ring, Austria"
+    "file": "/venues/f1/red-bull-ring.svg",
+    "width": 284,
+    "height": 192,
+    "alt": "Circuit layout of Red Bull Ring, Austria, 4.318 km",
+    "layout": "geometry",
+    "lengthMeters": 4318
   },
   {
     "id": "silverstone",
     "slug": "silverstone",
     "circuit": "Silverstone Circuit",
-    "aliases": ["Silverstone Circuit", "Silverstone"],
+    "aliases": [
+      "Silverstone Circuit",
+      "Silverstone"
+    ],
     "country": "United Kingdom",
     "iso2": "GB",
     "gpName": "British Grand Prix",
-    "file": "/venues/f1/silverstone.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Silverstone Circuit, United Kingdom"
+    "file": "/venues/f1/silverstone.svg",
+    "width": 184,
+    "height": 284,
+    "alt": "Circuit layout of Silverstone Circuit, United Kingdom, 5.891 km",
+    "layout": "geometry",
+    "lengthMeters": 5891
   },
   {
     "id": "spa",
     "slug": "spa-francorchamps",
     "circuit": "Circuit de Spa-Francorchamps",
-    "aliases": ["Circuit de Spa-Francorchamps", "Spa-Francorchamps", "Spa"],
+    "aliases": [
+      "Circuit de Spa-Francorchamps",
+      "Spa-Francorchamps",
+      "Spa"
+    ],
     "country": "Belgium",
     "iso2": "BE",
     "gpName": "Belgian Grand Prix",
-    "file": "/venues/f1/spa-francorchamps.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit de Spa-Francorchamps, Belgium"
+    "file": "/venues/f1/spa-francorchamps.svg",
+    "width": 189,
+    "height": 284,
+    "alt": "Circuit layout of Circuit de Spa-Francorchamps, Belgium, 7.004 km",
+    "layout": "geometry",
+    "lengthMeters": 7004
   },
   {
     "id": "hungaroring",
     "slug": "hungaroring",
     "circuit": "Hungaroring",
-    "aliases": ["Hungaroring", "Budapest"],
+    "aliases": [
+      "Hungaroring",
+      "Budapest"
+    ],
     "country": "Hungary",
     "iso2": "HU",
     "gpName": "Hungarian Grand Prix",
-    "file": "/venues/f1/hungaroring.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of the Hungaroring, Hungary"
+    "file": "/venues/f1/hungaroring.svg",
+    "width": 255,
+    "height": 284,
+    "alt": "Circuit layout of Hungaroring, Hungary, 4.381 km",
+    "layout": "geometry",
+    "lengthMeters": 4381
   },
   {
     "id": "zandvoort",
     "slug": "zandvoort",
     "circuit": "Circuit Park Zandvoort",
-    "aliases": ["Circuit Park Zandvoort", "Circuit Zandvoort", "Zandvoort"],
+    "aliases": [
+      "Circuit Park Zandvoort",
+      "Circuit Zandvoort",
+      "Zandvoort"
+    ],
     "country": "Netherlands",
     "iso2": "NL",
     "gpName": "Dutch Grand Prix",
-    "file": "/venues/f1/zandvoort.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit Park Zandvoort, Netherlands"
+    "file": "/venues/f1/zandvoort.svg",
+    "width": 284,
+    "height": 247,
+    "alt": "Circuit layout of Circuit Park Zandvoort, Netherlands, 4.259 km",
+    "layout": "geometry",
+    "lengthMeters": 4259
   },
   {
     "id": "monza",
     "slug": "monza",
     "circuit": "Autodromo Nazionale di Monza",
-    "aliases": ["Autodromo Nazionale di Monza", "Autódromo Nazionale di Monza", "Monza"],
+    "aliases": [
+      "Autodromo Nazionale di Monza",
+      "Autódromo Nazionale di Monza",
+      "Monza"
+    ],
     "country": "Italy",
     "iso2": "IT",
     "gpName": "Italian Grand Prix",
-    "file": "/venues/f1/monza.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Autodromo Nazionale di Monza, Italy"
+    "file": "/venues/f1/monza.svg",
+    "width": 180,
+    "height": 284,
+    "alt": "Circuit layout of Autodromo Nazionale di Monza, Italy, 5.793 km",
+    "layout": "geometry",
+    "lengthMeters": 5793
   },
   {
     "id": "madring",
     "slug": "madring",
     "circuit": "Madring",
-    "aliases": ["Madring", "Madrid"],
+    "aliases": [
+      "Madring",
+      "Madrid"
+    ],
     "country": "Spain",
     "iso2": "ES",
     "gpName": "Spanish Grand Prix",
-    "file": "/venues/f1/madring.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Madring, Spain"
+    "file": "/venues/f1/madring.svg",
+    "width": 190,
+    "height": 284,
+    "alt": "Circuit layout of Madring, Spain, 5.474 km",
+    "layout": "geometry",
+    "lengthMeters": 5474
   },
   {
     "id": "baku",
     "slug": "baku",
     "circuit": "Baku City Circuit",
-    "aliases": ["Baku City Circuit", "Baku"],
+    "aliases": [
+      "Baku City Circuit",
+      "Baku"
+    ],
     "country": "Azerbaijan",
     "iso2": "AZ",
     "gpName": "Azerbaijan Grand Prix",
-    "file": "/venues/f1/baku.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Baku City Circuit, Azerbaijan"
+    "file": "/venues/f1/baku.svg",
+    "width": 284,
+    "height": 219,
+    "alt": "Circuit layout of Baku City Circuit, Azerbaijan, 6.003 km",
+    "layout": "geometry",
+    "lengthMeters": 6003
   },
   {
     "id": "sepang",
     "slug": "sepang",
     "circuit": "Sepang International Circuit",
-    "aliases": ["Sepang International Circuit", "Sepang", "Kuala Lumpur"],
+    "aliases": [
+      "Sepang International Circuit",
+      "Sepang",
+      "Kuala Lumpur"
+    ],
     "country": "Malaysia",
     "iso2": "MY",
     "gpName": "Malaysian Grand Prix",
-    "file": "/venues/f1/sepang.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Sepang International Circuit, Malaysia"
+    "file": "/venues/f1/sepang.svg",
+    "width": 284,
+    "height": 239,
+    "alt": "Circuit layout of Sepang International Circuit, Malaysia, 5.543 km",
+    "layout": "geometry",
+    "lengthMeters": 5543
   },
   {
     "id": "marina_bay",
     "slug": "marina-bay",
     "circuit": "Marina Bay Street Circuit",
-    "aliases": ["Marina Bay Street Circuit", "Marina Bay", "Singapore"],
+    "aliases": [
+      "Marina Bay Street Circuit",
+      "Marina Bay",
+      "Singapore"
+    ],
     "country": "Singapore",
     "iso2": "SG",
     "gpName": "Singapore Grand Prix",
-    "file": "/venues/f1/marina-bay.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Marina Bay Street Circuit, Singapore"
+    "file": "/venues/f1/marina-bay.svg",
+    "width": 284,
+    "height": 197,
+    "alt": "Circuit layout of Marina Bay Street Circuit, Singapore, 4.928 km",
+    "layout": "geometry",
+    "lengthMeters": 4928
   },
   {
     "id": "americas",
     "slug": "circuit-of-the-americas",
     "circuit": "Circuit of the Americas",
-    "aliases": ["Circuit of the Americas", "COTA", "Austin"],
+    "aliases": [
+      "Circuit of the Americas",
+      "COTA",
+      "Austin"
+    ],
     "country": "USA",
     "iso2": "US",
     "gpName": "United States Grand Prix",
-    "file": "/venues/f1/circuit-of-the-americas.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Circuit of the Americas, USA"
+    "file": "/venues/f1/circuit-of-the-americas.svg",
+    "width": 284,
+    "height": 178,
+    "alt": "Circuit layout of Circuit of the Americas, USA, 5.514 km",
+    "layout": "geometry",
+    "lengthMeters": 5514
   },
   {
     "id": "rodriguez",
     "slug": "hermanos-rodriguez",
     "circuit": "Autódromo Hermanos Rodríguez",
-    "aliases": ["Autódromo Hermanos Rodríguez", "Autodromo Hermanos Rodriguez", "Hermanos Rodriguez"],
+    "aliases": [
+      "Autódromo Hermanos Rodríguez",
+      "Autodromo Hermanos Rodriguez",
+      "Hermanos Rodriguez"
+    ],
     "country": "Mexico",
     "iso2": "MX",
     "gpName": "Mexico City Grand Prix",
-    "file": "/venues/f1/hermanos-rodriguez.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Autódromo Hermanos Rodríguez, Mexico"
+    "file": "/venues/f1/hermanos-rodriguez.svg",
+    "width": 284,
+    "height": 215,
+    "alt": "Circuit layout of Autódromo Hermanos Rodríguez, Mexico, 4.304 km",
+    "layout": "geometry",
+    "lengthMeters": 4304
   },
   {
     "id": "interlagos",
     "slug": "interlagos",
     "circuit": "Autódromo José Carlos Pace",
-    "aliases": ["Autódromo José Carlos Pace", "Autodromo Jose Carlos Pace", "Interlagos"],
+    "aliases": [
+      "Autódromo José Carlos Pace",
+      "Autodromo Jose Carlos Pace",
+      "Interlagos"
+    ],
     "country": "Brazil",
     "iso2": "BR",
     "gpName": "Brazilian Grand Prix",
-    "file": "/venues/f1/interlagos.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Autódromo José Carlos Pace, Brazil"
+    "file": "/venues/f1/interlagos.svg",
+    "width": 193,
+    "height": 284,
+    "alt": "Circuit layout of Autódromo José Carlos Pace, Brazil, 4.309 km",
+    "layout": "geometry",
+    "lengthMeters": 4309
   },
   {
     "id": "vegas",
     "slug": "las-vegas",
     "circuit": "Las Vegas Strip Street Circuit",
-    "aliases": ["Las Vegas Strip Street Circuit", "Las Vegas Strip Circuit", "Las Vegas"],
+    "aliases": [
+      "Las Vegas Strip Street Circuit",
+      "Las Vegas Strip Circuit",
+      "Las Vegas"
+    ],
     "country": "USA",
     "iso2": "US",
     "gpName": "Las Vegas Grand Prix",
-    "file": "/venues/f1/las-vegas.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Las Vegas Strip Street Circuit, USA"
+    "file": "/venues/f1/las-vegas.svg",
+    "width": 185,
+    "height": 284,
+    "alt": "Circuit layout of Las Vegas Strip Street Circuit, USA, 6.201 km",
+    "layout": "geometry",
+    "lengthMeters": 6201
   },
   {
     "id": "losail",
     "slug": "lusail",
     "circuit": "Lusail International Circuit",
-    "aliases": ["Lusail International Circuit", "Losail International Circuit", "Lusail", "Losail"],
+    "aliases": [
+      "Lusail International Circuit",
+      "Losail International Circuit",
+      "Lusail",
+      "Losail"
+    ],
     "country": "Qatar",
     "iso2": "QA",
     "gpName": "Qatar Grand Prix",
-    "file": "/venues/f1/lusail.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Lusail International Circuit, Qatar"
+    "file": "/venues/f1/lusail.svg",
+    "width": 246,
+    "height": 284,
+    "alt": "Circuit layout of Lusail International Circuit, Qatar, 5.380 km",
+    "layout": "geometry",
+    "lengthMeters": 5380
   },
   {
     "id": "yas_marina",
     "slug": "yas-marina",
     "circuit": "Yas Marina Circuit",
-    "aliases": ["Yas Marina Circuit", "Yas Marina", "Abu Dhabi"],
+    "aliases": [
+      "Yas Marina Circuit",
+      "Yas Marina",
+      "Abu Dhabi"
+    ],
     "country": "United Arab Emirates",
     "iso2": "AE",
     "gpName": "Abu Dhabi Grand Prix",
-    "file": "/venues/f1/yas-marina.webp",
-    "width": 1600,
-    "height": 1067,
-    "alt": "Illustrated aerial of Yas Marina Circuit, United Arab Emirates"
+    "file": "/venues/f1/yas-marina.svg",
+    "width": 152,
+    "height": 284,
+    "alt": "Circuit layout of Yas Marina Circuit, United Arab Emirates, 5.281 km",
+    "layout": "geometry",
+    "lengthMeters": 5281
   }
 ]

@@ -20,6 +20,8 @@ interface MatchScheduleRowProps {
   showContext?: boolean;
   onSelect?: (match: MatchInfo) => void;
   timeZone?: string;
+  /** Two-line rows for a multi-day league grid. */
+  compact?: boolean;
 }
 
 function formatGroupLabel(group?: string): string | null {
@@ -46,6 +48,7 @@ export function MatchScheduleRow({
   showContext,
   onSelect,
   timeZone,
+  compact = false,
 }: MatchScheduleRowProps) {
   const shown = withDisplayedClubs(match);
   const homeName = presentTeamName(shown.homeTeam);
@@ -67,7 +70,14 @@ export function MatchScheduleRow({
   const venueLine = formatMatchVenueLine(shown);
 
   const inner: ReactNode = (
-    <div className="grid grid-cols-[4.75rem_1fr_auto] items-center gap-3 sm:grid-cols-[5rem_1fr_auto]">
+    <div
+      className={cn(
+        "grid items-center",
+        compact
+          ? "grid-cols-[4.25rem_1fr_auto] gap-2"
+          : "grid-cols-[4.75rem_1fr_auto] gap-3 sm:grid-cols-[5rem_1fr_auto]"
+      )}
+    >
       <div className="text-right">
         {isLive ? (
           <span className="inline-flex items-center gap-1 text-[12px] font-semibold text-link sm:text-[13px]">
@@ -77,7 +87,10 @@ export function MatchScheduleRow({
         ) : (
           <time
             dateTime={shown.utcDate}
-            className="whitespace-nowrap text-[13px] font-medium tabular-nums text-muted sm:text-[14px]"
+            className={cn(
+              "whitespace-nowrap font-medium tabular-nums text-muted",
+              compact ? "text-[12px]" : "text-[13px] sm:text-[14px]"
+            )}
           >
             {timeLabel}
           </time>
@@ -86,10 +99,10 @@ export function MatchScheduleRow({
 
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <TeamEmblem team={shown.homeTeam} size={20} className="shrink-0" />
+          <TeamEmblem team={shown.homeTeam} size={compact ? 16 : 20} className="shrink-0" />
           <span
             className={cn(
-              "truncate text-[14px] sm:text-[15px]",
+              compact ? "truncate text-[13px]" : "truncate text-[14px] sm:text-[15px]",
               homeWinner && "font-semibold",
               finished && !homeWinner && shown.winnerCode && "text-muted"
             )}
@@ -98,11 +111,11 @@ export function MatchScheduleRow({
             {homeName}
           </span>
         </div>
-        <div className="mt-1 flex items-center gap-2">
-          <TeamEmblem team={shown.awayTeam} size={20} className="shrink-0" />
+        <div className={cn("flex items-center gap-2", compact ? "mt-0.5" : "mt-1")}>
+          <TeamEmblem team={shown.awayTeam} size={compact ? 16 : 20} className="shrink-0" />
           <span
             className={cn(
-              "truncate text-[14px] sm:text-[15px]",
+              compact ? "truncate text-[13px]" : "truncate text-[14px] sm:text-[15px]",
               awayWinner && "font-semibold",
               finished && !awayWinner && shown.winnerCode && "text-muted"
             )}
@@ -111,29 +124,35 @@ export function MatchScheduleRow({
             {awayName}
           </span>
         </div>
-        {(roundLabel || groupLabel || matchday) && (
+        {!compact && (roundLabel || groupLabel || matchday) && (
           <p className="mt-1.5 truncate text-[12px] text-muted sm:text-[13px]">
             {[roundLabel, groupLabel, matchday].filter(Boolean).join(" · ")}
           </p>
         )}
-        {stakes && (
+        {!compact && stakes && (
           <p className="mt-1 text-[14px] font-bold leading-snug text-foreground sm:text-[15px]">
             {stakes}
           </p>
         )}
-        {venueLine && (
+        {!compact && venueLine && (
           <p className="mt-1 text-[12px] text-muted sm:text-[13px]">{venueLine}</p>
         )}
       </div>
 
-      <div className="min-w-[2.25rem] text-right text-[16px] font-extrabold tabular-nums sm:text-[17px]">
+      <div
+        className={cn(
+          "text-right font-extrabold tabular-nums",
+          compact ? "min-w-[1.75rem] text-[14px]" : "min-w-[2.25rem] text-[16px] sm:text-[17px]"
+        )}
+      >
         {display}
       </div>
     </div>
   );
 
   const frameClass = cn(
-    "w-full px-3 py-3 text-left sm:px-4",
+    "w-full text-left",
+    compact ? "px-2.5 py-1.5" : "px-3 py-3 sm:px-4",
     showDivider && "border-t border-border",
     interactive &&
       "cursor-pointer transition-colors hover:bg-surface active:bg-surface"

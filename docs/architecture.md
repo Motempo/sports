@@ -111,7 +111,7 @@ Vercel runs the app in UTC. Formatting a kickoff with `toLocaleString` or `Intl.
 
 Client schedules keep the server HTML and the hydration render on an explicit UTC zone (`HYDRATION_TIME_ZONE` in `lib/match-timezone.ts`, `useViewerTimeZone`). After paint, the hook switches to the browser zone and regroups:
 
-- Football day columns: `ScheduleByDay` (Premier League, La Liga, World Cup)
+- Football day columns: `ScheduleByDay` (Premier League and La Liga use `variant="league"`; World Cup uses the horizontal `scroll` variant)
 - Session day columns: `WeekendSessionsByDay` (Formula 1)
 - Featured kickoffs: `FeaturedMatchCard`, `FormulaOneNextEvent`
 - Bracket / match-card kickoffs: `BracketMatchCard`, `MatchCard`
@@ -131,8 +131,8 @@ Every sport page renders through `SportPageShell` in this order:
 1. Header + sport selector  
 2. Compact season / tournament rail (title, chips, one intro line)  
 3. Ad placement (gated)  
-4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit or stadium image. On Formula 1, from about 900px this card sits beside This Weekend; the circuit image is a small same-origin layout drawing. La Liga / Premier League grounds are same-origin illustrated aerials; other stadiums can still be photographs  
-5. Matches / weekend sessions — finished football fixtures open a modal with the same next-match card (score, copy, stadium photo)  
+4. Featured next event card (live first, else next match/session) — three paragraphs plus a circuit or stadium image. On Formula 1, from about 900px this card sits beside This Weekend in equal columns (`pairLead`, `pairColumns="equal"`); the circuit image is a small same-origin layout drawing. Premier League and La Liga use `pairColumns="league"`: the next-match card stays within 20rem (short stadium strip, copy capped at 65ch) so the match list can use the rest of the row. Below 900px those blocks stack. La Liga / Premier League grounds are same-origin illustrated aerials; other stadiums can still be photographs  
+5. Matches / weekend sessions — Premier League and La Liga show the next three non-empty match days (`sliceDayGroupsByDayCount`), every fixture on those days, in a compact grid (one column, two from the `@xl` container, three from `@2xl`). World Cup still opens with two fixtures in a horizontal day scroller (`sliceDayGroupsByMatchCount`). Finished football fixtures open a modal with the same next-match card (score, copy, stadium photo)
 6. News + Fun facts  
 7. Mid-content ad  
 8. Standings, league table, or knockout bracket (one table)  

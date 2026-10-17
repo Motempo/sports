@@ -10,6 +10,8 @@ import {
   groupMatchesByLocalDay,
   selectScheduleMatches,
   selectSeasonTailMatches,
+  countMatchDays,
+  sliceDayGroupsByDayCount,
   sliceDayGroupsByMatchCount,
   type MatchDayGroup,
 } from "@/lib/match-schedule";
@@ -22,6 +24,7 @@ import type { MatchInfo } from "@/lib/types";
 
 const INITIAL_VISIBLE_MATCHES = 2;
 const LOAD_MORE_MATCHES = 5;
+const LEAGUE_VISIBLE_DAYS = 3;
 
 interface ScheduleByDayProps {
   todayMatches: MatchInfo[];
@@ -38,6 +41,15 @@ interface ScheduleByDayProps {
   initialVisibleMatches?: number;
   /** How many additional fixtures each Load more click reveals. */
   loadMoreMatches?: number;
+  /**
+   * `league` shows the next match days in a compact grid.
+   * `scroll` is the horizontal day scroller used by the World Cup.
+   */
+  variant?: "scroll" | "league";
+  /** How many match days to show before Load more. League pages default to 3. */
+  initialVisibleDays?: number;
+  /** Drop the page-width section so this list can sit beside the next match. */
+  embedded?: boolean;
   leagueStandings?: LeagueStandings;
   titleRace?: PremierLeagueRaceInsight | null;
   relegationRace?: PremierLeagueRaceInsight | null;
@@ -49,16 +61,24 @@ function DayColumn({
   standings,
   onSelectMatch,
   timeZone,
+  compact = false,
 }: {
   group: MatchDayGroup;
   groupMatches?: MatchInfo[];
   standings?: GroupStandings[];
   onSelectMatch?: (match: MatchInfo) => void;
   timeZone?: string;
+  compact?: boolean;
 }) {
   return (
     <div className="min-w-0">
-      <h3 className="mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]">
+      <h3
+        className={
+          compact
+            ? "mb-1.5 text-[12px] font-semibold text-foreground"
+            : "mb-2 text-[13px] font-semibold text-foreground sm:text-[14px]"
+        }
+      >
         {group.label}
       </h3>
       <div className="overflow-hidden rounded-2xl border border-border bg-background">
@@ -75,6 +95,7 @@ function DayColumn({
               showContext={!!groupMatches && !!standings}
               onSelect={onSelectMatch}
               timeZone={timeZone}
+              compact={compact}
             />
           ))
         )}
@@ -94,11 +115,16 @@ export function ScheduleByDay({
   showSeasonTailWhenEmpty = false,
   initialVisibleMatches = INITIAL_VISIBLE_MATCHES,
   loadMoreMatches = LOAD_MORE_MATCHES,
+  variant = "scroll",
+  initialVisibleDays = LEAGUE_VISIBLE_DAYS,
+  embedded = false,
   leagueStandings,
   titleRace,
   relegationRace,
 }: ScheduleByDayProps) {
+  const league = variant === "league";
   const [visibleMatchCount, setVisibleMatchCount] = useState(initialVisibleMatches);
+  const [visibleDayCount, setVisibleDayCount] = useState(initialVisibleDays);
   const [selectedMatch, setSelectedMatch] = useState<MatchInfo | null>(null);
   // UTC until paint, then the viewer's zone — see useViewerTimeZone.
   const { timeZone, pending } = useViewerTimeZone();
@@ -130,32 +156,122 @@ export function ScheduleByDay({
 
   const totalMatches = useMemo(() => countDayGroupMatches(dayGroups), [dayGroups]);
 
+  const matchDayCount = useMemo(() => countMatchDays(dayGroups), [dayGroups]);
+
   useEffect(() => {
     setVisibleMatchCount(initialVisibleMatches);
-  }, [dayGroups, initialVisibleMatches, timeZone]);
+    setVisibleDayCount(initialVisibleDays);
+  }, [dayGroups, initialVisibleDays, initialVisibleMatches, timeZone]);
 
   const loadMore = useCallback(() => {
+    if (league) {
+      setVisibleDayCount((count) => Math.min(count + initialVisibleDays, Math.max(matchDayCount, count)));
+      return;
+    }
     setVisibleMatchCount((count) =>
       Math.min(count + loadMoreMatches, Math.max(totalMatches, count))
     );
-  }, [loadMoreMatches, totalMatches]);
+  }, [initialVisibleDays, league, loadMoreMatches, matchDayCount, totalMatches]);
 
   const visibleGroups = useMemo(
-    () => sliceDayGroupsByMatchCount(dayGroups, visibleMatchCount),
-    [dayGroups, visibleMatchCount]
+    () =>
+      league
+        ? sliceDayGroupsByDayCount(dayGroups, visibleDayCount)
+        : sliceDayGroupsByMatchCount(dayGroups, visibleMatchCount),
+    [dayGroups, league, visibleDayCount, visibleMatchCount]
   );
-  const hasMore = visibleMatchCount < totalMatches;
+  const hasMore = league ? visibleDayCount < matchDayCount : visibleMatchCount < totalMatches;
+
+  const modal = (
+    <MatchDetailModal
+      match={selectedMatch}
+      onClose={() => setSelectedMatch(null)}
+      groupMatches={groupMatches}
+      standings={standings}
+      leagueStandings={leagueStandings}
+      titleRace={titleRace}
+      relegationRace={relegationRace}
+    />
+  );
+
+  const heading = (
+    <div
+      className={
+        embedded
+          ? "mb-2 flex flex-col gap-0.5"
+          : "mb-3 flex flex-col gap-1 sm:mb-4 sm:flex-row sm:items-center sm:justify-between"
+      }
+    >
+      <h2 className={embedded ? "text-[17px] font-extrabold sm:text-[18px]" : "text-[18px] font-extrabold sm:text-[20px]"}>
+        {title}
+      </h2>
+      <p className="text-[11px] text-muted sm:text-[12px]">
+        {formatMatchDataSource(source)} · {scheduleZoneCaption(timeZone, pending)}
+        {hasMore ? (league ? " · Show more for later days" : " · Load more for later fixtures") : ""}
+      </p>
+    </div>
+  );
 
   if (dayGroups.length === 0 || totalMatches === 0) {
+    const empty = (
+      <>
+        <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
+        {source === "seed" ? <LiveDataUnavailableNotice /> : null}
+        <p className="mt-2 text-[14px] text-muted">
+          No live or scheduled matches in the next 30 days.
+        </p>
+      </>
+    );
+    if (embedded) return <div className="min-w-0">{empty}</div>;
     return (
       <section className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-4 sm:py-6">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
-          {source === "seed" ? <LiveDataUnavailableNotice /> : null}
-          <p className="mt-2 text-[14px] text-muted">
-            No live or scheduled matches in the next 30 days.
-          </p>
+        <div className="mx-auto max-w-6xl px-3 py-3 sm:px-4 sm:py-4">{empty}</div>
+      </section>
+    );
+  }
+
+  const moreButton = hasMore ? (
+    <div className={league ? "mt-3" : "mt-4 flex justify-center"}>
+      <button
+        type="button"
+        onClick={loadMore}
+        className="w-full rounded-full border border-border py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-surface sm:text-[14px]"
+      >
+        {league ? "Show more days" : "Load more"}
+      </button>
+    </div>
+  ) : null;
+
+  if (league) {
+    const list = (
+      <div className="@container min-w-0">
+        {heading}
+        {source === "seed" ? <LiveDataUnavailableNotice /> : null}
+        <div
+          role="region"
+          aria-label={`${title} by day`}
+          className="grid grid-cols-1 gap-2.5 @xl:grid-cols-2 @2xl:grid-cols-3 @xl:gap-3"
+        >
+          {visibleGroups.map((group) => (
+            <DayColumn
+              key={group.dayKey}
+              group={group}
+              groupMatches={groupMatches}
+              standings={standings}
+              onSelectMatch={setSelectedMatch}
+              timeZone={timeZone}
+              compact
+            />
+          ))}
         </div>
+        {moreButton}
+        {modal}
+      </div>
+    );
+    if (embedded) return list;
+    return (
+      <section className="border-b border-border">
+        <div className="mx-auto max-w-6xl px-3 py-3 sm:px-4 sm:py-4">{list}</div>
       </section>
     );
   }
@@ -163,13 +279,7 @@ export function ScheduleByDay({
   return (
     <section className="border-b border-border">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:py-6">
-        <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-[18px] font-extrabold sm:text-[20px]">{title}</h2>
-          <p className="text-[11px] text-muted sm:text-[12px]">
-            {formatMatchDataSource(source)} · {scheduleZoneCaption(timeZone, pending)}
-            {hasMore ? " · Load more for later fixtures" : ""}
-          </p>
-        </div>
+        {heading}
         {source === "seed" ? <LiveDataUnavailableNotice /> : null}
 
         <div
@@ -194,27 +304,9 @@ export function ScheduleByDay({
           ))}
         </div>
 
-        {hasMore && (
-          <div className="mt-4 flex justify-center">
-            <button
-              type="button"
-              onClick={loadMore}
-              className="rounded-2xl border border-border bg-background px-4 py-2 text-[13px] font-semibold text-foreground transition-colors hover:bg-surface sm:text-[14px]"
-            >
-              Load more
-            </button>
-          </div>
-        )}
+        {moreButton}
       </div>
-      <MatchDetailModal
-        match={selectedMatch}
-        onClose={() => setSelectedMatch(null)}
-        groupMatches={groupMatches}
-        standings={standings}
-        leagueStandings={leagueStandings}
-        titleRace={titleRace}
-        relegationRace={relegationRace}
-      />
+      {modal}
     </section>
   );
 }

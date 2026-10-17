@@ -30,11 +30,12 @@ Premier League uses the same normalizer as La Liga (`lib/club-display-name.ts`).
 
 ## UI
 
-- Shared `SportPageShell` + featured next-match card (description / form-book / player impact)
+- Shared `SportPageShell` with `pairLead` and `pairColumns="league"`: from 900px the next-match card and the match list sit side by side. The next-match column is capped at 20rem so the list can use the rest of a landscape screen. Formula 1 uses the equal-column split instead. Below 900px they stack.
+- Featured next-match card uses embedded chrome and compact density (short stadium strip, 65ch copy). Copy is description / form-book / player impact.
 - Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
-- Shared `ScheduleByDay` with `stage: "LEAGUE"` / matchday in `group`
+- Shared `ScheduleByDay` `variant="league"`: the next three non-empty match days, every fixture on those days, compact rows (kickoff, clubs, score). Container queries put the days in one column, then two (`@xl`), then three (`@2xl`). "Show more days" reveals the next three. `stage: "LEAGUE"` / matchday in `group`. World Cup keeps the horizontal match-count scroller.
 - League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream football-data / ESPN / openfootball responses are shared for 90 seconds (`cachedUpstreamFetch`); a 429 is not stored and still falls through to the next source
 - Finished fixtures in Matches open a next-match-style detail modal
 - Ads: `PremierLeagueAdPlacements`

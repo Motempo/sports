@@ -22,6 +22,8 @@ interface NextEventCardProps {
   imageCaption?: string | null;
   /** `aerial` crops an oblique circuit photo. `diagram` keeps a small layout drawing. */
   imageFit?: "cover" | "aerial" | "diagram";
+  /** `compact` uses a short stadium strip and tighter type for a side column. */
+  density?: "regular" | "compact";
   className?: string;
   /** Page section with heading, the lead column, or just the inner rounded card (modals). */
   chrome?: "section" | "embedded" | "card";
@@ -42,6 +44,7 @@ function EventCardBody({
   imageHeight,
   imageCaption,
   imageFit = "cover",
+  density = "regular",
   className,
 }: Omit<NextEventCardProps, "heading" | "chrome">) {
   if (imageFit === "diagram") {
@@ -65,6 +68,7 @@ function EventCardBody({
     );
   }
 
+  const compact = density === "compact";
   const hasFrame = Boolean(imageUrl && imageWidth && imageHeight && imageWidth > 0 && imageHeight > 0);
   const sourceRatio = hasFrame ? imageWidth! / imageHeight! : 0;
   // Very wide facade panoramas stay fully visible instead of becoming a thin strip.
@@ -81,11 +85,16 @@ function EventCardBody({
       <div
         className={cn(
           "grid grid-cols-1",
-          imageUrl && "lg:grid-cols-2",
-          imageUrl && (hasFrame ? "lg:items-start" : "lg:items-stretch")
+          imageUrl && !compact && "lg:grid-cols-2",
+          imageUrl && !compact && (hasFrame ? "lg:items-start" : "lg:items-stretch")
         )}
       >
-        <div className="flex min-w-0 flex-col gap-3 px-4 py-5 text-left sm:gap-3.5 sm:px-6 sm:py-6">
+        <div
+          className={cn(
+            "flex min-w-0 flex-col text-left",
+            compact ? "gap-2 px-3 py-3" : "gap-3 px-4 py-5 sm:gap-3.5 sm:px-6 sm:py-6"
+          )}
+        >
           {kicker && (
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted sm:text-[12px]">
               {kicker}
@@ -95,7 +104,9 @@ function EventCardBody({
           <div className="min-w-0">{emblems}</div>
 
           <div className="min-w-0">
-            <p className="text-[20px] font-extrabold leading-tight sm:text-[24px]">{title}</p>
+            <p className={cn("font-extrabold leading-tight", compact ? "text-[18px]" : "text-[20px] sm:text-[24px]")}>
+              {title}
+            </p>
             {whenDateTime ? (
               <time
                 dateTime={whenDateTime}
@@ -114,7 +125,14 @@ function EventCardBody({
           </div>
 
           {paragraphs.length > 0 && (
-            <div className="max-w-[65ch] space-y-3 text-[14px] leading-relaxed text-foreground/90 sm:text-[15px]">
+            <div
+              className={cn(
+                "max-w-[65ch] text-foreground/90",
+                compact
+                  ? "space-y-2 text-[13px] leading-snug"
+                  : "space-y-3 text-[14px] leading-relaxed sm:text-[15px]"
+              )}
+            >
               {paragraphs.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
@@ -126,15 +144,19 @@ function EventCardBody({
           <div
             className={cn(
               "relative isolate w-full overflow-hidden bg-surface",
-              hasFrame ? "lg:self-start" : "min-h-[14rem] sm:min-h-[18rem] lg:min-h-0 lg:h-full"
+              compact
+                ? "h-28"
+                : hasFrame
+                  ? "lg:self-start"
+                  : "min-h-[14rem] sm:min-h-[18rem] lg:min-h-0 lg:h-full"
             )}
-            style={hasFrame ? { aspectRatio: String(frameRatio) } : undefined}
+            style={!compact && hasFrame ? { aspectRatio: String(frameRatio) } : undefined}
           >
             <Image
               src={imageUrl}
               alt={imageAlt ?? ""}
               fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
+              sizes={compact ? "(min-width: 900px) 20rem, 100vw" : "(min-width: 1024px) 50vw, 100vw"}
               className={cn(
                 containWide
                   ? "object-contain object-center"
@@ -258,6 +280,7 @@ export function NextEventCard({
   imageHeight,
   imageCaption,
   imageFit = "cover",
+  density = "regular",
   className,
   chrome = "section",
 }: NextEventCardProps) {
@@ -277,6 +300,7 @@ export function NextEventCard({
       imageHeight={imageHeight}
       imageCaption={imageCaption}
       imageFit={imageFit}
+      density={density}
       className={className}
     />
   );

@@ -223,13 +223,129 @@ function constructorWinsAward(
   };
 }
 
+function titleLeadCommentary(contenders: F1AwardContender[], progress: number): string {
+  const [a, b] = contenders;
+  if (!a) {
+    return capForecast(
+      "The championship lead opens once two drivers are on the board. A big cushion buys recovery Sundays; a tiny one turns every pit stop into title maths.",
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
+  if (!b || a.stat === 0) {
+    return capForecast(
+      `${a.label} sits alone at the top so far — the lead chart fills once a real chase forms. ${progress}% of the season is done.`,
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
+  return capForecast(
+    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} (~${a.winChance}% of the gap race). ${a.stat <= 25 ? "One weekend can wipe that out." : "Still live if the challenger strings wins."} ${progress}% raced.`,
+    F1_AWARD_COMMENTARY_MAX_CHARS
+  );
+}
+
+function pointsPerRaceCommentary(contenders: F1AwardContender[], progress: number): string {
+  const [a, b] = contenders;
+  if (!a || a.stat === 0) {
+    return capForecast(
+      "Points per race measures scoring rate, not just the raw total — the driver who banks the most each Sunday usually owns the title narrative.",
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
+  return capForecast(
+    `${a.label} averages ${a.stat} ${a.statLabel} (~${a.winChance}%). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}A win is 25 — sustained high twenties is title pace. ${progress}% of the calendar is in.`,
+    F1_AWARD_COMMENTARY_MAX_CHARS
+  );
+}
+
+/** Points cushion from P1 to each chasing driver — who owns the lead maths. */
+function titleLeadAward(drivers: F1StandingRow[], seasonPct: number): F1Award {
+  const leader = drivers[0];
+  const entries = drivers.slice(0, 5).map((d) => {
+    const gap = leader ? Math.max(0, Math.round((leader.points - d.points) * 10) / 10) : 0;
+    return {
+      label: d.driverName,
+      constructorId: d.constructorId,
+      constructorName: d.constructorName,
+      // Leader shows their lead over P2; others show how far they trail P1.
+      stat:
+        d === leader && drivers[1]
+          ? Math.max(0, Math.round((leader.points - drivers[1].points) * 10) / 10)
+          : gap,
+      statLabel: "pts lead",
+    };
+  });
+  // For non-leaders, invert ranking weight: smaller gap = stronger chase (higher "chance").
+  const leaderGap = entries[0]?.stat ?? 0;
+  const weighted = entries.map((entry, i) => ({
+    ...entry,
+    stat: i === 0 ? Math.max(leaderGap, 0.5) : Math.max(0.1, leaderGap + 1 - entry.stat),
+    displayStat: entry.stat,
+    displayLabel: i === 0 ? (entry.stat === 1 ? "pt lead" : "pts lead") : "pts back",
+  }));
+  const chances = winChances(weighted.map((e) => e.stat));
+  const contenders: F1AwardContender[] = weighted.map((entry, i) => ({
+    rank: i + 1,
+    label: entry.label,
+    constructorId: entry.constructorId,
+    constructorName: entry.constructorName,
+    stat: entry.displayStat,
+    statLabel: entry.displayLabel,
+    winChance: chances[i] ?? 0,
+  }));
+  return {
+    id: "title-lead",
+    name: "Championship Lead",
+    sponsor: "FIA",
+    emoji: "📏",
+    description:
+      "The points gap from the leader to the chase — how much breathing room the title favourite has.",
+    progress: seasonPct,
+    contenders,
+    commentary: titleLeadCommentary(contenders, seasonPct),
+  };
+}
+
+function pointsPerRaceAward(
+  drivers: F1StandingRow[],
+  racesDone: number,
+  seasonPct: number
+): F1Award {
+  const completed = Math.max(racesDone, 1);
+  const sorted = [...drivers].sort((a, b) => b.points - a.points);
+  const entries = sorted.slice(0, 5).map((d) => {
+    const avg = Math.round((d.points / completed) * 10) / 10;
+    return {
+      label: d.driverName,
+      constructorId: d.constructorId,
+      constructorName: d.constructorName,
+      stat: avg,
+      statLabel: "pts/race",
+    };
+  });
+  const contenders = buildContenders(entries);
+  return {
+    id: "points-per-race",
+    name: "Points Per Race",
+    sponsor: "FIA",
+    emoji: "⚡",
+    description:
+      "Average points scored each Grand Prix weekend — the scoring rate behind the championship table.",
+    progress: seasonPct,
+    contenders,
+    commentary: pointsPerRaceCommentary(contenders, seasonPct),
+  };
+}
+
 export function buildF1Awards(data: F1SeasonData): F1Award[] {
   const seasonPct = seasonProgress(data.calendar);
+  const racesDone = data.calendar.filter((gp) => gp.status === "completed").length;
   const awards: F1Award[] = [];
 
   if (data.driverStandings.length > 0) {
     awards.push(driversChampionship(data.driverStandings, seasonPct));
     awards.push(raceWinsAward(data.driverStandings, seasonPct));
+    awards.push(titleLeadAward(data.driverStandings, seasonPct));
+    awards.push(pointsPerRaceAward(data.driverStandings, racesDone, seasonPct));
   }
   if (data.constructorStandings.length > 0) {
     awards.push(constructorsChampionship(data.constructorStandings, seasonPct));

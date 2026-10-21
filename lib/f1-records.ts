@@ -490,24 +490,6 @@ export function buildF1Records(data: F1SeasonData): F1Record[] {
       } Commentators frame it as no memory of past failures — just pure attack.`,
     }),
 
-    record({
-      id: "races-in-season",
-      name: "Races in a Season",
-      emoji: "🗓️",
-      description:
-        "Number of Grands Prix on the championship calendar — the modern era keeps expanding.",
-      allTime: {
-        value: "24 races",
-        holder: "2024 & 2025",
-        context: "Longest F1 calendars",
-      },
-      season: {
-        value: `${data.calendar.length} races`,
-        holder: `${racesDone} completed`,
-        context: `${seasonLabel} calendar`,
-      },
-      highlightSeason: data.calendar.length >= 24 ? "all-time" : null,
-      commentary: `Twenty-four rounds in 2024 and 2025 set the calendar length bar. ${seasonLabel} is scheduled for ${data.calendar.length} with ${racesDone} already done — every extra flyaway weekend tests cars, crews, and title maths. Commentators track fatigue as carefully as points.`,
-    }),
+    // Calendar-length card removed so the xl grid stays a full 3×3 (MOT-75).
   ];
 }

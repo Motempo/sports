@@ -13,7 +13,7 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | World Cup | F1 |
 |-----------|-----|
 | TournamentRail | SeasonRail |
-| Group standings | Drivers / Constructors championship |
+| Group standings | Drivers / Constructors championship (drivers: top 10 + Show more) |
 | Third-place tracker | Title fight tracker |
 | ScheduleByDay | Weekend sessions (FP/Quali/Sprint/Race) |
 | Knockout bracket | Season calendar |

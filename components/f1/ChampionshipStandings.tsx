@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { getConstructorColor } from "@/lib/f1-constructor-colors";
 import type { F1ConstructorStandingRow, F1StandingRow } from "@/lib/f1-types";
 
+/** Default visible driver rows so the table matches a compact league height. */
+const DRIVER_PREVIEW_ROWS = 10;
+
 interface ChampionshipStandingsProps {
   driverStandings: F1StandingRow[];
   constructorStandings: F1ConstructorStandingRow[];
@@ -19,12 +22,51 @@ function ConstructorDot({ constructorId }: { constructorId: string }) {
   );
 }
 
+function ShowMoreRow({
+  remaining,
+  expanded,
+  onToggle,
+}: {
+  remaining: number;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className={cn(
+        "grid w-full grid-cols-[2rem_1fr_3.5rem_2.5rem] items-center gap-2 border-t border-border px-3 py-2 text-left transition-colors",
+        "hover:bg-surface/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-link/40",
+        "sm:grid-cols-[2.5rem_1fr_4rem_3rem] sm:px-4"
+      )}
+      aria-expanded={expanded}
+    >
+      <span className="text-[13px] font-bold text-muted" aria-hidden>
+        ···
+      </span>
+      <span className="text-[14px] font-semibold text-link sm:text-[15px]">
+        {expanded ? "Show less" : "Show more"}
+      </span>
+      <span className="col-span-2 text-right text-[12px] text-muted sm:text-[13px]">
+        {expanded ? "" : `${remaining} more`}
+      </span>
+    </button>
+  );
+}
+
 function DriverTable({ rows }: { rows: F1StandingRow[] }) {
+  const [expanded, setExpanded] = useState(false);
+
   if (rows.length === 0) {
     return (
       <p className="text-[14px] text-muted">Standings will appear when the season begins.</p>
     );
   }
+
+  const canCollapse = rows.length > DRIVER_PREVIEW_ROWS;
+  const visible = canCollapse && !expanded ? rows.slice(0, DRIVER_PREVIEW_ROWS) : rows;
+  const remaining = rows.length - DRIVER_PREVIEW_ROWS;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-background">
@@ -34,7 +76,7 @@ function DriverTable({ rows }: { rows: F1StandingRow[] }) {
         <span className="text-right">Pts</span>
         <span className="text-right">W</span>
       </div>
-      {rows.map((row, index) => (
+      {visible.map((row, index) => (
         <div
           key={row.driverId ?? row.driverName}
           className={cn(
@@ -60,6 +102,13 @@ function DriverTable({ rows }: { rows: F1StandingRow[] }) {
           </span>
         </div>
       ))}
+      {canCollapse ? (
+        <ShowMoreRow
+          remaining={remaining}
+          expanded={expanded}
+          onToggle={() => setExpanded((value) => !value)}
+        />
+      ) : null}
     </div>
   );
 }

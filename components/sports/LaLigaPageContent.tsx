@@ -39,11 +39,12 @@ export async function LaLigaPageContent() {
       autoRefresh
       rail={<LaLigaSeasonRail phase={data.phase} seasonLabel={data.seasonLabel} />}
       pairLead
-      pairColumns="league"
+      pairColumns="equal"
       headerAd={<LaLigaAdPlacements />}
       nextEvent={
         <FeaturedMatchCard
           embedded
+          density="regular"
           match={featuredMatch}
           leagueStandings={data.standings}
           titleRace={data.titleRace}

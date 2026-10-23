@@ -22,8 +22,13 @@ interface FeaturedMatchCardProps {
   relegationRace?: PremierLeagueRaceInsight | null;
   venueImage?: VenueImage | null;
   chrome?: "section" | "embedded" | "card";
-  /** Sit beside the match list: short stadium strip, tighter type. */
+  /** Sit beside the match list without a full-width section wrapper. */
   embedded?: boolean;
+  /**
+   * Card density. Defaults to compact when embedded (narrow league column).
+   * Pass `regular` for equal-width lead columns so the stadium sits beside the text.
+   */
+  density?: "regular" | "compact";
 }
 
 function matchKicker(match: MatchInfo): string {
@@ -73,6 +78,7 @@ export function FeaturedMatchCard({
   venueImage,
   chrome = "section",
   embedded = false,
+  density,
 }: FeaturedMatchCardProps) {
   const { timeZone } = useViewerTimeZone();
   if (!match) return null;
@@ -80,12 +86,13 @@ export function FeaturedMatchCard({
   const live = isMatchLive(match.status);
   const played = match.status === "FINISHED" || live;
   const shown = withDisplayedClubs(match);
+  const resolvedDensity = density ?? (embedded ? "compact" : "regular");
 
   return (
     <NextEventCard
       heading={headingFor(match)}
       chrome={embedded ? "embedded" : chrome}
-      density={embedded ? "compact" : "regular"}
+      density={resolvedDensity}
       live={live}
       kicker={matchKicker(shown)}
       title={`${teamLabel(shown.homeTeam)} vs ${teamLabel(shown.awayTeam)}`}

@@ -29,7 +29,7 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | Env | `F1_SEASON` (defaults to calendar year) |
 | Key libs | `lib/f1-data.ts`, `f1-calendar-parse.ts`, `f1-circuits.ts`, `f1-circuit-photos.ts`, `f1-phase.ts`, `f1-guide.ts`, `f1-awards.ts`, `f1-records.ts`, `f1-types.ts` |
 | Cache | Jolpica + OpenF1 via `cachedUpstreamFetch` (90s shared Data Cache). The page stays `force-dynamic` |
-| Awards progress | Bar = completed Grands Prix / calendar length (not title-gap tightness). The % beside each name is a snapshot of how current points/wins split among the leaders shown if the season ended today — not betting odds. Same pattern on WC / La Liga awards. |
+| Awards progress | Bar = completed Grands Prix / calendar length (not title-gap tightness). The % beside each name is a snapshot of how current points/wins split among the leaders shown if the season ended today — not betting odds. Same pattern on WC / La Liga awards. Season Stats is six cards (3×2): Drivers, Race Wins, Championship Lead, Points Per Race, Constructors, Team Race Wins. Records are nine cards (3×3) so the xl grid has no empty cell. |
 
 ## Returning-user layout
 

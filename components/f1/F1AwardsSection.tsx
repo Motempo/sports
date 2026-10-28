@@ -110,9 +110,10 @@ export function F1AwardsSection({ awards }: F1AwardsSectionProps) {
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Stats</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             Live progress in the Drivers&apos; and Constructors&apos; Championships, race wins, and
-            team victories. The bar is how much of the season is finished. The percentage beside
-            each name is a snapshot of how today&apos;s points or wins split among the leaders
-            shown — if this race ended now. Not betting odds.
+            team victories. The bar is how much of the season is finished. Championship % figures
+            are a remaining-season title proxy (sprint weekends counted): anyone who cannot catch
+            the leader even by taking every leftover point shows 0%. Wins cards use a straight
+            share of the counting stat. Not betting odds.
           </p>
         </div>
 

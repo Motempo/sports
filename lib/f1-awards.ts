@@ -1,3 +1,9 @@
+import {
+  maxConstructorPointsRemaining,
+  maxDriverPointsRemaining,
+  shareChances,
+  titleChances,
+} from "@/lib/f1-award-chances";
 import { capForecast } from "@/lib/match-forecast";
 import type {
   F1ConstructorStandingRow,
@@ -5,6 +11,18 @@ import type {
   F1SeasonData,
   F1StandingRow,
 } from "@/lib/f1-types";
+
+export {
+  maxConstructorPointsRemaining,
+  maxDriverPointsRemaining,
+  normalizeChances,
+  shareChances,
+  titleChances,
+  F1_CONSTRUCTOR_RACE_POINTS,
+  F1_CONSTRUCTOR_SPRINT_POINTS,
+  F1_DRIVER_RACE_POINTS,
+  F1_DRIVER_SPRINT_POINTS,
+} from "@/lib/f1-award-chances";
 
 export const F1_AWARD_COMMENTARY_MAX_CHARS = 300;
 
@@ -35,14 +53,6 @@ function seasonProgress(calendar: F1GrandPrix[]): number {
   return Math.min(100, Math.round((done / calendar.length) * 100));
 }
 
-function winChances(values: number[]): number[] {
-  if (values.length === 0) return [];
-  const max = Math.max(...values, 1);
-  const weights = values.map((v) => Math.exp((v / max) * 2.4));
-  const total = weights.reduce((a, b) => a + b, 0) || 1;
-  return weights.map((w) => Math.round((w / total) * 100));
-}
-
 function buildContenders(
   entries: Array<{
     label: string;
@@ -50,9 +60,9 @@ function buildContenders(
     constructorName: string;
     stat: number;
     statLabel: string;
-  }>
+  }>,
+  chances: number[]
 ): F1AwardContender[] {
-  const chances = winChances(entries.map((e) => e.stat));
   return entries.map((entry, i) => ({
     rank: i + 1,
     label: entry.label,
@@ -74,12 +84,12 @@ function driversCommentary(contenders: F1AwardContender[], progress: number): st
   }
   if (!b || a.stat === b.stat) {
     return capForecast(
-      `${a.label} (${a.constructorName}) leads the Drivers' Championship on ${a.stat} ${a.statLabel} — roughly a ${a.winChance}% chance if the season ended today. With ${progress}% of races complete, late-season form still matters.`,
+      `${a.label} (${a.constructorName}) leads the Drivers' Championship on ${a.stat} ${a.statLabel} — about a ${a.winChance}% title chance with the races still to run. With ${progress}% of races complete, late-season form still matters.`,
       F1_AWARD_COMMENTARY_MAX_CHARS
     );
   }
   return capForecast(
-    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChance}% chance), with ${b.label} (${b.constructorName}) on ${b.stat} chasing at ${b.winChance}%. A win is worth 25 points — one weekend can swing the title fight. ${progress}% of the season is in the books.`,
+    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChance}% title chance), with ${b.label} (${b.constructorName}) on ${b.stat} at ${b.winChance}%. Drivers who can no longer catch the leader even by winning out show 0%. ${progress}% of the season is in the books.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -93,7 +103,7 @@ function constructorsCommentary(contenders: F1AwardContender[], progress: number
     );
   }
   return capForecast(
-    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChance}% chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Double points finishes and reliability decide this trophy. ${progress}% of the season complete.`,
+    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChance}% title chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Teams mathematically eliminated from the lead show 0%. ${progress}% of the season complete.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -107,7 +117,7 @@ function winsCommentary(contenders: F1AwardContender[], progress: number): strin
     );
   }
   return capForecast(
-    `${a.label} leads the wins chart with ${a.stat} ${a.statLabel} (~${a.winChance}%). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Sunday victories don't always equal the title — but they define seasons. ${progress}% raced.`,
+    `${a.label} leads the wins chart with ${a.stat} ${a.statLabel} (~${a.winChance}% share). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Percentages are a straight share of wins among the leaders shown — 0 wins means 0%. ${progress}% raced.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -121,12 +131,16 @@ function constructorWinsCommentary(contenders: F1AwardContender[], progress: num
     );
   }
   return capForecast(
-    `${a.label} has the most race wins this season (${a.stat}) with about a ${a.winChance}% share of the wins race. ${b && b.stat > 0 ? `${b.label} sits on ${b.stat} (${b.winChance}%). ` : ""}${progress}% of Grands Prix are done.`,
+    `${a.label} has the most race wins this season (${a.stat}) with about a ${a.winChance}% share. ${b && b.stat > 0 ? `${b.label} sits on ${b.stat} (${b.winChance}%). ` : ""}Share of wins among the teams shown — blanks stay at 0%. ${progress}% of Grands Prix are done.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
 
-function driversChampionship(drivers: F1StandingRow[], seasonPct: number): F1Award {
+function driversChampionship(
+  drivers: F1StandingRow[],
+  seasonPct: number,
+  maxPointsLeft: number
+): F1Award {
   const entries = drivers.slice(0, 5).map((d) => ({
     label: d.driverName,
     constructorId: d.constructorId,
@@ -134,7 +148,13 @@ function driversChampionship(drivers: F1StandingRow[], seasonPct: number): F1Awa
     stat: d.points,
     statLabel: d.points === 1 ? "pt" : "pts",
   }));
-  const contenders = buildContenders(entries);
+  const contenders = buildContenders(
+    entries,
+    titleChances(
+      entries.map((e) => e.stat),
+      maxPointsLeft
+    )
+  );
   return {
     id: "drivers-championship",
     name: "Drivers' Championship",
@@ -151,7 +171,8 @@ function driversChampionship(drivers: F1StandingRow[], seasonPct: number): F1Awa
 
 function constructorsChampionship(
   constructors: F1ConstructorStandingRow[],
-  seasonPct: number
+  seasonPct: number,
+  maxPointsLeft: number
 ): F1Award {
   const entries = constructors.slice(0, 5).map((c) => ({
     label: c.constructorName,
@@ -160,7 +181,13 @@ function constructorsChampionship(
     stat: c.points,
     statLabel: c.points === 1 ? "pt" : "pts",
   }));
-  const contenders = buildContenders(entries);
+  const contenders = buildContenders(
+    entries,
+    titleChances(
+      entries.map((e) => e.stat),
+      maxPointsLeft
+    )
+  );
   return {
     id: "constructors-championship",
     name: "Constructors' Championship",
@@ -183,7 +210,10 @@ function raceWinsAward(drivers: F1StandingRow[], seasonPct: number): F1Award {
     stat: d.wins,
     statLabel: d.wins === 1 ? "win" : "wins",
   }));
-  const contenders = buildContenders(entries);
+  const contenders = buildContenders(
+    entries,
+    shareChances(entries.map((e) => e.stat))
+  );
   return {
     id: "race-wins",
     name: "Race Wins",
@@ -209,7 +239,10 @@ function constructorWinsAward(
     stat: c.wins,
     statLabel: c.wins === 1 ? "win" : "wins",
   }));
-  const contenders = buildContenders(entries);
+  const contenders = buildContenders(
+    entries,
+    shareChances(entries.map((e) => e.stat))
+  );
   return {
     id: "constructor-wins",
     name: "Team Race Wins",
@@ -238,7 +271,7 @@ function titleLeadCommentary(contenders: F1AwardContender[], progress: number): 
     );
   }
   return capForecast(
-    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} (~${a.winChance}% of the gap race). ${a.stat <= 25 ? "One weekend can wipe that out." : "Still live if the challenger strings wins."} ${progress}% raced.`,
+    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} with about a ${a.winChance}% title chance from the remaining calendar. ${a.stat <= 25 ? "One weekend can wipe that out." : "Chasers who cannot catch up even by winning out sit on 0%."} ${progress}% raced.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -252,46 +285,54 @@ function pointsPerRaceCommentary(contenders: F1AwardContender[], progress: numbe
     );
   }
   return capForecast(
-    `${a.label} averages ${a.stat} ${a.statLabel} (~${a.winChance}%). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}A win is 25 — sustained high twenties is title pace. ${progress}% of the calendar is in.`,
+    `${a.label} averages ${a.stat} ${a.statLabel} (~${a.winChance}% share of the rate chart). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}A win is 25 — sustained high twenties is title pace. ${progress}% of the calendar is in.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
 
 /** Points cushion from P1 to each chasing driver — who owns the lead maths. */
-function titleLeadAward(drivers: F1StandingRow[], seasonPct: number): F1Award {
+function titleLeadAward(
+  drivers: F1StandingRow[],
+  seasonPct: number,
+  maxPointsLeft: number
+): F1Award {
   const leader = drivers[0];
-  const entries = drivers.slice(0, 5).map((d) => {
+  const top = drivers.slice(0, 5);
+  const entries = top.map((d, i) => {
     const gap = leader ? Math.max(0, Math.round((leader.points - d.points) * 10) / 10) : 0;
+    const isLeader = i === 0;
+    const leadOverP2 =
+      isLeader && drivers[1]
+        ? Math.max(0, Math.round((leader.points - drivers[1].points) * 10) / 10)
+        : gap;
     return {
       label: d.driverName,
       constructorId: d.constructorId,
       constructorName: d.constructorName,
-      // Leader shows their lead over P2; others show how far they trail P1.
-      stat:
-        d === leader && drivers[1]
-          ? Math.max(0, Math.round((leader.points - drivers[1].points) * 10) / 10)
-          : gap,
-      statLabel: "pts lead",
+      stat: isLeader ? leadOverP2 : gap,
+      statLabel: isLeader
+        ? leadOverP2 === 1
+          ? "pt lead"
+          : "pts lead"
+        : "pts back",
+      points: d.points,
     };
   });
-  // For non-leaders, invert ranking weight: smaller gap = stronger chase (higher "chance").
-  const leaderGap = entries[0]?.stat ?? 0;
-  const weighted = entries.map((entry, i) => ({
-    ...entry,
-    stat: i === 0 ? Math.max(leaderGap, 0.5) : Math.max(0.1, leaderGap + 1 - entry.stat),
-    displayStat: entry.stat,
-    displayLabel: i === 0 ? (entry.stat === 1 ? "pt lead" : "pts lead") : "pts back",
-  }));
-  const chances = winChances(weighted.map((e) => e.stat));
-  const contenders: F1AwardContender[] = weighted.map((entry, i) => ({
-    rank: i + 1,
-    label: entry.label,
-    constructorId: entry.constructorId,
-    constructorName: entry.constructorName,
-    stat: entry.displayStat,
-    statLabel: entry.displayLabel,
-    winChance: chances[i] ?? 0,
-  }));
+  // Same remaining-season title chances as the Drivers' Championship card (MOT-87).
+  const chances = titleChances(
+    entries.map((e) => e.points),
+    maxPointsLeft
+  );
+  const contenders = buildContenders(
+    entries.map(({ label, constructorId, constructorName, stat, statLabel }) => ({
+      label,
+      constructorId,
+      constructorName,
+      stat,
+      statLabel,
+    })),
+    chances
+  );
   return {
     id: "title-lead",
     name: "Championship Lead",
@@ -322,7 +363,10 @@ function pointsPerRaceAward(
       statLabel: "pts/race",
     };
   });
-  const contenders = buildContenders(entries);
+  const contenders = buildContenders(
+    entries,
+    shareChances(entries.map((e) => e.stat))
+  );
   return {
     id: "points-per-race",
     name: "Points Per Race",
@@ -339,16 +383,20 @@ function pointsPerRaceAward(
 export function buildF1Awards(data: F1SeasonData): F1Award[] {
   const seasonPct = seasonProgress(data.calendar);
   const racesDone = data.calendar.filter((gp) => gp.status === "completed").length;
+  const driverRemain = maxDriverPointsRemaining(data.calendar);
+  const constructorRemain = maxConstructorPointsRemaining(data.calendar);
   const awards: F1Award[] = [];
 
   if (data.driverStandings.length > 0) {
-    awards.push(driversChampionship(data.driverStandings, seasonPct));
+    awards.push(driversChampionship(data.driverStandings, seasonPct, driverRemain));
     awards.push(raceWinsAward(data.driverStandings, seasonPct));
-    awards.push(titleLeadAward(data.driverStandings, seasonPct));
+    awards.push(titleLeadAward(data.driverStandings, seasonPct, driverRemain));
     awards.push(pointsPerRaceAward(data.driverStandings, racesDone, seasonPct));
   }
   if (data.constructorStandings.length > 0) {
-    awards.push(constructorsChampionship(data.constructorStandings, seasonPct));
+    awards.push(
+      constructorsChampionship(data.constructorStandings, seasonPct, constructorRemain)
+    );
     awards.push(constructorWinsAward(data.constructorStandings, seasonPct));
   }
 

@@ -1,11 +1,17 @@
 import { clubDisplayName } from "@/lib/club-display-name";
+import {
+  FOOTBALL_MATCHES_PER_TEAM,
+  chanceFields,
+  footballScorerChances,
+  footballSeasonProgress,
+  footballTitleChances,
+} from "@/lib/football-award-chances";
 import { cachedUpstreamFetch } from "@/lib/sports-upstream-cache";
 import { buildLaLigaClubTeamInfo, resolveLaLigaClubCode } from "@/lib/la-liga-clubs";
 import type { LaLigaSeasonData } from "@/lib/la-liga-types";
 import { capForecast } from "@/lib/match-forecast";
 
 export const LALIGA_AWARD_COMMENTARY_MAX_CHARS = 300;
-const MATCHES_PER_TEAM = 38;
 
 export interface LaLigaAwardContender {
   rank: number;
@@ -15,7 +21,12 @@ export interface LaLigaAwardContender {
   crest?: string;
   stat: number;
   statLabel: string;
+  /** Largest-remainder whole percent. Values on a card sum to 100. */
   winChance: number;
+  /** Smoothed share before whole-point rounding. */
+  winChanceExact: number;
+  /** "21%" or "<1%". A positive share never renders as "0%". */
+  winChanceLabel: string;
 }
 
 export interface LaLigaAward {
@@ -32,6 +43,7 @@ export interface LaLigaAward {
 interface FootballDataScorer {
   player: { name: string };
   team: { name: string; tla?: string | null; crest?: string | null };
+  playedMatches?: number | null;
   goals: number;
   assists?: number | null;
 }
@@ -45,12 +57,18 @@ function winChances(values: number[]): number[] {
 }
 
 function seasonProgress(data: LaLigaSeasonData): number {
-  const played = Math.max(0, ...data.standings.rows.map((r) => r.played));
-  return Math.min(100, Math.round((played / MATCHES_PER_TEAM) * 100));
+  return footballSeasonProgress(data.standings.rows.map((r) => r.played));
 }
 
 async function fetchLaLigaScorers(limit = 8): Promise<
-  Array<{ playerName: string; teamCode: string; teamName: string; crest?: string; goals: number }>
+  Array<{
+    playerName: string;
+    teamCode: string;
+    teamName: string;
+    crest?: string;
+    goals: number;
+    playedMatches: number;
+  }>
 > {
   const apiKey = process.env.FOOTBALL_DATA_API_KEY?.trim();
   if (!apiKey) return [];
@@ -75,6 +93,7 @@ async function fetchLaLigaScorers(limit = 8): Promise<
         teamName: clubDisplayName(team),
         crest: team.crest,
         goals: row.goals ?? 0,
+        playedMatches: row.playedMatches ?? 0,
       };
     });
   } catch {
@@ -82,26 +101,38 @@ async function fetchLaLigaScorers(limit = 8): Promise<
   }
 }
 
-function buildContenders(
-  entries: Array<{
-    label: string;
-    teamCode: string;
-    teamName: string;
-    crest?: string;
-    stat: number;
-    statLabel: string;
-  }>
-): LaLigaAwardContender[] {
+type AwardEntry = {
+  label: string;
+  teamCode: string;
+  teamName: string;
+  crest?: string;
+  stat: number;
+  statLabel: string;
+};
+
+/** Snapshot split for Zamora, Europe, and survival — not the title or Pichichi. */
+function buildSnapshotContenders(entries: AwardEntry[]): LaLigaAwardContender[] {
   const chances = winChances(entries.map((e) => e.stat));
+  return entries.map((entry, i) => {
+    const winChance = chances[i] ?? 0;
+    return {
+      rank: i + 1,
+      ...entry,
+      winChance,
+      winChanceExact: winChance,
+      winChanceLabel: `${winChance}%`,
+    };
+  });
+}
+
+function buildModelContenders(
+  entries: AwardEntry[],
+  chances: ReturnType<typeof footballTitleChances>
+): LaLigaAwardContender[] {
   return entries.map((entry, i) => ({
     rank: i + 1,
-    label: entry.label,
-    teamCode: entry.teamCode,
-    teamName: entry.teamName,
-    crest: entry.crest,
-    stat: entry.stat,
-    statLabel: entry.statLabel,
-    winChance: chances[i] ?? 0,
+    ...entry,
+    ...chanceFields(chances, i),
   }));
 }
 
@@ -199,7 +230,8 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     ];
   }
 
-  const titleEntries = rows.slice(0, 5).map((r) => ({
+  const titleRows = rows.slice(0, 5);
+  const titleEntries = titleRows.map((r) => ({
     label: clubDisplayName(r.team),
     teamCode: r.team.code,
     teamName: clubDisplayName(r.team),
@@ -207,21 +239,37 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     stat: r.points,
     statLabel: "pts",
   }));
-  const titleContenders = buildContenders(titleEntries);
+  const titleContenders = buildModelContenders(
+    titleEntries,
+    footballTitleChances(
+      titleRows.map((r) => r.points),
+      titleRows.map((r) => r.played),
+      {
+        totals: rows.map((r) => r.points),
+        played: rows.map((r) => r.played),
+      }
+    )
+  );
 
-  const pichichiEntries =
+  const playedByCode = new Map(rows.map((r) => [r.team.code, r.played]));
+  const pichichiSource =
     scorers.length > 0
-      ? scorers.slice(0, 5).map((s) => ({
-          label: s.playerName,
-          teamCode: s.teamCode,
-          teamName: s.teamName,
-          crest: s.crest,
-          stat: s.goals,
-          statLabel: "goals",
-        }))
+      ? scorers.map((s) => {
+          const teamPlayed = playedByCode.get(s.teamCode) ?? 0;
+          const played = s.playedMatches > 0 ? s.playedMatches : Math.max(teamPlayed, s.goals > 0 ? 1 : 0);
+          return {
+            label: s.playerName,
+            teamCode: s.teamCode,
+            teamName: s.teamName,
+            crest: s.crest,
+            stat: s.goals,
+            statLabel: "goals",
+            played,
+            remaining: Math.max(0, FOOTBALL_MATCHES_PER_TEAM - teamPlayed),
+          };
+        })
       : [...rows]
           .sort((a, b) => b.goalsFor - a.goalsFor || b.points - a.points)
-          .slice(0, 5)
           .map((r) => ({
             label: clubDisplayName(r.team),
             teamCode: r.team.code,
@@ -229,15 +277,31 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
             crest: r.team.crest,
             stat: r.goalsFor,
             statLabel: "club goals",
+            played: r.played,
+            remaining: Math.max(0, FOOTBALL_MATCHES_PER_TEAM - r.played),
           }));
-  const pichichiContenders = buildContenders(pichichiEntries);
+  const pichichiShown = pichichiSource.slice(0, 5);
+  const pichichiContenders = buildModelContenders(
+    pichichiShown,
+    footballScorerChances(
+      pichichiShown.map((entry) => ({
+        goals: entry.stat,
+        played: entry.played,
+        remaining: entry.remaining,
+      })),
+      {
+        totals: pichichiSource.map((entry) => entry.stat),
+        played: pichichiSource.map((entry) => entry.played),
+      }
+    )
+  );
 
   const zamoraSorted = [...rows]
     .filter((r) => r.played > 0)
     .sort((a, b) => a.goalsAgainst - b.goalsAgainst || b.points - a.points)
     .slice(0, 5);
   // Lower conceded = better: invert for softmax weights, display real conceded.
-  const zamoraContenders = buildContenders(
+  const zamoraContenders = buildSnapshotContenders(
     zamoraSorted.map((r) => ({
       label: clubDisplayName(r.team),
       teamCode: r.team.code,
@@ -260,7 +324,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     stat: r.points,
     statLabel: "pts",
   }));
-  const europeContenders = buildContenders(europeEntries);
+  const europeContenders = buildSnapshotContenders(europeEntries);
 
   const survivalEntries = [...rows]
     .slice(-5)
@@ -273,7 +337,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       stat: r.points,
       statLabel: "pts",
     }));
-  const survivalContenders = buildContenders(survivalEntries);
+  const survivalContenders = buildSnapshotContenders(survivalEntries);
 
   const [t1, t2] = titleContenders;
   const [p1, p2] = pichichiContenders;
@@ -286,16 +350,18 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Live title chase from the league table — points, then head-to-head, then goal difference.",
+        "Projected final points from the current rate, blended toward the league average. The spread tightens as the matches run out.",
       // Progress bar is season completion, not title-gap tightness (MOT-47).
       progress: progressPct,
       contenders: titleContenders,
       commentary: capForecast(
         !t1
           ? "The title race opens with Matchday 1 — 38 games, one champion."
-          : !t2 || t1.stat === t2.stat
-            ? `${t1.label} lead the table on ${t1.stat} pts (~${t1.winChance}% proxy). With ${progressPct}% of the season played, every dropped point still matters.`
-            : `${t1.label} lead on ${t1.stat} pts (${t1.winChance}%), with ${t2.label} on ${t2.stat} (${t2.winChance}%). A win is worth three — one weekend can reshape the championship. ${progressPct}% complete.`,
+          : !t2
+            ? `${t1.label} lead the table on ${t1.stat} pts (about a ${t1.winChanceLabel} title chance with the matches still to play). ${progressPct}% of the season is played.`
+            : t1.stat === t2.stat
+              ? `${t1.label} and ${t2.label} are level on ${t1.stat} pts (${t1.winChanceLabel} and ${t2.winChanceLabel} title chances). A club that cannot catch them even by winning every remaining match shows under 1%. ${progressPct}% of the season is played.`
+              : `${t1.label} lead on ${t1.stat} pts (${t1.winChanceLabel} title chance), with ${t2.label} on ${t2.stat} at ${t2.winChanceLabel}. A club that cannot catch the leader even by winning every remaining match shows under 1%. ${progressPct}% of the season is played.`,
         LALIGA_AWARD_COMMENTARY_MAX_CHARS
       ),
     },
@@ -306,16 +372,16 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       emoji: "⚽",
       description:
         scorers.length > 0
-          ? "Marca's Pichichi goes to La Liga's top scorer. Live player goals from the season feed."
-          : "Marca's Pichichi goes to La Liga's top scorer. Showing club goals until individual scorers are available.",
+          ? "Marca's Pichichi goes to La Liga's top scorer. The percentage projects goals from the scoring rate and the matches the club has left."
+          : "Marca's Pichichi goes to La Liga's top scorer. Showing club goals until individual scorers are available. The percentage projects those goals from the club's scoring rate.",
       progress: progressPct,
       contenders: pichichiContenders,
       commentary: capForecast(
         !p1
           ? "The Pichichi race starts with the first goal of the season."
           : !p2 || p1.stat === p2.stat
-            ? `${p1.label} (${p1.teamName}) leads the scoring charts with ${p1.stat} ${p1.statLabel} (~${p1.winChance}%). ${progressPct}% of the campaign is done.`
-            : `${p1.label} leads on ${p1.stat} ${p1.statLabel} (${p1.winChance}%), chased by ${p2.label} on ${p2.stat} (${p2.winChance}%). Hot streaks and penalties can flip this overnight.`,
+            ? `${p1.label} (${p1.teamName}) leads the scoring charts with ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} projected). A player who cannot catch up even with a hat-trick in every match left shows under 1%. ${progressPct}% of the campaign is done.`
+            : `${p1.label} leads on ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} projected), chased by ${p2.label} on ${p2.stat} (${p2.winChanceLabel}). Rates are blended toward the scoring average, and the spread tightens as the matches run out.`,
         LALIGA_AWARD_COMMENTARY_MAX_CHARS
       ),
     },
@@ -331,7 +397,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       commentary: capForecast(
         !z1
           ? "Clean sheets start writing the Zamora story from Matchday 1."
-          : `${z1.label} (${z1.teamName}) have the stingiest defence so far with ${z1.stat} conceded (~${z1.winChance}% proxy). ${
+          : `${z1.label} (${z1.teamName}) have the stingiest defence so far with ${z1.stat} conceded (~${z1.winChanceLabel} of this list). ${
               z2 ? `${z2.label} sit next on ${z2.stat}. ` : ""
             }${progressPct}% of the season played.`,
         LALIGA_AWARD_COMMENTARY_MAX_CHARS

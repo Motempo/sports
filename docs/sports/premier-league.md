@@ -22,7 +22,7 @@ Same shell as World Cup / F1, but competitive centerpiece is the **league table*
 | Seed | `data/pl-clubs-seed.json` (2026/27 clubs) + short matchday grid when mirrors lag |
 | Selection | Parallel fetch; pick the board with the **most finished fixtures** (ties: api → espn → openfootball) |
 | Standings | `lib/league-standings.ts` — zones 1–4 CL, 5 EL, 6 ECL, 18–20 relegated. Header matchday is the highest real round with a finished game (`lib/league-matchdays.ts`) |
-| Key libs | `lib/premier-league-data.ts`, `league-data-cascade.ts`, `espn-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `*-records.ts`, `*-types.ts` |
+| Key libs | `lib/premier-league-data.ts`, `league-data-cascade.ts`, `espn-league-data.ts`, `*-phase.ts`, `*-guide.ts`, `*-awards.ts`, `football-award-chances.ts`, `award-chances.ts`, `*-records.ts`, `*-types.ts` |
 
 ## Club names
 
@@ -35,6 +35,7 @@ Premier League uses the same normalizer as La Liga (`lib/club-display-name.ts`).
 - Stadium image is the next match's home ground: same-origin generated aerial at `public/venues/football/<slug>.webp`, mapped in `data/football-venue-photos.json`. No photo credit.
 - `PremierLeagueRail`, `LeagueTable`, `RaceTracker`
 - `HowPremierLeagueWorks`, awards + **season & all-time records** (World Cup-style two-mark cards)
+- Title and Golden Boot cards use the La Liga award-card layout (`components/league/ChanceAwardCard.tsx`) and the same form projection (`formProjectionChances`). The title card projects final points from each club's points per match blended toward the league average; the spread tightens as matches left fall. A club that cannot catch the leader even by winning out shows under 1% (`<1%`), not 0%. The Golden Boot card projects goals from the player's goals per match and the club's matches left, and only renders when the scorer feed returns players. A player who cannot catch the leader even with a hat-trick in every match left shows under 1%. Whole percents on each chance card sum to 100. Attack and defence stay stat lists. Club crests are the mark; if a crest fails, the emblem is the England flag SVG at `public/flags/gb-eng.svg`, not an emoji. Not betting odds. The two chance cards sit side by side from the `md` breakpoint (including a 1200px-wide landscape browser) and stack at phone width.
 - Shared `ScheduleByDay` `variant="league"`: the next three non-empty match days, every fixture on those days, compact rows (kickoff, clubs, score). Container queries put the days in one column, then two (`@xl`), then three (`@2xl`). "Show more days" reveals the next three. `stage: "LEAGUE"` / matchday in `group`. World Cup keeps the horizontal match-count scroller.
 - League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream football-data / ESPN / openfootball responses are shared for 90 seconds (`cachedUpstreamFetch`); a 429 is not stored and still falls through to the next source
 - Finished fixtures in Matches open a next-match-style detail modal

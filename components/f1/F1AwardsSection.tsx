@@ -38,7 +38,7 @@ function ContenderRow({ contender, leader }: { contender: F1AwardContender; lead
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChance}% chance</p>
+        <p className="text-[10px] tabular-nums text-muted">{contender.winChanceLabel} chance</p>
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ function AwardCard({ award }: { award: F1Award }) {
         </div>
         {leader && (
           <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChance}% chance
+            {leader.winChanceLabel} chance
           </div>
         )}
       </div>
@@ -111,9 +111,10 @@ export function F1AwardsSection({ awards }: F1AwardsSectionProps) {
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             Live progress in the Drivers&apos; and Constructors&apos; Championships, race wins, and
             team victories. The bar is how much of the season is finished. Championship % figures
-            are a remaining-season title proxy (sprint weekends counted): anyone who cannot catch
-            the leader even by taking every leftover point shows 0%. Wins cards use a straight
-            share of the counting stat. Not betting odds.
+            are a remaining-season title proxy (sprint weekends counted). Anyone who cannot catch
+            the leader even by taking every leftover point still shows under 1%, not 0%. Wins and
+            points-per-race cards share the counting stat the same way, so a blank shows under 1%
+            too. The whole percents on each card add up to 100. Not betting odds.
           </p>
         </div>
 

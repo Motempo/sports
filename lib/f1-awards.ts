@@ -1,8 +1,10 @@
 import {
+  formatF1Chance,
   maxConstructorPointsRemaining,
   maxDriverPointsRemaining,
   shareChances,
   titleChances,
+  type F1ChanceBreakdown,
 } from "@/lib/f1-award-chances";
 import { capForecast } from "@/lib/match-forecast";
 import type {
@@ -13,16 +15,19 @@ import type {
 } from "@/lib/f1-types";
 
 export {
+  formatF1Chance,
   maxConstructorPointsRemaining,
   maxDriverPointsRemaining,
   normalizeChances,
   shareChances,
   titleChances,
+  F1_CHANCE_EPSILON,
   F1_CONSTRUCTOR_RACE_POINTS,
   F1_CONSTRUCTOR_SPRINT_POINTS,
   F1_DRIVER_RACE_POINTS,
   F1_DRIVER_SPRINT_POINTS,
 } from "@/lib/f1-award-chances";
+export type { F1ChanceBreakdown } from "@/lib/f1-award-chances";
 
 export const F1_AWARD_COMMENTARY_MAX_CHARS = 300;
 
@@ -33,7 +38,12 @@ export interface F1AwardContender {
   constructorName: string;
   stat: number;
   statLabel: string;
+  /** Largest-remainder whole percent. Values on a card sum to 100. */
   winChance: number;
+  /** Smoothed share before whole-point rounding. */
+  winChanceExact: number;
+  /** "98%" or "<1%". A positive share never renders as "0%". */
+  winChanceLabel: string;
 }
 
 export interface F1Award {
@@ -61,17 +71,23 @@ function buildContenders(
     stat: number;
     statLabel: string;
   }>,
-  chances: number[]
+  chances: F1ChanceBreakdown
 ): F1AwardContender[] {
-  return entries.map((entry, i) => ({
-    rank: i + 1,
-    label: entry.label,
-    constructorId: entry.constructorId,
-    constructorName: entry.constructorName,
-    stat: entry.stat,
-    statLabel: entry.statLabel,
-    winChance: chances[i] ?? 0,
-  }));
+  return entries.map((entry, i) => {
+    const winChance = chances.percent[i] ?? 0;
+    const winChanceExact = chances.exact[i] ?? 0;
+    return {
+      rank: i + 1,
+      label: entry.label,
+      constructorId: entry.constructorId,
+      constructorName: entry.constructorName,
+      stat: entry.stat,
+      statLabel: entry.statLabel,
+      winChance,
+      winChanceExact,
+      winChanceLabel: formatF1Chance(winChanceExact, winChance),
+    };
+  });
 }
 
 function driversCommentary(contenders: F1AwardContender[], progress: number): string {
@@ -84,12 +100,12 @@ function driversCommentary(contenders: F1AwardContender[], progress: number): st
   }
   if (!b || a.stat === b.stat) {
     return capForecast(
-      `${a.label} (${a.constructorName}) leads the Drivers' Championship on ${a.stat} ${a.statLabel} — about a ${a.winChance}% title chance with the races still to run. With ${progress}% of races complete, late-season form still matters.`,
+      `${a.label} (${a.constructorName}) leads the Drivers' Championship on ${a.stat} ${a.statLabel} — about a ${a.winChanceLabel} title chance with the races still to run. With ${progress}% of races complete, late-season form still matters.`,
       F1_AWARD_COMMENTARY_MAX_CHARS
     );
   }
   return capForecast(
-    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChance}% title chance), with ${b.label} (${b.constructorName}) on ${b.stat} at ${b.winChance}%. Drivers who can no longer catch the leader even by winning out show 0%. ${progress}% of the season is in the books.`,
+    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChanceLabel} title chance), with ${b.label} (${b.constructorName}) on ${b.stat} at ${b.winChanceLabel}. Drivers who can no longer catch the leader even by winning out show under 1%. ${progress}% of the season is in the books.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -103,7 +119,7 @@ function constructorsCommentary(contenders: F1AwardContender[], progress: number
     );
   }
   return capForecast(
-    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChance}% title chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Teams mathematically eliminated from the lead show 0%. ${progress}% of the season complete.`,
+    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChanceLabel} title chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChanceLabel}). ` : ""}Teams mathematically eliminated from the lead show under 1%. ${progress}% of the season complete.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -117,7 +133,7 @@ function winsCommentary(contenders: F1AwardContender[], progress: number): strin
     );
   }
   return capForecast(
-    `${a.label} leads the wins chart with ${a.stat} ${a.statLabel} (~${a.winChance}% share). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}Percentages are a straight share of wins among the leaders shown — 0 wins means 0%. ${progress}% raced.`,
+    `${a.label} leads the wins chart with ${a.stat} ${a.statLabel} (~${a.winChanceLabel} share). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChanceLabel}). ` : ""}Percentages are a straight share of wins among the leaders shown — a driver yet to win shows under 1%. ${progress}% raced.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -131,7 +147,7 @@ function constructorWinsCommentary(contenders: F1AwardContender[], progress: num
     );
   }
   return capForecast(
-    `${a.label} has the most race wins this season (${a.stat}) with about a ${a.winChance}% share. ${b && b.stat > 0 ? `${b.label} sits on ${b.stat} (${b.winChance}%). ` : ""}Share of wins among the teams shown — blanks stay at 0%. ${progress}% of Grands Prix are done.`,
+    `${a.label} has the most race wins this season (${a.stat}) with about a ${a.winChanceLabel} share. ${b && b.stat > 0 ? `${b.label} sits on ${b.stat} (${b.winChanceLabel}). ` : ""}Share of wins among the teams shown — a team yet to win shows under 1%. ${progress}% of Grands Prix are done.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -271,7 +287,7 @@ function titleLeadCommentary(contenders: F1AwardContender[], progress: number): 
     );
   }
   return capForecast(
-    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} with about a ${a.winChance}% title chance from the remaining calendar. ${a.stat <= 25 ? "One weekend can wipe that out." : "Chasers who cannot catch up even by winning out sit on 0%."} ${progress}% raced.`,
+    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} with about a ${a.winChanceLabel} title chance from the remaining calendar. ${a.stat <= 25 ? "One weekend can wipe that out." : "Chasers who cannot catch up even by winning out sit under 1%."} ${progress}% raced.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -285,7 +301,7 @@ function pointsPerRaceCommentary(contenders: F1AwardContender[], progress: numbe
     );
   }
   return capForecast(
-    `${a.label} averages ${a.stat} ${a.statLabel} (~${a.winChance}% share of the rate chart). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChance}%). ` : ""}A win is 25 — sustained high twenties is title pace. ${progress}% of the calendar is in.`,
+    `${a.label} averages ${a.stat} ${a.statLabel} (~${a.winChanceLabel} share of the rate chart). ${b && b.stat > 0 ? `${b.label} is next on ${b.stat} (${b.winChanceLabel}). ` : ""}A driver yet to score shows under 1%. A win is 25 — sustained high twenties is title pace. ${progress}% of the calendar is in.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }

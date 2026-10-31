@@ -109,7 +109,9 @@ export function buildClubTeamInfo(
     name: display,
     shortName: display,
     crest: crest || seed?.crest,
-    iso2: code.slice(0, 2).toLowerCase(),
+    // Crest first. If it fails, the emblem falls back to the England flag SVG
+    // (`public/flags/gb-eng.svg`), not a club-code guess and not an emoji.
+    iso2: "gb-eng",
   };
 }
 

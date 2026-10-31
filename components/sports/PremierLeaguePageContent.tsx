@@ -24,7 +24,10 @@ import { buildPremierLeagueRecords } from "@/lib/premier-league-records";
 
 export async function PremierLeaguePageContent() {
   const data = await fetchPremierLeagueSeason();
-  const awards = await buildPremierLeagueAwards(data.standings, data.matches);
+  const { chanceAwards, tableAwards } = await buildPremierLeagueAwards(
+    data.standings,
+    data.matches
+  );
   const records = buildPremierLeagueRecords(data.matches, data.standings);
   const featuredMatch = selectFeaturedMatch(data.matches);
   const venueImage = await resolveMatchVenueImage(featuredMatch);
@@ -89,7 +92,7 @@ export async function PremierLeaguePageContent() {
           <HowPremierLeagueWorks phase={data.phase} />
         </SportHowItWorksSection>
       }
-      awards={<PremierLeagueAwardsSection awards={awards} />}
+      awards={<PremierLeagueAwardsSection chanceAwards={chanceAwards} awards={tableAwards} />}
       records={<PremierLeagueRecordsSection records={records} seasonLabel={data.seasonLabel} />}
     />
   );

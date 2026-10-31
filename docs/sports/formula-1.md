@@ -27,9 +27,9 @@ Family-friendly F1 companion mirroring World Cup IA: where we are in the season,
 | Supplement | OpenF1 sessions (`date_start`, `date_end`, `is_cancelled`) |
 | Seed | `data/f1-season-seed.json`, constructor colors, profile meta |
 | Env | `F1_SEASON` (defaults to calendar year) |
-| Key libs | `lib/f1-data.ts`, `f1-calendar-parse.ts`, `f1-circuits.ts`, `f1-circuit-photos.ts`, `f1-phase.ts`, `f1-guide.ts`, `f1-awards.ts`, `f1-records.ts`, `f1-types.ts` |
+| Key libs | `lib/f1-data.ts`, `f1-calendar-parse.ts`, `f1-circuits.ts`, `f1-circuit-photos.ts`, `f1-phase.ts`, `f1-guide.ts`, `f1-awards.ts`, `f1-award-chances.ts`, `f1-records.ts`, `f1-types.ts` |
 | Cache | Jolpica + OpenF1 via `cachedUpstreamFetch` (90s shared Data Cache). The page stays `force-dynamic` |
-| Awards progress | Bar = completed Grands Prix / calendar length (not title-gap tightness). The % beside each name is a snapshot of how current points/wins split among the leaders shown if the season ended today — not betting odds. Same pattern on WC / La Liga awards. Season Stats is six cards (3×2): Drivers, Race Wins, Championship Lead, Points Per Race, Constructors, Team Race Wins. Records are nine cards (3×3) so the xl grid has no empty cell. |
+| Awards progress | Bar = completed Grands Prix / calendar length (not title-gap tightness). Championship % figures (Drivers, Constructors, Championship Lead) are a remaining-season title proxy: max points still available from unfinished Grands Prix (25 per race win, +8 on sprint weekends; constructors use P1+P2 ceilings). A contender who cannot catch the leader even by maxing out keeps an epsilon floor (`F1_CHANCE_EPSILON` = 0.05 model units, added only on a zero weight) so the share is **under 1%**, shown as “&lt;1%”, not a hard 0%. The same floor applies to Race Wins, Team Race Wins, and Points Per Race when the counting stat is 0 and someone else has a positive total. Whole percents on a card still sum to 100 (largest remainder); a sub-1% floor does not take a whole point from the leader. A finished season is 100% for the champion. Not betting odds. Season Stats is six cards (3×2). Records are nine cards (3×3) so the xl grid has no empty cell. |
 
 ## Returning-user layout
 

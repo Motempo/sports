@@ -37,12 +37,13 @@ export function LaLigaAwardsSection({ awards }: LaLigaAwardsSectionProps) {
           <h2 className="text-[18px] font-extrabold sm:text-[20px]">Season Awards</h2>
           <p className="mt-1 max-w-3xl text-[13px] text-muted sm:text-[14px]">
             Live progress toward the title, Pichichi, Zamora, Europe places, and survival. The bar
-            is how much of the season is finished. The title percentage is a remaining-season proxy:
-            each club can still take 3 points from every match left, and a club that cannot catch the
-            leader even by winning those matches shows under 1%, not 0%. The Pichichi percentage is a
-            share of goals among the scorers shown, so a player yet to score shows under 1%. Zamora,
-            Europe, and survival still split today&apos;s table among the names shown. Title and
-            Pichichi whole percents add up to 100. Not betting odds.
+            is how much of the season is finished. The title percentage projects each club&apos;s final
+            points from its points per match, blended toward the league average, with a spread that
+            tightens as the matches run out. A club that cannot catch the leader even by winning every
+            match left shows under 1%, not 0%. The Pichichi percentage projects goals the same way, from
+            the scoring rate and the matches the club has left. Zamora, Europe, and survival still split
+            today&apos;s table among the names shown. Title and Pichichi whole percents add up to 100.
+            Not betting odds.
           </p>
         </div>
 

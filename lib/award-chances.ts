@@ -173,3 +173,105 @@ export function titleChances(
     : scores.map((score, i) => (points[i] === leaderPts ? Math.max(...scores) : score));
   return chanceBreakdown(weighted, true);
 }
+
+/**
+ * Peak softmax weight, in the same model units as {@link CHANCE_EPSILON}.
+ * The leader is scaled to this so a 0.05 floor on a blank row stays under 1%
+ * and does not take a whole point off the leader. Relative weights are unchanged.
+ */
+const PROJECTION_WEIGHT_PEAK = 50;
+
+export interface FormProjectionRow {
+  /** Points or goals already on the board. */
+  total: number;
+  /** Matches the rate is measured over. */
+  played: number;
+  /** Matches still to come. */
+  remaining: number;
+  /**
+   * Most the row can still add. A row that cannot go past the leader's current
+   * total even by taking the whole ceiling is eliminated.
+   */
+  ceiling: number;
+}
+
+export interface FormProjectionOptions {
+  /** League (or race) average per match. Mixed in until the row has a sample. */
+  averageRate: number;
+  /**
+   * Matches of average form blended in. The row's own rate has weight
+   * played / (played + priorMatches), so a long sample crowds the average out.
+   */
+  priorMatches: number;
+  /**
+   * Variance of one match of this stat. The softmax temperature is
+   * sqrt(matches left × matchVariance), so the spread shrinks as the
+   * fixtures run out and collapses to the leader when none remain.
+   */
+  matchVariance: number;
+}
+
+function finiteOrZero(value: number): number {
+  return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * Project a finish, then turn those projections into chances.
+ *
+ * projected = total + remaining × blended rate
+ * blended rate = w × (total / played) + (1 − w) × averageRate
+ * w = played / (played + priorMatches)
+ *
+ * Chances are a softmax of the projections. Temperature is
+ * sqrt(matches left × matchVariance): a big early lead still separates,
+ * and a one-match gap decides the card. A row that cannot catch the leader
+ * even by taking its whole ceiling gets the epsilon floor. When every
+ * remaining count is 0, the current leader (or tied leaders) take the card
+ * and everyone else is a true 0%.
+ *
+ * Formula 1 does not use this. Drivers and constructors stay on
+ * {@link titleChances} and {@link shareChances}.
+ */
+export function formProjectionChances(
+  rows: readonly FormProjectionRow[],
+  options: FormProjectionOptions
+): ChanceBreakdown {
+  if (rows.length === 0) return { percent: [], exact: [] };
+
+  const totals = rows.map((row) => finiteOrZero(row.total));
+  const leaderTotal = Math.max(...totals, 0);
+  const remaining = rows.map((row) => Math.max(0, finiteOrZero(row.remaining)));
+  if (!remaining.some((left) => left > 0)) return leaderTakesIt(totals, leaderTotal);
+
+  const eliminated = totals.map((total, i) => {
+    if (total === leaderTotal) return false;
+    const ceiling = Math.max(0, finiteOrZero(rows[i]?.ceiling ?? 0));
+    return total + ceiling <= leaderTotal;
+  });
+  if (eliminated.every(Boolean)) return leaderTakesIt(totals, leaderTotal);
+
+  const average = finiteOrZero(options.averageRate);
+  const prior = Math.max(0, finiteOrZero(options.priorMatches));
+  const projections = totals.map((total, i) => {
+    if (eliminated[i]) return 0;
+    const played = Math.max(0, finiteOrZero(rows[i]?.played ?? 0));
+    const own = played > 0 ? total / played : average;
+    const weight = prior === 0 ? 1 : played / (played + prior);
+    const rate = weight * own + (1 - weight) * average;
+    return total + remaining[i]! * rate;
+  });
+
+  const aliveRemaining = remaining.filter((_, i) => !eliminated[i]);
+  const matchesLeft = aliveRemaining.length > 0 ? Math.max(...aliveRemaining) : 0;
+  const variance = Math.max(0, finiteOrZero(options.matchVariance));
+  const temperature = Math.sqrt(matchesLeft * variance);
+  const maxProj = Math.max(...projections.filter((_, i) => !eliminated[i]));
+
+  const weights = projections.map((projected, i) => {
+    if (eliminated[i]) return 0;
+    if (temperature <= 1e-9) return projected === maxProj ? PROJECTION_WEIGHT_PEAK : 0;
+    const z = (projected - maxProj) / temperature;
+    return Math.exp(Math.max(-60, z)) * PROJECTION_WEIGHT_PEAK;
+  });
+  return chanceBreakdown(weights, true);
+}

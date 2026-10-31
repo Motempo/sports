@@ -1,5 +1,6 @@
 import { clubDisplayName } from "@/lib/club-display-name";
 import {
+  FOOTBALL_MATCHES_PER_TEAM,
   chanceFields,
   footballScorerChances,
   footballSeasonProgress,
@@ -21,6 +22,8 @@ export interface PremierLeagueAwardContender {
   crest?: string;
   stat: number;
   statLabel: string;
+  /** Appearances behind a scoring rate. Absent on the attack and defence lists. */
+  playedMatches?: number;
 }
 
 export interface PremierLeagueAward {
@@ -60,6 +63,7 @@ export interface PremierLeagueAwardsModel {
 interface FootballDataScorer {
   player: { name: string };
   team: { name: string; tla?: string | null; crest?: string | null };
+  playedMatches?: number | null;
   goals: number;
   assists?: number | null;
 }
@@ -89,6 +93,7 @@ async function fetchPremierLeagueScorers(limit = 8): Promise<PremierLeagueAwardC
         crest: team.crest,
         stat: row.goals ?? 0,
         statLabel: "goals",
+        playedMatches: row.playedMatches ?? 0,
       };
     });
   } catch {
@@ -155,12 +160,12 @@ function scorerCommentary(contenders: PremierLeagueChanceContender[], progress: 
   }
   if (!chase || leader.stat === chase.stat) {
     return capForecast(
-      `${leader.label} (${leader.teamName}) leads the scoring charts with ${leader.stat} ${leader.statLabel} (${leader.winChanceLabel} share). A player yet to score shows under 1%. ${progress}% of the campaign is done.`,
+      `${leader.label} (${leader.teamName}) leads the scoring charts with ${leader.stat} ${leader.statLabel} (${leader.winChanceLabel} projected). A player who cannot catch up even with a hat-trick in every match left shows under 1%. ${progress}% of the campaign is done.`,
       COMMENTARY_MAX
     );
   }
   return capForecast(
-    `${leader.label} leads on ${leader.stat} ${leader.statLabel} (${leader.winChanceLabel} share), chased by ${chase.label} on ${chase.stat} (${chase.winChanceLabel}). The share is of goals among the names shown — a player yet to score shows under 1%.`,
+    `${leader.label} leads on ${leader.stat} ${leader.statLabel} (${leader.winChanceLabel} projected), chased by ${chase.label} on ${chase.stat} (${chase.winChanceLabel}). Rates are blended toward the scoring average, and the spread tightens as the matches run out.`,
     COMMENTARY_MAX
   );
 }
@@ -180,7 +185,7 @@ export async function buildPremierLeagueAwards(
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Remaining-season title proxy. Each club can still take 3 points from every match it has left.",
+        "Projected final points from the current rate, blended toward the league average. The spread tightens as the matches run out.",
       progress: 0,
       contenders: [],
       commentary: capForecast(
@@ -192,7 +197,11 @@ export async function buildPremierLeagueAwards(
     const titleRows = standings.rows.slice(0, 5);
     const titleChances = footballTitleChances(
       titleRows.map((row) => row.points),
-      titleRows.map((row) => row.played)
+      titleRows.map((row) => row.played),
+      {
+        totals: standings.rows.map((row) => row.points),
+        played: standings.rows.map((row) => row.played),
+      }
     );
     const titleContenders: PremierLeagueChanceContender[] = titleRows.map((row, index) => ({
       rank: index + 1,
@@ -210,7 +219,7 @@ export async function buildPremierLeagueAwards(
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Remaining-season title proxy. Each club can still take 3 points from every match it has left.",
+        "Projected final points from the current rate, blended toward the league average. The spread tightens as the matches run out.",
       progress,
       contenders: titleContenders,
       commentary: titleCommentary(titleContenders, progress),
@@ -219,8 +228,31 @@ export async function buildPremierLeagueAwards(
 
   const scorers = await fetchPremierLeagueScorers();
   if (scorers && scorers.length > 0) {
-    const shown = scorers.slice(0, 5);
-    const scorerChances = footballScorerChances(shown.map((row) => row.stat));
+    const playedByCode = new Map(standings.rows.map((row) => [row.team.code, row.played]));
+    const scorerRows = scorers.map((row) => {
+      const teamPlayed = playedByCode.get(row.teamCode) ?? 0;
+      const played =
+        (row.playedMatches ?? 0) > 0
+          ? row.playedMatches!
+          : Math.max(teamPlayed, row.stat > 0 ? 1 : 0);
+      return {
+        ...row,
+        played,
+        remaining: Math.max(0, FOOTBALL_MATCHES_PER_TEAM - teamPlayed),
+      };
+    });
+    const shown = scorerRows.slice(0, 5);
+    const scorerChances = footballScorerChances(
+      shown.map((row) => ({
+        goals: row.stat,
+        played: row.played,
+        remaining: row.remaining,
+      })),
+      {
+        totals: scorerRows.map((row) => row.stat),
+        played: scorerRows.map((row) => row.played),
+      }
+    );
     const scorerContenders: PremierLeagueChanceContender[] = shown.map((row, index) => ({
       ...row,
       rank: index + 1,
@@ -232,7 +264,7 @@ export async function buildPremierLeagueAwards(
       sponsor: "Top scorer race",
       emoji: "⚽",
       description:
-        "Share of Premier League goals among the scorers shown. A player yet to score shows under 1%.",
+        "Projected goals from the scoring rate and the matches the club has left. A player who cannot catch up even with a hat-trick every match left shows under 1%.",
       progress,
       contenders: scorerContenders,
       commentary: scorerCommentary(scorerContenders, progress),

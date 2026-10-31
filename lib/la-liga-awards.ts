@@ -1,5 +1,6 @@
 import { clubDisplayName } from "@/lib/club-display-name";
 import {
+  FOOTBALL_MATCHES_PER_TEAM,
   chanceFields,
   footballScorerChances,
   footballSeasonProgress,
@@ -42,6 +43,7 @@ export interface LaLigaAward {
 interface FootballDataScorer {
   player: { name: string };
   team: { name: string; tla?: string | null; crest?: string | null };
+  playedMatches?: number | null;
   goals: number;
   assists?: number | null;
 }
@@ -59,7 +61,14 @@ function seasonProgress(data: LaLigaSeasonData): number {
 }
 
 async function fetchLaLigaScorers(limit = 8): Promise<
-  Array<{ playerName: string; teamCode: string; teamName: string; crest?: string; goals: number }>
+  Array<{
+    playerName: string;
+    teamCode: string;
+    teamName: string;
+    crest?: string;
+    goals: number;
+    playedMatches: number;
+  }>
 > {
   const apiKey = process.env.FOOTBALL_DATA_API_KEY?.trim();
   if (!apiKey) return [];
@@ -84,6 +93,7 @@ async function fetchLaLigaScorers(limit = 8): Promise<
         teamName: clubDisplayName(team),
         crest: team.crest,
         goals: row.goals ?? 0,
+        playedMatches: row.playedMatches ?? 0,
       };
     });
   } catch {
@@ -233,23 +243,33 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
     titleEntries,
     footballTitleChances(
       titleRows.map((r) => r.points),
-      titleRows.map((r) => r.played)
+      titleRows.map((r) => r.played),
+      {
+        totals: rows.map((r) => r.points),
+        played: rows.map((r) => r.played),
+      }
     )
   );
 
-  const pichichiEntries =
+  const playedByCode = new Map(rows.map((r) => [r.team.code, r.played]));
+  const pichichiSource =
     scorers.length > 0
-      ? scorers.slice(0, 5).map((s) => ({
-          label: s.playerName,
-          teamCode: s.teamCode,
-          teamName: s.teamName,
-          crest: s.crest,
-          stat: s.goals,
-          statLabel: "goals",
-        }))
+      ? scorers.map((s) => {
+          const teamPlayed = playedByCode.get(s.teamCode) ?? 0;
+          const played = s.playedMatches > 0 ? s.playedMatches : Math.max(teamPlayed, s.goals > 0 ? 1 : 0);
+          return {
+            label: s.playerName,
+            teamCode: s.teamCode,
+            teamName: s.teamName,
+            crest: s.crest,
+            stat: s.goals,
+            statLabel: "goals",
+            played,
+            remaining: Math.max(0, FOOTBALL_MATCHES_PER_TEAM - teamPlayed),
+          };
+        })
       : [...rows]
           .sort((a, b) => b.goalsFor - a.goalsFor || b.points - a.points)
-          .slice(0, 5)
           .map((r) => ({
             label: clubDisplayName(r.team),
             teamCode: r.team.code,
@@ -257,10 +277,23 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
             crest: r.team.crest,
             stat: r.goalsFor,
             statLabel: "club goals",
+            played: r.played,
+            remaining: Math.max(0, FOOTBALL_MATCHES_PER_TEAM - r.played),
           }));
+  const pichichiShown = pichichiSource.slice(0, 5);
   const pichichiContenders = buildModelContenders(
-    pichichiEntries,
-    footballScorerChances(pichichiEntries.map((entry) => entry.stat))
+    pichichiShown,
+    footballScorerChances(
+      pichichiShown.map((entry) => ({
+        goals: entry.stat,
+        played: entry.played,
+        remaining: entry.remaining,
+      })),
+      {
+        totals: pichichiSource.map((entry) => entry.stat),
+        played: pichichiSource.map((entry) => entry.played),
+      }
+    )
   );
 
   const zamoraSorted = [...rows]
@@ -317,7 +350,7 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       sponsor: "Championship race",
       emoji: "🏆",
       description:
-        "Remaining-season title proxy. Each club can still take 3 points from every match it has left.",
+        "Projected final points from the current rate, blended toward the league average. The spread tightens as the matches run out.",
       // Progress bar is season completion, not title-gap tightness (MOT-47).
       progress: progressPct,
       contenders: titleContenders,
@@ -339,16 +372,16 @@ export async function buildLaLigaAwards(data: LaLigaSeasonData): Promise<LaLigaA
       emoji: "⚽",
       description:
         scorers.length > 0
-          ? "Marca's Pichichi goes to La Liga's top scorer. The percentage is a share of goals among the scorers shown."
-          : "Marca's Pichichi goes to La Liga's top scorer. Showing club goals until individual scorers are available. The percentage is a share of those goals.",
+          ? "Marca's Pichichi goes to La Liga's top scorer. The percentage projects goals from the scoring rate and the matches the club has left."
+          : "Marca's Pichichi goes to La Liga's top scorer. Showing club goals until individual scorers are available. The percentage projects those goals from the club's scoring rate.",
       progress: progressPct,
       contenders: pichichiContenders,
       commentary: capForecast(
         !p1
           ? "The Pichichi race starts with the first goal of the season."
           : !p2 || p1.stat === p2.stat
-            ? `${p1.label} (${p1.teamName}) leads the scoring charts with ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} share). A player yet to score shows under 1%. ${progressPct}% of the campaign is done.`
-            : `${p1.label} leads on ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} share), chased by ${p2.label} on ${p2.stat} (${p2.winChanceLabel}). The share is of goals among the names shown — a player yet to score shows under 1%.`,
+            ? `${p1.label} (${p1.teamName}) leads the scoring charts with ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} projected). A player who cannot catch up even with a hat-trick in every match left shows under 1%. ${progressPct}% of the campaign is done.`
+            : `${p1.label} leads on ${p1.stat} ${p1.statLabel} (${p1.winChanceLabel} projected), chased by ${p2.label} on ${p2.stat} (${p2.winChanceLabel}). Rates are blended toward the scoring average, and the spread tightens as the matches run out.`,
         LALIGA_AWARD_COMMENTARY_MAX_CHARS
       ),
     },

@@ -94,7 +94,7 @@ Club leagues share `lib/club-display-name.ts`. `buildClubTeamInfo` and `buildLaL
 | Premier League | `premier-league-*.ts` |
 | La Liga | `la-liga-*.ts` |
 | Club tables | `league-standings.ts` (Premier League: points, goal difference, goals scored); `la-liga-standings.ts` (La Liga head-to-head mini-table); `league-matchdays.ts` (ESPN/open round numbers; postponements do not renumber later weeks) |
-| Title / scorer chances | `award-chances.ts` (shared remaining-season model and `<1%` floor). `f1-award-chances.ts` adds race and sprint ceilings. `football-award-chances.ts` uses 3 points per match still to play. La Liga title + Pichichi, and Premier League title + Golden Boot, read that helper. |
+| Title / scorer chances | `award-chances.ts`. Formula 1 stays on `titleChances` / `shareChances` (race and sprint ceilings in `f1-award-chances.ts`). La Liga title + Pichichi and Premier League title + Golden Boot use `formProjectionChances`: project the finish from the current rate blended toward the average, then a softmax whose temperature is `sqrt(matches left × variance)`. The `<1%` floor still covers a row that cannot catch the leader. |
 | Schedule / timezone | `match-schedule.ts`, `match-timezone.ts`, `match-status.ts`, `hooks/use-viewer-time-zone.ts` |
 | Forecast copy | `match-forecast.ts`, `featured-match-copy.ts`, `next-event-copy.ts` |
 | News / facts | `news.ts`, `news-media.ts`, `google-news.ts`, `facts.ts`, `sport-sources.ts` |

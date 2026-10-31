@@ -32,14 +32,14 @@ Every La Liga surface (next-match card, match list, table, form book, race label
 - League table refreshes on open via `router.refresh()`, then every 3 minutes. Upstream payloads share the 90s sports cache with Premier League
 - Finished fixtures in Matches open a next-match-style detail modal
 - `LaLigaSeasonRail`, reuses PL `LeagueTable` + `RaceTracker`
-- Season Awards use the same remaining-season model as Formula 1 (`lib/award-chances.ts`, football ceilings in `lib/football-award-chances.ts`). The title card weights points still available: each match left is worth 3. A club that cannot catch the leader even by winning those matches shows under 1% (`<1%`), not 0%. The Pichichi card is a share of goals among the scorers shown, same as F1 race wins, so a player yet to score also shows under 1%. Whole percents on those two cards sum to 100. Zamora, Europe, and survival still split today's table among the names shown. Not betting odds.
+- Season Awards project a finish in `lib/award-chances.ts` (`formProjectionChances`; football rates in `lib/football-award-chances.ts`). Formula 1 does not use that path. Title: projected points = points now + matches left × a blend of the club's points per match and the league average. The club's own rate gets weight `played / (played + 8)`. Chances are a softmax of those projections whose temperature is `sqrt(matches left × 4)` (2 × sqrt(matches left)), so a lead shows early and the spread shrinks as the fixtures run out. A club that cannot catch the leader even by winning every match left (3 points each) shows under 1% (`<1%`), not 0%. At 0 matches left the leader is 100%. Pichichi uses the same projection on goals per match and the club's matches left, with temperature `sqrt(matches left × 2.25)`. A player who cannot catch up even with a hat-trick in every match left shows under 1%. Whole percents on those two cards sum to 100. Zamora, Europe, and survival still split today's table among the names shown. Not betting odds.
 - `HowLaLigaWorks`, news/facts, ads, OG image
 
 ## Known parity gaps vs Premier League
 
 | Gap | Notes |
 |-----|-------|
-| Awards | Title and Pichichi use the remaining-season / goals-share model. Zamora, Europe, and survival are still a snapshot of today's table |
+| Awards | Title and Pichichi project a finish from current form, shrunk toward the average, with a spread that shrinks as matches run out. Zamora, Europe, and survival are still a snapshot of today's table |
 | No records module/section | Missing |
 | Zones | Still hardcoded 1–4 Champions League, 5 Europa League, 6 Conference League, 18–20 relegation in `la-liga-standings.ts` and `league-standings.ts`. Not adjusted for the UEFA coefficient or Copa del Rey |
 | Types | Imports race insight from `premier-league-types` |

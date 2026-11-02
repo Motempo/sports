@@ -89,7 +89,7 @@ Every sport page should provide:
 ### 6.3 Feedback
 
 - FR-F1: `POST /api/feedback` creates a Linear issue with explicit `appId` (`sports`).
-- FR-F2: Optional Grok “Improve text” when `GROK_API_KEY` / `XAI_API_KEY` present. `POST /api/feedback/improve` is rate-limited like submit (10/IP/hour) before any xAI call.
+- FR-F2: Optional Grok “Improve text” when a server key is present. The route reads `XAI_API_KEY_SPORTS_FEEDBACK` first, then `GROK_API_KEY`, then `XAI_API_KEY`. `POST /api/feedback/improve` is limited to 5 requests per IP per hour and 20 per IP per day, and rejects feedback text over 8 KB, before any xAI call. The call tries `grok-3-mini` first and falls back only to `grok-4.3`.
 - FR-F3: Rate limit submissions (10/IP/hour in-memory), keyed by the platform client IP (`x-vercel-forwarded-for` rightmost hop, else `x-real-ip`), not the first `X-Forwarded-For` hop. Failed submits return a generic message. Screenshot MIME is an image allowlist.
 - FR-F4: Support `feedbackCategory`: `general` | `sport-request`.
 - FR-F5: The app does not expose routes to list, close, or reopen Linear issues. `POST /api/feedback` stays public and rate-limited.

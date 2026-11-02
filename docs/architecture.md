@@ -56,7 +56,7 @@ flowchart TB
 | `/api/facts` | GET | Paginated fun facts (+ Wiki enrich) | Public |
 | `/api/venue-image` | GET | Stadium photo for a match venue. La Liga and Premier League grounds are same-origin when the aerial file is present; other stadiums use Wikipedia | Public |
 | `/api/feedback` | POST | Create Linear issue | Public + 10/IP/hour |
-| `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 10/IP/hour and is checked before any xAI call | GET public; POST rate limited (503 if no key) |
+| `/api/feedback/improve` | GET/POST | Grok availability / rewrite. POST is 5/IP/hour and 20/IP/day, with an 8 KB text cap, both checked before any xAI call | GET public; POST rate limited (503 if no key) |
 
 News/facts: `force-dynamic`, `Cache-Control: no-store`. List responses include `items` (and news includes `total`; facts include `total`, `nextOffset`, and `wrapped`). The widgets append each **More** page and render the empty state when the response is not OK, the network fails, or the body is `{ error }`.
 
@@ -154,7 +154,8 @@ See `.env.example`. Summary:
 | `FOOTBALL_DATA_API_KEY` | WC / PL / PD + scorers |
 | `F1_SEASON` | Override F1 year |
 | `APIXAPI_KEY` | Optional ApiTwitter key for live X news (`APITWITTER_API_KEY` alias) |
-| `GROK_API_KEY` / `XAI_API_KEY` | Feedback improve; optional venue AI |
+| `XAI_API_KEY_SPORTS_FEEDBACK` | Optional. Feedback Improve reads this before `GROK_API_KEY`. Venue AI does not use it |
+| `GROK_API_KEY` / `XAI_API_KEY` | Feedback Improve fallback; optional venue AI |
 | `NEXT_PUBLIC_MOTEMPO_APP_ID` | Feedback app id (`sports`) |
 | `LINEAR_API_KEY`, `LINEAR_TEAM_*` | Feedback → Linear team MOT (`@motempo/feedback`) |
 | `COMMIT_SHA` | Deploy fingerprint in issues |
@@ -219,7 +220,7 @@ Bug reports keep the separate shadcn dialog in `components/ui/dialog.tsx`.
 
 1. Never ship secrets to client components.  
 2. Public `POST /api/feedback` stays unauthenticated and rate-limited. The app does not expose routes to list, close, or reopen Linear issues.  
-3. Rate limit is **per-instance memory** — not durable across serverless isolates. `POST /api/feedback` and `POST /api/feedback/improve` each allow 10 requests per client per hour. The bucket key is the platform client IP: the rightmost hop of `x-vercel-forwarded-for`, then `x-real-ip` (the address `@vercel/functions` `ipAddress()` reads). A client-supplied `x-forwarded-for` is not a key, so a spoofed first hop cannot open a new bucket.  
+3. Rate limit is **per-instance memory** — not durable across serverless isolates. `POST /api/feedback` allows 10 requests per client per hour. `POST /api/feedback/improve` allows 5 per hour and 20 per day, and rejects feedback text larger than 8 KB (8192 UTF-8 bytes) before calling xAI. Improve tries `grok-3-mini` first and falls back only to `grok-4.3`. The bucket key is the platform client IP: the rightmost hop of `x-vercel-forwarded-for`, then `x-real-ip` (the address `@vercel/functions` `ipAddress()` reads). A client-supplied `x-forwarded-for` is not a key, so a spoofed first hop cannot open a new bucket.  
 4. `POST /api/feedback` 500 responses are a generic message. Linear GraphQL text is logged on the server and is not copied into the response.  
 5. Screenshot uploads accept only an allowlist of image MIME types (`lib/screenshot-mime.ts`). The client-supplied `Content-Type` is not forwarded otherwise.  
 6. Ads category blocks are dashboard config, not code.  

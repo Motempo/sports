@@ -1,5 +1,11 @@
-const GROK_MODELS = ["grok-4.3", "grok-4.20-0309-non-reasoning", "grok-3-mini"] as const;
+/** Cheapest model first; grok-4.3 is the only fallback. */
+export const GROK_MODELS = ["grok-3-mini", "grok-4.3"] as const;
 
+/**
+ * Key for venue resolution and other non-feedback Grok calls.
+ * Feedback Improve uses `getFeedbackGrokApiKey` so a dedicated feedback key
+ * is not spent on stadium lookups.
+ */
 export function getGrokApiKey(): string | undefined {
   const candidates = [
     process.env.GROK_API_KEY,
@@ -13,10 +19,12 @@ export function getGrokApiKey(): string | undefined {
 export async function grokChatJson<T>(
   systemPrompt: string,
   userContent: string,
-  options?: { temperature?: number; maxTokens?: number }
+  options?: { temperature?: number; maxTokens?: number; fetchImpl?: typeof fetch }
 ): Promise<T | undefined> {
   const apiKey = getGrokApiKey();
   if (!apiKey) return undefined;
+
+  const fetchImpl = options?.fetchImpl ?? fetch;
 
   for (const model of GROK_MODELS) {
     const payload: Record<string, unknown> = {
@@ -32,7 +40,7 @@ export async function grokChatJson<T>(
       payload.reasoning_effort = "none";
     }
 
-    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+    const res = await fetchImpl("https://api.x.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

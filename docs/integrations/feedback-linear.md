@@ -27,13 +27,17 @@ User reports live in Linear team **MOT** through `@motempo/feedback`. This app s
 | Route | Role |
 |-------|------|
 | `POST /api/feedback` | Create issue (+ optional screenshot). 10/IP/hour. 500s are generic |
-| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve. POST is the same 10/IP/hour limit, checked before xAI |
+| `GET/POST /api/feedback/improve` | Grok rewrite availability / improve. POST allows 5/IP/hour and 20/IP/day, caps text at 8 KB, and checks both before xAI |
 
 `POST /api/feedback` stays unauthenticated and rate-limited. The app does not expose routes to list, close, or reopen Linear issues.
 
-Libs: `lib/linear-issues.ts`, `lib/feedback-context.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
+Libs: `lib/linear-issues.ts`, `lib/feedback-context.ts`, `lib/feedback-improve.ts`, `lib/rate-limit.ts`, `lib/screenshot-mime.ts`.
 
-`POST /api/feedback` and `POST /api/feedback/improve` are each limited to **10 requests per client IP per hour** (in-memory, per instance). The key is the Vercel client IP: rightmost hop of `x-vercel-forwarded-for`, otherwise `x-real-ip`. The first `x-forwarded-for` hop is ignored so a caller cannot rotate buckets by spoofing that header.
+`POST /api/feedback` is limited to **10 requests per client IP per hour** (in-memory, per instance). `POST /api/feedback/improve` is limited to **5 per hour and 20 per day**. Improve also rejects feedback text over **8 KB** (8192 UTF-8 bytes) before any model call. The key is the Vercel client IP: rightmost hop of `x-vercel-forwarded-for`, otherwise `x-real-ip`. The first `x-forwarded-for` hop is ignored so a caller cannot rotate buckets by spoofing that header.
+
+Improve reads `XAI_API_KEY_SPORTS_FEEDBACK`, then `GROK_API_KEY`, then `XAI_API_KEY`. It calls `grok-3-mini` first and uses `grok-4.3` (`reasoning_effort: none`) only when that call fails. Venue resolution in `lib/grok.ts` uses the same two-model order and does not read the feedback-only key.
+
+`@motempo/feedback` 0.2.0 describes this Improve policy. This app does not depend on that package: it is published to GitHub Packages as a private package, and CI installs from the public npm registry with no package token. The route in `app/api/feedback/improve/route.ts` and `lib/feedback-improve.ts` implement the same limits locally.
 
 Screenshot `contentType` must be an allowlisted image type (PNG, JPEG, WebP, GIF, AVIF, HEIC, HEIF, BMP, TIFF). Other client-supplied MIME types are rejected with 400 and are not sent to Linear.
 

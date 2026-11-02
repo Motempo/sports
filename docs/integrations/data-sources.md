@@ -86,6 +86,6 @@ Modules: `lib/f1-data.ts` (+ related `f1-*.ts`). Jolpica and OpenF1 use the same
 |--------|-----|
 | flag-icons (vendored) | National flags in `public/flags/`. No flag CDN |
 | REST Countries | Optional country metadata (founding plan) |
-| xAI Grok | Feedback improve; optional venue resolve |
+| xAI Grok | Feedback improve (`grok-3-mini`, then `grok-4.3` only); optional venue resolve with the same model order |
 
 Adding sources: follow `data/sources/README.md`.

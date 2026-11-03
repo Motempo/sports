@@ -116,13 +116,13 @@ describe("footballTitleChances", () => {
     assert.equal(formatChance(exact[1]!, percent[1]!), "0%");
   });
 
-  test("a sealed title keeps the floor while the chaser still has a match", () => {
+  test("a sealed title shows Won and true 0% even while a chaser still has a match (MOT-90)", () => {
     // Leader has finished on 90. Chaser has one match left and maxes at 83.
     const { percent, exact } = footballTitleChances([90, 80], [38, 37]);
-    assert.equal(sum(percent), 100);
-    assert.equal(percent[0], 100);
-    assert.ok(exact[1]! > 0 && exact[1]! < 1);
-    assert.equal(formatChance(exact[1]!, percent[1]!), "<1%");
+    assert.deepEqual(percent, [100, 0]);
+    assert.equal(exact[1], 0);
+    assert.equal(formatChance(exact[0]!, percent[0]!), "Won");
+    assert.equal(formatChance(exact[1]!, percent[1]!), "0%");
   });
 
   test("a leader with no matches left stays in the race when a postponement can pass them", () => {

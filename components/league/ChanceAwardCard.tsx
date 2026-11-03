@@ -1,4 +1,5 @@
 import { TeamEmblem } from "@/components/ui/TeamEmblem";
+import { formatChancePhrase } from "@/lib/award-chances";
 import { cn } from "@/lib/utils";
 import type { TeamInfo } from "@/lib/types";
 
@@ -53,7 +54,9 @@ function ContenderRow({
         <p className="text-[12px] font-bold tabular-nums">
           {contender.stat} {contender.statLabel}
         </p>
-        <p className="text-[10px] tabular-nums text-muted">{contender.winChanceLabel} chance</p>
+        <p className="text-[10px] tabular-nums text-muted">
+          {formatChancePhrase(contender.winChanceLabel)}
+        </p>
       </div>
     </div>
   );
@@ -85,7 +88,7 @@ export function ChanceAwardCard({
         </div>
         {leader ? (
           <div className="shrink-0 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold tabular-nums text-foreground">
-            {leader.winChanceLabel} chance
+            {formatChancePhrase(leader.winChanceLabel)}
           </div>
         ) : null}
       </div>

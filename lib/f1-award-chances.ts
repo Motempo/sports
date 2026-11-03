@@ -3,6 +3,7 @@ import type { F1GrandPrix } from "@/lib/f1-types";
 export {
   CHANCE_EPSILON as F1_CHANCE_EPSILON,
   formatChance as formatF1Chance,
+  formatChancePhrase as formatF1ChancePhrase,
   normalizeChances,
   shareChances,
   titleChances,

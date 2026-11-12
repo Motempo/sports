@@ -32,6 +32,10 @@ describe("formatF1Chance", () => {
     assert.equal(formatF1Chance(0, 0), "0%");
     assert.equal(formatF1Chance(97.6, 98), "98%");
   });
+
+  test("a sole 100% leader is Won, not 100%", () => {
+    assert.equal(formatF1Chance(100, 100), "Won");
+  });
 });
 
 describe("shareChances", () => {
@@ -84,23 +88,34 @@ describe("titleChances", () => {
     assert.equal(percent[4], 0);
   });
 
-  test("sprint ceiling keeps a distant chaser alive when race-only would only leave the floor", () => {
+  test("sprint ceiling keeps a distant chaser alive when race-only would clinch the title", () => {
     const raceOnly = 5 * F1_DRIVER_RACE_POINTS; // 125
     const withSprints = raceOnly + 2 * F1_DRIVER_SPRINT_POINTS; // 141
-    const eliminated = titleChances([365, 236], raceOnly);
+    const clinched = titleChances([365, 236], raceOnly);
     const alive = titleChances([365, 236], withSprints);
-    assert.ok(eliminated.exact[1]! > 0 && eliminated.exact[1]! < 1);
-    assert.equal(formatF1Chance(eliminated.exact[1]!, eliminated.percent[1]!), "<1%");
+    // No chaser can catch → Won / 0% (MOT-90), not 100% / <1%.
+    assert.deepEqual(clinched.percent, [100, 0]);
+    assert.equal(formatF1Chance(clinched.exact[0]!, clinched.percent[0]!), "Won");
+    assert.equal(formatF1Chance(clinched.exact[1]!, clinched.percent[1]!), "0%");
     assert.ok(alive.percent[1]! > 0);
     assert.ok(alive.exact[1]! >= 1);
   });
 
-  test("season complete awards 100% to the points leader and a true 0% to the rest", () => {
+  test("clinched title with races left shows Won and true 0% for the field (MOT-90)", () => {
+    // Antonelli 380, field ≤261, four races × 25 left — nobody can catch.
+    const { percent, exact } = titleChances([380, 261, 259, 250], 4 * F1_DRIVER_RACE_POINTS);
+    assert.deepEqual(percent, [100, 0, 0, 0]);
+    assert.equal(exact[1], 0);
+    assert.equal(formatF1Chance(exact[0]!, percent[0]!), "Won");
+    assert.equal(formatF1Chance(exact[1]!, percent[1]!), "0%");
+  });
+
+  test("season complete awards Won to the points leader and a true 0% to the rest", () => {
     const { percent, exact } = titleChances([365, 242, 241], 0);
     assert.deepEqual(percent, [100, 0, 0]);
     assert.equal(exact[1], 0);
     assert.equal(formatF1Chance(exact[1]!, percent[1]!), "0%");
-    assert.equal(formatF1Chance(exact[0]!, percent[0]!), "100%");
+    assert.equal(formatF1Chance(exact[0]!, percent[0]!), "Won");
   });
 
   test("late-season runaway no longer looks like a 37/16/16/16 soft split", () => {
@@ -156,18 +171,21 @@ describe("wins share on the season-stats rows", () => {
 });
 
 describe("season stats copy", () => {
-  test("page and commentary no longer say eliminated drivers show 0%", () => {
+  test("page mentions clinched Won labels and the under-1% floor while a chase lives", () => {
     const awards = readFileSync(new URL("./f1-awards.ts", import.meta.url), "utf8");
     const section = readFileSync(
       new URL("../components/f1/F1AwardsSection.tsx", import.meta.url),
       "utf8"
     );
     const docs = readFileSync(new URL("../docs/sports/formula-1.md", import.meta.url), "utf8");
-    for (const source of [awards, section, docs]) {
-      assert.doesNotMatch(source, /show 0%|shows 0%|means 0%|stay at 0%|sit on 0%|blanks stay at 0%/);
+    for (const source of [awards, section]) {
       assert.match(source, /under 1%/);
     }
-    assert.match(section, /winChanceLabel/);
+    // Docs escape the angle brackets: “&lt;1%”.
+    assert.match(docs, /under 1%|&lt;1%/);
+    assert.match(section, /Won/);
+    assert.match(docs, /Won/);
+    assert.match(section, /winChanceLabel|formatChancePhrase/);
     assert.match(awards, /winChanceLabel/);
   });
 });

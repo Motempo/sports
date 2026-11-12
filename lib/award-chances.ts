@@ -38,12 +38,20 @@ export interface ChanceBreakdown {
 /**
  * Label for a card percentage. A positive share that largest-remainder left at
  * 0 whole points is "<1%", so a non-zero chance never renders as "0%".
- * A true zero (finished championship) stays "0%". The whole percents still add to 100.
+ * A true zero (finished or clinched championship) stays "0%". A sole 100%
+ * leader is "Won" — not "100%" — so the UI can drop the trailing "chance".
+ * The whole percents still add to 100.
  */
 export function formatChance(exact: number, percent: number): string {
   if (percent <= 0 && Number.isFinite(exact) && exact > 0) return "<1%";
   const shown = Number.isFinite(percent) ? Math.max(0, Math.round(percent)) : 0;
+  if (shown >= 100) return "Won";
   return `${shown}%`;
+}
+
+/** Append " chance" unless the contest is already decided ("Won"). */
+export function formatChancePhrase(label: string): string {
+  return label === "Won" ? "Won" : `${label} chance`;
 }
 
 function exactPercents(weights: number[]): number[] {
@@ -167,6 +175,12 @@ export function titleChances(
   });
   if (!scores.some((score) => score > 0)) return leaderTakesIt(points, leaderPts);
 
+  // Title clinched while rounds remain: no one outside the current lead group
+  // can catch up even by maxing out. Leader(s) take the card; chasers are a
+  // true 0% (MOT-90 — show "Won", not "100% chance" / "<1%").
+  const chaseCanCatch = scores.some((score, i) => score > 0 && points[i] !== leaderPts);
+  if (!chaseCanCatch) return leaderTakesIt(points, leaderPts);
+
   const leaderHasRoom = points.some((p, i) => p === leaderPts && (scores[i] ?? 0) > 0);
   const weighted = leaderHasRoom
     ? scores
@@ -249,6 +263,10 @@ export function formProjectionChances(
     return total + ceiling <= leaderTotal;
   });
   if (eliminated.every(Boolean)) return leaderTakesIt(totals, leaderTotal);
+  // Clinched: every non-leader is eliminated while fixtures remain (MOT-90).
+  if (eliminated.every((out, i) => out || totals[i] === leaderTotal)) {
+    return leaderTakesIt(totals, leaderTotal);
+  }
 
   const average = finiteOrZero(options.averageRate);
   const prior = Math.max(0, finiteOrZero(options.priorMatches));

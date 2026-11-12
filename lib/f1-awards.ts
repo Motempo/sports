@@ -98,6 +98,12 @@ function driversCommentary(contenders: F1AwardContender[], progress: number): st
       F1_AWARD_COMMENTARY_MAX_CHARS
     );
   }
+  if (a.winChanceLabel === "Won") {
+    return capForecast(
+      `${a.label} (${a.constructorName}) has won the Drivers' Championship on ${a.stat} ${a.statLabel} — no one left can catch them even by winning out. Everyone else is on 0%. ${progress}% of races are complete.`,
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
   if (!b || a.stat === b.stat) {
     return capForecast(
       `${a.label} (${a.constructorName}) leads the Drivers' Championship on ${a.stat} ${a.statLabel} — about a ${a.winChanceLabel} title chance with the races still to run. With ${progress}% of races complete, late-season form still matters.`,
@@ -105,7 +111,7 @@ function driversCommentary(contenders: F1AwardContender[], progress: number): st
     );
   }
   return capForecast(
-    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChanceLabel} title chance), with ${b.label} (${b.constructorName}) on ${b.stat} at ${b.winChanceLabel}. Drivers who can no longer catch the leader even by winning out show under 1%. ${progress}% of the season is in the books.`,
+    `${a.label} leads on ${a.stat} ${a.statLabel} (${a.winChanceLabel} title chance), with ${b.label} (${b.constructorName}) on ${b.stat} at ${b.winChanceLabel}. Drivers who can no longer catch the leader even by winning out show under 1% until the title is clinched. ${progress}% of the season is in the books.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -118,8 +124,14 @@ function constructorsCommentary(contenders: F1AwardContender[], progress: number
       F1_AWARD_COMMENTARY_MAX_CHARS
     );
   }
+  if (a.winChanceLabel === "Won") {
+    return capForecast(
+      `${a.label} have won the Constructors' Championship on ${a.stat} ${a.statLabel} — no rival can catch them even by maxing out the races left. Everyone else is on 0%. ${progress}% of the season complete.`,
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
   return capForecast(
-    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChanceLabel} title chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChanceLabel}). ` : ""}Teams mathematically eliminated from the lead show under 1%. ${progress}% of the season complete.`,
+    `${a.label} tops the constructors' table with ${a.stat} ${a.statLabel} (~${a.winChanceLabel} title chance). ${b ? `${b.label} is next on ${b.stat} (${b.winChanceLabel}). ` : ""}Teams mathematically eliminated from the lead show under 1% until the title is clinched. ${progress}% of the season complete.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
@@ -280,6 +292,12 @@ function titleLeadCommentary(contenders: F1AwardContender[], progress: number): 
       F1_AWARD_COMMENTARY_MAX_CHARS
     );
   }
+  if (a.winChanceLabel === "Won") {
+    return capForecast(
+      `${a.label} has clinched the title with a ${a.stat} ${a.statLabel} cushion — the chase is over even if every remaining point goes the other way. Chasers sit on 0%. ${progress}% raced.`,
+      F1_AWARD_COMMENTARY_MAX_CHARS
+    );
+  }
   if (!b || a.stat === 0) {
     return capForecast(
       `${a.label} sits alone at the top so far — the lead chart fills once a real chase forms. ${progress}% of the season is done.`,
@@ -287,7 +305,7 @@ function titleLeadCommentary(contenders: F1AwardContender[], progress: number): 
     );
   }
   return capForecast(
-    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} with about a ${a.winChanceLabel} title chance from the remaining calendar. ${a.stat <= 25 ? "One weekend can wipe that out." : "Chasers who cannot catch up even by winning out sit under 1%."} ${progress}% raced.`,
+    `${a.label} leads ${b.label} by ${a.stat} ${a.statLabel} with about a ${a.winChanceLabel} title chance from the remaining calendar. ${a.stat <= 25 ? "One weekend can wipe that out." : "Chasers who cannot catch up even by winning out sit under 1% until the title is clinched."} ${progress}% raced.`,
     F1_AWARD_COMMENTARY_MAX_CHARS
   );
 }
